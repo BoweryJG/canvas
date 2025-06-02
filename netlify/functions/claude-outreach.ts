@@ -51,6 +51,8 @@ export const handler: Handler = async (event, context) => {
     console.log(`🔑 Using API key: ${OPENROUTER_API_KEY ? 'Present' : 'Missing'}`);
     console.log(`🔑 API key length: ${OPENROUTER_API_KEY?.length || 0}`);
     console.log(`🔑 API key prefix: ${OPENROUTER_API_KEY?.substring(0, 10) || 'none'}`);
+    console.log(`🔑 Full API key for debug: ${OPENROUTER_API_KEY}`);
+    console.log(`🔑 Authorization header: Bearer ${OPENROUTER_API_KEY}`);
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
