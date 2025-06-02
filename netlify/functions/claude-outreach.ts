@@ -57,11 +57,6 @@ export const handler: Handler = async (event, context) => {
     const { messages, temperature = 0.3, max_tokens = 1500 } = requestData;
 
     console.log(`🧠 Claude AI API call with ${messages?.length || 0} messages`);
-    console.log(`🔑 Using API key: ${OPENROUTER_API_KEY ? 'Present' : 'Missing'}`);
-    console.log(`🔑 API key length: ${OPENROUTER_API_KEY?.length || 0}`);
-    console.log(`🔑 API key prefix: ${OPENROUTER_API_KEY?.substring(0, 10) || 'none'}`);
-    console.log(`🔑 Full API key for debug: ${OPENROUTER_API_KEY}`);
-    console.log(`🔑 Authorization header: Bearer ${OPENROUTER_API_KEY}`);
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -101,7 +96,6 @@ Generate analysis that demonstrates deep understanding of the specific practice 
       console.error('Claude API error:', response.status, response.statusText);
       const errorText = await response.text();
       console.error('Claude error details:', errorText);
-      console.error('Request was:', JSON.stringify({ model: 'anthropic/claude-3.5-sonnet', messages: messages?.slice(0,1) }));
       
       return {
         statusCode: response.status,
