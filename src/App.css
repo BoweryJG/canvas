@@ -41,8 +41,8 @@ body {
 
 @media (min-width: 900px) {
   .canvas-app {
-    min-height: calc(100vh - 100px); /* Account for full navbar on desktop */
-    padding: 3rem;
+    min-height: calc(100vh - 70px); /* Account for full navbar on desktop */
+    padding: 3rem 2rem;
     max-width: 1400px;
     margin: 0 auto;
   }
@@ -50,7 +50,14 @@ body {
 
 @media (min-width: 1200px) {
   .canvas-app {
-    padding: 4rem;
+    padding: 4rem 2rem;
+    max-width: 1600px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .canvas-app {
+    padding: 4rem 3rem;
   }
 }
 

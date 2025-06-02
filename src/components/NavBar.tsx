@@ -595,11 +595,11 @@ export default function NavBar() {
         boxShadow: '0 6px 24px 0 rgba(123,66,246,0.15)',
         border: '1px solid rgba(123,66,246,0.13)',
         borderBottom: '1px solid rgba(123,66,246,0.10)',
-        borderRadius: { xs: '0 0 16px 16px', md: '0 0 24px 24px' },
-        mx: 'auto',
-        mt: { xs: 0.5, md: 1 },
-        width: { xs: 'calc(100% - 10px)', sm: 'calc(100% - 20px)', md: 'calc(100% - 40px)' },
-        maxWidth: '1800px',
+        borderRadius: { xs: '0 0 16px 16px', md: '0' },
+        mx: { xs: 'auto', md: 0 },
+        mt: { xs: 0.5, md: 0 },
+        width: { xs: 'calc(100% - 10px)', sm: 'calc(100% - 20px)', md: '100%' },
+        maxWidth: { xs: '1800px', md: 'none' },
         overflow: 'hidden',
         zIndex: 1200,
         transition: 'all 0.3s ease',
@@ -608,12 +608,15 @@ export default function NavBar() {
         },
       }}>
         <Toolbar sx={{ 
-          px: { xs: 1, sm: 2 },
-          height: { xs: '60px', sm: '64px' },
-          minHeight: { xs: '60px', sm: '64px' },
+          px: { xs: 1, sm: 2, md: 3, lg: 4 },
+          height: { xs: '60px', sm: '64px', md: '70px' },
+          minHeight: { xs: '60px', sm: '64px', md: '70px' },
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          maxWidth: { md: '1400px', lg: '1600px' },
+          margin: { md: '0 auto' },
+          width: '100%',
         }}>
           {/* Logo Section */}
           <Box 
