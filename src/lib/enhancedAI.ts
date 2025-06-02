@@ -1,20 +1,32 @@
-import OpenAI from 'openai';
 import { type ResearchData } from './webResearch';
 import { getClaude4Prompt, CLAUDE_OUTPUT_FORMATS } from './claude-prompts';
 
-// Claude 4 via OpenRouter - Superior for sales intelligence analysis
-const claude = new OpenAI({
-  baseURL: "https://openrouter.ai/api/v1",
-  apiKey: "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",
-  dangerouslyAllowBrowser: true
-});
+/**
+ * Call our Netlify function for AI analysis
+ */
+async function callClaudeAPI(messages: Array<{role: string, content: string}>, temperature = 0.3, max_tokens = 2000) {
+  try {
+    const response = await fetch('/.netlify/functions/claude-outreach', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        prompt: JSON.stringify({ messages, temperature, max_tokens })
+      })
+    });
 
-// Fallback to GPT-4 if needed (keeping for compatibility)
-// const openai = new OpenAI({
-//   baseURL: "https://openrouter.ai/api/v1", 
-//   apiKey: "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",
-//   dangerouslyAllowBrowser: true
-// });
+    if (!response.ok) {
+      throw new Error(`AI API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content;
+  } catch (error) {
+    console.error('AI API call failed:', error);
+    throw error;
+  }
+}
 
 export interface EnhancedScanResult {
   doctor: string;
@@ -83,16 +95,14 @@ async function generateResearchBackedDoctorProfile(doctorName: string, researchD
     // Use real research data
     const researchContext = buildResearchContext(researchData);
     
-    const response = await claude.chat.completions.create({
-      model: "anthropic/claude-4",
-      messages: [
-        {
-          role: "system",
-          content: getClaude4Prompt('research')
-        },
-        {
-          role: "user",
-          content: `Create a comprehensive profile for Dr. ${doctorName} based on this verified research data:
+    const response = await callClaudeAPI([
+      {
+        role: "system",
+        content: getClaude4Prompt('research')
+      },
+      {
+        role: "user",
+        content: `Create a comprehensive profile for Dr. ${doctorName} based on this verified research data:
 
 ${researchContext}
 
@@ -107,26 +117,21 @@ ANALYSIS REQUIREMENTS:
 Use the structured analysis format provided in your system instructions.
 
 ${CLAUDE_OUTPUT_FORMATS.STRUCTURED_ANALYSIS}`
-        }
-      ],
-      temperature: 0.2,
-      max_tokens: 800
-    });
+      }
+    ], 0.2, 800);
 
-    return response.choices[0].message.content || "";
+    return response || "";
     
   } else {
     // Fallback to inference-based analysis with clear disclaimers  
-    const response = await claude.chat.completions.create({
-      model: "anthropic/claude-4",
-      messages: [
-        {
-          role: "system",
-          content: "You are a medical sales analyst creating profiles based on limited public information. Always clearly indicate when information is inferred vs. confirmed."
-        },
-        {
-          role: "user",
-          content: `⚠️ LIMITED RESEARCH AVAILABLE FOR DR. ${doctorName}
+    const response = await callClaudeAPI([
+      {
+        role: "system",
+        content: "You are a medical sales analyst creating profiles based on limited public information. Always clearly indicate when information is inferred vs. confirmed."
+      },
+      {
+        role: "user",
+        content: `⚠️ LIMITED RESEARCH AVAILABLE FOR DR. ${doctorName}
 
 Create a profile based on name analysis and general medical practice patterns. 
 
@@ -137,13 +142,10 @@ IMPORTANT: Clearly mark all information as "INFERRED" since no specific research
 - Recommended information gathering steps
 
 Make it clear this is preliminary analysis requiring further research.`
-        }
-      ],
-      temperature: 0.3,
-      max_tokens: 500
-    });
+      }
+    ], 0.3, 500);
 
-    return `⚠️ PRELIMINARY ANALYSIS - LIMITED RESEARCH DATA\n\n${response.choices[0].message.content || ""}`;
+    return `⚠️ PRELIMINARY ANALYSIS - LIMITED RESEARCH DATA\n\n${response || ""}`;
   }
 }
 
@@ -154,16 +156,14 @@ async function generateContextualProductIntel(productName: string, researchData:
   
   const practiceContext = extractPracticeContext(researchData);
   
-  const response = await claude.chat.completions.create({
-    model: "anthropic/claude-3.5-sonnet",
-    messages: [
-      {
-        role: "system",
-        content: getClaude4Prompt('strategy')
-      },
-      {
-        role: "user",
-        content: `Analyze ${productName} for sales positioning in this specific practice context:
+  const response = await callClaudeAPI([
+    {
+      role: "system",
+      content: getClaude4Prompt('strategy')
+    },
+    {
+      role: "user",
+      content: `Analyze ${productName} for sales positioning in this specific practice context:
 
 PRACTICE CONTEXT:
 ${practiceContext}
@@ -177,13 +177,10 @@ ANALYSIS FOCUS:
 - Value propositions most relevant to their patient demographics
 
 Provide strategic insights that leverage the specific practice intelligence gathered.`
-      }
-    ],
-    temperature: 0.2,
-    max_tokens: 600
-  });
+    }
+  ], 0.2, 600);
 
-  return response.choices[0].message.content || "";
+  return response || "";
 }
 
 /**
@@ -199,16 +196,14 @@ async function generateFactBasedSalesStrategy(
   
   const specificIntelligence = extractSpecificIntelligence(researchData);
   
-  const response = await claude.chat.completions.create({
-    model: "anthropic/claude-3.5-sonnet",
-    messages: [
-      {
-        role: "system", 
-        content: getClaude4Prompt('tactical')
-      },
-      {
-        role: "user",
-        content: `Create a tactical sales strategy for selling ${productName} to Dr. ${doctorName} based on this intelligence:
+  const response = await callClaudeAPI([
+    {
+      role: "system", 
+      content: getClaude4Prompt('tactical')
+    },
+    {
+      role: "user",
+      content: `Create a tactical sales strategy for selling ${productName} to Dr. ${doctorName} based on this intelligence:
 
 DOCTOR PROFILE:
 ${doctorProfile}
@@ -234,14 +229,11 @@ Format as JSON:
 }
 
 Base recommendations on FACTS from research, not general assumptions.`
-      }
-    ],
-    temperature: 0.1,
-    max_tokens: 1000
-  });
+    }
+  ], 0.1, 1000);
 
   try {
-    const content = response.choices[0].message.content || '{}';
+    const content = response || '{}';
     const cleanedContent = content.replace(/```json\s*/g, '').replace(/```\s*/g, '');
     const strategyData = JSON.parse(cleanedContent);
     
