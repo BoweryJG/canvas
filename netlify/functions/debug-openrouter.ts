@@ -27,7 +27,17 @@ export const handler: Handler = async (event, context) => {
     console.log('API Key length:', apiKey.length);
     console.log('API Key prefix:', apiKey.substring(0, 15));
 
-    // Test the exact same request that should work
+    // First test models endpoint (this works)
+    const modelsResponse = await fetch('https://openrouter.ai/api/v1/models', {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': 'https://canvas-intel-module.netlify.app',
+      }
+    });
+
+    console.log('Models API Status:', modelsResponse.status);
+
+    // Now test chat completions
     const testResponse = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -37,7 +47,7 @@ export const handler: Handler = async (event, context) => {
         'X-Title': 'Canvas Intelligence Platform'
       },
       body: JSON.stringify({
-        model: 'anthropic/claude-3.5-sonnet',
+        model: 'anthropic/claude-opus-4',
         messages: [{ role: 'user', content: 'Hello' }],
         max_tokens: 50
       })
@@ -70,6 +80,7 @@ export const handler: Handler = async (event, context) => {
       body: JSON.stringify({
         success: true,
         result: result,
+        modelsApiStatus: modelsResponse.status,
         keyInfo: {
           present: !!apiKey,
           length: apiKey.length,
