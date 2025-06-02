@@ -42,6 +42,31 @@ CREATE TABLE scan_actions (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Create research cache table for web research results
+CREATE TABLE canvas_research_cache (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  doctor_name TEXT NOT NULL,
+  research_data JSONB NOT NULL,
+  confidence_score INTEGER NOT NULL,
+  source_count INTEGER DEFAULT 0,
+  last_updated TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  expiry_date TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create research sources tracking table
+CREATE TABLE canvas_research_sources (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  research_cache_id UUID REFERENCES canvas_research_cache(id),
+  url TEXT NOT NULL,
+  title TEXT,
+  source_type TEXT NOT NULL, -- 'practice_website', 'medical_directory', 'review_site', etc.
+  content_summary TEXT,
+  confidence_score INTEGER NOT NULL,
+  scrape_success BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Create indexes for performance
 CREATE INDEX idx_scans_user_id ON scans(user_id);
 CREATE INDEX idx_scans_created_at ON scans(created_at);
@@ -49,10 +74,19 @@ CREATE INDEX idx_scans_score ON scans(score);
 CREATE INDEX idx_scan_actions_scan_id ON scan_actions(scan_id);
 CREATE INDEX idx_scan_actions_type ON scan_actions(action_type);
 
+-- Research cache indexes
+CREATE INDEX idx_research_cache_doctor_name ON canvas_research_cache(doctor_name);
+CREATE INDEX idx_research_cache_expiry ON canvas_research_cache(expiry_date);
+CREATE INDEX idx_research_cache_confidence ON canvas_research_cache(confidence_score);
+CREATE INDEX idx_research_sources_cache_id ON canvas_research_sources(research_cache_id);
+CREATE INDEX idx_research_sources_type ON canvas_research_sources(source_type);
+
 -- Enable Row Level Security
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE scans ENABLE ROW LEVEL SECURITY;
 ALTER TABLE scan_actions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE canvas_research_cache ENABLE ROW LEVEL SECURITY;
+ALTER TABLE canvas_research_sources ENABLE ROW LEVEL SECURITY;
 
 -- Create policies (basic - users can only see their own data)
 CREATE POLICY "Users can view own profile" ON users
@@ -72,6 +106,13 @@ CREATE POLICY "Users can view own scan actions" ON scan_actions
       AND scans.user_id = auth.uid()
     )
   );
+
+-- Research cache policies (allow anonymous access for Canvas)
+CREATE POLICY "Allow anonymous research cache access" ON canvas_research_cache
+  FOR ALL USING (true);
+
+CREATE POLICY "Allow anonymous research sources access" ON canvas_research_sources
+  FOR ALL USING (true);
 */
 
 // Scan operations

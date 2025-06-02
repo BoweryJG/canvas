@@ -5,6 +5,10 @@ import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon }
 import ActionSuite from './components/ActionSuite'
 // @ts-ignore
 import { saveScan, getScanHistory } from './lib/supabase'
+import NavBar from './components/NavBar'
+import ResearchPanel from './components/ResearchPanel'
+import { conductDoctorResearch, type ResearchData } from './lib/webResearch'
+import { performEnhancedAIScan } from './lib/enhancedAI'
 
 interface ScanResult {
   doctor: string;
@@ -14,6 +18,9 @@ interface ScanResult {
   productIntel: string;
   salesBrief: string;
   insights: string[];
+  researchQuality?: 'verified' | 'partial' | 'inferred' | 'unknown';
+  researchSources?: number;
+  factBased?: boolean;
 }
 import './App.css'
 
@@ -25,35 +32,68 @@ function App() {
   const [scanStage, setScanStage] = useState('')
   const [scanHistory, setScanHistory] = useState<any[]>([])
   const [showHistory, setShowHistory] = useState(false)
+  const [researchData, setResearchData] = useState<ResearchData | null>(null)
+  const [isResearching, setIsResearching] = useState(false)
 
   const handleScan = async () => {
     if (!doctor || !product) return
     
     setIsScanning(true)
+    setIsResearching(true)
     setScanResult(null)
-    setScanStage('Analyzing Doctor Profile...')
-    
-    setTimeout(() => setScanStage('Analyzing Product Match...'), 1000)
-    setTimeout(() => setScanStage('Generating Sales Strategy...'), 2000)
+    setResearchData(null)
+    setScanStage('Initializing Intelligence Scan...')
     
     try {
       const scanStartTime = Date.now()
-      const result = await performAIScan(doctor, product)
+      
+      // Stage 1: Quick AI scan for immediate results
+      setScanStage('Generating Initial Analysis...')
+      const quickResult = await performAIScan(doctor, product)
+      setScanResult(quickResult)
+      
+      // Stage 2: Enhanced web research (parallel)
+      setScanStage('Conducting Web Research...')
+      const research = await conductDoctorResearch(doctor)
+      setResearchData(research)
+      setIsResearching(false)
+      
+      // Stage 3: Enhanced AI analysis with research data
+      setScanStage('Generating Research-Based Intelligence...')
+      const enhancedResult = await performEnhancedAIScan(doctor, product, research)
+      
       const scanDuration = Math.round((Date.now() - scanStartTime) / 1000)
       
-      // Add scan duration to result
-      const resultWithDuration = { ...result, scanDuration }
-      setScanResult(resultWithDuration)
+      // Merge enhanced results with original structure
+      const finalResult = {
+        ...enhancedResult,
+        scanDuration,
+        researchQuality: enhancedResult.researchQuality,
+        researchSources: enhancedResult.researchSources,
+        factBased: enhancedResult.factBased
+      }
       
-      // Save to Supabase with null user_id (anonymous scans)
-      const saveResult = await saveScan(resultWithDuration, null)
+      setScanResult(finalResult)
+      
+      // Save to Supabase with enhanced data
+      const saveResult = await saveScan(finalResult, null)
       if (saveResult.success) {
-        console.log('Scan saved to database:', saveResult.data.id)
+        console.log('Enhanced scan saved to database:', saveResult.data.id)
         setScanResult(prev => prev ? { ...prev, scanId: saveResult.data.id } : prev)
       }
       
     } catch (error) {
-      console.error('Scan failed:', error)
+      console.error('Enhanced scan failed:', error)
+      setIsResearching(false)
+      
+      // Fallback to basic scan
+      try {
+        setScanStage('Fallback to Basic Analysis...')
+        const fallbackResult = await performAIScan(doctor, product)
+        setScanResult(fallbackResult)
+      } catch (fallbackError) {
+        console.error('Fallback scan also failed:', fallbackError)
+      }
     } finally {
       setIsScanning(false)
       setScanStage('')
@@ -73,7 +113,9 @@ function App() {
   }, [])
 
   return (
-    <div className="canvas-app">
+    <>
+      <NavBar />
+      <div className="canvas-app">
       {/* Header */}
       <header className="header">
         <div className="header-icon">
@@ -190,6 +232,13 @@ function App() {
         </div>
       )}
 
+      {/* Research Panel */}
+      <ResearchPanel 
+        researchData={researchData}
+        isResearching={isResearching}
+        researchQuality={scanResult?.researchQuality || 'unknown'}
+      />
+
       {/* Insights */}
       {scanResult && !isScanning && (
         <div className="insights-section">
@@ -214,7 +263,8 @@ function App() {
           <ActionSuite scanResult={scanResult} />
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }
 
