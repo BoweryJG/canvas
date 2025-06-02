@@ -36,22 +36,34 @@ export const handler: Handler = async (event, context) => {
       };
     }
 
-    console.log(`🧠 Claude 4 Outreach Generation`);
+    // Parse the prompt parameter which contains the actual request data
+    let requestData;
+    try {
+      requestData = JSON.parse(prompt);
+    } catch (parseError) {
+      // If prompt is not JSON, use it as a simple string
+      requestData = { messages: [{ role: 'user', content: prompt }], temperature: 0.3, max_tokens: 1500 };
+    }
+
+    const { messages, temperature = 0.3, max_tokens = 1500 } = requestData;
+
+    console.log(`🧠 Claude AI API call with ${messages?.length || 0} messages`);
+    console.log(`🔑 Using API key: ${OPENROUTER_API_KEY ? 'Present' : 'Missing'}`);
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://canvas-intel.com',
+        'HTTP-Referer': 'https://canvas-intel-module.netlify.app',
         'X-Title': 'Canvas Intelligence Platform'
       },
       body: JSON.stringify({
-        model: 'anthropic/claude-4',
-        messages: [
+        model: 'anthropic/claude-3.5-sonnet',
+        messages: messages || [
           {
             role: 'system',
-            content: `You are Claude 4, the world's most advanced AI specializing in medical sales outreach generation. Your capabilities include:
+            content: `You are Claude, an advanced AI specializing in medical sales intelligence. Your capabilities include:
 
 - Revolutionary personalization using verified practice intelligence
 - Advanced psychological profiling for optimal messaging
@@ -59,29 +71,30 @@ export const handler: Handler = async (event, context) => {
 - Expert-level medical industry knowledge and terminology
 - Breakthrough pattern recognition for competitive advantages
 
-Generate outreach that demonstrates deep understanding of the specific practice while maintaining professional medical sales standards. Always return valid JSON format.`
+Generate analysis that demonstrates deep understanding of the specific practice while maintaining professional medical sales standards.`
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        max_tokens: 1500,
-        temperature: 0.3,
+        max_tokens,
+        temperature,
         top_p: 0.9
       })
     });
 
     if (!response.ok) {
-      console.error('Claude 4 API error:', response.status, response.statusText);
+      console.error('Claude API error:', response.status, response.statusText);
       const errorText = await response.text();
-      console.error('Claude 4 error details:', errorText);
+      console.error('Claude error details:', errorText);
+      console.error('Request was:', JSON.stringify({ model: 'anthropic/claude-3.5-sonnet', messages: messages?.slice(0,1) }));
       
       return {
         statusCode: response.status,
         headers,
         body: JSON.stringify({ 
-          error: `Claude 4 API error: ${response.status}`,
+          error: `Claude API error: ${response.status}`,
           details: errorText
         })
       };
@@ -89,7 +102,7 @@ Generate outreach that demonstrates deep understanding of the specific practice 
 
     const data = await response.json();
     
-    console.log(`✅ Claude 4 outreach generation completed successfully`);
+    console.log(`✅ Claude API call completed successfully`);
 
     return {
       statusCode: 200,
@@ -98,7 +111,7 @@ Generate outreach that demonstrates deep understanding of the specific practice 
     };
 
   } catch (error) {
-    console.error('Claude 4 outreach function error:', error);
+    console.error('Claude API function error:', error);
     return {
       statusCode: 500,
       headers,
