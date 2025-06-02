@@ -1,7 +1,7 @@
 import { Handler } from '@netlify/functions';
 
 // Claude 4 API configuration
-const OPENROUTER_API_KEY = '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';
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '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';
 
 export const handler: Handler = async (event, context) => {
   // Enable CORS
