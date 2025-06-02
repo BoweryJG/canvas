@@ -551,8 +551,8 @@ const BatchAnalysisPanel: React.FC<BatchAnalysisPanelProps> = ({ onClose }) => {
                           <div className="detail">
                             <strong>Key Insights:</strong>
                             <ul>
-                              {result.scanResult.recommendations?.slice(0, 2).map((rec, i) => (
-                                <li key={i}>{rec}</li>
+                              {result.scanResult.insights?.slice(0, 2).map((insight: string, i: number) => (
+                                <li key={i}>{insight}</li>
                               ))}
                             </ul>
                           </div>

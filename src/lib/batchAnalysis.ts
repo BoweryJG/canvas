@@ -2,7 +2,7 @@
 import { type EnhancedScanResult } from './enhancedAI';
 import { type ResearchData } from './webResearch';
 import { performAIScan } from './ai';
-import { performWebResearch } from './webResearch';
+import { conductDoctorResearch } from './webResearch';
 
 export interface BatchDoctorInput {
   id: string;
@@ -214,10 +214,9 @@ export class BatchAnalysisEngine {
         console.log(`🌐 Researching: ${doctor.doctor}`);
         
         try {
-          const researchData = await performWebResearch(
+          const researchData = await conductDoctorResearch(
             doctor.doctor,
-            doctor.practice || `${doctor.doctor} Medical Practice`,
-            doctor.specialty || ''
+            doctor.practice || `${doctor.doctor} Medical Practice`
           );
           result.researchData = researchData;
         } catch (researchError) {
