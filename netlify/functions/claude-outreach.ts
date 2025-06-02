@@ -1,7 +1,7 @@
 import { Handler } from '@netlify/functions';
 
-// Claude 4 API configuration
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || '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';
+// Claude AI API configuration
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 export const handler: Handler = async (event, context) => {
   // Enable CORS
@@ -26,6 +26,15 @@ export const handler: Handler = async (event, context) => {
   }
 
   try {
+    if (!OPENROUTER_API_KEY) {
+      console.error('OPENROUTER_API_KEY environment variable is not set!');
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: 'API key not configured' })
+      };
+    }
+
     const { prompt } = JSON.parse(event.body || '{}');
 
     if (!prompt) {
