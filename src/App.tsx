@@ -122,7 +122,7 @@ function App() {
           <TargetSightIcon className="w-12 h-12 text-electric-blue" />
         </div>
         <h1><span className="glow">CANVAS</span></h1>
-        <p>INTERSTELLAR SALES INTELLIGENCE MODULE</p>
+        <p>AI-POWERED SALES INTELLIGENCE & RESEARCH PLATFORM</p>
         
         {/* Scan History Toggle */}
         <button 
