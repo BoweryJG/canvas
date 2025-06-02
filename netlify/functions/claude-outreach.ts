@@ -49,6 +49,8 @@ export const handler: Handler = async (event, context) => {
 
     console.log(`🧠 Claude AI API call with ${messages?.length || 0} messages`);
     console.log(`🔑 Using API key: ${OPENROUTER_API_KEY ? 'Present' : 'Missing'}`);
+    console.log(`🔑 API key length: ${OPENROUTER_API_KEY?.length || 0}`);
+    console.log(`🔑 API key prefix: ${OPENROUTER_API_KEY?.substring(0, 10) || 'none'}`);
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
