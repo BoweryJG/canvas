@@ -1,11 +1,20 @@
 import OpenAI from 'openai';
 import { type ResearchData } from './webResearch';
+import { getClaude4Prompt, CLAUDE_OUTPUT_FORMATS } from './claude-prompts';
 
-const openai = new OpenAI({
+// Claude 4 via OpenRouter - Superior for sales intelligence analysis
+const claude = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey: "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",
   dangerouslyAllowBrowser: true
 });
+
+// Fallback to GPT-4 if needed (keeping for compatibility)
+// const openai = new OpenAI({
+//   baseURL: "https://openrouter.ai/api/v1", 
+//   apiKey: "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",
+//   dangerouslyAllowBrowser: true
+// });
 
 export interface EnhancedScanResult {
   doctor: string;
@@ -74,12 +83,12 @@ async function generateResearchBackedDoctorProfile(doctorName: string, researchD
     // Use real research data
     const researchContext = buildResearchContext(researchData);
     
-    const response = await openai.chat.completions.create({
-      model: "openai/gpt-4-turbo",
+    const response = await claude.chat.completions.create({
+      model: "anthropic/claude-4",
       messages: [
         {
           role: "system",
-          content: "You are an elite medical sales intelligence analyst. Create detailed doctor profiles based on verified research data. Always distinguish between confirmed facts and reasonable inferences."
+          content: getClaude4Prompt('research')
         },
         {
           role: "user",
@@ -95,7 +104,9 @@ ANALYSIS REQUIREMENTS:
 - Note technology adoption patterns if evident
 - Highlight growth indicators and market positioning
 
-Format as a professional intelligence brief suitable for medical device sales planning.`
+Use the structured analysis format provided in your system instructions.
+
+${CLAUDE_OUTPUT_FORMATS.STRUCTURED_ANALYSIS}`
         }
       ],
       temperature: 0.2,
@@ -105,9 +116,9 @@ Format as a professional intelligence brief suitable for medical device sales pl
     return response.choices[0].message.content || "";
     
   } else {
-    // Fallback to inference-based analysis with clear disclaimers
-    const response = await openai.chat.completions.create({
-      model: "openai/gpt-4-turbo",
+    // Fallback to inference-based analysis with clear disclaimers  
+    const response = await claude.chat.completions.create({
+      model: "anthropic/claude-4",
       messages: [
         {
           role: "system",
@@ -143,12 +154,12 @@ async function generateContextualProductIntel(productName: string, researchData:
   
   const practiceContext = extractPracticeContext(researchData);
   
-  const response = await openai.chat.completions.create({
-    model: "openai/gpt-4-turbo",
+  const response = await claude.chat.completions.create({
+    model: "anthropic/claude-3.5-sonnet",
     messages: [
       {
         role: "system",
-        content: "You are a medical device/pharmaceutical strategist. Analyze products for optimal positioning based on specific practice contexts."
+        content: getClaude4Prompt('strategy')
       },
       {
         role: "user",
@@ -188,12 +199,12 @@ async function generateFactBasedSalesStrategy(
   
   const specificIntelligence = extractSpecificIntelligence(researchData);
   
-  const response = await openai.chat.completions.create({
-    model: "openai/gpt-4-turbo",
+  const response = await claude.chat.completions.create({
+    model: "anthropic/claude-3.5-sonnet",
     messages: [
       {
-        role: "system",
-        content: "You are an elite medical sales strategist creating tactical plans based on verified practice intelligence. Provide specific, actionable recommendations."
+        role: "system", 
+        content: getClaude4Prompt('tactical')
       },
       {
         role: "user",

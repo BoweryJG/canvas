@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
+// Use Claude 4 for superior analysis even in fallback mode
+const claude = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey: "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",
   dangerouslyAllowBrowser: true
@@ -19,8 +20,8 @@ export interface ScanResult {
 export async function performAIScan(doctorName: string, productName: string): Promise<ScanResult> {
   try {
     // Stage 1: Doctor Intelligence Scan
-    const doctorAnalysis = await openai.chat.completions.create({
-      model: "openai/gpt-4-turbo",
+    const doctorAnalysis = await claude.chat.completions.create({
+      model: "anthropic/claude-4",
       messages: [
         {
           role: "system",
@@ -44,8 +45,8 @@ export async function performAIScan(doctorName: string, productName: string): Pr
     });
 
     // Stage 2: Product Intelligence Scan
-    const productAnalysis = await openai.chat.completions.create({
-      model: "openai/gpt-4-turbo", 
+    const productAnalysis = await claude.chat.completions.create({
+      model: "anthropic/claude-4", 
       messages: [
         {
           role: "system",
@@ -69,8 +70,8 @@ export async function performAIScan(doctorName: string, productName: string): Pr
     });
 
     // Stage 3: Sales Alignment & Strategy
-    const salesStrategy = await openai.chat.completions.create({
-      model: "openai/gpt-4-turbo",
+    const salesStrategy = await claude.chat.completions.create({
+      model: "anthropic/claude-4",
       messages: [
         {
           role: "system", 
