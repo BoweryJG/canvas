@@ -21,6 +21,7 @@ import {
   generateClosingReport
 } from '../lib/salesRepReports';
 import CRMIntegrationPanel from './CRMIntegrationPanel';
+import BatchAnalysisPanel from './BatchAnalysisPanel';
 
 interface EnhancedActionSuiteProps {
   scanResult: EnhancedScanResult;
@@ -39,7 +40,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
   scanResult, 
   researchData 
 }) => {
-  const [activeTab, setActiveTab] = useState<'outreach' | 'reports' | 'analytics' | 'crm'>('outreach');
+  const [activeTab, setActiveTab] = useState<'outreach' | 'reports' | 'analytics' | 'crm' | 'batch'>('outreach');
   const [emailState, setEmailState] = useState<OutreachState>({ loading: false, sent: false });
   const [smsState, setSmsState] = useState<OutreachState>({ loading: false, sent: false });
   const [campaignState, setCampaignState] = useState<OutreachState>({ loading: false, sent: false });
@@ -49,6 +50,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
   const [crmConfigs, setCrmConfigs] = useState<CRMConfig[]>([]);
   const [crmSyncState, setCrmSyncState] = useState<{ loading: boolean; error?: string; success?: boolean }>({ loading: false });
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showBatchAnalysis, setShowBatchAnalysis] = useState(false);
   
   // Sales rep information
   const [salesRepInfo, setSalesRepInfo] = useState({
@@ -495,6 +497,12 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         >
           🔗 CRM Integration
         </button>
+        <button 
+          className={`tab ${activeTab === 'batch' ? 'active' : ''}`}
+          onClick={() => setActiveTab('batch')}
+        >
+          👥 Batch Analysis
+        </button>
       </div>
 
       {/* Contact Information */}
@@ -903,6 +911,97 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             <CRMIntegrationPanel onConfigChange={handleCRMConfigChange} />
           </motion.div>
         )}
+
+        {activeTab === 'batch' && (
+          <motion.div
+            key="batch"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="tab-content batch-content"
+          >
+            <div className="batch-analysis-section">
+              <div className="section-header">
+                <h4>👥 Multi-Doctor Batch Analysis</h4>
+                <p>Analyze multiple doctors simultaneously for efficient prospecting and lead qualification</p>
+              </div>
+
+              <div className="batch-features">
+                <div className="feature-grid">
+                  <div className="feature-card">
+                    <div className="feature-icon">📊</div>
+                    <h5>Bulk Processing</h5>
+                    <p>Analyze dozens of doctors at once with automated queuing and progress tracking</p>
+                  </div>
+                  <div className="feature-card">
+                    <div className="feature-icon">📈</div>
+                    <h5>Smart Prioritization</h5>
+                    <p>Automatically prioritize high-value prospects based on specialty and fit scores</p>
+                  </div>
+                  <div className="feature-card">
+                    <div className="feature-icon">📄</div>
+                    <h5>CSV Import/Export</h5>
+                    <p>Import doctor lists from CSV files and export results for further analysis</p>
+                  </div>
+                  <div className="feature-card">
+                    <div className="feature-icon">🎯</div>
+                    <h5>Lead Scoring</h5>
+                    <p>Get comprehensive scores and recommendations for each doctor analyzed</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="batch-actions">
+                <button 
+                  className="launch-batch-btn"
+                  onClick={() => setShowBatchAnalysis(true)}
+                >
+                  🚀 Launch Batch Analysis
+                </button>
+                <div className="batch-info">
+                  <span>✨ Process up to 100 doctors per batch</span>
+                  <span>⚡ Average 30 seconds per doctor</span>
+                  <span>🎯 Intelligent prioritization included</span>
+                </div>
+              </div>
+
+              {/* Sample workflow */}
+              <div className="workflow-preview">
+                <h5>📋 Typical Workflow</h5>
+                <div className="workflow-steps">
+                  <div className="workflow-step">
+                    <div className="step-number">1</div>
+                    <div className="step-content">
+                      <strong>Import Data</strong>
+                      <span>Upload CSV with doctor names, practices, and contact info</span>
+                    </div>
+                  </div>
+                  <div className="workflow-step">
+                    <div className="step-number">2</div>
+                    <div className="step-content">
+                      <strong>Configure Analysis</strong>
+                      <span>Set options for research depth and prioritization</span>
+                    </div>
+                  </div>
+                  <div className="workflow-step">
+                    <div className="step-number">3</div>
+                    <div className="step-content">
+                      <strong>Run Analysis</strong>
+                      <span>Automated processing with real-time progress tracking</span>
+                    </div>
+                  </div>
+                  <div className="workflow-step">
+                    <div className="step-number">4</div>
+                    <div className="step-content">
+                      <strong>Review Results</strong>
+                      <span>Prioritized leads with scores, insights, and recommendations</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
 
       {/* Advanced Options */}
@@ -934,6 +1033,25 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
           </motion.div>
         )}
       </div>
+
+      {/* Batch Analysis Modal */}
+      <AnimatePresence>
+        {showBatchAnalysis && (
+          <motion.div
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setShowBatchAnalysis(false);
+              }
+            }}
+          >
+            <BatchAnalysisPanel onClose={() => setShowBatchAnalysis(false)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
