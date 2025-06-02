@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { performAIScan } from './lib/ai'
 import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon } from './components/Icons'
 // @ts-ignore
-import ActionSuite from './components/ActionSuite'
+import EnhancedActionSuite from './components/EnhancedActionSuite'
 // @ts-ignore
 import { saveScan, getScanHistory } from './lib/supabase'
 import NavBar from './components/NavBar'
@@ -259,8 +259,11 @@ function App() {
             <p>{scanResult.salesBrief}</p>
           </div>
 
-          {/* Complete Action Suite */}
-          <ActionSuite scanResult={scanResult} />
+          {/* Enhanced Action Suite */}
+          <EnhancedActionSuite 
+            scanResult={scanResult as any} 
+            researchData={researchData || undefined}
+          />
         </div>
       )}
       </div>

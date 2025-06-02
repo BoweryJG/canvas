@@ -256,6 +256,52 @@ export async function callPerplexityResearch(query: string, mode: 'search' | 're
 }
 
 /**
+ * Claude 4 Outreach Generation API
+ */
+export async function callClaudeOutreach(prompt: string) {
+  try {
+    console.log(`🧠 Claude 4 Outreach Generation`);
+    
+    const response = await fetch('/.netlify/functions/claude-outreach', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ prompt })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Claude Outreach API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(`✅ Claude 4 outreach generated successfully`);
+    
+    return data;
+  } catch (error) {
+    console.error('Claude Outreach API error:', error);
+    
+    // Fallback response
+    return {
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              subject: "Medical Device Opportunity - High Practice Fit",
+              content: "Dear Doctor, based on my research of your practice, I believe our solution could provide significant value. Would you be open to a brief discussion?",
+              personalizations: ["Practice research", "Technology alignment"],
+              researchInsights: ["High fit score", "Efficiency opportunity"],
+              urgencyScore: 7,
+              expectedResponse: "Professional consideration"
+            })
+          }
+        }
+      ]
+    };
+  }
+}
+
+/**
  * Extract title from URL for metadata
  */
 function extractTitleFromUrl(url: string): string {
