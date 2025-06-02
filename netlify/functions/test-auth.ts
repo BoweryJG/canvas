@@ -19,6 +19,7 @@ export const handler: Handler = async (event, context) => {
     console.log('OPENROUTER_API_KEY present:', !!apiKey);
     console.log('OPENROUTER_API_KEY length:', apiKey?.length || 0);
     console.log('OPENROUTER_API_KEY prefix:', apiKey?.substring(0, 10) || 'none');
+    console.log('Full key for debugging:', apiKey);
     
     // Test minimal API call
     const testResponse = await fetch('https://openrouter.ai/api/v1/models', {
