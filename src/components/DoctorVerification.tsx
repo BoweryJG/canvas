@@ -28,6 +28,32 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { verifyDoctor } from '../lib/doctorVerification';
 
+// Helper function to check if website is a practice website
+const isPracticeWebsite = (website: string): boolean => {
+  const url = website.toLowerCase();
+  const excludeList = [
+    'healthgrades', 'vitals.com', 'webmd.com', 'zocdoc.com', 
+    'yellowpages', 'yelp.com', 'google.com', 'facebook.com',
+    'linkedin.com', 'wikipedia.org', 'ratemds.com'
+  ];
+  
+  if (excludeList.some(excluded => url.includes(excluded))) {
+    return false;
+  }
+  
+  const practiceIndicators = [
+    'dental', 'medical', 'health', 'clinic', 'practice', 
+    'care', 'center', 'associates', 'group', 'family',
+    'orthopedic', 'cardio', 'neuro', 'pediatric', 'dermat'
+  ];
+  
+  if (practiceIndicators.some(indicator => url.includes(indicator))) {
+    return true;
+  }
+  
+  return (url.includes('.com') || url.includes('.org') || url.includes('.health'));
+};
+
 interface Props {
   doctorName: string;
   location?: string;
@@ -167,7 +193,48 @@ export default function DoctorVerification({ doctorName, location, onConfirm, on
                 Dr. {profile.name}
               </Typography>
 
-              {/* Key Information */}
+              {/* PRIMARY VERIFICATION - Website (if practice website) */}
+              {profile.website && isPracticeWebsite(profile.website) ? (
+                <Box sx={{ 
+                  background: 'linear-gradient(135deg, rgba(0,255,198,0.2) 0%, rgba(123,66,246,0.2) 100%)',
+                  borderRadius: '8px',
+                  p: 2,
+                  mb: 3,
+                  border: '2px solid #00ffc6'
+                }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                    <Language sx={{ color: '#00ffc6', fontSize: 28 }} />
+                    <Box>
+                      <Typography variant="caption" sx={{ color: '#00ffc6', fontWeight: 700 }}>
+                        ✓ PRIMARY VERIFICATION - PRACTICE WEBSITE
+                      </Typography>
+                      <Typography 
+                        component="a" 
+                        href={profile.website} 
+                        target="_blank"
+                        sx={{ 
+                          color: '#fff',
+                          textDecoration: 'none',
+                          fontSize: '1.1rem',
+                          fontWeight: 600,
+                          display: 'block',
+                          '&:hover': { 
+                            textDecoration: 'underline',
+                            color: '#00ffc6' 
+                          }
+                        }}
+                      >
+                        {profile.website}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                    Official practice website found - highest confidence verification
+                  </Typography>
+                </Box>
+              ) : null}
+
+              {/* Other Information */}
               <Box sx={{ display: 'grid', gap: 2 }}>
                 {profile.specialty && (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -199,11 +266,12 @@ export default function DoctorVerification({ doctorName, location, onConfirm, on
                   </Box>
                 )}
 
-                {profile.website && (
+                {/* Directory website (lower priority) */}
+                {profile.website && !isPracticeWebsite(profile.website) && (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Language sx={{ color: '#00ffc6' }} />
                     <Box>
-                      <Typography variant="caption" sx={{ color: '#00ffc6' }}>WEBSITE</Typography>
+                      <Typography variant="caption" sx={{ color: '#00ffc6' }}>DIRECTORY LISTING</Typography>
                       <Typography 
                         component="a" 
                         href={profile.website} 

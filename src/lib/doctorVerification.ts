@@ -61,7 +61,29 @@ function extractVerificationData(results: any[], doctorName: string, location?: 
   
   let totalConfidence = 0;
   let matchCount = 0;
+  let foundPracticeWebsite = false;
   
+  // FIRST PASS: Prioritize finding the practice website
+  results.forEach(result => {
+    const text = `${result.title} ${result.description}`.toLowerCase();
+    const url = result.url.toLowerCase();
+    
+    if (!isRelevantResult(text, doctorName, location)) return;
+    
+    // Prioritize practice websites over everything else
+    const website = extractWebsite(result.url, text);
+    if (website && isPracticeWebsite(website) && !foundPracticeWebsite) {
+      profile.website = website;
+      foundPracticeWebsite = true;
+      
+      // Extract practice name from website result first
+      if (!profile.practice) {
+        profile.practice = extractPracticeInfo(result.title, result.description);
+      }
+    }
+  });
+  
+  // SECOND PASS: Extract other information
   results.forEach(result => {
     const text = `${result.title} ${result.description}`.toLowerCase();
     const url = result.url.toLowerCase();
@@ -71,7 +93,7 @@ function extractVerificationData(results: any[], doctorName: string, location?: 
     
     matchCount++;
     
-    // Extract practice information
+    // Extract practice information (if not already found from website)
     if (!profile.practice) {
       profile.practice = extractPracticeInfo(result.title, result.description);
     }
@@ -91,8 +113,8 @@ function extractVerificationData(results: any[], doctorName: string, location?: 
       profile.phone = extractPhone(text);
     }
     
-    // Extract website (prefer practice websites over directories)
-    if (!profile.website || (profile.website.includes('healthgrades') && !url.includes('healthgrades'))) {
+    // Only use directory websites if we haven't found a practice website
+    if (!foundPracticeWebsite && !profile.website) {
       const website = extractWebsite(result.url, text);
       if (website) profile.website = website;
     }
@@ -112,10 +134,18 @@ function extractVerificationData(results: any[], doctorName: string, location?: 
   
   // Overall confidence based on matches and data completeness
   if (matchCount > 0) {
+    let baseConfidence = Math.round(totalConfidence / matchCount);
+    
+    // MASSIVE boost for practice website - this is the gold standard
+    if (foundPracticeWebsite) {
+      baseConfidence += 40; // Practice website is the primary verification
+    } else if (profile.website && !profile.website.includes('healthgrades')) {
+      baseConfidence += 15; // Other websites get normal boost
+    }
+    
     profile.confidence = Math.min(
-      Math.round(totalConfidence / matchCount) + 
+      baseConfidence + 
       (profile.practice ? 10 : 0) +
-      (profile.website && !profile.website.includes('healthgrades') ? 15 : 0) +
       (profile.phone ? 5 : 0) +
       (profile.location ? 5 : 0),
       95
@@ -246,6 +276,40 @@ function extractWebsite(url: string, text: string): string {
   return '';
 }
 
+function isPracticeWebsite(website: string): boolean {
+  // Practice websites are the gold standard for verification
+  const url = website.toLowerCase();
+  
+  // Exclude directories and aggregators
+  const excludeList = [
+    'healthgrades', 'vitals.com', 'webmd.com', 'zocdoc.com', 
+    'yellowpages', 'yelp.com', 'google.com', 'facebook.com',
+    'linkedin.com', 'wikipedia.org', 'ratemds.com'
+  ];
+  
+  // If it's a directory, it's not a practice website
+  if (excludeList.some(excluded => url.includes(excluded))) {
+    return false;
+  }
+  
+  // Practice websites typically have their own domain
+  // Look for common practice website indicators
+  const practiceIndicators = [
+    'dental', 'medical', 'health', 'clinic', 'practice', 
+    'care', 'center', 'associates', 'group', 'family',
+    'orthopedic', 'cardio', 'neuro', 'pediatric', 'dermat'
+  ];
+  
+  // If the domain contains practice-related terms, it's likely a practice website
+  if (practiceIndicators.some(indicator => url.includes(indicator))) {
+    return true;
+  }
+  
+  // If it's a .com, .org, or .health domain that's not in our exclude list,
+  // and we got here from a doctor search, it's likely a practice website
+  return (url.includes('.com') || url.includes('.org') || url.includes('.health'));
+}
+
 function getSourceType(url: string): 'directory' | 'website' | 'review' {
   if (url.includes('healthgrades') || 
       url.includes('vitals.com') || 
@@ -309,6 +373,11 @@ function calculateResultConfidence(text: string, url: string, doctorName: string
 function generateAdditionalInfo(profile: VerificationResult, results: any[]): string {
   const info: string[] = [];
   
+  // Highlight practice website as primary verification
+  if (profile.website && isPracticeWebsite(profile.website)) {
+    info.push(`✓ Practice website verified`);
+  }
+  
   if (profile.sources.length > 0) {
     const directorySources = profile.sources.filter(s => s.type === 'directory').length;
     if (directorySources > 0) {
@@ -316,7 +385,7 @@ function generateAdditionalInfo(profile: VerificationResult, results: any[]): st
     }
     
     const websiteSources = profile.sources.filter(s => s.type === 'website').length;
-    if (websiteSources > 0) {
+    if (websiteSources > 0 && !isPracticeWebsite(profile.website)) {
       info.push(`Has active web presence`);
     }
   }
