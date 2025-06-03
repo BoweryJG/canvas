@@ -55,13 +55,6 @@ const getNavLinks = (currentUrl: string, isAdmin: boolean) => {
       highlight: true,
       description: 'Real-time market intelligence'
     },
-    { 
-      key: 'sphereos',
-      label: 'Sphere oS', 
-      href: 'https://crm.repspheres.com/',
-      icon: <MemoryIcon fontSize="small" sx={{ color: ACCENT_COLOR }} />,
-      description: 'AI-powered CRM platform'
-    },
     {
       key: 'podcast',
       label: 'Podcast',
