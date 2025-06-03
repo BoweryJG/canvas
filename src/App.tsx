@@ -1,12 +1,14 @@
 import { useState } from 'react'
-import { getInstantResults, getQuickSearchResults } from './lib/instantResults'
+import { getInstantResults } from './lib/instantResults'
 import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon, LocationTargetIcon } from './components/Icons'
 // @ts-ignore
 import EnhancedActionSuite from './components/EnhancedActionSuite'
 import NavBar from './components/NavBar'
 import ResearchPanel from './components/ResearchPanel'
 import IntegratedCanvasExperience from './components/IntegratedCanvasExperience'
+import DoctorVerification from './components/DoctorVerification'
 import { AuthContextProvider } from './contexts/AuthContext'
+import { analyzeDoctor } from './lib/intelligentAnalysis'
 
 interface ScanResult {
   doctor: string;
@@ -30,29 +32,58 @@ function App() {
   const [scanResult, setScanResult] = useState<ScanResult | null>(null)
   const [scanStage, setScanStage] = useState('')
   const [cinematicMode, setCinematicMode] = useState(false)
+  const [showVerification, setShowVerification] = useState(false)
+  const [isGeneratingBrief, setIsGeneratingBrief] = useState(false)
 
   const handleScan = async () => {
     if (!doctor || !product) return
     
     setIsScanning(true)
     setScanResult(null)
-    setScanStage('Scanning...')
+    setScanStage('Verifying doctor identity...')
+    setShowVerification(true)
     
-    // Show instant results IMMEDIATELY
-    const instantResult = getInstantResults(doctor, product);
-    setScanResult(instantResult);
+    // Start verification process immediately
+    setIsScanning(false)
+  }
+
+  const handleDoctorConfirmed = async (profile: any) => {
+    setShowVerification(false)
+    setIsGeneratingBrief(true)
+    setScanStage('Generating intelligent brief...')
     
-    // Try to get real search results (but don't wait long)
-    setTimeout(async () => {
-      try {
-        const betterResult = await getQuickSearchResults(doctor, product, location);
-        setScanResult(betterResult);
-      } catch (error) {
-        console.log('Using instant results');
+    try {
+      // Generate comprehensive analysis using the verified profile
+      const analysis = await analyzeDoctor(profile.name, profile.location, product)
+      
+      // Create enhanced scan result with verified data
+      const enhancedResult: ScanResult = {
+        doctor: profile.name,
+        product: product,
+        score: analysis.interestLevel,
+        doctorProfile: analysis.synthesis,
+        productIntel: analysis.productAlignment,
+        salesBrief: `${analysis.synthesis} ${analysis.productAlignment}`,
+        insights: analysis.keyFactors,
+        researchQuality: 'verified' as const,
+        researchSources: profile.sources?.length || 0,
+        factBased: true
       }
-      setIsScanning(false);
-      setScanStage('');
-    }, 2000);
+      
+      setScanResult(enhancedResult)
+    } catch (error) {
+      // Fallback to instant results if analysis fails
+      const fallbackResult = getInstantResults(doctor, product)
+      setScanResult(fallbackResult)
+    } finally {
+      setIsGeneratingBrief(false)
+      setScanStage('')
+    }
+  }
+
+  const handleDoctorRejected = () => {
+    setShowVerification(false)
+    // Reset form to let user try again
   }
 
   if (cinematicMode) {
@@ -136,7 +167,7 @@ function App() {
               placeholder="Doctor Name"
               value={doctor}
               onChange={(e) => setDoctor(e.target.value)}
-              disabled={isScanning}
+              disabled={isScanning || showVerification || isGeneratingBrief}
             />
           </div>
           <div className="input-with-icon">
@@ -146,7 +177,7 @@ function App() {
               placeholder="Product Name"
               value={product}
               onChange={(e) => setProduct(e.target.value)}
-              disabled={isScanning}
+              disabled={isScanning || showVerification || isGeneratingBrief}
             />
           </div>
           <div className="input-with-icon">
@@ -156,16 +187,16 @@ function App() {
               placeholder="Location (City, State)"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              disabled={isScanning}
+              disabled={isScanning || showVerification || isGeneratingBrief}
             />
           </div>
         </div>
         <button 
           onClick={handleScan}
-          disabled={!doctor || !product || isScanning}
-          className={`scan-btn ${isScanning ? 'scanning' : ''}`}
+          disabled={!doctor || !product || isScanning || showVerification || isGeneratingBrief}
+          className={`scan-btn ${(isScanning || showVerification || isGeneratingBrief) ? 'scanning' : ''}`}
         >
-          {isScanning ? 'SCANNING...' : 'INSTANT SCAN'}
+          {showVerification ? 'VERIFYING...' : isGeneratingBrief ? 'ANALYZING...' : isScanning ? 'SCANNING...' : 'VERIFY & SCAN'}
         </button>
       </div>
 
@@ -195,9 +226,21 @@ function App() {
       </div>
 
       {/* Status */}
-      {isScanning && (
+      {(isScanning || isGeneratingBrief) && (
         <div className="status">
           <p className="scanning-text">{scanStage}</p>
+        </div>
+      )}
+
+      {/* Doctor Verification */}
+      {showVerification && (
+        <div style={{ marginTop: '2rem' }}>
+          <DoctorVerification 
+            doctorName={doctor}
+            location={location}
+            onConfirm={handleDoctorConfirmed}
+            onReject={handleDoctorRejected}
+          />
         </div>
       )}
 
