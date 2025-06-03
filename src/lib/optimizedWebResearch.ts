@@ -3,7 +3,7 @@
  * Reduces from 40+ calls to ~15-20 calls per scan
  */
 
-import { ResearchData, ResearchSource } from './webResearch';
+import type { ResearchData, ResearchSource } from './webResearch';
 
 /**
  * Optimized research orchestrator - reduces API calls by 60%
@@ -34,7 +34,7 @@ export async function conductOptimizedResearch(doctorName: string, location?: st
             title: topUrl.title,
             type: category as any,
             content: scrapedData.markdown || scrapedData.content || '',
-            confidence: calculateConfidence(category, topUrl),
+            confidence: calculateConfidence(category),
             lastUpdated: new Date().toISOString()
           });
         } catch (error) {
@@ -65,7 +65,11 @@ export async function conductOptimizedResearch(doctorName: string, location?: st
     const structuredData = await structureResearchData(sources, doctorName);
     
     return {
-      ...structuredData,
+      doctorName,
+      practiceInfo: structuredData.practiceInfo || {},
+      credentials: structuredData.credentials || {},
+      reviews: structuredData.reviews || {},
+      businessIntel: structuredData.businessIntel || {},
       sources,
       confidenceScore: calculateOverallConfidence(sources),
       completedAt: new Date().toISOString()
@@ -114,7 +118,7 @@ function isProbablyPracticeWebsite(url: string, title: string): boolean {
   return indicators.some(indicator => combined.includes(indicator));
 }
 
-function calculateConfidence(category: string, result: any): number {
+function calculateConfidence(category: string): number {
   const baseScores: Record<string, number> = {
     practice_website: 95,
     medical_directory: 85,

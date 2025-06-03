@@ -179,10 +179,10 @@ export async function standardResearch(doctorName: string, productName: string, 
   }
   
   // 4. Targeted searches for specific intel (2 calls)
-  const reviewSearch = await callBraveSearch(`"Dr. ${doctorName}" patient reviews rating`, 5);
+  await callBraveSearch(`"Dr. ${doctorName}" patient reviews rating`, 5);
   apiCallCount++;
   
-  const techSearch = await callBraveSearch(`"Dr. ${doctorName}" medical technology EMR`, 5);
+  await callBraveSearch(`"Dr. ${doctorName}" medical technology EMR`, 5);
   apiCallCount++;
   
   // 5. Deep AI analysis (2 calls)
@@ -258,7 +258,7 @@ function parseQuickInsights(content: string): string[] {
   return insights.length ? insights : ['Limited public information available'];
 }
 
-function calculateQuickScore(content: string, productName: string): number {
+function calculateQuickScore(content: string, _productName: string): number {
   // Simple scoring based on keywords
   let score = 50; // Base score
   const positive = ['technology', 'modern', 'growing', 'established'];
@@ -284,7 +284,7 @@ function extractBasicInfo(scrapedData: any, searchResults: any): any {
   };
 }
 
-function calculateDetailedScore(analysis: any, productName: string): number {
+function calculateDetailedScore(analysis: any, _productName: string): number {
   // More sophisticated scoring based on AI analysis
   const content = analysis.choices?.[0]?.message?.content || '';
   let score = 60;
@@ -298,8 +298,7 @@ function calculateDetailedScore(analysis: any, productName: string): number {
   return Math.max(0, Math.min(100, score));
 }
 
-function parseDetailedInsights(analysis: any): string[] {
-  const content = analysis.choices?.[0]?.message?.content || '';
+function parseDetailedInsights(_analysis: any): string[] {
   // In production, this would parse the structured AI response
   return [
     'Practice assessment complete',
@@ -308,7 +307,7 @@ function parseDetailedInsights(analysis: any): string[] {
   ];
 }
 
-function buildPracticeProfile(sources: any[], searchResults: any): any {
+function buildPracticeProfile(sources: any[], _searchResults: any): any {
   // Aggregate data from multiple sources
   return {
     sources: sources.length,
@@ -320,7 +319,7 @@ function buildPracticeProfile(sources: any[], searchResults: any): any {
   };
 }
 
-function parseCompetitiveIntel(analysis: any): any {
+function parseCompetitiveIntel(_analysis: any): any {
   return {
     summary: 'Competitive analysis complete',
     advantages: [],
@@ -329,7 +328,7 @@ function parseCompetitiveIntel(analysis: any): any {
   };
 }
 
-function parseOutreachStrategy(analysis: any): any {
+function parseOutreachStrategy(_analysis: any): any {
   return {
     bestChannel: 'Email',
     bestTime: 'Tuesday-Thursday morning',
@@ -338,7 +337,7 @@ function parseOutreachStrategy(analysis: any): any {
   };
 }
 
-function calculateAdvancedScore(sources: any[], productName: string): number {
+function calculateAdvancedScore(sources: any[], _productName: string): number {
   // Complex scoring based on multiple data points
   let score = 70;
   score += sources.length * 2;

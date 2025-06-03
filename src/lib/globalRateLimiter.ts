@@ -14,12 +14,15 @@ class GlobalRateLimiter {
   private queues: Map<string, number[]> = new Map();
   private requestQueues: Map<string, QueuedRequest[]> = new Map();
   private processing: Map<string, boolean> = new Map();
+  private maxRequests: number;
+  private windowMs: number;
+  private delayMs: number;
   
-  constructor(
-    private maxRequests: number,
-    private windowMs: number,
-    private delayMs: number = 1000
-  ) {}
+  constructor(maxRequests: number, windowMs: number, delayMs: number = 1000) {
+    this.maxRequests = maxRequests;
+    this.windowMs = windowMs;
+    this.delayMs = delayMs;
+  }
 
   async checkLimit(apiName: string, userId?: string): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -171,8 +174,10 @@ function hashCode(str: string): number {
  */
 class ApiKeyRotator {
   private currentIndex = 0;
+  private keys: string[];
   
-  constructor(private keys: string[]) {
+  constructor(keys: string[]) {
+    this.keys = keys;
     if (keys.length === 0) {
       throw new Error('ApiKeyRotator requires at least one API key');
     }

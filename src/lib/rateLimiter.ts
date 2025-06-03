@@ -11,8 +11,11 @@ interface RateLimitConfig {
 class RateLimiter {
   private queues: Map<string, number[]> = new Map();
   private delays: Map<string, number> = new Map();
+  private config: RateLimitConfig;
 
-  constructor(private config: RateLimitConfig) {}
+  constructor(config: RateLimitConfig) {
+    this.config = config;
+  }
 
   async checkLimit(key: string): Promise<void> {
     const now = Date.now();

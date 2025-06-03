@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ProgressiveResearchEngine, ResearchProgress } from '../lib/progressiveResearch';
+import { useState, useEffect } from 'react';
+import { ProgressiveResearchEngine, type ResearchProgress } from '../lib/progressiveResearch';
 import { Brain, Clock, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 
 interface ProgressiveResearchPanelProps {

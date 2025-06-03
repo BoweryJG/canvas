@@ -3,20 +3,20 @@
  * These handle the server-side calls to Brave Search and Firecrawl APIs
  */
 
-import { openRouterLimiter, braveLimiter, firecrawlLimiter, withRateLimit } from './rateLimiter';
+// Removed unused rate limiter imports
 import { 
   globalOpenRouterLimiter, 
   globalBraveLimiter, 
   globalFirecrawlLimiter, 
   withGlobalRateLimit,
-  staggerUserStart 
+  // staggerUserStart - not used here 
 } from './globalRateLimiter';
 
 /**
  * Brave Search API integration via Netlify function
  */
-export async function callBraveSearch(query: string, count: number = 10) {
-  return withRateLimit(braveLimiter, 'brave-search', async () => {
+export async function callBraveSearch(query: string, count: number = 10, userId?: string) {
+  return withGlobalRateLimit(globalBraveLimiter, 'brave-search', userId, async () => {
     try {
       console.log(`🔍 Brave Search: "${query}"`);
       
@@ -71,8 +71,8 @@ export async function callBraveSearch(query: string, count: number = 10) {
 /**
  * Firecrawl API integration via Netlify function
  */
-export async function callFirecrawlScrape(url: string, options: any = {}) {
-  return withRateLimit(firecrawlLimiter, 'firecrawl', async () => {
+export async function callFirecrawlScrape(url: string, options: any = {}, userId?: string) {
+  return withGlobalRateLimit(globalFirecrawlLimiter, 'firecrawl', userId, async () => {
     try {
       console.log(`🕷️ Firecrawl scraping: ${url}`);
       
@@ -226,7 +226,8 @@ This is sample content from ${url}. The actual implementation would extract real
 /**
  * Perplexity API integration via Netlify function
  */
-export async function callPerplexityResearch(query: string, mode: 'search' | 'reason' | 'deep_research' = 'search') {
+export async function callPerplexityResearch(query: string, mode: 'search' | 'reason' | 'deep_research' = 'search', userId?: string) {
+  return withGlobalRateLimit(globalOpenRouterLimiter, 'perplexity', userId, async () => {
   try {
     console.log(`🧠 Perplexity ${mode}: "${query}"`);
     
@@ -265,7 +266,8 @@ export async function callPerplexityResearch(query: string, mode: 'search' | 're
         `How does this relate to medical device sales opportunities?`
       ] : undefined
     };
-  }
+    }
+  });
 }
 
 /**
@@ -277,42 +279,43 @@ export async function callClaudeOutreach(prompt: string, userId?: string) {
       console.log(`🧠 Claude 4 Outreach Generation`);
       
       const response = await fetch('/.netlify/functions/claude-outreach', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ prompt })
-    });
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ prompt })
+      });
 
-    if (!response.ok) {
-      throw new Error(`Claude Outreach API error: ${response.status}`);
-    }
+      if (!response.ok) {
+        throw new Error(`Claude Outreach API error: ${response.status}`);
+      }
 
-    const data = await response.json();
-    console.log(`✅ Claude 4 outreach generated successfully`);
-    
-    return data;
-  } catch (error) {
-    console.error('Claude Outreach API error:', error);
-    
-    // Fallback response
-    return {
-      choices: [
-        {
-          message: {
-            content: JSON.stringify({
-              subject: "Medical Device Opportunity - High Practice Fit",
-              content: "Dear Doctor, based on my research of your practice, I believe our solution could provide significant value. Would you be open to a brief discussion?",
-              personalizations: ["Practice research", "Technology alignment"],
-              researchInsights: ["High fit score", "Efficiency opportunity"],
-              urgencyScore: 7,
-              expectedResponse: "Professional consideration"
-            })
+      const data = await response.json();
+      console.log(`✅ Claude 4 outreach generated successfully`);
+      
+      return data;
+    } catch (error) {
+      console.error('Claude Outreach API error:', error);
+      
+      // Fallback response
+      return {
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                subject: "Medical Device Opportunity - High Practice Fit",
+                content: "Dear Doctor, based on my research of your practice, I believe our solution could provide significant value. Would you be open to a brief discussion?",
+                personalizations: ["Practice research", "Technology alignment"],
+                researchInsights: ["High fit score", "Efficiency opportunity"],
+                urgencyScore: 7,
+                expectedResponse: "Professional consideration"
+              })
+            }
           }
-        }
-      ]
-    };
-  }
+        ]
+      };
+    }
+  });
 }
 
 /**

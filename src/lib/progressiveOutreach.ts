@@ -226,11 +226,9 @@ async function generateGeniusOutreach(data: any): Promise<OutreachMaterial> {
   const { 
     doctorName, 
     productName, 
-    score, 
     practiceInfo, 
     reviews, 
-    competitiveIntel,
-    insights 
+    competitiveIntel 
   } = data;
   
   const { callClaudeOutreach } = await import('./apiEndpoints');
@@ -239,6 +237,7 @@ async function generateGeniusOutreach(data: any): Promise<OutreachMaterial> {
   const profilingPrompt = `Analyze Dr. ${doctorName} psychological profile for sales:
 Practice data: ${JSON.stringify(practiceInfo)}
 Reviews: ${JSON.stringify(reviews)}
+Competitive intel: ${JSON.stringify(competitiveIntel)}
 Create a psychological profile including:
 - Decision-making style
 - Communication preferences  
@@ -402,7 +401,7 @@ Body leverages: ${profile.decisionStyle} decision-making style
 Close uses: ${profile.preferredNextStep || 'low-pressure invitation'}`;
 }
 
-function generateGeniusSequence(data: any, profile: any): any[] {
+function generateGeniusSequence(_data: any, _profile: any): any[] {
   return [
     { day: 1, subject: 'LinkedIn connection', content: 'Personalized LinkedIn message...' },
     { day: 3, subject: 'Email follow-up', content: 'Reference LinkedIn view...' },

@@ -31,7 +31,8 @@ export class ProgressiveResearchEngine extends EventEmitter {
     doctorName: string,
     productName: string,
     location?: string,
-    maxDepth: 'basic' | 'standard' | 'deep' = 'standard'
+    maxDepth: 'basic' | 'standard' | 'deep' = 'standard',
+    userId?: string
   ) {
     this.abortController = new AbortController();
     this.startTime = Date.now();
@@ -49,12 +50,12 @@ export class ProgressiveResearchEngine extends EventEmitter {
     
     try {
       // STAGE 1: Instant Results (0-3 seconds)
-      await this.instantStage(researchData, location);
+      await this.instantStage(researchData, location, userId);
       
       if (this.abortController.signal.aborted) return;
       
       // STAGE 2: Basic Intel (3-30 seconds)
-      await this.basicStage(researchData, location);
+      await this.basicStage(researchData, location, userId);
       
       if (this.abortController.signal.aborted || maxDepth === 'basic') {
         this.emitComplete(researchData);
@@ -62,7 +63,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
       }
       
       // STAGE 3: Enhanced Intel (30 seconds - 2 minutes)
-      await this.enhancedStage(researchData, location);
+      await this.enhancedStage(researchData, location, userId);
       
       if (this.abortController.signal.aborted || maxDepth === 'standard') {
         this.emitComplete(researchData);
@@ -70,7 +71,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
       }
       
       // STAGE 4: Deep Intel (2-10 minutes)
-      await this.deepStage(researchData, location);
+      await this.deepStage(researchData, location, userId);
       
       this.emitComplete(researchData);
       
@@ -82,15 +83,16 @@ export class ProgressiveResearchEngine extends EventEmitter {
   /**
    * Stage 1: Instant results using 1 AI call
    */
-  private async instantStage(data: any, location?: string) {
+  private async instantStage(data: any, location?: string, userId?: string) {
     this.emitProgress('instant', 5, 'Running instant AI analysis...', data);
     
     const { callPerplexityResearch } = await import('./apiEndpoints');
     
     // Single fast AI call for immediate insights
-    const quickAnalysis = await callPerplexityResearch(
+    await callPerplexityResearch(
       `Quick assessment: Dr. ${data.doctorName} ${location || ''} for ${data.productName} sales opportunity`,
-      'search'
+      'search',
+      userId
     );
     
     // Parse and add instant insights
@@ -111,14 +113,15 @@ export class ProgressiveResearchEngine extends EventEmitter {
   /**
    * Stage 2: Basic research with careful pacing
    */
-  private async basicStage(data: any, location?: string) {
+  private async basicStage(data: any, location?: string, userId?: string) {
     const { callBraveSearch, callFirecrawlScrape } = await import('./apiEndpoints');
     
     // Step 1: Primary search (15% complete)
     this.emitProgress('basic', 15, 'Searching medical directories...', data);
     const primarySearch = await callBraveSearch(
       `"Dr. ${data.doctorName}" ${location || ''} healthgrades webmd`,
-      10
+      10,
+      userId
     );
     data.sources.push(...(primarySearch.web?.results || []).slice(0, 3));
     
@@ -128,7 +131,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
     if (primarySearch.web?.results?.[0]) {
       this.emitProgress('basic', 25, 'Analyzing primary practice listing...', data);
       try {
-        const scraped = await callFirecrawlScrape(primarySearch.web.results[0].url);
+        const scraped = await callFirecrawlScrape(primarySearch.web.results[0].url, {}, userId);
         data.practiceInfo = this.extractPracticeInfo(scraped);
         data.score = this.updateScore(data.score, scraped);
       } catch (error) {
@@ -142,7 +145,8 @@ export class ProgressiveResearchEngine extends EventEmitter {
     this.emitProgress('basic', 35, 'Checking patient reviews...', data);
     const reviewSearch = await callBraveSearch(
       `"Dr. ${data.doctorName}" reviews rating patients`,
-      5
+      5,
+      userId
     );
     
     data.insights.push('Patient sentiment analysis in progress');
@@ -158,7 +162,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
   /**
    * Stage 3: Enhanced intelligence with strategic pacing
    */
-  private async enhancedStage(data: any, location?: string) {
+  private async enhancedStage(data: any, _location?: string, userId?: string) {
     const { callFirecrawlScrape, callPerplexityResearch } = await import('./apiEndpoints');
     
     // Scrape reviews if found (45% complete)
@@ -170,7 +174,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
     if (reviewUrl) {
       try {
         await this.delay(5000); // Respectful delay
-        const reviewData = await callFirecrawlScrape(reviewUrl.url);
+        const reviewData = await callFirecrawlScrape(reviewUrl.url, {}, userId);
         data.reviews = this.extractReviews(reviewData);
       } catch (error) {
         console.log('Review scrape failed');
@@ -183,7 +187,8 @@ export class ProgressiveResearchEngine extends EventEmitter {
     
     const techAnalysis = await callPerplexityResearch(
       `Medical technology and systems used by Dr. ${data.doctorName} practice ${data.productName} compatibility`,
-      'reason'
+      'reason',
+      userId
     );
     
     data.competitiveIntel.technology = this.parseTechAnalysis(techAnalysis);
@@ -194,7 +199,8 @@ export class ProgressiveResearchEngine extends EventEmitter {
     
     const competitiveAnalysis = await callPerplexityResearch(
       `Competitive analysis for selling ${data.productName} to practices like Dr. ${data.doctorName}`,
-      'reason'
+      'reason',
+      userId
     );
     
     data.competitiveIntel.positioning = this.parseCompetitive(competitiveAnalysis);
@@ -208,16 +214,17 @@ export class ProgressiveResearchEngine extends EventEmitter {
   /**
    * Stage 4: Deep research with maximum pacing
    */
-  private async deepStage(data: any, location?: string) {
-    const { callBraveSearch, callFirecrawlScrape } = await import('./apiEndpoints');
+  private async deepStage(data: any, _location?: string, userId?: string) {
+    const { callBraveSearch } = await import('./apiEndpoints');
     
     // News and publications (75% complete)
     this.emitProgress('deep', 75, 'Searching news and publications...', data);
     await this.delay(15000); // 15 second delay
     
-    const newsSearch = await callBraveSearch(
+    await callBraveSearch(
       `"Dr. ${data.doctorName}" news article interview publication`,
-      5
+      5,
+      userId
     );
     
     // Staff and growth indicators (85% complete)
@@ -237,7 +244,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
     `;
     
     try {
-      const finalAnalysis = await callClaudeOutreach(comprehensivePrompt);
+      const finalAnalysis = await callClaudeOutreach(comprehensivePrompt, userId);
       data.outreachStrategy = this.parseFinalAnalysis(finalAnalysis);
     } catch (error) {
       console.log('Final analysis failed, using collected data');
@@ -305,7 +312,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
     return Math.max(0, total - elapsed);
   }
   
-  private extractPracticeInfo(scraped: any): any {
+  private extractPracticeInfo(_scraped: any): any {
     // Extract structured data from scraped content
     return {
       hasData: true,
@@ -313,26 +320,26 @@ export class ProgressiveResearchEngine extends EventEmitter {
     };
   }
   
-  private updateScore(currentScore: number, data: any): number {
+  private updateScore(currentScore: number, _data: any): number {
     // Refine score based on new data
     return Math.min(100, currentScore + 10);
   }
   
-  private extractReviews(reviewData: any): any {
+  private extractReviews(_reviewData: any): any {
     return {
       found: true,
       // Would parse actual reviews
     };
   }
   
-  private parseTechAnalysis(analysis: any): any {
+  private parseTechAnalysis(_analysis: any): any {
     return {
       analyzed: true,
       // Would parse actual analysis
     };
   }
   
-  private parseCompetitive(analysis: any): any {
+  private parseCompetitive(_analysis: any): any {
     return {
       complete: true,
       // Would parse actual competitive data
@@ -346,7 +353,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
     return Math.min(100, score);
   }
   
-  private parseFinalAnalysis(analysis: any): any {
+  private parseFinalAnalysis(_analysis: any): any {
     return {
       generated: true,
       // Would parse actual strategy
