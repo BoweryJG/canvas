@@ -128,32 +128,40 @@ function App() {
         <h1><span className="glow">CANVAS</span></h1>
         <p>INSTANT AI-POWERED SALES INTELLIGENCE</p>
         
-        {/* Mode Toggle */}
+        {/* Discreet Cinematic Mode Toggle */}
         <button
           onClick={() => setCinematicMode(true)}
           style={{
             position: 'absolute',
-            top: '10px',
-            right: '10px',
-            padding: '8px 16px',
-            background: 'linear-gradient(90deg, #00ffc6 0%, #7B42F6 100%)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '20px',
+            top: '15px',
+            right: '15px',
+            padding: '4px 8px',
+            background: 'rgba(123, 66, 246, 0.1)',
+            color: 'rgba(255, 255, 255, 0.6)',
+            border: '1px solid rgba(123, 66, 246, 0.2)',
+            borderRadius: '12px',
             cursor: 'pointer',
-            fontWeight: 600,
-            fontSize: '0.9rem',
-            boxShadow: '0 2px 10px rgba(0, 255, 198, 0.3)',
-            transition: 'transform 0.2s ease',
+            fontWeight: 400,
+            fontSize: '0.7rem',
+            backdropFilter: 'blur(10px)',
+            transition: 'all 0.3s ease',
+            opacity: 0.7,
           }}
           onMouseEnter={(e) => {
+            e.currentTarget.style.opacity = '1'
+            e.currentTarget.style.background = 'rgba(123, 66, 246, 0.2)'
+            e.currentTarget.style.color = '#fff'
             e.currentTarget.style.transform = 'scale(1.05)'
           }}
           onMouseLeave={(e) => {
+            e.currentTarget.style.opacity = '0.7'
+            e.currentTarget.style.background = 'rgba(123, 66, 246, 0.1)'
+            e.currentTarget.style.color = 'rgba(255, 255, 255, 0.6)'
             e.currentTarget.style.transform = 'scale(1)'
           }}
+          title="Try Cinematic Mode"
         >
-          ✨ TRY CINEMATIC MODE
+          🎬
         </button>
       </header>
 
