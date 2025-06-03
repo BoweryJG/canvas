@@ -66,7 +66,6 @@ function extractVerificationData(results: any[], doctorName: string, location?: 
   // FIRST PASS: Prioritize finding the practice website
   results.forEach(result => {
     const text = `${result.title} ${result.description}`.toLowerCase();
-    const url = result.url.toLowerCase();
     
     if (!isRelevantResult(text, doctorName, location)) return;
     
