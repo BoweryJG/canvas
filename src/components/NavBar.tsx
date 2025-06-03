@@ -92,7 +92,7 @@ const getNavLinks = (currentUrl: string, isAdmin: boolean) => {
 
 // More menu items for additional information
 const moreMenuItems = [
-  { key: 'about', label: 'About RepSpheres' },
+  { key: 'about', label: 'About Canvas' },
   { key: 'contact', label: 'Contact' },
   { key: 'careers', label: 'Careers' },
   { key: 'legal', label: 'Legal' }
