@@ -16,7 +16,7 @@ import {
   RocketLaunch
 } from '@mui/icons-material';
 import { styled, keyframes } from '@mui/material/styles';
-import { fastScanner, type FastScanResult } from '../lib/fastInitialScan';
+import { realTimeScanner, type RealTimeScanResult } from '../lib/realTimeFastScanner';
 import { useAuth } from '../contexts/AuthContext';
 
 // Keyframe animations
@@ -134,7 +134,7 @@ interface Props {
 
 export default function CinematicScanExperience({ doctorName, location }: Props) {
   const [stage, setStage] = useState<'scanning' | 'revealing' | 'reading' | 'upsell'>('scanning');
-  const [scanResult, setScanResult] = useState<FastScanResult | null>(null);
+  const [scanResult, setScanResult] = useState<RealTimeScanResult | null>(null);
   const [dataStream, setDataStream] = useState<string[]>([]);
   const [reportLines, setReportLines] = useState<string[]>([]);
   const [showUpsell, setShowUpsell] = useState(false);
@@ -156,10 +156,11 @@ export default function CinematicScanExperience({ doctorName, location }: Props)
   
   const startScan = () => {
     // Subscribe to scan results
-    fastScanner.on('result', handleScanResult);
+    realTimeScanner.on('result', handleScanResult);
     
-    // Start scanning
-    fastScanner.scan(doctorName, location);
+    // Start scanning with real data
+    const userId = subscription?.tier ? 'user' : 'anonymous';
+    realTimeScanner.scan(doctorName, location, userId);
     
     // Simulate data stream
     const streamInterval = setInterval(() => {
@@ -170,11 +171,12 @@ export default function CinematicScanExperience({ doctorName, location }: Props)
     // Cleanup
     return () => {
       clearInterval(streamInterval);
-      fastScanner.removeListener('result', handleScanResult);
+      realTimeScanner.removeListener('result', handleScanResult);
+      realTimeScanner.stop();
     };
   };
   
-  const handleScanResult = (result: FastScanResult) => {
+  const handleScanResult = (result: RealTimeScanResult) => {
     setScanResult(result);
     scanProgress.set(result.confidence);
     
@@ -184,7 +186,7 @@ export default function CinematicScanExperience({ doctorName, location }: Props)
     }
   };
   
-  const revealReport = (result: FastScanResult) => {
+  const revealReport = (result: RealTimeScanResult) => {
     setStage('revealing');
     
     // Animate desk appearance
@@ -233,7 +235,7 @@ export default function CinematicScanExperience({ doctorName, location }: Props)
     return elements[Math.floor(Math.random() * elements.length)];
   };
   
-  const generateReportContent = (result: FastScanResult): string[] => {
+  const generateReportContent = (result: RealTimeScanResult): string[] => {
     return [
       `CONFIDENTIAL INTELLIGENCE REPORT`,
       `Subject: Dr. ${result.doctorName}`,
