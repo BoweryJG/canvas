@@ -312,8 +312,7 @@ export async function callClaudeOutreach(prompt: string, userId?: string) {
         }
       ]
     };
-    }
-  });
+  }
 }
 
 /**
