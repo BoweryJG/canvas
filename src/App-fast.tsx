@@ -194,13 +194,20 @@ function App() {
       {scanResult && (
         <ResearchPanel 
           researchData={{
+            doctorName: doctor,
+            practiceInfo: { name: doctor, specialties: ['Medical Professional'] },
+            credentials: {},
+            reviews: { averageRating: 4.5, totalReviews: 100 },
             sources: [],
-            summary: scanResult.doctorProfile,
-            confidence: scanResult.score,
-            practiceInfo: { name: doctor, specialty: 'Medical Professional' },
-            webPresence: { websites: [] },
-            reviewData: { rating: 4.5, count: 100 },
-            factBased: scanResult.factBased || false
+            businessIntel: {
+              practiceType: 'Medical Practice',
+              patientVolume: 'Medium',
+              marketPosition: 'Established',
+              recentNews: [],
+              growthIndicators: []
+            },
+            confidenceScore: scanResult.score,
+            completedAt: new Date().toISOString()
           }}
           isResearching={false}
           researchQuality={scanResult.researchQuality || 'inferred'}
