@@ -136,15 +136,9 @@ export default function NavBar() {
   const [openInfo, setOpenInfo] = React.useState<string | null>(null); // which info modal is open
   const [openAuth, setOpenAuth] = React.useState<string | null>(null); // 'login' or 'signup'
   const [navLoading, setNavLoading] = React.useState(false);
-  // Breakpoints for progressive collapsing of nav links
-  const hidePodcast = useMediaQuery('(max-width:1200px)');
-  const hideSphereOS = useMediaQuery('(max-width:1100px)');
-  const hideLinguistics = useMediaQuery('(max-width:1000px)');
-  const hideWorkspace = useMediaQuery('(max-width:900px)');
-  const hideInsights = useMediaQuery('(max-width:800px)');
-  const isMobile = hideInsights; // all nav links collapsed below 800px
-  // Show hamburger menu whenever any link is hidden
-  const showMenu = hidePodcast || hideSphereOS || hideLinguistics || hideWorkspace || isMobile;
+  // Simplified responsive breakpoints
+  const isMobile = useMediaQuery('(max-width:900px)'); // Show hamburger menu below 900px
+  const showMenu = isMobile; // Only show hamburger menu on mobile
   // Extra small breakpoints for very narrow screens
   const isXS = useMediaQuery('(max-width:400px)');
   const isXXS = useMediaQuery('(max-width:320px)');
@@ -161,25 +155,11 @@ export default function NavBar() {
   // Get the gradient colors from context
   const { gradientColors } = useOrbContext();
 
-  // Determine display styles for each nav link based on screen width
-  const getLinkStyles = (key: string) => {
-    const styles: any = {};
-    if (key === 'podcast') {
-      styles['@media (max-width:1200px)'] = { display: 'none' };
-    }
-    if (key === 'sphereos') {
-      styles['@media (max-width:1100px)'] = { display: 'none' };
-    }
-    if (key === 'linguistics') {
-      styles['@media (max-width:1000px)'] = { display: 'none' };
-    }
-    if (key === 'workspace') {
-      styles['@media (max-width:900px)'] = { display: 'none' };
-    }
-    if (key === 'insights') {
-      styles['@media (max-width:800px)'] = { display: 'none' };
-    }
-    return styles;
+  // Simple link styles - no complex hiding logic
+  const getLinkStyles = () => {
+    return {
+      // All links visible on desktop, hidden on mobile (handled by isMobile check)
+    };
   };
 
   // Orb SVG for brand logo with gradient colors
@@ -617,6 +597,7 @@ export default function NavBar() {
           maxWidth: 'none',
           margin: 0,
           width: '100%',
+          gap: 1,
         }}>
           {/* Logo Section */}
           <Box 
@@ -632,6 +613,8 @@ export default function NavBar() {
               textDecoration: 'none',
               color: 'inherit',
               transition: 'transform 0.3s ease',
+              flex: '0 0 auto',
+              minWidth: 'auto',
               '&:hover': {
                 transform: 'scale(1.05)',
               }
@@ -668,21 +651,18 @@ export default function NavBar() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              mx: 'auto',
-              position: 'absolute',
-              left: '50%',
-              transform: 'translateX(-50%)',
+              flex: 1,
+              mx: 2,
+              maxWidth: '600px',
             }}>
               <Box sx={{
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 height: '100%',
-                px: { sm: 1, md: 2 },
-                maxWidth: { sm: '65vw', md: '70vw' },
-                overflowX: 'auto',
-                '&::-webkit-scrollbar': { display: 'none' },
-                msOverflowStyle: 'none',
-                scrollbarWidth: 'none',
+                gap: { sm: 0.5, md: 1 },
+                flexWrap: 'nowrap',
+                width: '100%',
               }}>
                 {navLinks.map((link) => (
                   <Tooltip 
@@ -703,16 +683,20 @@ export default function NavBar() {
                       className={isLinkActive(link.href, currentUrl) ? 'active' : ''}
                       sx={[
                         navButtonStyles,
-                        getLinkStyles(link.key),
+                        getLinkStyles(),
                         {
+                          minWidth: 'auto',
+                          flex: '0 0 auto',
                           '& .buttonText': {
-                            display: { xs: 'none', sm: 'inline' }
+                            display: { xs: 'none', sm: 'inline' },
+                            fontSize: { sm: '0.85rem', md: '0.95rem' },
+                            whiteSpace: 'nowrap'
                           }
                         }
                       ]}
                     >
                       <Box sx={{ 
-                        mr: { xs: 0, sm: 1 },
+                        mr: { xs: 0, sm: 0.5 },
                         display: 'flex',
                         alignItems: 'center'
                       }}>
@@ -730,7 +714,7 @@ export default function NavBar() {
           <Box sx={{
             display: 'flex',
             alignItems: 'center',
-            ml: 'auto',
+            flex: '0 0 auto',
             gap: { xs: 0.5, sm: 1 },
           }}>
             
