@@ -1,12 +1,16 @@
-import { useState } from 'react'
-import { getInstantResults, getQuickSearchResults } from './lib/instantResults'
+import { useState, useEffect } from 'react'
+import IntegratedCanvasExperience from './components/IntegratedCanvasExperience'
+import { AuthContextProvider } from './contexts/AuthContext'
+import { performAIScan } from './lib/ai'
 import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon } from './components/Icons'
 // @ts-ignore
 import EnhancedActionSuite from './components/EnhancedActionSuite'
+// @ts-ignore
+import { saveScan, getScanHistory } from './lib/supabase'
 import NavBar from './components/NavBar'
 import ResearchPanel from './components/ResearchPanel'
-import IntegratedCanvasExperience from './components/IntegratedCanvasExperience'
-import { AuthContextProvider } from './contexts/AuthContext'
+import { conductDoctorResearch, type ResearchData } from './lib/webResearch'
+import { performEnhancedAIScan } from './lib/enhancedAI'
 
 interface ScanResult {
   doctor: string;
@@ -28,32 +32,90 @@ function App() {
   const [isScanning, setIsScanning] = useState(false)
   const [scanResult, setScanResult] = useState<ScanResult | null>(null)
   const [scanStage, setScanStage] = useState('')
+  const [scanHistory, setScanHistory] = useState<any[]>([])
+  const [showHistory, setShowHistory] = useState(false)
+  const [researchData, setResearchData] = useState<ResearchData | null>(null)
+  const [isResearching, setIsResearching] = useState(false)
   const [cinematicMode, setCinematicMode] = useState(false)
 
   const handleScan = async () => {
     if (!doctor || !product) return
     
     setIsScanning(true)
+    setIsResearching(true)
     setScanResult(null)
-    setScanStage('Scanning...')
+    setResearchData(null)
+    setScanStage('Initializing Intelligence Scan...')
     
-    // Show instant results IMMEDIATELY
-    const instantResult = getInstantResults(doctor, product);
-    setScanResult(instantResult);
-    
-    // Try to get real search results (but don't wait long)
-    setTimeout(async () => {
-      try {
-        const betterResult = await getQuickSearchResults(doctor, product);
-        setScanResult(betterResult);
-      } catch (error) {
-        console.log('Using instant results');
+    try {
+      const scanStartTime = Date.now()
+      
+      // Stage 1: Quick AI scan for immediate results
+      setScanStage('Generating Initial Analysis...')
+      const quickResult = await performAIScan(doctor, product)
+      setScanResult(quickResult)
+      
+      // Stage 2: Enhanced web research (parallel)
+      setScanStage('Conducting Web Research...')
+      const research = await conductDoctorResearch(doctor)
+      setResearchData(research)
+      setIsResearching(false)
+      
+      // Stage 3: Enhanced AI analysis with research data
+      setScanStage('Generating Research-Based Intelligence...')
+      const enhancedResult = await performEnhancedAIScan(doctor, product, research)
+      
+      const scanDuration = Math.round((Date.now() - scanStartTime) / 1000)
+      
+      // Merge enhanced results with original structure
+      const finalResult = {
+        ...enhancedResult,
+        scanDuration,
+        researchQuality: enhancedResult.researchQuality,
+        researchSources: enhancedResult.researchSources,
+        factBased: enhancedResult.factBased
       }
-      setIsScanning(false);
-      setScanStage('');
-    }, 2000);
+      
+      setScanResult(finalResult)
+      
+      // Save to Supabase with enhanced data
+      const saveResult = await saveScan(finalResult, null)
+      if (saveResult.success) {
+        console.log('Enhanced scan saved to database:', saveResult.data.id)
+        setScanResult(prev => prev ? { ...prev, scanId: saveResult.data.id } : prev)
+      }
+      
+    } catch (error) {
+      console.error('Enhanced scan failed:', error)
+      setIsResearching(false)
+      
+      // Fallback to basic scan
+      try {
+        setScanStage('Fallback to Basic Analysis...')
+        const fallbackResult = await performAIScan(doctor, product)
+        setScanResult(fallbackResult)
+      } catch (fallbackError) {
+        console.error('Fallback scan also failed:', fallbackError)
+      }
+    } finally {
+      setIsScanning(false)
+      setScanStage('')
+    }
   }
 
+  const loadScanHistory = async () => {
+    // Load anonymous scans (user_id = null)
+    const historyResult = await getScanHistory(null) 
+    if (historyResult.success) {
+      setScanHistory(historyResult.data)
+    }
+  }
+
+  useEffect(() => {
+    loadScanHistory()
+  }, [])
+
+  // Show cinematic mode if enabled
   if (cinematicMode) {
     return (
       <AuthContextProvider>
@@ -94,7 +156,7 @@ function App() {
           <TargetSightIcon className="w-12 h-12 text-electric-blue" />
         </div>
         <h1><span className="glow">CANVAS</span></h1>
-        <p>INSTANT AI-POWERED SALES INTELLIGENCE</p>
+        <p>AI-POWERED SALES INTELLIGENCE & RESEARCH PLATFORM</p>
         
         {/* Mode Toggle */}
         <button
@@ -123,7 +185,49 @@ function App() {
         >
           ✨ TRY CINEMATIC MODE
         </button>
+        
+        {/* Scan History Toggle */}
+        <button 
+          onClick={() => setShowHistory(!showHistory)}
+          className="history-toggle"
+        >
+          📋 Scan History ({scanHistory.length})
+        </button>
       </header>
+
+      {/* Scan History Panel */}
+      {showHistory && (
+        <div className="history-panel">
+          <h3>🕐 SCAN HISTORY</h3>
+          <div className="history-list">
+            {scanHistory.map((scan, index) => (
+              <div key={scan.id || index} className="history-item">
+                <div className="history-header">
+                  <span className="doctor-name">Dr. {scan.doctor_name}</span>
+                  <span className={`score ${scan.score >= 80 ? 'high-value' : ''}`}>
+                    {scan.score}%
+                  </span>
+                </div>
+                <div className="history-details">
+                  <span className="product-name">{scan.product_name}</span>
+                  <span className="scan-date">
+                    {new Date(scan.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+                <button 
+                  onClick={() => {
+                    setScanResult(scan)
+                    setShowHistory(false)
+                  }}
+                  className="reload-btn"
+                >
+                  🔄 Reload
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Scan Form */}
       <div className="scan-form">
@@ -154,11 +258,11 @@ function App() {
           disabled={!doctor || !product || isScanning}
           className={`scan-btn ${isScanning ? 'scanning' : ''}`}
         >
-          {isScanning ? 'SCANNING...' : 'INSTANT SCAN'}
+          {isScanning ? 'SCANNING...' : 'LAUNCH SCAN'}
         </button>
       </div>
 
-      {/* Gauge */}
+      {/* Iconic Gauge */}
       <div className="gauge-container">
         <div className={`gauge ${isScanning ? 'spinning' : ''} ${(scanResult?.score || 0) >= 80 ? 'high-value' : ''}`}>
           <div className="gauge-frame">
@@ -183,7 +287,7 @@ function App() {
         )}
       </div>
 
-      {/* Status */}
+      {/* Scanning Status */}
       {isScanning && (
         <div className="status">
           <p className="scanning-text">{scanStage}</p>
@@ -191,21 +295,11 @@ function App() {
       )}
 
       {/* Research Panel */}
-      {scanResult && (
-        <ResearchPanel 
-          researchData={{
-            sources: [],
-            summary: scanResult.doctorProfile,
-            confidence: scanResult.score,
-            practiceInfo: { name: doctor, specialties: ['Medical Professional'] },
-            webPresence: { websites: [] },
-            reviewData: { rating: 4.5, count: 100 },
-            factBased: scanResult.factBased || false
-          }}
-          isResearching={false}
-          researchQuality={scanResult.researchQuality || 'inferred'}
-        />
-      )}
+      <ResearchPanel 
+        researchData={researchData}
+        isResearching={isResearching}
+        researchQuality={scanResult?.researchQuality || 'unknown'}
+      />
 
       {/* Insights */}
       {scanResult && !isScanning && (
@@ -227,10 +321,10 @@ function App() {
             <p>{scanResult.salesBrief}</p>
           </div>
 
-          {/* Action Suite */}
+          {/* Enhanced Action Suite */}
           <EnhancedActionSuite 
             scanResult={scanResult as any} 
-            researchData={undefined}
+            researchData={researchData || undefined}
           />
         </div>
       )}

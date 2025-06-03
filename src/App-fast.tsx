@@ -197,7 +197,7 @@ function App() {
             sources: [],
             summary: scanResult.doctorProfile,
             confidence: scanResult.score,
-            practiceInfo: { name: doctor, specialties: ['Medical Professional'] },
+            practiceInfo: { name: doctor, specialty: 'Medical Professional' },
             webPresence: { websites: [] },
             reviewData: { rating: 4.5, count: 100 },
             factBased: scanResult.factBased || false
