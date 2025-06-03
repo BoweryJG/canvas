@@ -37,13 +37,14 @@ export class OptimizedResearchSystem {
         .from('canvas_research_cache')
         .select('*')
         .eq('doctor_name', doctorName.toLowerCase())
+        .gte('expiry_date', new Date().toISOString())
         .single();
         
       if (cachedData && cachedData.research_data) {
         console.log('💾 Using database cache');
         this.cache.set(cacheKey, cachedData.research_data);
         return {
-          confidence: cachedData.confidence || 80,
+          confidence: cachedData.confidence_score || 80,
           data: cachedData.research_data,
           sources: cachedData.research_data.sources || [],
           fromCache: true
@@ -201,16 +202,19 @@ export class OptimizedResearchSystem {
   
   private async saveToCacheAsync(doctorName: string, location: string | undefined, data: any) {
     try {
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + 7); // 7 days expiry
+      
       await supabase.from('canvas_research_cache').insert({
         doctor_name: doctorName.toLowerCase(),
-        location: location?.toLowerCase(),
-        research_data: data,
-        confidence: 70,
-        sources_count: data.sources?.length || 0
+        research_data: { ...data, location: location?.toLowerCase() },
+        confidence_score: 70,
+        source_count: data.sources?.length || 0,
+        expiry_date: expiryDate.toISOString()
       });
     } catch (error) {
       // Ignore cache save errors
-      console.log('Cache save skipped');
+      console.log('Cache save skipped:', error);
     }
   }
 }
