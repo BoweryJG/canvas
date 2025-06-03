@@ -56,15 +56,8 @@ const getNavLinks = (currentUrl: string, isAdmin: boolean) => {
       description: 'Real-time market intelligence'
     },
     { 
-      key: 'home',
-      label: 'RepSpheres', 
-      href: 'https://repspheres.com/',
-      icon: <DashboardIcon fontSize="small" sx={{ color: ACCENT_COLOR }} />,
-      description: 'Return to main site'
-    },
-    { 
       key: 'sphereos',
-      label: 'Sphere OS', 
+      label: 'Sphere oS', 
       href: 'https://crm.repspheres.com/',
       icon: <MemoryIcon fontSize="small" sx={{ color: ACCENT_COLOR }} />,
       description: 'AI-powered CRM platform'
@@ -88,16 +81,6 @@ const getNavLinks = (currentUrl: string, isAdmin: boolean) => {
     });
   }
 
-  // Show Linguistics link only if not on the linguistics page
-  if (!currentUrl.includes('/linguistics')) {
-    links.splice(2, 0, {
-      key: 'linguistics',
-      label: 'Linguistics',
-      href: 'https://linguistics.repspheres.com/',
-      icon: <LanguageIcon fontSize="small" sx={{ color: ACCENT_COLOR }} />,
-      description: 'Communication optimization'
-    });
-  }
 
   // Hide podcast link when already on the podcast page
   if (currentUrl.includes('/podcast.html') || currentUrl.includes('page=podcast')) {
