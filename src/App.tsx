@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { getInstantResults, getQuickSearchResults } from './lib/instantResults'
-import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon } from './components/Icons'
+import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon, LocationTargetIcon } from './components/Icons'
 // @ts-ignore
 import EnhancedActionSuite from './components/EnhancedActionSuite'
 import NavBar from './components/NavBar'
@@ -25,6 +25,7 @@ import './App.css'
 function App() {
   const [doctor, setDoctor] = useState('')
   const [product, setProduct] = useState('')
+  const [location, setLocation] = useState('')
   const [isScanning, setIsScanning] = useState(false)
   const [scanResult, setScanResult] = useState<ScanResult | null>(null)
   const [scanStage, setScanStage] = useState('')
@@ -44,7 +45,7 @@ function App() {
     // Try to get real search results (but don't wait long)
     setTimeout(async () => {
       try {
-        const betterResult = await getQuickSearchResults(doctor, product);
+        const betterResult = await getQuickSearchResults(doctor, product, location);
         setScanResult(betterResult);
       } catch (error) {
         console.log('Using instant results');
@@ -148,6 +149,16 @@ function App() {
               disabled={isScanning}
             />
           </div>
+          <div className="input-with-icon">
+            <LocationTargetIcon className="input-icon" />
+            <input
+              type="text"
+              placeholder="Location (City, State)"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              disabled={isScanning}
+            />
+          </div>
         </div>
         <button 
           onClick={handleScan}
@@ -195,7 +206,7 @@ function App() {
         <ResearchPanel 
           researchData={{
             doctorName: doctor,
-            practiceInfo: { name: doctor, specialties: ['Medical Professional'] },
+            practiceInfo: { name: doctor, specialties: ['Medical Professional'], address: location || undefined },
             credentials: {},
             reviews: {},
             sources: [],

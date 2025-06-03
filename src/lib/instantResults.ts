@@ -2,6 +2,8 @@
  * INSTANT RESULTS - FUCK THE APIS, SHOW SOMETHING NOW
  */
 
+import { analyzeDoctor } from './intelligentAnalysis';
+
 export function getInstantResults(doctorName: string, product: string) {
   // Generate results INSTANTLY based on the name
   const score = Math.floor(70 + Math.random() * 25); // 70-95 score
@@ -27,40 +29,30 @@ export function getInstantResults(doctorName: string, product: string) {
   };
 }
 
-export async function getQuickSearchResults(doctorName: string, product: string) {
-  // Do ONE quick search and return enhanced results
+export async function getQuickSearchResults(doctorName: string, product: string, location?: string) {
   try {
-    const { callBraveSearch } = await import('./apiEndpoints');
-    const results = await callBraveSearch(`"Dr. ${doctorName}" medical practice`, 3);
+    // Use intelligent analysis to get real insights
+    const analysis = await analyzeDoctor(doctorName, location, product);
     
-    if (results?.web?.results?.length > 0) {
-      const firstResult = results.web.results[0];
-      const score = Math.floor(80 + Math.random() * 15); // 80-95 for real results
-      
-      return {
-        doctor: doctorName,
-        product: product,
-        score: score,
-        doctorProfile: `${firstResult.title}. ${firstResult.description}`,
-        productIntel: `${product} implementation would enhance practice efficiency and patient satisfaction.`,
-        salesBrief: `Contact Dr. ${doctorName} with data-driven presentation on ${product} ROI. Highlight: efficiency gains, patient satisfaction metrics, and competitive advantages.`,
-        insights: [
-          `✅ Verified practitioner (${score}% match)`,
-          `📍 ${firstResult.url.includes('healthgrades') ? 'Healthgrades' : 'Online'} presence confirmed`,
-          `🏥 Active medical practice`,
-          `💼 Professional profile indicates decision-maker`,
-          `📊 High likelihood of technology adoption`,
-          `🚀 Ready for immediate outreach`
-        ],
-        researchQuality: 'verified' as const,
-        researchSources: results.web.results.length,
-        factBased: true
-      };
-    }
+    // Convert to our result format
+    return {
+      doctor: doctorName,
+      product: product,
+      score: analysis.interestLevel,
+      doctorProfile: analysis.synthesis,
+      productIntel: analysis.productAlignment,
+      salesBrief: `Target Dr. ${analysis.profile.name} with a personalized approach focusing on ${product}'s specific benefits for ${analysis.profile.specialty} practices. ${analysis.profile.website ? `Reference their digital presence at ${analysis.profile.website}. ` : ''}Best approach: Professional email highlighting ROI, followed by a brief call to discuss implementation.`,
+      insights: [
+        `✅ ${analysis.profile.confidence}% match confidence`,
+        ...analysis.keyFactors,
+        `🎯 Interest level: ${analysis.interestLevel}% based on profile analysis`
+      ],
+      researchQuality: analysis.profile.confidence > 70 ? 'verified' as const : 'partial' as const,
+      researchSources: 1,
+      factBased: analysis.profile.confidence > 60
+    };
   } catch (error) {
-    console.log('Quick search failed, using instant results');
+    console.log('Analysis failed, using instant results:', error);
+    return getInstantResults(doctorName, product);
   }
-  
-  // Return instant results if search fails
-  return getInstantResults(doctorName, product);
 }
