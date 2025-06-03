@@ -195,12 +195,28 @@ class ApiKeyRotator {
 }
 
 // Example: Multiple OpenRouter keys for scale
-export const openRouterRotator = new ApiKeyRotator([
-  process.env.OPENROUTER_API_KEY || '',
+// Note: This is only used server-side in Netlify Functions
+// Client-side code doesn't need direct API key access
+export let openRouterRotator: ApiKeyRotator | null = null;
+
+// Initialize only if we have actual keys (server-side)
+try {
+  const keys: string[] = [];
+  
+  if (typeof process !== 'undefined' && process.env?.OPENROUTER_API_KEY) {
+    keys.push(process.env.OPENROUTER_API_KEY);
+  }
   // Add more keys here as you scale:
-  // process.env.OPENROUTER_API_KEY_2 || '',
-  // process.env.OPENROUTER_API_KEY_3 || '',
-].filter(Boolean));
+  // if (process.env.OPENROUTER_API_KEY_2) keys.push(process.env.OPENROUTER_API_KEY_2);
+  // if (process.env.OPENROUTER_API_KEY_3) keys.push(process.env.OPENROUTER_API_KEY_3);
+  
+  if (keys.length > 0) {
+    openRouterRotator = new ApiKeyRotator(keys);
+  }
+} catch (error) {
+  // Client-side environment - API keys handled by server
+  console.log('API key rotation will be handled server-side');
+}
 
 /**
  * Usage in Netlify Functions:
@@ -214,7 +230,7 @@ export const openRouterRotator = new ApiKeyRotator([
  *     userId,
  *     async () => {
  *       // Your API call here
- *       const apiKey = openRouterRotator.getNextKey();
+ *       const apiKey = openRouterRotator?.getNextKey() || process.env.OPENROUTER_API_KEY;
  *       return fetch('https://openrouter.ai/api/v1/chat/completions', {
  *         headers: { 'Authorization': `Bearer ${apiKey}` }
  *       });
