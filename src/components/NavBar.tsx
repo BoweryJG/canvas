@@ -65,7 +65,7 @@ const getNavLinks = (currentUrl: string, isAdmin: boolean) => {
     {
       key: 'podcast',
       label: 'Podcast',
-      href: '/?page=podcast',
+      href: 'https://workshop-homepage.netlify.app/?page=podcast',
       icon: <PodcastsIcon fontSize="small" sx={{ color: ACCENT_COLOR }} />,
       description: 'Industry insights & interviews'
     },
