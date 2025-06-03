@@ -8,8 +8,8 @@ import { Box, TextField, Button, Typography, Container } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Bolt, AutoAwesome } from '@mui/icons-material';
-import CinematicScanExperience from './CinematicScanExperience';
-import ProgressiveResultsDisplay from './ProgressiveResultsDisplay';
+import SimpleCinematicScan from './SimpleCinematicScan';
+import SimpleProgressiveResults from './SimpleProgressiveResults';
 import { useAuth } from '../contexts/AuthContext';
 
 const GradientBackground = styled(Box)`
@@ -98,7 +98,7 @@ export default function IntegratedCanvasExperience() {
   const [product, setProduct] = useState('');
   const [location, setLocation] = useState('');
   const [stage, setStage] = useState<'input' | 'scanning' | 'results'>('input');
-  const [scanId, setScanId] = useState('');
+  // const [scanId, setScanId] = useState('');
   const { user } = useAuth();
   const userTier = user?.subscription?.tier || 'free';
   
@@ -106,12 +106,9 @@ export default function IntegratedCanvasExperience() {
     if (!doctor || !product) return;
     
     setStage('scanning');
-    setScanId(`scan_${Date.now()}`);
+    // setScanId(`scan_${Date.now()}`);
     
-    // After cinematic experience, show results
-    setTimeout(() => {
-      setStage('results');
-    }, 15000); // 15 seconds for full cinematic experience
+    // SimpleCinematicScan will call onComplete when done
   };
   
   const handleUpgrade = () => {
@@ -297,8 +294,8 @@ export default function IntegratedCanvasExperience() {
           </Typography>
         </Box>
         
-        <ProgressiveResultsDisplay
-          scanId={scanId}
+        <SimpleProgressiveResults
+          doctorName={doctor}
           userTier={userTier}
           onUpgradeClick={handleUpgrade}
         />
@@ -312,7 +309,7 @@ export default function IntegratedCanvasExperience() {
       <AnimatePresence mode="wait">
         {stage === 'input' && renderInputStage()}
         {stage === 'scanning' && (
-          <CinematicScanExperience
+          <SimpleCinematicScan
             doctorName={doctor}
             location={location}
             onComplete={() => setStage('results')}
