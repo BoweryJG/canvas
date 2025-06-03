@@ -56,11 +56,11 @@ const getNavLinks = (currentUrl: string, isAdmin: boolean) => {
       description: 'Real-time market intelligence'
     },
     { 
-      key: 'workspace',
-      label: 'Workspace', 
-      href: 'https://workspace.repspheres.com/',
+      key: 'home',
+      label: 'RepSpheres', 
+      href: 'https://repspheres.com/',
       icon: <DashboardIcon fontSize="small" sx={{ color: ACCENT_COLOR }} />,
-      description: 'Unified sales workflows'
+      description: 'Return to main site'
     },
     { 
       key: 'sphereos',
