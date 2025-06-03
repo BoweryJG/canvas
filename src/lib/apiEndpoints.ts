@@ -3,14 +3,24 @@
  * These handle the server-side calls to Brave Search and Firecrawl APIs
  */
 
+import { openRouterLimiter, braveLimiter, firecrawlLimiter, withRateLimit } from './rateLimiter';
+import { 
+  globalOpenRouterLimiter, 
+  globalBraveLimiter, 
+  globalFirecrawlLimiter, 
+  withGlobalRateLimit,
+  staggerUserStart 
+} from './globalRateLimiter';
+
 /**
  * Brave Search API integration via Netlify function
  */
 export async function callBraveSearch(query: string, count: number = 10) {
-  try {
-    console.log(`🔍 Brave Search: "${query}"`);
-    
-    const response = await fetch('/.netlify/functions/brave-search', {
+  return withRateLimit(braveLimiter, 'brave-search', async () => {
+    try {
+      console.log(`🔍 Brave Search: "${query}"`);
+      
+      const response = await fetch('/.netlify/functions/brave-search', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -54,17 +64,19 @@ export async function callBraveSearch(query: string, count: number = 10) {
         ]
       }
     };
-  }
+    }
+  });
 }
 
 /**
  * Firecrawl API integration via Netlify function
  */
 export async function callFirecrawlScrape(url: string, options: any = {}) {
-  try {
-    console.log(`🕷️ Firecrawl scraping: ${url}`);
-    
-    const response = await fetch('/.netlify/functions/firecrawl-scrape', {
+  return withRateLimit(firecrawlLimiter, 'firecrawl', async () => {
+    try {
+      console.log(`🕷️ Firecrawl scraping: ${url}`);
+      
+      const response = await fetch('/.netlify/functions/firecrawl-scrape', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -95,7 +107,8 @@ export async function callFirecrawlScrape(url: string, options: any = {}) {
         statusCode: 200
       }
     };
-  }
+    }
+  });
 }
 
 /**
@@ -258,11 +271,12 @@ export async function callPerplexityResearch(query: string, mode: 'search' | 're
 /**
  * Claude 4 Outreach Generation API
  */
-export async function callClaudeOutreach(prompt: string) {
-  try {
-    console.log(`🧠 Claude 4 Outreach Generation`);
-    
-    const response = await fetch('/.netlify/functions/claude-outreach', {
+export async function callClaudeOutreach(prompt: string, userId?: string) {
+  return withGlobalRateLimit(globalOpenRouterLimiter, 'openrouter', userId, async () => {
+    try {
+      console.log(`🧠 Claude 4 Outreach Generation`);
+      
+      const response = await fetch('/.netlify/functions/claude-outreach', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
