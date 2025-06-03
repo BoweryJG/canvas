@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import IntegratedCanvasExperience from './components/IntegratedCanvasExperience'
+import { AuthContextProvider } from './contexts/AuthContext'
 import { performAIScan } from './lib/ai'
 import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon } from './components/Icons'
 // @ts-ignore
@@ -34,6 +36,7 @@ function App() {
   const [showHistory, setShowHistory] = useState(false)
   const [researchData, setResearchData] = useState<ResearchData | null>(null)
   const [isResearching, setIsResearching] = useState(false)
+  const [cinematicMode, setCinematicMode] = useState(false)
 
   const handleScan = async () => {
     if (!doctor || !product) return
@@ -112,6 +115,37 @@ function App() {
     loadScanHistory()
   }, [])
 
+  // Show cinematic mode if enabled
+  if (cinematicMode) {
+    return (
+      <AuthContextProvider>
+        <>
+          <NavBar />
+          <button
+            onClick={() => setCinematicMode(false)}
+            style={{
+              position: 'fixed',
+              top: '80px',
+              right: '20px',
+              zIndex: 1000,
+              padding: '10px 20px',
+              background: 'linear-gradient(90deg, #00ffc6 0%, #7B42F6 100%)',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '50px',
+              cursor: 'pointer',
+              fontWeight: 700,
+              boxShadow: '0 4px 15px rgba(0, 255, 198, 0.3)'
+            }}
+          >
+            🔧 CLASSIC MODE
+          </button>
+          <IntegratedCanvasExperience />
+        </>
+      </AuthContextProvider>
+    )
+  }
+
   return (
     <>
       <NavBar />
@@ -123,6 +157,34 @@ function App() {
         </div>
         <h1><span className="glow">CANVAS</span></h1>
         <p>AI-POWERED SALES INTELLIGENCE & RESEARCH PLATFORM</p>
+        
+        {/* Mode Toggle */}
+        <button
+          onClick={() => setCinematicMode(true)}
+          style={{
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            padding: '8px 16px',
+            background: 'linear-gradient(90deg, #00ffc6 0%, #7B42F6 100%)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '20px',
+            cursor: 'pointer',
+            fontWeight: 600,
+            fontSize: '0.9rem',
+            boxShadow: '0 2px 10px rgba(0, 255, 198, 0.3)',
+            transition: 'transform 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'scale(1.05)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'scale(1)'
+          }}
+        >
+          ✨ TRY CINEMATIC MODE
+        </button>
         
         {/* Scan History Toggle */}
         <button 

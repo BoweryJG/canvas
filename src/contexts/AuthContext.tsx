@@ -7,6 +7,11 @@ interface User {
     full_name?: string;
     avatar_url?: string;
   };
+  subscription?: {
+    tier: 'free' | 'pro' | 'genius' | 'enterprise';
+    status: 'active' | 'inactive' | 'trial';
+    expiresAt?: string;
+  };
 }
 
 interface AuthContextType {
@@ -16,6 +21,7 @@ interface AuthContextType {
   signInWithFacebook: () => Promise<void>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
+  subscription?: User['subscription'];
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -48,6 +54,10 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({ childr
         user_metadata: {
           full_name: 'Canvas User',
           avatar_url: 'https://via.placeholder.com/32'
+        },
+        subscription: {
+          tier: 'free',
+          status: 'active'
         }
       };
       setUser(mockUser);
@@ -68,6 +78,10 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({ childr
         user_metadata: {
           full_name: 'Canvas User FB',
           avatar_url: 'https://via.placeholder.com/32'
+        },
+        subscription: {
+          tier: 'pro',
+          status: 'active'
         }
       };
       setUser(mockUser);
@@ -97,7 +111,8 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({ childr
       signInWithGoogle,
       signInWithFacebook,
       signOut,
-      isAdmin
+      isAdmin,
+      subscription: user?.subscription
     }}>
       {children}
     </AuthContext.Provider>
