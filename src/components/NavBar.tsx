@@ -13,8 +13,6 @@ import Box from '@mui/material/Box';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import InsightsIcon from '@mui/icons-material/Insights';
 import PodcastsIcon from '@mui/icons-material/Podcasts';
-import LanguageIcon from '@mui/icons-material/Language';
-import DashboardIcon from '@mui/icons-material/Dashboard';
 import MemoryIcon from '@mui/icons-material/Memory';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
