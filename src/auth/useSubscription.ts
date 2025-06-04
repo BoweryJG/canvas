@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
 import { supabase } from './supabase';
 import { 
-  SUBSCRIPTION_TIERS, 
   CREDIT_COSTS, 
   getSubscriptionTier,
   canAccessFeature 

@@ -211,13 +211,12 @@ Format as JSON with these exact fields:
     };
   } catch (error) {
     // Fallback to intelligent defaults based on prospect type
-    return generateSmartDefaults(prospectInfo, product);
+    return generateSmartDefaults(prospectInfo);
   }
 }
 
 function generateSmartDefaults(
-  prospectInfo: { type: ProspectType, industry: Industry },
-  product: string
+  prospectInfo: { type: ProspectType, industry: Industry }
 ): ResearchProfile {
   const defaults: Record<ProspectType, Partial<ResearchProfile['businessMetrics']>> = {
     dentist: {
@@ -265,7 +264,7 @@ function generateSmartDefaults(
 }
 
 // Helper functions
-function extractBusinessMetrics(results: any) {
+function extractBusinessMetrics() {
   // Extract practice size, employee count, etc.
   return {
     estimatedSize: 'medium',
@@ -273,7 +272,7 @@ function extractBusinessMetrics(results: any) {
   };
 }
 
-function extractTechnologyStack(results: any) {
+function extractTechnologyStack() {
   // Extract current technology usage
   return {
     currentTech: [],
@@ -281,7 +280,7 @@ function extractTechnologyStack(results: any) {
   };
 }
 
-function extractNetworkInfo(results: any) {
+function extractNetworkInfo() {
   // Extract professional associations
   return {
     associations: [],

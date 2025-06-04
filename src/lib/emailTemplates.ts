@@ -1,4 +1,4 @@
-import { EmailCampaign } from './magicLinks';
+import { type EmailCampaign } from './magicLinks';
 
 interface ScanResult {
   doctor: string;

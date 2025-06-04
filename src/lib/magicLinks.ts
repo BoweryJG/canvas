@@ -202,7 +202,7 @@ export const createTempEmailPage = async (
   const tempId = crypto.randomUUID();
   
   // Store in Supabase
-  const { error } = await import('./supabase').then(({ supabase }) => 
+  const { error } = await import('../auth/supabase').then(({ supabase }) => 
     supabase.from('temp_emails').insert({
       id: tempId,
       campaign_id: campaign.id,

@@ -36,12 +36,6 @@ const ACCENT_COLOR = '#00ffc6';
 
 // Animation keyframes
 
-const borderGradient = keyframes`
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-`;
-
 // Main navigation links
 const getNavLinks = (currentUrl: string, isAdmin: boolean) => {
   const links = [

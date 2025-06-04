@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSubscription } from '../auth/useSubscription';
-import { generateMagicLink, isEmailTooLong, EmailCampaign } from '../lib/magicLinks';
+import { generateMagicLink, isEmailTooLong, type EmailCampaign } from '../lib/magicLinks';
 import { useAuth } from '../auth';
 
 interface MagicLinkSenderProps {
@@ -20,7 +20,6 @@ export const MagicLinkSender: React.FC<MagicLinkSenderProps> = ({
     canSendMagicLink, 
     magicLinksRemaining, 
     trackUsage,
-    tier,
     isFreeTier 
   } = useSubscription();
   

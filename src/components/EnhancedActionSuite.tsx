@@ -24,8 +24,7 @@ import CRMIntegrationPanel from './CRMIntegrationPanel';
 import BatchAnalysisPanel from './BatchAnalysisPanel';
 import { MagicLinkSender } from './MagicLinkSender';
 import { generateEmailFromScanResult } from '../lib/emailTemplates';
-import { EmailCampaign } from '../lib/magicLinks';
-import { useSubscription } from '../auth/useSubscription';
+import { type EmailCampaign } from '../lib/magicLinks';
 
 interface EnhancedActionSuiteProps {
   scanResult: EnhancedScanResult;
@@ -58,7 +57,6 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
   const [magicLinkCampaign, setMagicLinkCampaign] = useState<EmailCampaign | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
-  const { isFreeTier } = useSubscription();
   
   // Sales rep information
   const [salesRepInfo, setSalesRepInfo] = useState({
@@ -74,70 +72,6 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
     preferredName: scanResult.doctor
   });
 
-  /**
-   * Generate personalized email outreach
-   */
-  const handleGenerateEmail = useCallback(async () => {
-    if (!researchData) return;
-    
-    setEmailState({ loading: true, sent: false });
-    
-    try {
-      const outreach = await generatePersonalizedOutreach(
-        scanResult,
-        researchData,
-        'first_contact',
-        'email'
-      );
-      
-      setEmailState({ 
-        loading: false, 
-        sent: false, 
-        content: outreach 
-      });
-      
-    } catch (error) {
-      setEmailState({ 
-        loading: false, 
-        sent: false, 
-        error: error instanceof Error ? error.message : 'Failed to generate email' 
-      });
-    }
-  }, [scanResult, researchData]);
-
-  /**
-   * Send generated email
-   */
-  const handleSendEmail = useCallback(async () => {
-    if (!emailState.content || !contactInfo.email) return;
-    
-    setEmailState(prev => ({ ...prev, loading: true }));
-    
-    try {
-      const result = await sendEmail(
-        contactInfo.email,
-        emailState.content.subject,
-        emailState.content.content
-      );
-      
-      if (result.success) {
-        setEmailState(prev => ({ 
-          ...prev, 
-          loading: false, 
-          sent: true 
-        }));
-      } else {
-        throw new Error(result.error);
-      }
-      
-    } catch (error) {
-      setEmailState(prev => ({ 
-        ...prev, 
-        loading: false, 
-        error: error instanceof Error ? error.message : 'Failed to send email' 
-      }));
-    }
-  }, [emailState.content, contactInfo.email]);
 
   /**
    * Generate personalized SMS
