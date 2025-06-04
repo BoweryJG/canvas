@@ -30,6 +30,7 @@ import AuthModal from './AuthModal';
 import Tooltip from '@mui/material/Tooltip';
 import Fade from '@mui/material/Fade';
 import Slide from '@mui/material/Slide';
+import { useNavigate } from 'react-router-dom';
 
 const ACCENT_COLOR = '#00ffc6';
 
@@ -41,7 +42,8 @@ const getNavLinks = (currentUrl: string, isAdmin: boolean) => {
     { 
       key: 'insights',
       label: 'Market Insights', 
-      href: 'https://marketdata.repspheres.com/',
+      href: '/market-insights',
+      isInternal: true,
       icon: <InsightsIcon fontSize="small" sx={{ color: ACCENT_COLOR }} />,
       highlight: true,
       description: 'Real-time market intelligence'
@@ -67,7 +69,9 @@ const getNavLinks = (currentUrl: string, isAdmin: boolean) => {
       key: 'analytics',
       label: 'Analytics',
       href: '/admin-analytics',
+      isInternal: true,
       icon: <InsightsIcon fontSize="small" sx={{ color: ACCENT_COLOR }} />,
+      highlight: false,
       description: 'Admin dashboard'
     });
   }
@@ -120,6 +124,9 @@ export default function NavBar() {
   // Get authentication context
   const { user, loading, signOut, isAdmin } = useAuth();
   
+  // Get navigation
+  const navigate = useNavigate();
+  
   // Get current URL to determine which page we're on
   const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
 
@@ -151,10 +158,15 @@ export default function NavBar() {
   );
   
   // Handle navigation with loading state
-  const handleNavigation = (href: string) => {
+  const handleNavigation = (href: string, isInternal?: boolean) => {
     setNavLoading(true);
     setTimeout(() => {
-      window.location.href = href;
+      if (isInternal) {
+        navigate(href);
+        setNavLoading(false);
+      } else {
+        window.location.href = href;
+      }
     }, 300);
   };
   
@@ -401,7 +413,7 @@ export default function NavBar() {
                 href={link.href}
                 onClick={(e) => {
                   e.preventDefault();
-                  handleNavigation(link.href);
+                  handleNavigation(link.href, link.isInternal);
                 }}
                 sx={{
                   py: 1,
@@ -715,7 +727,7 @@ export default function NavBar() {
                       href={link.href}
                       onClick={(e) => {
                         e.preventDefault();
-                        handleNavigation(link.href);
+                        handleNavigation(link.href, link.isInternal);
                       }}
                       className={isLinkActive(link.href, currentUrl) ? 'active' : ''}
                       sx={[
