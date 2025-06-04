@@ -46,6 +46,7 @@ export interface ResearchData {
   sources: ResearchSource[];
   confidenceScore: number;
   completedAt: string;
+  linkedinUrl?: string;
 }
 
 /**

@@ -21,7 +21,7 @@ import {
 } from '../lib/salesRepReports';
 import CRMIntegrationPanel from './CRMIntegrationPanel';
 import BatchAnalysisPanel from './BatchAnalysisPanel';
-import { MagicLinkSender } from './MagicLinkSender';
+import { MultiChannelMagicLink } from './MultiChannelMagicLink';
 import { generateEmailFromScanResult } from '../lib/emailTemplates';
 import { type EmailCampaign } from '../lib/magicLinks';
 
@@ -564,13 +564,26 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                     </div>
                   </div>
                   
-                  {/* Magic Link Sender */}
+                  {/* Multi-Channel Magic Link Sender */}
                   <div style={{ marginTop: '20px' }}>
-                    <MagicLinkSender
-                      campaign={magicLinkCampaign}
-                      onSent={() => {
-                        // Optionally track or update state
-                        console.log('Email opened in client');
+                    <MultiChannelMagicLink
+                      campaign={{
+                        ...magicLinkCampaign,
+                        phone: contactInfo.phone,
+                        smsMessage: `Hi Dr. ${scanResult.doctor}, I have insights about ${scanResult.product} that could help optimize your workflow. Would love to share what similar practices are doing. - ${salesRepInfo.name}`,
+                        whatsappMessage: magicLinkCampaign.body,
+                        linkedinMessage: magicLinkCampaign.body,
+                        linkedinUrl: researchData?.linkedinUrl
+                      }}
+                      doctor={{
+                        name: scanResult.doctor,
+                        email: contactInfo.email,
+                        phone: contactInfo.phone,
+                        linkedinUrl: researchData?.linkedinUrl
+                      }}
+                      onSent={(channel) => {
+                        // Track which channel was used
+                        console.log(`${channel} link opened`);
                       }}
                       onUpgradeClick={() => setShowUpgradeModal(true)}
                     />

@@ -13,6 +13,16 @@ export interface EmailCampaign {
   replyTo?: string;
 }
 
+export interface MultiChannelCampaign extends EmailCampaign {
+  phone?: string;
+  phoneIntl?: string;
+  linkedinId?: string;
+  linkedinUrl?: string;
+  smsMessage?: string;
+  whatsappMessage?: string;
+  linkedinMessage?: string;
+}
+
 export interface MagicLinkOptions {
   trackingId?: string;
   provider?: 'gmail' | 'outlook' | 'yahoo' | 'apple' | 'default';
