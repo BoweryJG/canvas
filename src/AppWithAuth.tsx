@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import App from './App';
 import { useAuth } from './auth';
 import { supabase } from './auth/supabase';
@@ -11,7 +11,6 @@ import Alert from '@mui/material/Alert';
 import AuthModal from './components/AuthModal';
 import { motion } from 'framer-motion';
 import LockIcon from '@mui/icons-material/Lock';
-import { AutoAwesome } from '@mui/icons-material';
 
 interface UserProfile {
   credits_remaining: number;
@@ -169,7 +168,8 @@ function AppWithAuth() {
 
         <AuthModal 
           open={showAuthModal} 
-          onClose={() => setShowAuthModal(false)} 
+          onClose={() => setShowAuthModal(false)}
+          initialMode="signup"
         />
       </Box>
     );

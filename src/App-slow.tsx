@@ -106,7 +106,7 @@ function App() {
   const loadScanHistory = async () => {
     // Load anonymous scans (user_id = null)
     const historyResult = await getScanHistory(null) 
-    if (historyResult.success) {
+    if (historyResult.success && historyResult.data) {
       setScanHistory(historyResult.data)
     }
   }
