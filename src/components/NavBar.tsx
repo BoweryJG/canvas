@@ -52,6 +52,7 @@ const getNavLinks = (currentUrl: string, isAdmin: boolean) => {
       label: 'Sphere oS', 
       href: 'https://crm.repspheres.com/',
       icon: <MemoryIcon fontSize="small" sx={{ color: ACCENT_COLOR }} />,
+      highlight: false,
       description: 'AI-powered CRM platform'
     },
     {
@@ -59,6 +60,7 @@ const getNavLinks = (currentUrl: string, isAdmin: boolean) => {
       label: 'Podcast',
       href: 'https://workshop-homepage.netlify.app/?page=podcast',
       icon: <PodcastsIcon fontSize="small" sx={{ color: ACCENT_COLOR }} />,
+      highlight: false,
       description: 'Industry insights & interviews'
     },
   ];
@@ -67,8 +69,7 @@ const getNavLinks = (currentUrl: string, isAdmin: boolean) => {
     links.push({
       key: 'analytics',
       label: 'Analytics',
-      href: '/admin-analytics',
-      isInternal: true,
+      href: 'https://analytics.repspheres.com/admin',
       icon: <InsightsIcon fontSize="small" sx={{ color: ACCENT_COLOR }} />,
       highlight: false,
       description: 'Admin dashboard'
