@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Bolt, AutoAwesome } from '@mui/icons-material';
 import SimpleCinematicScan from './SimpleCinematicScan';
 import SimpleProgressiveResults from './SimpleProgressiveResults';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../auth';
 
 const GradientBackground = styled(Box)`
   position: fixed;

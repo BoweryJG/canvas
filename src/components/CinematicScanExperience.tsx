@@ -17,7 +17,7 @@ import {
 } from '@mui/icons-material';
 import { styled, keyframes } from '@mui/material/styles';
 import { realTimeScanner, type RealTimeScanResult } from '../lib/realTimeFastScanner';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../auth';
 
 // Keyframe animations
 const matrixRain = keyframes`

@@ -14,7 +14,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import GoogleIcon from '@mui/icons-material/Google';
 import FacebookIcon from '@mui/icons-material/Facebook';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../auth';
 
 interface AuthModalProps {
   open: boolean;
@@ -26,19 +26,19 @@ const AuthModal: React.FC<AuthModalProps> = ({ open, onClose, initialMode }) => 
   const [mode, setMode] = useState(initialMode === 'signup' ? 1 : 0);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { signInWithGoogle, signInWithFacebook } = useAuth();
+  const { signInWithProvider } = useAuth();
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setMode(newValue);
   };
 
   const handleGoogleSignIn = async () => {
-    await signInWithGoogle();
+    await signInWithProvider('google');
     onClose();
   };
 
   const handleFacebookSignIn = async () => {
-    await signInWithFacebook();
+    await signInWithProvider('facebook');
     onClose();
   };
 

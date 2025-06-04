@@ -6,7 +6,7 @@ import EnhancedActionSuite from './components/EnhancedActionSuite'
 import NavBar from './components/NavBar'
 import ResearchPanel from './components/ResearchPanel'
 import IntegratedCanvasExperience from './components/IntegratedCanvasExperience'
-import { AuthContextProvider } from './contexts/AuthContext'
+import { AuthProvider } from './auth'
 
 interface ScanResult {
   doctor: string;
@@ -56,7 +56,7 @@ function App() {
 
   if (cinematicMode) {
     return (
-      <AuthContextProvider>
+      <AuthProvider>
         <>
           <NavBar />
           <button
@@ -80,7 +80,7 @@ function App() {
           </button>
           <IntegratedCanvasExperience />
         </>
-      </AuthContextProvider>
+      </AuthProvider>
     )
   }
 

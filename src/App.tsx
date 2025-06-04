@@ -7,7 +7,7 @@ import NavBar from './components/NavBar'
 import ResearchPanel from './components/ResearchPanel'
 import IntegratedCanvasExperience from './components/IntegratedCanvasExperience'
 import DoctorVerification from './components/DoctorVerification'
-import { AuthContextProvider } from './contexts/AuthContext'
+import { AuthProvider } from './auth'
 import { analyzeDoctor } from './lib/intelligentAnalysis'
 import { performEnhancedResearch, generateEnhancedSalesBrief } from './lib/enhancedResearch'
 
@@ -112,7 +112,7 @@ function App() {
 
   if (cinematicMode) {
     return (
-      <AuthContextProvider>
+      <AuthProvider>
         <>
           <NavBar />
           <button
@@ -136,7 +136,7 @@ function App() {
           </button>
           <IntegratedCanvasExperience />
         </>
-      </AuthContextProvider>
+      </AuthProvider>
     )
   }
 

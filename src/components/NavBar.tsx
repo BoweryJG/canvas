@@ -17,7 +17,7 @@ import MemoryIcon from '@mui/icons-material/Memory';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import { useOrbContext } from './OrbContextProvider';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../auth';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import MoreVertIcon from '@mui/icons-material/MoreVert';

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import IntegratedCanvasExperience from './components/IntegratedCanvasExperience'
-import { AuthContextProvider } from './contexts/AuthContext'
+import { AuthProvider } from './auth'
 import { performAIScan } from './lib/ai'
 import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon } from './components/Icons'
 // @ts-ignore
@@ -118,7 +118,7 @@ function App() {
   // Show cinematic mode if enabled
   if (cinematicMode) {
     return (
-      <AuthContextProvider>
+      <AuthProvider>
         <>
           <NavBar />
           <button
@@ -142,7 +142,7 @@ function App() {
           </button>
           <IntegratedCanvasExperience />
         </>
-      </AuthContextProvider>
+      </AuthProvider>
     )
   }
 

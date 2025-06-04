@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import NavBar from './components/NavBar'
 import IntegratedCanvasExperience from './components/IntegratedCanvasExperience'
-import { AuthContextProvider } from './contexts/AuthContext'
+import { AuthProvider } from './auth'
 import './App.css'
 
 function App() {
@@ -16,7 +16,7 @@ function App() {
   }
 
   return (
-    <AuthContextProvider>
+    <AuthProvider>
       <div className="canvas-app-cinematic">
         <NavBar />
         
@@ -44,7 +44,7 @@ function App() {
         {/* Cinematic Experience */}
         <IntegratedCanvasExperience />
       </div>
-    </AuthContextProvider>
+    </AuthProvider>
   )
 }
 
