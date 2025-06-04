@@ -3,14 +3,15 @@
  * Combines instant cinematic scan with progressive data loading
  */
 
-import { useState } from 'react';
-import { Box, TextField, Button, Typography, Container } from '@mui/material';
+import { useState, useEffect } from 'react';
+import { Box, TextField, Button, Typography, Container, Alert, Snackbar } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Bolt, AutoAwesome } from '@mui/icons-material';
 import SimpleCinematicScan from './SimpleCinematicScan';
 import SimpleProgressiveResults from './SimpleProgressiveResults';
 import { useAuth } from '../auth';
+import { checkUserCredits, deductCredit } from '../lib/creditManager';
 
 const GradientBackground = styled(Box)`
   position: fixed;
@@ -98,16 +99,46 @@ export default function IntegratedCanvasExperience() {
   const [product, setProduct] = useState('');
   const [location, setLocation] = useState('');
   const [stage, setStage] = useState<'input' | 'scanning' | 'results'>('input');
-  // const [scanId, setScanId] = useState('');
+  const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
+  const [showCreditAlert, setShowCreditAlert] = useState(false);
+  const [creditError, setCreditError] = useState('');
   const { user } = useAuth();
   const userTier = user?.subscription?.tier || 'free';
   
-  const handleLaunchScan = () => {
-    if (!doctor || !product) return;
+  // Check credits on component mount
+  useEffect(() => {
+    const loadCredits = async () => {
+      if (user) {
+        const creditCheck = await checkUserCredits(user.id);
+        setCreditsRemaining(creditCheck.creditsRemaining);
+      }
+    };
+    loadCredits();
+  }, [user]);
+  
+  const handleLaunchScan = async () => {
+    if (!doctor || !product || !user) return;
     
+    // Check credits before scanning
+    const creditCheck = await checkUserCredits(user.id);
+    setCreditsRemaining(creditCheck.creditsRemaining);
+    
+    if (!creditCheck.hasCredits) {
+      setCreditError('You have no credits remaining. Please upgrade your plan to continue scanning.');
+      setShowCreditAlert(true);
+      return;
+    }
+    
+    // Deduct credit and start scan
+    const deducted = await deductCredit(user.id);
+    if (!deducted) {
+      setCreditError('Failed to process scan. Please try again.');
+      setShowCreditAlert(true);
+      return;
+    }
+    
+    setCreditsRemaining(creditCheck.creditsRemaining - 1);
     setStage('scanning');
-    // setScanId(`scan_${Date.now()}`);
-    
     // SimpleCinematicScan will call onComplete when done
   };
   
@@ -210,6 +241,17 @@ export default function IntegratedCanvasExperience() {
             >
               LAUNCH INTELLIGENCE SCAN
             </LaunchButton>
+            
+            {creditsRemaining !== null && (
+              <Typography variant="caption" sx={{ 
+                display: 'block',
+                mt: 1,
+                color: creditsRemaining > 3 ? '#00ffc6' : '#ff9800',
+                textAlign: 'center'
+              }}>
+                {creditsRemaining} scans remaining
+              </Typography>
+            )}
           </Box>
           
           {userTier === 'free' && (
@@ -317,6 +359,21 @@ export default function IntegratedCanvasExperience() {
         )}
         {stage === 'results' && renderResults()}
       </AnimatePresence>
+      
+      <Snackbar
+        open={showCreditAlert}
+        autoHideDuration={6000}
+        onClose={() => setShowCreditAlert(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => setShowCreditAlert(false)} 
+          severity="error" 
+          sx={{ width: '100%' }}
+        >
+          {creditError}
+        </Alert>
+      </Snackbar>
     </>
   );
 }

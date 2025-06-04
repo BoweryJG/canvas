@@ -31,11 +31,11 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       monthly: 0,
       annual: 0
     },
-    credits: 5,
+    credits: 10,
     magicLinks: 0,
     features: [
-      '5 Canvas scans (one-time)',
-      'Basic features only',
+      '10 Canvas scans to start',
+      'Full Canvas features',
       'See what Canvas Header can do',
       'No credit card required'
     ],
