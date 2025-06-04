@@ -41,7 +41,7 @@ const getNavLinks = (currentUrl: string, isAdmin: boolean) => {
   const links = [
     { 
       key: 'insights',
-      label: 'Market Insights', 
+      label: 'Market Data', 
       href: 'https://marketdata.repspheres.com/',
       icon: <InsightsIcon fontSize="small" sx={{ color: ACCENT_COLOR }} />,
       highlight: true,
