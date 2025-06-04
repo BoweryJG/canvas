@@ -4,8 +4,7 @@
  */
 
 import { callBraveSearch } from './apiEndpoints';
-// @ts-ignore
-import { supabase } from './supabase';
+import { supabase } from '../auth/supabase';
 
 interface OptimizedResearchResult {
   confidence: number;

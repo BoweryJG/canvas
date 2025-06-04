@@ -323,7 +323,7 @@ export async function scheduleCampaign(campaign: OutreachCampaign): Promise<bool
   try {
     // Store campaign in Supabase
     // @ts-ignore
-    const { supabase } = await import('./supabase');
+    const { supabase } = await import('../auth/supabase');
     
     const { error } = await supabase
       .from('canvas_campaigns')

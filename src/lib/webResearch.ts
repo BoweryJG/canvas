@@ -1,5 +1,4 @@
-// @ts-ignore
-import { supabase } from './supabase';
+import { supabase } from '../auth/supabase';
 
 export interface ResearchSource {
   url: string;

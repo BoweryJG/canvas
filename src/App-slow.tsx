@@ -6,7 +6,7 @@ import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon }
 // @ts-ignore
 import EnhancedActionSuite from './components/EnhancedActionSuite'
 // @ts-ignore
-import { saveScan, getScanHistory } from './lib/supabase'
+import { saveScan, getScanHistory } from './lib/supabaseOperations'
 import NavBar from './components/NavBar'
 import ResearchPanel from './components/ResearchPanel'
 import { conductDoctorResearch, type ResearchData } from './lib/webResearch'
