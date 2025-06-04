@@ -42,8 +42,7 @@ const getNavLinks = (currentUrl: string, isAdmin: boolean) => {
     { 
       key: 'insights',
       label: 'Market Insights', 
-      href: '/market-insights',
-      isInternal: true,
+      href: 'https://marketdata.repspheres.com/',
       icon: <InsightsIcon fontSize="small" sx={{ color: ACCENT_COLOR }} />,
       highlight: true,
       description: 'Real-time market intelligence'
@@ -413,7 +412,7 @@ export default function NavBar() {
                 href={link.href}
                 onClick={(e) => {
                   e.preventDefault();
-                  handleNavigation(link.href, link.isInternal);
+                  handleNavigation(link.href);
                 }}
                 sx={{
                   py: 1,
@@ -727,7 +726,7 @@ export default function NavBar() {
                       href={link.href}
                       onClick={(e) => {
                         e.preventDefault();
-                        handleNavigation(link.href, link.isInternal);
+                        handleNavigation(link.href);
                       }}
                       className={isLinkActive(link.href, currentUrl) ? 'active' : ''}
                       sx={[
