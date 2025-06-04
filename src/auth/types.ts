@@ -13,9 +13,17 @@ export interface User {
   };
   created_at?: string;
   subscription?: {
-    tier: 'free' | 'pro' | 'genius' | 'enterprise';
-    status: 'active' | 'inactive' | 'trial';
-    expiresAt?: string;
+    tier: 'explorer' | 'closer' | 'dominator' | 'enterprise';
+    status: 'active' | 'inactive' | 'trial' | 'expired';
+    credits: number;
+    creditsUsed: number;
+    magicLinksUsed: number;
+    magicLinksLimit: number;
+    billingCycle: 'monthly' | 'annual';
+    startDate: string;
+    endDate: string;
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
   };
 }
 

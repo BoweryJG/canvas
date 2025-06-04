@@ -22,6 +22,10 @@ import {
 } from '../lib/salesRepReports';
 import CRMIntegrationPanel from './CRMIntegrationPanel';
 import BatchAnalysisPanel from './BatchAnalysisPanel';
+import { MagicLinkSender } from './MagicLinkSender';
+import { generateEmailFromScanResult } from '../lib/emailTemplates';
+import { EmailCampaign } from '../lib/magicLinks';
+import { useSubscription } from '../auth/useSubscription';
 
 interface EnhancedActionSuiteProps {
   scanResult: EnhancedScanResult;
@@ -51,6 +55,10 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
   const [crmSyncState, setCrmSyncState] = useState<{ loading: boolean; error?: string; success?: boolean }>({ loading: false });
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showBatchAnalysis, setShowBatchAnalysis] = useState(false);
+  const [magicLinkCampaign, setMagicLinkCampaign] = useState<EmailCampaign | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  
+  const { isFreeTier } = useSubscription();
   
   // Sales rep information
   const [salesRepInfo, setSalesRepInfo] = useState({
@@ -583,41 +591,121 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
               
               <div className="outreach-actions">
                 <button 
-                  onClick={handleGenerateEmail}
-                  disabled={emailState.loading || !researchData}
+                  onClick={() => {
+                    // Generate email campaign for magic link
+                    const campaign = generateEmailFromScanResult(
+                      scanResult,
+                      salesRepInfo,
+                      'initial'
+                    );
+                    // Add recipient email
+                    campaign.to = contactInfo.email;
+                    setMagicLinkCampaign(campaign);
+                  }}
+                  disabled={!researchData}
                   className="generate-btn"
                 >
-                  {emailState.loading ? '🔄 Generating...' : '🧠 Generate Email'}
+                  🧠 Generate Email
                 </button>
-                
-                {emailState.content && (
-                  <button 
-                    onClick={handleSendEmail}
-                    disabled={!contactInfo.email || emailState.loading || emailState.sent}
-                    className="send-btn email"
-                  >
-                    {emailState.loading ? '📤 Sending...' : emailState.sent ? '✅ Sent!' : '📧 Send Email'}
-                  </button>
-                )}
               </div>
 
-              {emailState.content && (
-                <div className="outreach-preview">
-                  <div className="preview-header">
-                    <strong>Subject:</strong> {emailState.content.subject}
+              {magicLinkCampaign && (
+                <>
+                  <div className="outreach-preview">
+                    <div className="preview-header">
+                      <strong>To:</strong> {magicLinkCampaign.to || 'Enter recipient email above'}
+                    </div>
+                    <div className="preview-header">
+                      <strong>Subject:</strong> {magicLinkCampaign.subject}
+                    </div>
+                    <div className="preview-content" style={{ 
+                      maxHeight: '300px', 
+                      overflowY: 'auto',
+                      whiteSpace: 'pre-wrap',
+                      padding: '15px',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      borderRadius: '8px',
+                      marginTop: '10px'
+                    }}>
+                      {magicLinkCampaign.body}
+                    </div>
                   </div>
-                  <div className="preview-content">
-                    {emailState.content.content}
+                  
+                  {/* Magic Link Sender */}
+                  <div style={{ marginTop: '20px' }}>
+                    <MagicLinkSender
+                      campaign={magicLinkCampaign}
+                      onSent={() => {
+                        // Optionally track or update state
+                        console.log('Email opened in client');
+                      }}
+                      onUpgradeClick={() => setShowUpgradeModal(true)}
+                    />
                   </div>
-                  <div className="preview-insights">
-                    <strong>Personalizations:</strong>
-                    <ul>
-                      {emailState.content.personalizations.map((p, i) => (
-                        <li key={i}>{p}</li>
-                      ))}
-                    </ul>
+                  
+                  {/* Email Type Selector */}
+                  <div style={{ 
+                    marginTop: '15px', 
+                    display: 'flex', 
+                    gap: '10px',
+                    justifyContent: 'center'
+                  }}>
+                    <button
+                      onClick={() => {
+                        const campaign = generateEmailFromScanResult(scanResult, salesRepInfo, 'initial');
+                        campaign.to = contactInfo.email;
+                        setMagicLinkCampaign(campaign);
+                      }}
+                      style={{
+                        padding: '8px 16px',
+                        background: 'rgba(123, 66, 246, 0.2)',
+                        border: '1px solid rgba(123, 66, 246, 0.3)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                      }}
+                    >
+                      Initial Outreach
+                    </button>
+                    <button
+                      onClick={() => {
+                        const campaign = generateEmailFromScanResult(scanResult, salesRepInfo, 'follow_up');
+                        campaign.to = contactInfo.email;
+                        setMagicLinkCampaign(campaign);
+                      }}
+                      style={{
+                        padding: '8px 16px',
+                        background: 'rgba(123, 66, 246, 0.2)',
+                        border: '1px solid rgba(123, 66, 246, 0.3)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                      }}
+                    >
+                      Follow-Up
+                    </button>
+                    <button
+                      onClick={() => {
+                        const campaign = generateEmailFromScanResult(scanResult, salesRepInfo, 'closing');
+                        campaign.to = contactInfo.email;
+                        setMagicLinkCampaign(campaign);
+                      }}
+                      style={{
+                        padding: '8px 16px',
+                        background: 'rgba(123, 66, 246, 0.2)',
+                        border: '1px solid rgba(123, 66, 246, 0.3)',
+                        borderRadius: '6px',
+                        color: '#fff',
+                        cursor: 'pointer',
+                        fontSize: '14px'
+                      }}
+                    >
+                      Closing
+                    </button>
                   </div>
-                </div>
+                </>
               )}
 
               {emailState.error && (
@@ -1049,6 +1137,121 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             }}
           >
             <BatchAnalysisPanel onClose={() => setShowBatchAnalysis(false)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Upgrade Modal */}
+      <AnimatePresence>
+        {showUpgradeModal && (
+          <motion.div
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setShowUpgradeModal(false);
+              }
+            }}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0, 0, 0, 0.8)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              style={{
+                background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+                border: '1px solid rgba(123, 66, 246, 0.3)',
+                borderRadius: '16px',
+                padding: '40px',
+                maxWidth: '600px',
+                width: '90%',
+                color: '#fff',
+                boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'
+              }}
+            >
+              <h2 style={{ 
+                fontSize: '28px', 
+                marginBottom: '20px',
+                background: 'linear-gradient(135deg, #00ff88 0%, #00d4ff 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
+                🚀 Upgrade to Send from YOUR Email
+              </h2>
+              
+              <div style={{ marginBottom: '30px' }}>
+                <h3 style={{ fontSize: '20px', marginBottom: '15px' }}>✨ Magic Links - Available in Paid Plans</h3>
+                <ul style={{ listStyle: 'none', padding: 0 }}>
+                  <li style={{ marginBottom: '10px' }}>📧 Emails open in YOUR email client</li>
+                  <li style={{ marginBottom: '10px' }}>👤 Sends from YOUR email address</li>
+                  <li style={{ marginBottom: '10px' }}>🎯 Maintains sender authenticity</li>
+                  <li style={{ marginBottom: '10px' }}>📊 Track opens and engagement</li>
+                </ul>
+              </div>
+              
+              <div style={{ 
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderRadius: '12px',
+                padding: '20px',
+                marginBottom: '30px'
+              }}>
+                <h4 style={{ fontSize: '18px', marginBottom: '15px' }}>📈 Closer Plan - $97/month</h4>
+                <ul style={{ listStyle: 'none', padding: 0 }}>
+                  <li>✅ 10 Magic Link emails per month</li>
+                  <li>✅ 100 AI credits</li>
+                  <li>✅ Full Market Insights access</li>
+                  <li>✅ Export to PDF/Excel</li>
+                </ul>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+                <button
+                  onClick={() => {
+                    window.location.href = '/pricing';
+                    setShowUpgradeModal(false);
+                  }}
+                  style={{
+                    padding: '14px 28px',
+                    background: 'linear-gradient(135deg, #00ff88 0%, #00d4ff 100%)',
+                    color: '#000',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  View Pricing Plans
+                </button>
+                <button
+                  onClick={() => setShowUpgradeModal(false)}
+                  style={{
+                    padding: '14px 28px',
+                    background: 'transparent',
+                    color: '#fff',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Maybe Later
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
