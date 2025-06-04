@@ -25,10 +25,24 @@ interface AnalysisResult {
 
 export async function analyzeDoctor(doctorName: string, location: string | undefined, product: string): Promise<AnalysisResult> {
   try {
-    // Search with location to narrow results
+    // Determine industry based on product or doctor specialty
+    const isDental = product.toLowerCase().includes('dental') || 
+                    product.toLowerCase().includes('implant') ||
+                    product.toLowerCase().includes('ortho');
+    const isAesthetic = product.toLowerCase().includes('aesthetic') || 
+                       product.toLowerCase().includes('botox') ||
+                       product.toLowerCase().includes('filler') ||
+                       product.toLowerCase().includes('laser');
+    
+    // Industry-specific search optimization
+    const industryKeywords = isDental ? 'dental dentist DDS practice' : 
+                           isAesthetic ? 'aesthetic medspa dermatology cosmetic' : 
+                           'medical practice';
+    
+    // Enhanced search with industry context
     const searchQuery = location 
-      ? `"Dr. ${doctorName}" "${location}" medical practice website`
-      : `"Dr. ${doctorName}" medical practice website contact`;
+      ? `"Dr. ${doctorName}" "${location}" ${industryKeywords} website contact`
+      : `"Dr. ${doctorName}" ${industryKeywords} website contact`;
     
     const results = await callBraveSearch(searchQuery, 10);
     

@@ -9,6 +9,7 @@ import IntegratedCanvasExperience from './components/IntegratedCanvasExperience'
 import DoctorVerification from './components/DoctorVerification'
 import { AuthContextProvider } from './contexts/AuthContext'
 import { analyzeDoctor } from './lib/intelligentAnalysis'
+import { performEnhancedResearch, generateEnhancedSalesBrief } from './lib/enhancedResearch'
 
 interface ScanResult {
   doctor: string;
@@ -50,21 +51,44 @@ function App() {
   const handleDoctorConfirmed = async (profile: any) => {
     setShowVerification(false)
     setIsGeneratingBrief(true)
-    setScanStage('Generating intelligent brief...')
+    setScanStage('Performing deep industry analysis...')
     
     try {
-      // Generate comprehensive analysis using the verified profile
+      // Step 1: Basic analysis
       const analysis = await analyzeDoctor(profile.name, profile.location, product)
       
-      // Create enhanced scan result with verified data
+      // Step 2: Enhanced industry-specific research
+      setScanStage('Analyzing practice metrics & technology stack...')
+      const enhancedProfile = await performEnhancedResearch(
+        profile.name,
+        profile.location,
+        product,
+        profile
+      )
+      
+      // Step 3: Generate strategic sales brief
+      setScanStage('Creating strategic sales brief...')
+      const strategicBrief = generateEnhancedSalesBrief(
+        enhancedProfile,
+        profile.name,
+        product
+      )
+      
+      // Create enhanced scan result with deep insights
       const enhancedResult: ScanResult = {
         doctor: profile.name,
         product: product,
         score: analysis.interestLevel,
-        doctorProfile: analysis.synthesis,
+        doctorProfile: `${analysis.synthesis}\n\n**Practice Profile**: ${enhancedProfile.prospectType.replace('_', ' ')} | ${enhancedProfile.businessMetrics.practiceSize} practice | ${enhancedProfile.businessMetrics.technologyAdoption.replace('_', ' ')} adopter`,
         productIntel: analysis.productAlignment,
-        salesBrief: `${analysis.synthesis} ${analysis.productAlignment}`,
-        insights: analysis.keyFactors,
+        salesBrief: strategicBrief,
+        insights: [
+          `✅ Verified ${enhancedProfile.prospectType.replace('_', ' ')} - ${enhancedProfile.businessMetrics.decisionMakingSpeed} decision maker`,
+          `🎯 Technology adoption: ${enhancedProfile.businessMetrics.technologyAdoption}`,
+          `📊 Practice size: ${enhancedProfile.businessMetrics.practiceSize}`,
+          ...enhancedProfile.buyingSignals.map(signal => `💡 ${signal}`),
+          ...analysis.keyFactors
+        ],
         researchQuality: 'verified' as const,
         researchSources: profile.sources?.length || 0,
         factBased: true
