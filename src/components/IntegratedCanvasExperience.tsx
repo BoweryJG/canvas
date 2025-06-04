@@ -12,6 +12,7 @@ import SimpleCinematicScan from './SimpleCinematicScan';
 import SimpleProgressiveResults from './SimpleProgressiveResults';
 import { useAuth } from '../auth';
 import { checkUserCredits, deductCredit } from '../lib/creditManager';
+import AuthModal from './AuthModal';
 
 const GradientBackground = styled(Box)`
   position: fixed;
@@ -102,6 +103,7 @@ export default function IntegratedCanvasExperience() {
   const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
   const [showCreditAlert, setShowCreditAlert] = useState(false);
   const [creditError, setCreditError] = useState('');
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const { user } = useAuth();
   const userTier = user?.subscription?.tier || 'free';
   
@@ -117,7 +119,13 @@ export default function IntegratedCanvasExperience() {
   }, [user]);
   
   const handleLaunchScan = async () => {
-    if (!doctor || !product || !user) return;
+    if (!doctor || !product) return;
+    
+    // Check if user is authenticated first
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
     
     // Check credits before scanning
     const creditCheck = await checkUserCredits(user.id);
@@ -242,7 +250,7 @@ export default function IntegratedCanvasExperience() {
               LAUNCH INTELLIGENCE SCAN
             </LaunchButton>
             
-            {creditsRemaining !== null && (
+            {user && creditsRemaining !== null && (
               <Typography variant="caption" sx={{ 
                 display: 'block',
                 mt: 1,
@@ -250,6 +258,17 @@ export default function IntegratedCanvasExperience() {
                 textAlign: 'center'
               }}>
                 {creditsRemaining} scans remaining
+              </Typography>
+            )}
+            
+            {!user && (
+              <Typography variant="caption" sx={{ 
+                display: 'block',
+                mt: 1,
+                color: '#00ffc6',
+                textAlign: 'center'
+              }}>
+                Sign up to get 10 free scans
               </Typography>
             )}
           </Box>
@@ -374,6 +393,18 @@ export default function IntegratedCanvasExperience() {
           {creditError}
         </Alert>
       </Snackbar>
+      
+      <AuthModal
+        open={showAuthModal}
+        onClose={() => {
+          setShowAuthModal(false);
+          // After login, check if user has credits and proceed with scan
+          if (user && doctor && product) {
+            handleLaunchScan();
+          }
+        }}
+        initialMode="signup"
+      />
     </>
   );
 }
