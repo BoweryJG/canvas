@@ -1,16 +1,52 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { SUBSCRIPTION_TIERS } from '../auth/subscription.config';
 import { useAuth } from '../auth';
+import { redirectToCheckout, redirectToCustomerPortal } from '../lib/stripe';
 
 const PricingPage: React.FC = () => {
   const { user } = useAuth();
   const currentTier = user?.subscription?.tier || 'explorer';
+  const [loading, setLoading] = useState<string | null>(null);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annual'>('monthly');
 
-  const handleSelectPlan = (tierName: string) => {
-    // TODO: Integrate with Stripe
-    console.log('Selected plan:', tierName);
-    alert(`Coming soon! You'll be able to upgrade to ${tierName} plan.`);
+  const handleSelectPlan = async (tierName: string) => {
+    if (tierName === 'explorer') {
+      alert('Explorer is our free tier - no payment required!');
+      return;
+    }
+
+    if (!user) {
+      alert('Please sign in to subscribe to a plan');
+      return;
+    }
+
+    setLoading(tierName);
+    try {
+      await redirectToCheckout(tierName as any, billingCycle);
+    } catch (error) {
+      console.error('Error redirecting to checkout:', error);
+      alert('Failed to redirect to checkout. Please try again.');
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    if (!user?.subscription?.stripeCustomerId) {
+      alert('No active subscription found');
+      return;
+    }
+
+    setLoading('portal');
+    try {
+      await redirectToCustomerPortal();
+    } catch (error) {
+      console.error('Error redirecting to portal:', error);
+      alert('Failed to redirect to customer portal. Please try again.');
+    } finally {
+      setLoading(null);
+    }
   };
 
   return (
@@ -35,9 +71,71 @@ const PricingPage: React.FC = () => {
           }}>
             Choose Your RepSpheres Plan
           </h1>
-          <p style={{ fontSize: '20px', opacity: 0.8 }}>
+          <p style={{ fontSize: '20px', opacity: 0.8, marginBottom: '30px' }}>
             Unlock the full power of AI-driven medical sales intelligence
           </p>
+          
+          {/* Billing Cycle Toggle */}
+          <div style={{
+            display: 'inline-flex',
+            background: 'rgba(255, 255, 255, 0.1)',
+            borderRadius: '50px',
+            padding: '4px',
+            gap: '4px'
+          }}>
+            <button
+              onClick={() => setBillingCycle('monthly')}
+              style={{
+                padding: '10px 24px',
+                background: billingCycle === 'monthly' ? 'rgba(0, 255, 136, 0.2)' : 'transparent',
+                color: billingCycle === 'monthly' ? '#00ff88' : '#fff',
+                border: 'none',
+                borderRadius: '50px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                fontWeight: 500
+              }}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBillingCycle('annual')}
+              style={{
+                padding: '10px 24px',
+                background: billingCycle === 'annual' ? 'rgba(0, 255, 136, 0.2)' : 'transparent',
+                color: billingCycle === 'annual' ? '#00ff88' : '#fff',
+                border: 'none',
+                borderRadius: '50px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                fontWeight: 500
+              }}
+            >
+              Annual (Save ~17%)
+            </button>
+          </div>
+
+          {/* Manage Subscription Button for existing customers */}
+          {user?.subscription?.stripeCustomerId && (
+            <div style={{ marginTop: '20px' }}>
+              <button
+                onClick={handleManageSubscription}
+                disabled={loading === 'portal'}
+                style={{
+                  padding: '10px 24px',
+                  background: 'transparent',
+                  color: '#00ff88',
+                  border: '1px solid #00ff88',
+                  borderRadius: '8px',
+                  cursor: loading === 'portal' ? 'wait' : 'pointer',
+                  fontSize: '14px',
+                  opacity: loading === 'portal' ? 0.7 : 1
+                }}
+              >
+                {loading === 'portal' ? 'Loading...' : 'Manage Subscription'}
+              </button>
+            </div>
+          )}
         </motion.div>
 
         <div style={{
@@ -91,9 +189,18 @@ const PricingPage: React.FC = () => {
 
               <div style={{ marginBottom: '20px' }}>
                 <span style={{ fontSize: '48px', fontWeight: 700 }}>
-                  ${tier.price.monthly}
+                  ${billingCycle === 'annual' && tier.price.monthly > 0 
+                    ? tier.price.annual 
+                    : tier.price.monthly}
                 </span>
-                <span style={{ opacity: 0.7 }}>/month</span>
+                <span style={{ opacity: 0.7 }}>
+                  {tier.price.monthly === 0 ? '' : billingCycle === 'annual' ? '/year' : '/month'}
+                </span>
+                {billingCycle === 'annual' && tier.price.monthly > 0 && (
+                  <div style={{ fontSize: '14px', color: '#00ff88', marginTop: '5px' }}>
+                    Save ${(tier.price.monthly * 12) - tier.price.annual} per year
+                  </div>
+                )}
               </div>
 
               <div style={{
@@ -129,23 +236,30 @@ const PricingPage: React.FC = () => {
 
               <button
                 onClick={() => handleSelectPlan(key)}
-                disabled={currentTier === key}
+                disabled={currentTier === key || loading === key}
                 style={{
                   width: '100%',
                   padding: '14px',
                   background: currentTier === key
                     ? 'rgba(255, 255, 255, 0.1)'
+                    : loading === key
+                    ? 'rgba(102, 126, 234, 0.5)'
                     : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                   color: '#fff',
                   border: 'none',
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: 600,
-                  cursor: currentTier === key ? 'default' : 'pointer',
-                  opacity: currentTier === key ? 0.5 : 1
+                  cursor: currentTier === key || loading === key ? 'default' : 'pointer',
+                  opacity: currentTier === key || loading === key ? 0.7 : 1,
+                  transition: 'all 0.3s ease'
                 }}
               >
-                {currentTier === key ? 'Current Plan' : 'Select Plan'}
+                {currentTier === key 
+                  ? 'Current Plan' 
+                  : loading === key 
+                  ? 'Loading...' 
+                  : 'Select Plan'}
               </button>
             </motion.div>
           ))}

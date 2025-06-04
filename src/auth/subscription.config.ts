@@ -1,6 +1,6 @@
 /**
- * RepSpheres Subscription Configuration
- * Defines tiers, limits, and pricing
+ * Canvas Header Subscription Configuration
+ * Aligned with existing Stripe products
  */
 
 export interface SubscriptionTier {
@@ -24,9 +24,9 @@ export interface SubscriptionTier {
 }
 
 export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
-  explorer: {
-    name: 'explorer',
-    displayName: 'Explorer',
+  free: {
+    name: 'free',
+    displayName: 'Free Trial',
     price: {
       monthly: 0,
       annual: 0
@@ -34,77 +34,105 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     credits: 5,
     magicLinks: 0,
     features: [
-      '5 Canvas scans per month',
-      'Basic Market Insights (10 procedures)',
-      'CRM Lite (25 contacts max)',
-      'Instant results only'
+      '5 Canvas scans (one-time)',
+      'Basic features only',
+      'See what Canvas Header can do',
+      'No credit card required'
     ],
     limits: {
       canvasScansPerMonth: 5,
       marketInsightsAccess: false,
-      crmContactsMax: 25,
+      crmContactsMax: 10,
       aiResearchReports: 0,
       exportEnabled: false,
       teamMembers: 1
     }
   },
   
-  closer: {
-    name: 'closer',
-    displayName: 'Closer',
+  explorer: {
+    name: 'explorer',
+    displayName: 'Explorer',
     price: {
-      monthly: 97,
-      annual: 970 // 2 months free
+      monthly: 49,
+      annual: 490 // ~2 months free
     },
-    credits: 100,
-    magicLinks: 10,
+    credits: 50,
+    magicLinks: 5,
     features: [
-      '100 AI credits per month',
-      '10 Magic Link emails',
-      'Full Market Insights (350+ procedures)',
-      'CRM Pro (unlimited contacts)',
-      'Export to PDF/Excel',
-      'Email support',
-      'Mobile app access'
+      '50 AI credits per month',
+      '5 Magic Link emails',
+      'Basic Market Insights',
+      'CRM Lite (100 contacts)',
+      'Export to PDF',
+      'Email support'
     ],
     limits: {
-      canvasScansPerMonth: 100,
+      canvasScansPerMonth: 50,
       marketInsightsAccess: true,
-      crmContactsMax: -1, // unlimited
-      aiResearchReports: 20,
+      crmContactsMax: 100,
+      aiResearchReports: 10,
       exportEnabled: true,
       teamMembers: 1
     }
   },
   
-  dominator: {
-    name: 'dominator',
-    displayName: 'Dominator',
+  professional: {
+    name: 'professional',
+    displayName: 'Professional',
     price: {
-      monthly: 297,
-      annual: 2970
+      monthly: 149,
+      annual: 1490
+    },
+    credits: 200,
+    magicLinks: 20,
+    features: [
+      '200 AI credits per month',
+      '20 Magic Link emails',
+      'Full Market Insights (350+ procedures)',
+      'CRM Pro (1,000 contacts)',
+      'Export to PDF/Excel',
+      'Priority support',
+      'Mobile app access',
+      'Basic analytics'
+    ],
+    limits: {
+      canvasScansPerMonth: 200,
+      marketInsightsAccess: true,
+      crmContactsMax: 1000,
+      aiResearchReports: 50,
+      exportEnabled: true,
+      teamMembers: 2
+    }
+  },
+  
+  growth: {
+    name: 'growth',
+    displayName: 'Growth',
+    price: {
+      monthly: 349,
+      annual: 3490
     },
     credits: 500,
     magicLinks: 50,
     features: [
       '500 AI credits per month',
       '50 Magic Link emails',
-      'Everything in Closer',
+      'Everything in Professional',
       'Linguistics AI personalization',
       'Automated follow-ups',
       'Competition tracking',
-      'Advanced analytics',
+      'Advanced analytics dashboard',
       'Priority support (2hr)',
-      'Custom integrations',
-      'Team sharing (up to 3)'
+      'Team sharing (up to 5)',
+      'API access (limited)'
     ],
     limits: {
       canvasScansPerMonth: 500,
       marketInsightsAccess: true,
-      crmContactsMax: -1,
-      aiResearchReports: 100,
+      crmContactsMax: 5000,
+      aiResearchReports: 150,
       exportEnabled: true,
-      teamMembers: 3
+      teamMembers: 5
     }
   },
   
@@ -112,22 +140,54 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     name: 'enterprise',
     displayName: 'Enterprise',
     price: {
-      monthly: 497,
-      annual: 4970
+      monthly: 749,
+      annual: 7490
+    },
+    credits: 1500,
+    magicLinks: 200,
+    features: [
+      '1,500 AI credits per month',
+      '200 Magic Link emails',
+      'Everything in Growth',
+      'Unlimited CRM contacts',
+      'Custom integrations',
+      'Dedicated success manager',
+      'Advanced AI training',
+      'Team sharing (up to 20)',
+      'Full API access',
+      'HIPAA compliance ready'
+    ],
+    limits: {
+      canvasScansPerMonth: 1500,
+      marketInsightsAccess: true,
+      crmContactsMax: -1, // unlimited
+      aiResearchReports: 500,
+      exportEnabled: true,
+      teamMembers: 20
+    }
+  },
+  
+  elite: {
+    name: 'elite',
+    displayName: 'Elite',
+    price: {
+      monthly: 1499,
+      annual: 14990
     },
     credits: -1, // unlimited
     magicLinks: -1, // unlimited
     features: [
       'Unlimited AI credits',
       'Unlimited Magic Links',
-      'Everything in Dominator',
+      'Everything in Enterprise',
       'White-label options',
-      'API access',
-      'Dedicated success manager',
-      'Custom AI training',
+      'Custom domain',
+      'Dedicated infrastructure',
+      '24/7 phone support',
+      'Custom AI models',
       'Unlimited team members',
-      'HIPAA compliance',
-      'SLA guarantee'
+      'SLA guarantee',
+      'Quarterly business reviews'
     ],
     limits: {
       canvasScansPerMonth: -1,
@@ -149,25 +209,26 @@ export const CREDIT_COSTS = {
   marketAnalysisExport: 1
 };
 
-// Pay-as-you-go pricing
+// Pay-as-you-go pricing (for when users run out of credits)
 export const PAY_AS_YOU_GO = {
   singleCanvasScan: 4.99,
   deepResearchReport: 29,
   aiOutreachCampaign: 19,
   tenCreditPack: 39,
-  fiftyCreditPack: 149
+  fiftyCreditPack: 149,
+  hundredCreditPack: 249
 };
 
 // Helper functions
 export const getSubscriptionTier = (tierName: string): SubscriptionTier => {
-  return SUBSCRIPTION_TIERS[tierName] || SUBSCRIPTION_TIERS.explorer;
+  return SUBSCRIPTION_TIERS[tierName] || SUBSCRIPTION_TIERS.free;
 };
 
 export const canAccessFeature = (
   subscription: any,
   feature: keyof SubscriptionTier['limits']
 ): boolean => {
-  const tier = getSubscriptionTier(subscription?.tier || 'explorer');
+  const tier = getSubscriptionTier(subscription?.tier || 'free');
   const limit = tier.limits[feature];
   
   if (limit === undefined || limit === false) return false;

@@ -1,24 +1,33 @@
 -- RepSpheres Subscription & Usage Tracking Database Schema
 
--- Update users table with subscription data
-ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription JSONB DEFAULT '{
-  "tier": "explorer",
-  "status": "active",
-  "credits": 5,
-  "creditsUsed": 0,
-  "magicLinksUsed": 0,
-  "magicLinksLimit": 0,
-  "billingCycle": "monthly",
-  "startDate": null,
-  "endDate": null,
-  "stripeCustomerId": null,
-  "stripeSubscriptionId": null
-}';
+-- Create user_profiles table to store subscription data
+CREATE TABLE IF NOT EXISTS user_profiles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
+  subscription JSONB DEFAULT '{
+    "tier": "explorer",
+    "status": "active",
+    "credits": 5,
+    "creditsUsed": 0,
+    "magicLinksUsed": 0,
+    "magicLinksLimit": 0,
+    "billingCycle": "monthly",
+    "startDate": null,
+    "endDate": null,
+    "stripeCustomerId": null,
+    "stripeSubscriptionId": null
+  }',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create index for fast user lookups
+CREATE INDEX IF NOT EXISTS idx_user_profiles_user_id ON user_profiles(user_id);
 
 -- Usage tracking table
 CREATE TABLE IF NOT EXISTS usage_tracking (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   action TEXT NOT NULL, -- 'canvas_scan', 'magic_link', 'deep_research', etc.
   credits_used INTEGER DEFAULT 1,
   metadata JSONB,
@@ -78,8 +87,8 @@ DECLARE
 BEGIN
   -- Get user subscription
   SELECT subscription INTO v_subscription
-  FROM users
-  WHERE id = p_user_id;
+  FROM user_profiles
+  WHERE user_id = p_user_id;
   
   -- Check if subscription is active
   IF v_subscription->>'status' != 'active' THEN
@@ -108,7 +117,7 @@ $$ LANGUAGE plpgsql;
 CREATE TABLE IF NOT EXISTS email_tracking (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   campaign_id TEXT NOT NULL,
-  user_id UUID REFERENCES users(id),
+  user_id UUID REFERENCES auth.users(id),
   action TEXT NOT NULL, -- 'sent', 'opened', 'clicked', 'replied'
   recipient_email TEXT,
   metadata JSONB,
@@ -121,7 +130,7 @@ CREATE INDEX IF NOT EXISTS idx_email_tracking_user ON email_tracking(user_id, cr
 -- Subscription history for auditing
 CREATE TABLE IF NOT EXISTS subscription_history (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   old_tier TEXT,
   new_tier TEXT,
   change_type TEXT, -- 'upgrade', 'downgrade', 'cancel', 'reactivate'
@@ -133,23 +142,48 @@ CREATE TABLE IF NOT EXISTS subscription_history (
 CREATE INDEX IF NOT EXISTS idx_subscription_history_user ON subscription_history(user_id, created_at DESC);
 
 -- Row Level Security
+ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE usage_tracking ENABLE ROW LEVEL SECURITY;
 ALTER TABLE temp_emails ENABLE ROW LEVEL SECURITY;
 ALTER TABLE email_tracking ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subscription_history ENABLE ROW LEVEL SECURITY;
 
--- Policies
+-- Policies for user_profiles
+CREATE POLICY "Users can view own profile" ON user_profiles
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own profile" ON user_profiles
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Enable insert for authenticated users only" ON user_profiles
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Policies for usage_tracking
 CREATE POLICY "Users can view own usage" ON usage_tracking
   FOR SELECT USING (auth.uid() = user_id);
 
 CREATE POLICY "System can insert usage" ON usage_tracking
   FOR INSERT WITH CHECK (true);
 
+-- Policies for email_tracking
 CREATE POLICY "Users can view own email tracking" ON email_tracking
   FOR SELECT USING (auth.uid() = user_id);
 
+-- Policies for temp_emails
 CREATE POLICY "Anyone can view temp emails" ON temp_emails
   FOR SELECT USING (true);
 
+-- Policies for subscription_history
 CREATE POLICY "Users can view own subscription history" ON subscription_history
   FOR SELECT USING (auth.uid() = user_id);
+
+-- Function to automatically create user profile on signup
+CREATE OR REPLACE FUNCTION public.handle_new_user() 
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.user_profiles (user_id)
+  VALUES (new.id)
+  ON CONFLICT (user_id) DO NOTHING;
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
