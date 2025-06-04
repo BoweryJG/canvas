@@ -1,0 +1,47 @@
+# Copy these environment variables to Netlify Dashboard
+# Site Settings > Environment Variables
+
+# Supabase Configuration (REQUIRED - Get from your Supabase project)
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_KEY=
+
+# Stripe Configuration (REQUIRED)
+VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key_here
+STRIPE_SECRET_KEY=your_stripe_secret_key_here
+STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret_here
+
+# Stripe Price IDs - Explorer Plan ($49/month or $490/year)
+STRIPE_PRICE_EXPLORER_MONTHLY=price_1RRuqbGRiAPUZqWu3f91wnNx
+STRIPE_PRICE_EXPLORER_ANNUAL=price_1RWMXEGRiAPUZqWuPwcgrovN
+
+# Stripe Price IDs - Professional Plan ($149/month or $1490/year)
+STRIPE_PRICE_PROFESSIONAL_MONTHLY=price_1RRurNGRiAPUZqWuklICsE4P
+STRIPE_PRICE_PROFESSIONAL_ANNUAL=price_1RWMWjGRiAPUZqWu6YBZY7o4
+
+# Stripe Price IDs - Growth Plan ($349/month or $3490/year)
+STRIPE_PRICE_GROWTH_MONTHLY=price_1RRus5GRiAPUZqWup3jk1S8U
+STRIPE_PRICE_GROWTH_ANNUAL=price_1RWMW3GRiAPUZqWuoTA0eLUC
+
+# Stripe Price IDs - Enterprise Plan ($749/month or $7490/year)
+STRIPE_PRICE_ENTERPRISE_MONTHLY=price_1RRushGRiAPUZqWuIvqueK7h
+STRIPE_PRICE_ENTERPRISE_ANNUAL=price_1RWMT4GRiAPUZqWuqiNhkZfw
+
+# Stripe Price IDs - Elite Plan ($1499/month or $14990/year)
+STRIPE_PRICE_ELITE_MONTHLY=price_1RRutVGRiAPUZqWuDMSAqHsD
+STRIPE_PRICE_ELITE_ANNUAL=price_1RWMSCGRiAPUZqWu30j19b9G
+
+# API Keys (OPTIONAL - Only if you're using these features)
+VITE_OPENROUTER_API_KEY=your_openrouter_api_key_here
+BRAVE_API_KEY=your_brave_api_key_here
+FIRECRAWL_API_KEY=your_firecrawl_api_key_here
+PERPLEXITY_API_KEY=your_perplexity_api_key_here
+
+# Production URL
+NETLIFY_SITE_URL=https://canvas-intel-module.netlify.app
+
+# INSTRUCTIONS:
+# 1. Fill in the missing Supabase values from your Supabase project settings
+# 2. After creating Stripe webhook, add the STRIPE_WEBHOOK_SECRET
+# 3. Add each variable one by one in Netlify Dashboard
+# 4. Deploy your site after adding all variables

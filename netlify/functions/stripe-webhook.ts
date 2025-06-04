@@ -224,7 +224,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
 }
 
 function getPlanFromPriceId(priceId: string): { name: string; credits: number } {
-  // Map price IDs to plans
+  // Map price IDs to plans - aligned with subscription.config.ts
   const priceToPlan: Record<string, { name: string; credits: number }> = {
     [process.env.STRIPE_PRICE_EXPLORER_MONTHLY!]: { name: 'explorer', credits: 50 },
     [process.env.STRIPE_PRICE_EXPLORER_ANNUAL!]: { name: 'explorer', credits: 50 },

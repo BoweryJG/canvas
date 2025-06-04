@@ -1,4 +1,4 @@
-import { loadStripe, Stripe } from '@stripe/stripe-js';
+import { loadStripe, type Stripe } from '@stripe/stripe-js';
 import { supabase } from '../auth/supabase';
 import { SUBSCRIPTION_TIERS } from '../auth/subscription.config';
 
@@ -16,7 +16,7 @@ if (stripePublishableKey) {
 export const stripe = stripePromise;
 
 // Stripe price IDs for each tier
-export const STRIPE_PRICE_IDS = {
+export const STRIPE_PRICE_IDS: Record<string, { monthly: string | null; annual: string | null }> = {
   free: {
     monthly: null, // Free tier
     annual: null
@@ -48,13 +48,14 @@ export async function createCheckoutSession(
   tier: keyof typeof SUBSCRIPTION_TIERS,
   billingCycle: 'monthly' | 'annual' = 'monthly',
   userId: string,
-  userEmail: string
+  _userEmail?: string
 ) {
   try {
-    const priceId = STRIPE_PRICE_IDS[tier]?.[billingCycle];
+    const tierPrices = STRIPE_PRICE_IDS[tier as keyof typeof STRIPE_PRICE_IDS];
+    const priceId = tierPrices?.[billingCycle];
     if (!priceId) {
       // If annual price not set up, fall back to monthly
-      if (billingCycle === 'annual' && STRIPE_PRICE_IDS[tier]?.monthly) {
+      if (billingCycle === 'annual' && tierPrices?.monthly) {
         throw new Error('Annual billing not available for this plan yet. Please select monthly billing.');
       }
       throw new Error('Invalid subscription tier or billing cycle');
