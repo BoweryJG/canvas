@@ -30,7 +30,6 @@ import AuthModal from './AuthModal';
 import Tooltip from '@mui/material/Tooltip';
 import Fade from '@mui/material/Fade';
 import Slide from '@mui/material/Slide';
-import { keyframes } from '@mui/system';
 
 const ACCENT_COLOR = '#00ffc6';
 

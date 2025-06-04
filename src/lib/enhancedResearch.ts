@@ -111,8 +111,8 @@ async function searchBusinessIntelligence(
   const keywords = PROSPECT_KEYWORDS[prospectInfo.type].join(' OR ');
   const query = `"Dr. ${doctorName}" ${location || ''} (${keywords}) practice size employees revenue technology`;
   
-  const results = await callBraveSearch(query, 5);
-  return extractBusinessMetrics(results);
+  await callBraveSearch(query, 5);
+  return extractBusinessMetrics();
 }
 
 async function searchTechnologyProfile(
@@ -123,8 +123,8 @@ async function searchTechnologyProfile(
   const products = INDUSTRY_PRODUCTS[prospectInfo.industry].slice(0, 5).join(' OR ');
   const query = `"Dr. ${doctorName}" ${location || ''} uses (${products}) equipment technology vendor`;
   
-  const results = await callBraveSearch(query, 5);
-  return extractTechnologyStack(results);
+  await callBraveSearch(query, 5);
+  return extractTechnologyStack();
 }
 
 async function searchProfessionalNetwork(
@@ -138,8 +138,8 @@ async function searchProfessionalNetwork(
     
   const query = `"Dr. ${doctorName}" ${location || ''} ${associations} member speaker conference`;
   
-  const results = await callBraveSearch(query, 3);
-  return extractNetworkInfo(results);
+  await callBraveSearch(query, 3);
+  return extractNetworkInfo();
 }
 
 async function searchDigitalFootprint(website: string | undefined) {

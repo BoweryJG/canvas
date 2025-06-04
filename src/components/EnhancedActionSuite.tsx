@@ -5,7 +5,6 @@ import { type ResearchData } from '../lib/webResearch';
 import { 
   generatePersonalizedOutreach, 
   createCampaignSequence, 
-  sendEmail, 
   sendSMS,
   type PersonalizedOutreach,
   type OutreachCampaign
@@ -44,7 +43,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
   researchData 
 }) => {
   const [activeTab, setActiveTab] = useState<'outreach' | 'reports' | 'analytics' | 'crm' | 'batch'>('outreach');
-  const [emailState, setEmailState] = useState<OutreachState>({ loading: false, sent: false });
+  const [emailState] = useState<OutreachState>({ loading: false, sent: false });
   const [smsState, setSmsState] = useState<OutreachState>({ loading: false, sent: false });
   const [campaignState, setCampaignState] = useState<OutreachState>({ loading: false, sent: false });
   const [pdfState, setPdfState] = useState<{ loading: boolean; error?: string }>({ loading: false });
