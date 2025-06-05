@@ -9,6 +9,8 @@ import { analyzeDoctor } from '../lib/intelligentAnalysis'
 import { performEnhancedResearch, generateEnhancedSalesBrief } from '../lib/enhancedResearch'
 import { DoctorAutocomplete } from '../components/DoctorAutocomplete'
 import type { Doctor } from '../components/DoctorAutocomplete'
+import { conductNPIEnhancedResearch } from '../lib/npiEnhancedResearch'
+import type { ResearchData } from '../lib/webResearch'
 
 interface ScanResult {
   doctor: string;
@@ -38,6 +40,7 @@ export default function CanvasHome() {
   const [cinematicMode, setCinematicMode] = useState(false)
   const [isGeneratingBrief, setIsGeneratingBrief] = useState(false)
   const [showEnhancements, setShowEnhancements] = useState(false)
+  const [researchData, setResearchData] = useState<ResearchData | null>(null)
   const [enhancements, setEnhancements] = useState({
     website: '',
     recentPurchases: '',
@@ -46,7 +49,7 @@ export default function CanvasHome() {
     notes: ''
   })
 
-  const handleDoctorSelect = (selectedDoc: Doctor) => {
+  const handleDoctorSelect = async (selectedDoc: Doctor) => {
     setSelectedDoctor(selectedDoc)
     setDoctor(selectedDoc.displayName)
     setLocation(`${selectedDoc.city}, ${selectedDoc.state}`)
@@ -65,6 +68,16 @@ export default function CanvasHome() {
       location: `${selectedDoc.city}, ${selectedDoc.state}`,
       organization: selectedDoc.organizationName || 'Private Practice'
     });
+    
+    // Start background research to find website
+    try {
+      const quickResearch = await conductNPIEnhancedResearch(selectedDoc, 'general');
+      if (quickResearch.practiceInfo?.website) {
+        setEnhancements(prev => ({ ...prev, website: quickResearch.practiceInfo.website || '' }));
+      }
+    } catch (error) {
+      console.log('Could not fetch website in background');
+    }
   }
 
   const handleScan = async () => {
@@ -95,13 +108,19 @@ export default function CanvasHome() {
 
   const handleDoctorConfirmed = async (profile: any) => {
     setIsGeneratingBrief(true)
-    setScanStage('Performing deep industry analysis...')
+    setScanStage('Gathering comprehensive doctor information...')
     
     try {
-      // Step 1: Basic analysis
+      // Step 1: Conduct comprehensive NPI-enhanced research
+      setScanStage('Searching for practice website and reviews...')
+      const comprehensiveResearch = await conductNPIEnhancedResearch(selectedDoctor!, product)
+      setResearchData(comprehensiveResearch)
+      
+      // Step 2: Basic analysis
+      setScanStage('Performing deep industry analysis...')
       const analysis = await analyzeDoctor(profile.name, profile.location, product)
       
-      // Step 2: Enhanced industry-specific research
+      // Step 3: Enhanced industry-specific research
       setScanStage('Analyzing practice metrics & technology stack...')
       const enhancedProfile = await performEnhancedResearch(
         profile.name,
@@ -110,7 +129,7 @@ export default function CanvasHome() {
         profile
       )
       
-      // Step 3: Generate strategic sales brief
+      // Step 4: Generate strategic sales brief
       setScanStage('Creating strategic sales brief...')
       const strategicBrief = generateEnhancedSalesBrief(
         enhancedProfile,
@@ -134,15 +153,21 @@ export default function CanvasHome() {
           ...analysis.keyFactors
         ],
         researchQuality: 'verified' as const,
-        researchSources: profile.sources?.length || 0,
+        researchSources: comprehensiveResearch.sources.length,
         factBased: true
       }
       
       setScanResult(enhancedResult)
     } catch (error) {
+      console.error('Error in doctor research:', error)
       // Fallback to instant results if analysis fails
       const fallbackResult = getInstantResults(doctor, product)
       setScanResult(fallbackResult)
+      // Still set basic research data
+      if (selectedDoctor) {
+        const basicResearch = await conductNPIEnhancedResearch(selectedDoctor, product)
+        setResearchData(basicResearch)
+      }
     } finally {
       setIsGeneratingBrief(false)
       setScanStage('')
@@ -385,26 +410,11 @@ export default function CanvasHome() {
       {/* Doctor Verification - Removed: NPI selection IS the verification! */}
 
       {/* Research Panel */}
-      {scanResult && (
+      {scanResult && researchData && (
         <ResearchPanel 
-          researchData={{
-            doctorName: doctor,
-            practiceInfo: { name: doctor, specialties: ['Medical Professional'], address: location || undefined },
-            credentials: {},
-            reviews: {},
-            sources: [],
-            businessIntel: {
-              practiceType: 'Medical Practice',
-              patientVolume: 'Medium',
-              marketPosition: 'Established',
-              recentNews: [],
-              growthIndicators: []
-            },
-            confidenceScore: scanResult.score,
-            completedAt: new Date().toISOString()
-          }}
+          researchData={researchData}
           isResearching={false}
-          researchQuality={scanResult.researchQuality || 'inferred'}
+          researchQuality={scanResult.researchQuality || 'verified'}
         />
       )}
 

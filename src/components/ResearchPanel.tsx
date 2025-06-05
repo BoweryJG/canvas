@@ -125,6 +125,10 @@ const ResearchPanel: React.FC<ResearchPanelProps> = ({
               <div className="detail-content">
                 {researchData.practiceInfo.name && <p><strong>Name:</strong> {researchData.practiceInfo.name}</p>}
                 {researchData.practiceInfo.address && <p><strong>Address:</strong> {researchData.practiceInfo.address}</p>}
+                {researchData.practiceInfo.phone && <p><strong>Phone:</strong> {researchData.practiceInfo.phone}</p>}
+                {researchData.practiceInfo.website && (
+                  <p><strong>Website:</strong> <a href={researchData.practiceInfo.website} target="_blank" rel="noopener noreferrer">{researchData.practiceInfo.website}</a></p>
+                )}
                 {researchData.practiceInfo.specialties?.length && (
                   <p><strong>Specialties:</strong> {researchData.practiceInfo.specialties.join(', ')}</p>
                 )}
