@@ -52,7 +52,8 @@ async function findPracticeWebsite(doctor: Doctor): Promise<any> {
   const searchQuery = `"${doctor.displayName}" "${doctor.city}" "${doctor.state}" website contact`;
   
   try {
-    const results = await callBraveSearch(searchQuery, 10);
+    const response = await callBraveSearch(searchQuery, 10);
+    const results = response?.web?.results || [];
     
     // Extract potential websites from results
     let practiceWebsite = '';
@@ -61,18 +62,48 @@ async function findPracticeWebsite(doctor: Doctor): Promise<any> {
     
     // Search for the actual practice website in results
     if (results && Array.isArray(results)) {
+      // First pass: look for direct practice websites
       for (const result of results) {
-        const content = (result.description || '') + (result.title || '');
+        const urlLower = result.url?.toLowerCase() || '';
+        const titleLower = result.title?.toLowerCase() || '';
+        const doctorLastName = doctor.lastName.toLowerCase();
         
-        // Look for official website
-        if (content.toLowerCase().includes('official') || 
-            content.toLowerCase().includes('practice') ||
-            content.toLowerCase().includes(doctor.lastName.toLowerCase())) {
-          const urlMatch = content.match(/https?:\/\/[^\s]+/);
-          if (urlMatch) {
-            practiceWebsite = urlMatch[0];
-            break;
+        // Check if this is likely the practice website
+        if (urlLower.includes(doctorLastName) || 
+            (titleLower.includes(doctorLastName) && titleLower.includes('dds')) ||
+            (titleLower.includes('dental') && titleLower.includes(doctorLastName))) {
+          practiceWebsite = result.url;
+          console.log('Found practice website:', practiceWebsite);
+          break;
+        }
+      }
+      
+      // Second pass: look for website mentions in content
+      if (!practiceWebsite) {
+        for (const result of results) {
+          const content = (result.description || '') + ' ' + (result.title || '');
+          
+          // Look for website patterns
+          const websitePatterns = [
+            /(?:website|site|visit us at|online at):?\s*(https?:\/\/[^\s,]+)/i,
+            /(?:www\.[a-zA-Z0-9-]+\.[a-zA-Z]+)/i,
+            /(https?:\/\/[^\s]+dental[^\s]*)/i,
+            /(https?:\/\/[^\s]+dds[^\s]*)/i
+          ];
+          
+          for (const pattern of websitePatterns) {
+            const match = content.match(pattern);
+            if (match) {
+              practiceWebsite = match[1] || match[0];
+              if (!practiceWebsite.startsWith('http')) {
+                practiceWebsite = 'https://' + practiceWebsite;
+              }
+              console.log('Found website in content:', practiceWebsite);
+              break;
+            }
           }
+          
+          if (practiceWebsite) break;
         }
       }
     }
@@ -81,7 +112,7 @@ async function findPracticeWebsite(doctor: Doctor): Promise<any> {
       website: practiceWebsite,
       phone: practicePhone,
       email: practiceEmail,
-      sources: results?.slice(0, 3) || []
+      sources: results.slice(0, 3) || []
     };
   } catch (error) {
     console.error('Error finding practice website:', error);
@@ -93,16 +124,16 @@ async function gatherReviews(doctor: Doctor): Promise<any> {
   const searchQuery = `"${doctor.displayName}" "${doctor.city}" reviews rating patients`;
   
   try {
-    const results = await callBraveSearch(searchQuery, 10);
+    const response = await callBraveSearch(searchQuery, 10);
     
     // AI analysis of reviews
-    const reviewAnalysis = await analyzeReviewsWithAI(results, doctor);
+    const reviewAnalysis = await analyzeReviewsWithAI(response, doctor);
     
     return reviewAnalysis;
   } catch (error) {
     console.error('Error gathering reviews:', error);
     return {
-      averageRating: null,
+      averageRating: undefined,
       totalReviews: 0,
       commonPraise: [],
       commonConcerns: [],
@@ -124,8 +155,8 @@ async function validateCredentials(doctor: Doctor): Promise<any> {
   const searchQuery = `"${doctor.displayName}" "medical school" residency "board certified" CV`;
   
   try {
-    const results = await callBraveSearch(searchQuery, 5);
-    const enhancedCredentials = await extractCredentialsWithAI(results, doctor, npiCredentials);
+    const response = await callBraveSearch(searchQuery, 5);
+    const enhancedCredentials = await extractCredentialsWithAI(response, doctor, npiCredentials);
     
     return enhancedCredentials;
   } catch (error) {
@@ -145,8 +176,8 @@ async function gatherBusinessIntelligence(doctor: Doctor): Promise<any> {
   const searchQuery = `"${doctor.displayName}" OR "${doctor.organizationName || ''}" "${doctor.city}" practice size technology equipment staff`;
   
   try {
-    const results = await callBraveSearch(searchQuery, 10);
-    const businessData = await analyzeBusinessDataWithAI(results, doctor);
+    const response = await callBraveSearch(searchQuery, 10);
+    const businessData = await analyzeBusinessDataWithAI(response, doctor);
     
     return businessData;
   } catch (error) {
@@ -186,9 +217,11 @@ async function searchAdditionalInfo(doctor: Doctor): Promise<any> {
 }
 
 async function analyzeReviewsWithAI(searchResults: any, doctor: Doctor): Promise<any> {
-  if (!searchResults || searchResults.length === 0) {
+  const results = searchResults?.web?.results || searchResults || [];
+  
+  if (!results || results.length === 0) {
     return {
-      averageRating: null,
+      averageRating: undefined,
       totalReviews: 0,
       commonPraise: [],
       commonConcerns: [],
@@ -200,7 +233,7 @@ async function analyzeReviewsWithAI(searchResults: any, doctor: Doctor): Promise
 Analyze these search results about Dr. ${doctor.displayName} to extract review information.
 
 Search Results:
-${JSON.stringify(searchResults.slice(0, 5), null, 2)}
+${JSON.stringify(results.slice(0, 5), null, 2)}
 
 Extract and return ONLY a JSON object with:
 {
@@ -219,7 +252,7 @@ If no review data is found, use appropriate null/empty values.`;
   } catch (error) {
     console.error('Error analyzing reviews with AI:', error);
     return {
-      averageRating: null,
+      averageRating: undefined,
       totalReviews: 0,
       commonPraise: [],
       commonConcerns: [],
@@ -229,6 +262,8 @@ If no review data is found, use appropriate null/empty values.`;
 }
 
 async function extractCredentialsWithAI(searchResults: any, doctor: Doctor, npiCredentials: any): Promise<any> {
+  const results = searchResults?.web?.results || searchResults || [];
+  
   const prompt = `
 Extract medical credentials from these search results about Dr. ${doctor.displayName}.
 
@@ -236,7 +271,7 @@ NPI Verified Data:
 ${JSON.stringify(npiCredentials, null, 2)}
 
 Search Results:
-${JSON.stringify(searchResults.slice(0, 3), null, 2)}
+${JSON.stringify(results.slice(0, 3), null, 2)}
 
 Return ONLY a JSON object with:
 {
@@ -267,11 +302,13 @@ Return ONLY a JSON object with:
 }
 
 async function analyzeBusinessDataWithAI(searchResults: any, doctor: Doctor): Promise<any> {
+  const results = searchResults?.web?.results || searchResults || [];
+  
   const prompt = `
 Analyze business intelligence from these search results about ${doctor.organizationName || doctor.displayName}.
 
 Search Results:
-${JSON.stringify(searchResults.slice(0, 5), null, 2)}
+${JSON.stringify(results.slice(0, 5), null, 2)}
 
 Return ONLY a JSON object with:
 {
@@ -304,7 +341,7 @@ async function synthesizeResearchData(data: any): Promise<ResearchData> {
   const sources: ResearchSource[] = [];
   
   // Add sources from various searches
-  if (data.practiceWebsite.sources) {
+  if (data.practiceWebsite.sources && Array.isArray(data.practiceWebsite.sources)) {
     sources.push(...data.practiceWebsite.sources.map((s: any) => ({
       url: s.url || '',
       title: s.title || '',
@@ -315,6 +352,20 @@ async function synthesizeResearchData(data: any): Promise<ResearchData> {
     })));
   }
   
+  // Add sources from additional searches if available
+  if (data.businessIntel && data.businessIntel.recentNews) {
+    data.businessIntel.recentNews.forEach((news: string) => {
+      sources.push({
+        url: '',
+        title: news,
+        type: 'news_article' as const,
+        content: news,
+        confidence: 70,
+        lastUpdated: new Date().toISOString()
+      });
+    });
+  }
+  
   // Calculate confidence score based on data completeness
   let confidenceScore = 50; // Base score for NPI verification
   if (data.practiceWebsite.website) confidenceScore += 10;
@@ -322,6 +373,9 @@ async function synthesizeResearchData(data: any): Promise<ResearchData> {
   if (data.credentials.medicalSchool) confidenceScore += 10;
   if (data.businessIntel.practiceSize) confidenceScore += 10;
   if (data.additionalInfo.technology.length > 0) confidenceScore += 10;
+  
+  // Add points for sources found
+  if (sources.length > 0) confidenceScore += Math.min(sources.length * 2, 10);
   
   return {
     doctorName: data.doctor.displayName,
