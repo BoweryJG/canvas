@@ -75,9 +75,10 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
         }
       } catch (error) {
         console.error('❌ Failed to search doctors:', error);
-        console.error('❌ Error type:', error.constructor.name);
-        console.error('❌ Error message:', error.message);
-        setError(error.message || 'Failed to search doctors');
+        const errorMessage = error instanceof Error ? error.message : 'Failed to search doctors';
+        console.error('❌ Error type:', error instanceof Error ? error.constructor.name : 'Unknown');
+        console.error('❌ Error message:', errorMessage);
+        setError(errorMessage);
         setSuggestions([]);
         setShowDropdown(true); // Show error message
       } finally {

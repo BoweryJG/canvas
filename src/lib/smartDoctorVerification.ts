@@ -203,7 +203,7 @@ function scorePracticeWebsite(
 } {
   const url = result.url.toLowerCase();
   const title = (result.title || '').toLowerCase();
-  const _description = (result.description || '').toLowerCase();
+  // const _description = (result.description || '').toLowerCase();
   const practiceNameLower = practiceName.toLowerCase();
   
   let score = 0;
