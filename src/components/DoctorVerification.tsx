@@ -27,6 +27,7 @@ import {
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { verifyDoctor } from '../lib/doctorVerification';
+import { smartVerifyDoctor } from '../lib/smartDoctorVerification';
 
 // Helper function to check if website is a practice website
 const isPracticeWebsite = (website: string): boolean => {
@@ -76,10 +77,43 @@ export default function DoctorVerification({ doctorName, location, onConfirm, on
     setError(false);
     
     try {
-      const result = await verifyDoctor(doctorName, location);
-      setProfile(result);
+      // First try smart verification to find practice website
+      console.log('🔍 Starting smart doctor verification...');
+      const smartResult = await smartVerifyDoctor(
+        doctorName, 
+        location,
+        undefined, // specialty
+        undefined, // practice name - we'll try to find it
+        undefined  // userId
+      );
+      
+      console.log('✅ Smart verification result:', smartResult);
+      
+      // Get regular verification data for additional info
+      const regularResult = await verifyDoctor(doctorName, location);
+      
+      // Merge results - prioritize practice website from smart verification
+      const mergedProfile = {
+        ...regularResult,
+        website: smartResult.verifiedWebsite || regularResult.website,
+        practice: smartResult.practiceName || regularResult.practice,
+        confidence: Math.max(smartResult.confidence, regularResult.confidence),
+        additionalInfo: smartResult.suggestedConfirmation || regularResult.additionalInfo,
+        // Add verification sources
+        sources: [
+          ...(regularResult.sources || []),
+          ...(smartResult.sources?.map(s => ({
+            name: s.type === 'practice' ? 'Practice Website' : s.type,
+            url: s.url,
+            type: s.type as any
+          })) || [])
+        ]
+      };
+      
+      setProfile(mergedProfile);
       setShowDetails(true);
     } catch (err) {
+      console.error('Verification error:', err);
       setError(true);
     } finally {
       setLoading(false);
