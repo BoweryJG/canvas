@@ -25,6 +25,10 @@ interface AnalysisResult {
 
 export async function analyzeDoctor(doctorName: string, location: string | undefined, product: string): Promise<AnalysisResult> {
   try {
+    // Clean doctor name - remove Dr. prefix if present
+    const cleanName = doctorName.replace(/^Dr\.\s*/i, '').trim();
+    console.log(`🔍 Analyzing doctor: ${cleanName} (original: ${doctorName})`);
+    
     // Determine industry based on product or doctor specialty
     const isDental = product.toLowerCase().includes('dental') || 
                     product.toLowerCase().includes('implant') ||
@@ -39,15 +43,15 @@ export async function analyzeDoctor(doctorName: string, location: string | undef
                            isAesthetic ? 'aesthetic medspa dermatology cosmetic' : 
                            'medical practice';
     
-    // Enhanced search with industry context
+    // Enhanced search with industry context - use clean name
     const searchQuery = location 
-      ? `"Dr. ${doctorName}" "${location}" ${industryKeywords} website contact`
-      : `"Dr. ${doctorName}" ${industryKeywords} website contact`;
+      ? `"${cleanName}" "${location}" ${industryKeywords} website contact`
+      : `"${cleanName}" ${industryKeywords} website contact`;
     
     const results = await callBraveSearch(searchQuery, 10);
     
-    // Analyze results to find the right doctor
-    const profiles = extractDoctorProfiles(results.web?.results || [], doctorName, location);
+    // Analyze results to find the right doctor - use clean name for better matching
+    const profiles = extractDoctorProfiles(results.web?.results || [], cleanName, location);
     
     // Pick the most likely match
     const bestProfile = selectBestProfile(profiles, location);

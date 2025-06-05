@@ -50,19 +50,23 @@ export async function performEnhancedResearch(
   product: string,
   verifiedProfile: any
 ): Promise<ResearchProfile> {
+  // Clean doctor name - remove Dr. prefix if present
+  const cleanName = doctorName.replace(/^Dr\.\s*/i, '').trim();
+  console.log(`🔬 Enhanced research for: ${cleanName} (original: ${doctorName})`);
+  
   // Step 1: Determine prospect type and industry
   const prospectInfo = identifyProspectType(verifiedProfile, product);
   
   // Step 2: Perform multi-layered research
   const researchLayers = await Promise.all([
     // Layer 1: Business intelligence
-    searchBusinessIntelligence(doctorName, location, prospectInfo),
+    searchBusinessIntelligence(cleanName, location, prospectInfo),
     
     // Layer 2: Technology stack and current vendors
-    searchTechnologyProfile(doctorName, location, prospectInfo),
+    searchTechnologyProfile(cleanName, location, prospectInfo),
     
     // Layer 3: Professional network and associations
-    searchProfessionalNetwork(doctorName, location, prospectInfo),
+    searchProfessionalNetwork(cleanName, location, prospectInfo),
     
     // Layer 4: Online presence and marketing approach
     searchDigitalFootprint(verifiedProfile.website)
@@ -109,7 +113,7 @@ async function searchBusinessIntelligence(
   prospectInfo: { type: ProspectType, industry: Industry }
 ) {
   const keywords = PROSPECT_KEYWORDS[prospectInfo.type].join(' OR ');
-  const query = `"Dr. ${doctorName}" ${location || ''} (${keywords}) practice size employees revenue technology`;
+  const query = `"${doctorName}" ${location || ''} (${keywords}) practice size employees revenue technology`;
   
   await callBraveSearch(query, 5);
   return extractBusinessMetrics();
@@ -121,7 +125,7 @@ async function searchTechnologyProfile(
   prospectInfo: { type: ProspectType, industry: Industry }
 ) {
   const products = INDUSTRY_PRODUCTS[prospectInfo.industry].slice(0, 5).join(' OR ');
-  const query = `"Dr. ${doctorName}" ${location || ''} uses (${products}) equipment technology vendor`;
+  const query = `"${doctorName}" ${location || ''} uses (${products}) equipment technology vendor`;
   
   await callBraveSearch(query, 5);
   return extractTechnologyStack();
@@ -136,7 +140,7 @@ async function searchProfessionalNetwork(
     ? 'ADA "American Dental Association" dental society'
     : 'AAD ASPS ASDS "aesthetic society" dermatology';
     
-  const query = `"Dr. ${doctorName}" ${location || ''} ${associations} member speaker conference`;
+  const query = `"${doctorName}" ${location || ''} ${associations} member speaker conference`;
   
   await callBraveSearch(query, 3);
   return extractNetworkInfo();
