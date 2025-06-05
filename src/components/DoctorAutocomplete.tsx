@@ -32,6 +32,7 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
   const [suggestions, setSuggestions] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Debounced search function
   const searchDoctors = useCallback(
@@ -42,22 +43,43 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
       }
 
       setLoading(true);
+      setError(null);
       console.log('🔍 Searching for:', searchTerm);
       
       try {
-        const response = await fetch(`/.netlify/functions/npi-lookup?search=${encodeURIComponent(searchTerm)}`);
+        const url = `/.netlify/functions/npi-lookup?search=${encodeURIComponent(searchTerm)}`;
+        console.log('🌐 Fetching URL:', window.location.origin + url);
+        
+        const response = await fetch(url);
         console.log('📡 Response status:', response.status);
+        console.log('📡 Response ok:', response.ok);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('❌ Response error:', errorText);
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
         
         const doctors = await response.json();
         console.log('👥 Found doctors:', doctors);
+        console.log('👥 Number of results:', Array.isArray(doctors) ? doctors.length : 0);
         
-        setSuggestions(doctors);
-        setShowDropdown(doctors.length > 0);
-        console.log('🔍 Setting showDropdown to:', doctors.length > 0);
+        if (Array.isArray(doctors)) {
+          setSuggestions(doctors);
+          setShowDropdown(doctors.length > 0);
+          console.log('✅ Set suggestions and dropdown visibility');
+        } else {
+          console.error('❌ Invalid response format:', doctors);
+          setSuggestions([]);
+          setShowDropdown(false);
+        }
       } catch (error) {
         console.error('❌ Failed to search doctors:', error);
+        console.error('❌ Error type:', error.constructor.name);
+        console.error('❌ Error message:', error.message);
+        setError(error.message || 'Failed to search doctors');
         setSuggestions([]);
-        setShowDropdown(false);
+        setShowDropdown(true); // Show error message
       } finally {
         setLoading(false);
       }
@@ -158,8 +180,16 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
       )}
 
       {showDropdown && search.length >= 3 && suggestions.length === 0 && !loading && (
-        <div className="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-4 text-center text-gray-500">
-          No doctors found. Try a different search.
+        <div className="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-4 text-center">
+          {error ? (
+            <div className="text-red-600">
+              <div className="font-semibold">Error</div>
+              <div className="text-sm mt-1">{error}</div>
+              <div className="text-xs mt-2 text-gray-500">Check console for details</div>
+            </div>
+          ) : (
+            <div className="text-gray-500">No doctors found. Try a different search.</div>
+          )}
         </div>
       )}
       
