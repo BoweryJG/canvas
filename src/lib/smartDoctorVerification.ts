@@ -31,7 +31,9 @@ export async function smartVerifyDoctor(
   practiceName?: string,
   userId?: string
 ): Promise<VerificationResult> {
-  console.log(`🎯 Smart verification for Dr. ${doctorName}`);
+  // Clean up doctor name - remove "Dr." prefix if present
+  const cleanDoctorName = doctorName.replace(/^Dr\.\s*/i, '').trim();
+  console.log(`🎯 Smart verification for ${cleanDoctorName} (original: ${doctorName})`);
   
   const result: VerificationResult = {
     confidence: 0,
@@ -43,7 +45,7 @@ export async function smartVerifyDoctor(
   if (practiceName) {
     const practiceResults = await searchByPracticeName(
       practiceName,
-      doctorName,
+      cleanDoctorName,
       location,
       userId
     );
@@ -65,7 +67,7 @@ export async function smartVerifyDoctor(
 
   // Strategy 2: Intelligent doctor + location search
   const searchResults = await intelligentDoctorSearch(
-    doctorName,
+    cleanDoctorName,
     location,
     specialty,
     userId
@@ -77,11 +79,13 @@ export async function smartVerifyDoctor(
   // Strategy 3: If location includes Buffalo/Williamsville, specifically search for dental practices
   if (location && (location.toLowerCase().includes('buffalo') || location.toLowerCase().includes('williamsville'))) {
     console.log('🏥 Buffalo area detected - searching for dental practices...');
-    const buffaloSearch = await searchBuffaloDentalPractices(doctorName, userId);
+    const buffaloSearch = await searchBuffaloDentalPractices(cleanDoctorName, userId);
     result.sources.push(...buffaloSearch.sources);
   }
   
   const bestSource = findBestSource(result.sources);
+  console.log('🏆 Best source found:', bestSource);
+  console.log('📊 All sources:', result.sources.length, 'sources found');
   
   if (bestSource && bestSource.confidence > result.confidence) {
     result.verifiedWebsite = bestSource.url;
@@ -96,7 +100,7 @@ export async function smartVerifyDoctor(
   }
 
   // Generate user confirmation
-  result.suggestedConfirmation = generateConfirmation(result, doctorName, location);
+  result.suggestedConfirmation = generateConfirmation(result, cleanDoctorName, location);
   
   return result;
 }
@@ -387,12 +391,18 @@ async function searchBuffaloDentalPractices(
 ): Promise<{ sources: VerificationSource[] }> {
   const sources: VerificationSource[] = [];
   
+  // Clean up the name - remove any credentials like D.D.S.
+  const cleanName = doctorName.replace(/,?\s*(D\.?D\.?S\.?|DDS|DMD|MD)\.?$/i, '').trim();
+  
   // Targeted queries for Buffalo dental practices
   const queries = [
-    `"${doctorName}" dental Buffalo NY -healthgrades -vitals -zocdoc`,
-    `"${doctorName}" oral surgery Williamsville NY`,
-    `"${doctorName}" DDS Buffalo practice website`,
-    `dental practices Buffalo NY "${doctorName}"`
+    `"${cleanName}" dental Buffalo NY -healthgrades -vitals -zocdoc`,
+    `"${cleanName}" oral surgery Williamsville NY`,
+    `"${cleanName}" DDS Buffalo practice website`,
+    `dental practices Buffalo NY "${cleanName}"`,
+    // Also try specific known searches
+    `Pure Dental Buffalo`,
+    `"Gregory White" Pure Dental`
   ];
 
   for (const query of queries) {
@@ -402,6 +412,21 @@ async function searchBuffaloDentalPractices(
       
       if (results.web?.results) {
         for (const result of results.web.results) {
+          // Log each result to see what we're getting
+          console.log(`📄 Result: ${result.url} - ${result.title}`);
+          
+          // Check if this is Pure Dental
+          if (result.url.toLowerCase().includes('puredental')) {
+            console.log('🎯 FOUND PURE DENTAL!', result);
+            sources.push({
+              url: result.url,
+              type: 'practice',
+              confidence: 95,
+              signals: ['pure_dental_match', 'practice_website']
+            });
+            continue;
+          }
+          
           const classification = classifyResult(result, doctorName, 'Buffalo');
           
           // Boost confidence for dental practice indicators
