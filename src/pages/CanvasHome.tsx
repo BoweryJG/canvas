@@ -6,10 +6,9 @@ import EnhancedActionSuite from '../components/EnhancedActionSuite'
 import ResearchPanel from '../components/ResearchPanel'
 import IntegratedCanvasExperience from '../components/IntegratedCanvasExperience'
 import { analyzeDoctor } from '../lib/intelligentAnalysis'
-import { performEnhancedResearch, generateEnhancedSalesBrief } from '../lib/enhancedResearch'
+import { generateEnhancedSalesBrief } from '../lib/enhancedResearch'
 import { DoctorAutocomplete } from '../components/DoctorAutocomplete'
 import type { Doctor } from '../components/DoctorAutocomplete'
-import { conductNPIEnhancedResearch } from '../lib/npiEnhancedResearch'
 import { gatherComprehensiveDoctorIntelligenceWithProgress } from '../lib/enhancedDoctorIntelligenceWithProgress'
 import type { ResearchData } from '../lib/webResearch'
 import { IntelligenceProgress } from '../components/IntelligenceProgress'
@@ -252,8 +251,7 @@ export default function CanvasHome() {
       // Step 2: Extract insights from the enhanced research
       const insights = comprehensiveResearch.enhancedInsights;
       
-      // Step 3: Create a powerful sales brief
-      const strategicBrief = insights?.salesBrief || 'No brief available';
+      // Step 3: Sales brief is available in insights
       
       // Step 4: Basic analysis for compatibility score
       setScanStage('Finalizing intelligence report...')

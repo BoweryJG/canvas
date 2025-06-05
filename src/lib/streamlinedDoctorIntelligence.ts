@@ -5,6 +5,7 @@
  */
 
 import { callBraveSearch, callBraveLocalSearch, callOpenRouter } from './apiEndpoints';
+import { gatherProductIntelligence, combineIntelligence } from './productProcedureIntelligence';
 import type { Doctor } from '../components/DoctorAutocomplete';
 import type { ResearchData, ResearchSource } from './webResearch';
 
@@ -23,7 +24,8 @@ export async function gatherStreamlinedDoctorIntelligence(
   console.log('🚀 Streamlined intelligence gathering for:', doctor.displayName);
   
   const steps = [
-    { id: 'websearch', label: 'Web Intelligence Gathering', sublabel: 'Practice info, reviews, news' },
+    { id: 'websearch', label: 'Doctor Intelligence Gathering', sublabel: 'Practice info, reviews, news' },
+    { id: 'product', label: 'Product/Procedure Research', sublabel: `${product} market analysis` },
     { id: 'competitors', label: 'Local Competitor Analysis', sublabel: 'Real-time local market data' },
     { id: 'synthesis', label: 'Claude 4 Opus Analysis', sublabel: 'Premium intelligence synthesis' }
   ];
@@ -40,18 +42,31 @@ export async function gatherStreamlinedDoctorIntelligence(
     
     progress?.updateStep('websearch', 'completed', `${searchData.sources.length} sources found`);
     
-    // Phase 2: Local competitor analysis
+    // Phase 2: Product/Procedure intelligence
+    progress?.updateStep('product', 'active');
+    progress?.updateStage(`Researching ${product} in local market...`);
+    
+    const productIntel = await gatherProductIntelligence(
+      product,
+      { city: doctor.city, state: doctor.state },
+      doctor.specialty
+    );
+    
+    progress?.updateStep('product', 'completed', 'Market analysis complete');
+    
+    // Phase 3: Local competitor analysis
     progress?.updateStep('competitors', 'active');
     progress?.updateStage('Analyzing local competitive landscape...');
     
     const localCompetitors = await gatherLocalCompetitors(doctor, progress);
     
-    // Phase 3: Claude 4 Opus synthesis
+    // Phase 4: Claude 4 Opus synthesis
     progress?.updateStep('synthesis', 'active');
     progress?.updateStage('Claude 4 Opus creating premium intelligence...');
     
     const synthesis = await synthesizeWithClaude4Opus(
       searchData,
+      productIntel,
       localCompetitors,
       doctor,
       product
@@ -62,6 +77,7 @@ export async function gatherStreamlinedDoctorIntelligence(
     // Create final research data
     return createStreamlinedResearchData(
       searchData,
+      productIntel,
       localCompetitors,
       synthesis,
       doctor
@@ -127,7 +143,8 @@ async function gatherLocalCompetitors(
     
     if (results?.results?.length > 0) {
       progress?.updateStep('competitors', 'found', `${results.results.length} competitors`);
-      progress?.updateSources((prev: any) => prev + results.results.length);
+      // Note: updateSources expects a total count, not a function
+      // We can't access the previous value, so we'll skip this update
     }
     
     return results;
@@ -139,6 +156,7 @@ async function gatherLocalCompetitors(
 
 async function synthesizeWithClaude4Opus(
   searchData: any,
+  productIntel: any,
   localCompetitors: any,
   doctor: Doctor,
   product: string
@@ -155,7 +173,15 @@ DOCTOR PROFILE:
 WEB INTELLIGENCE (${searchData.sources.length} sources):
 ${searchData.sources.slice(0, 20).map((s: any) => `- ${s.title}: ${s.content?.substring(0, 150)}...`).join('\n')}
 
-LOCAL COMPETITORS (${localCompetitors?.results?.length || 0} found):
+PRODUCT MARKET INTELLIGENCE for ${product}:
+- Market Awareness: ${productIntel.marketData?.awareness || 'Unknown'}/100
+- Price Range: $${productIntel.marketData?.pricingRange?.low || 0} - $${productIntel.marketData?.pricingRange?.high || 0}
+- Top Competitors: ${productIntel.competitiveLandscape?.topCompetitors?.join(', ') || 'Unknown'}
+- Local Adoption: ${productIntel.localInsights?.adoptionRate || 'Unknown'}
+- Key Differentiators: ${productIntel.competitiveLandscape?.differentiators?.join(', ') || 'None identified'}
+- Local Barriers: ${productIntel.localInsights?.barriers?.join(', ') || 'None identified'}
+
+LOCAL DENTAL PRACTICES (${localCompetitors?.results?.length || 0} found):
 ${localCompetitors?.results?.slice(0, 5).map((c: any) => 
   `- ${c.title}: ${c.rating}/5 (${c.rating_count} reviews), ${c.distance}mi away, ${c.priceRange || '$$$'}`
 ).join('\n') || 'No competitor data'}
@@ -236,6 +262,7 @@ Return JSON with these fields:
 
 function createStreamlinedResearchData(
   searchData: any,
+  productIntel: any,
   localCompetitors: any,
   synthesis: any,
   doctor: Doctor
@@ -284,9 +311,6 @@ function createStreamlinedResearchData(
     },
     credentials: {
       boardCertifications: [doctor.specialty],
-      verified: true,
-      npi: doctor.npi,
-      credential: doctor.credential
     },
     reviews: {
       commonPraise: synthesis.competitivePosition?.strengths || [],
@@ -302,7 +326,14 @@ function createStreamlinedResearchData(
     sources: allSources,
     confidenceScore: Math.min(confidence, 100),
     completedAt: new Date().toISOString(),
-    enhancedInsights: synthesis
+    enhancedInsights: synthesis,
+    // Add product intelligence
+    productIntelligence: productIntel,
+    // Add combined doctor+product insights
+    combinedStrategy: combineIntelligence(
+      { doctorName: doctor.displayName, location: `${doctor.city}, ${doctor.state}` },
+      productIntel
+    )
   };
 }
 
@@ -348,7 +379,7 @@ function estimateStaffSize(size?: string): number {
     'large': 50,
     'enterprise': 100
   };
-  return sizeMap[size?.toLowerCase()] || 10;
+  return size && typeof size === 'string' ? (sizeMap[size.toLowerCase()] || 10) : 10;
 }
 
 function createDefaultSynthesis(doctor: Doctor, product: string): any {
@@ -375,9 +406,6 @@ function createBasicResearchData(doctor: Doctor): ResearchData {
     },
     credentials: {
       boardCertifications: [doctor.specialty],
-      verified: true,
-      npi: doctor.npi,
-      credential: doctor.credential
     },
     reviews: {},
     businessIntel: {

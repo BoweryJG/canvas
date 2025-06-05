@@ -124,6 +124,33 @@ export async function createCampaignSequence(
   researchData: ResearchData,
   _campaignType: 'aggressive' | 'professional' | 'consultative'
 ): Promise<OutreachCampaign> {
+  // Use enhanced campaign if product intelligence is available
+  if (researchData.productIntelligence || researchData.enhancedInsights) {
+    const { createProductAwareCampaign } = await import('./enhancedOutreachSystem');
+    const campaign = await createProductAwareCampaign(scanResult, researchData, {
+      name: 'Sales Rep',
+      company: 'Company',
+      product: scanResult.product
+    });
+    
+    // Convert to standard format
+    return {
+      id: campaign.id,
+      doctorName: campaign.doctorName,
+      productName: campaign.productName,
+      templates: [],
+      sequence: campaign.sequence.map(step => ({
+        id: step.id,
+        day: step.day,
+        time: step.time,
+        type: step.channel as any,
+        templateId: step.id,
+        conditions: step.triggers
+      })),
+      analytics: campaign.analytics,
+      status: campaign.status
+    };
+  }
   
   const templates: OutreachTemplate[] = [];
   const sequence: CampaignStep[] = [];

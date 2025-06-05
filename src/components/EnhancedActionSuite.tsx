@@ -9,7 +9,7 @@ import {
   type PersonalizedOutreach,
   type OutreachCampaign
 } from '../lib/outreachSystem';
-import { generatePDFReport } from '../lib/pdfExport';
+import { generatePDFReport } from '../lib/simplePdfExport';
 import { generateDeepResearchReport } from '../lib/deepResearchReport';
 import { createCRMIntegration, type CRMConfig } from '../lib/crmIntegration';
 import { 
@@ -23,6 +23,7 @@ import CRMIntegrationPanel from './CRMIntegrationPanel';
 import BatchAnalysisPanel from './BatchAnalysisPanel';
 import { MultiChannelMagicLink } from './MultiChannelMagicLink';
 import { generateEmailFromScanResult } from '../lib/emailTemplates';
+import { generateEnhancedSMS, generateEnhancedWhatsApp, generateEnhancedLinkedIn } from '../lib/enhancedEmailTemplates';
 import { type EmailCampaign } from '../lib/magicLinks';
 
 interface EnhancedActionSuiteProps {
@@ -525,11 +526,12 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
               <div className="outreach-actions">
                 <button 
                   onClick={() => {
-                    // Generate email campaign for magic link
+                    // Generate email campaign for magic link with enhanced intelligence
                     const campaign = generateEmailFromScanResult(
                       scanResult,
                       salesRepInfo,
-                      'initial'
+                      'initial',
+                      researchData // Pass research data for enhanced templates
                     );
                     // Add recipient email
                     campaign.to = contactInfo.email;
@@ -570,9 +572,9 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                       campaign={{
                         ...magicLinkCampaign,
                         phone: contactInfo.phone,
-                        smsMessage: `Hi Dr. ${scanResult.doctor}, I have insights about ${scanResult.product} that could help optimize your workflow. Would love to share what similar practices are doing. - ${salesRepInfo.name}`,
-                        whatsappMessage: magicLinkCampaign.body,
-                        linkedinMessage: magicLinkCampaign.body,
+                        smsMessage: generateEnhancedSMS(scanResult, researchData),
+                        whatsappMessage: generateEnhancedWhatsApp(scanResult, researchData),
+                        linkedinMessage: generateEnhancedLinkedIn(scanResult, researchData),
                         linkedinUrl: researchData?.linkedinUrl
                       }}
                       doctor={{
@@ -598,7 +600,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                   }}>
                     <button
                       onClick={() => {
-                        const campaign = generateEmailFromScanResult(scanResult, salesRepInfo, 'initial');
+                        const campaign = generateEmailFromScanResult(scanResult, salesRepInfo, 'initial', researchData);
                         campaign.to = contactInfo.email;
                         setMagicLinkCampaign(campaign);
                       }}
@@ -616,7 +618,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                     </button>
                     <button
                       onClick={() => {
-                        const campaign = generateEmailFromScanResult(scanResult, salesRepInfo, 'follow_up');
+                        const campaign = generateEmailFromScanResult(scanResult, salesRepInfo, 'follow_up', researchData);
                         campaign.to = contactInfo.email;
                         setMagicLinkCampaign(campaign);
                       }}
@@ -634,7 +636,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                     </button>
                     <button
                       onClick={() => {
-                        const campaign = generateEmailFromScanResult(scanResult, salesRepInfo, 'closing');
+                        const campaign = generateEmailFromScanResult(scanResult, salesRepInfo, 'closing', researchData);
                         campaign.to = contactInfo.email;
                         setMagicLinkCampaign(campaign);
                       }}

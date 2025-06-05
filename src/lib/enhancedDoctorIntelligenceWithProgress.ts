@@ -3,8 +3,7 @@
  * Uses multiple data sources and Claude 4 Opus for premium insights
  */
 
-import { callBraveSearch, callBraveLocalSearch, callPerplexitySearch, callFirecrawlScrape, callOpenRouter } from './apiEndpoints';
-import { callClaudeWithLocalFallback } from './localClaude4';
+import { callBraveSearch, callBraveLocalSearch, callFirecrawlScrape, callOpenRouter } from './apiEndpoints';
 import { getClaude4Processor } from './claude4LocalProcessor';
 import type { Doctor } from '../components/DoctorAutocomplete';
 import type { ResearchData, ResearchSource } from './webResearch';
@@ -19,6 +18,7 @@ interface ProgressCallback {
 interface IntelligenceGatheringResult {
   practiceWebsite: string;
   allSources: ResearchSource[];
+  localCompetitors?: any;
   rawData: {
     practiceInfo: any;
     reviews: any;
@@ -76,7 +76,7 @@ export async function gatherComprehensiveDoctorIntelligenceWithProgress(
     progress.updateStep('synthesis', 'active');
     progress.updateStage('Claude 4 Opus analyzing all sources...');
     
-    const synthesizedInsights = await synthesizeWithClaude4Opus(intelligenceData, doctor, product);
+    const synthesizedInsights = await synthesizeWithClaude4Opus(intelligenceData, doctor, product, intelligenceData.localCompetitors);
     
     progress.updateStep('synthesis', 'completed', 'Intelligence report ready');
     
@@ -278,13 +278,13 @@ async function gatherAllIntelligenceWithProgress(
   return {
     practiceWebsite,
     allSources,
+    localCompetitors,
     rawData: {
       practiceInfo: braveResults1,
       reviews: braveResults2,
       marketPosition: competitorIntel,
       technology: technologyIntel,
-      competition: competitorIntel,
-      localCompetitors: localCompetitors
+      competition: competitorIntel
     }
   };
 }
@@ -292,7 +292,8 @@ async function gatherAllIntelligenceWithProgress(
 async function synthesizeWithClaude4Opus(
   data: IntelligenceGatheringResult,
   doctor: Doctor,
-  product: string
+  product: string,
+  localCompetitors?: any
 ): Promise<any> {
   const prompt = `You are an elite medical sales intelligence analyst. Analyze this comprehensive research about ${doctor.displayName} and create SPECIFIC, ACTIONABLE intelligence.
 
@@ -307,7 +308,7 @@ RESEARCH SOURCES (${data.allSources.length} total):
 ${data.allSources.slice(0, 30).map(s => `- ${s.title}: ${s.content?.substring(0, 200)}...`).join('\n')}
 
 LOCAL COMPETITOR ANALYSIS:
-${data.rawData.localCompetitors?.results?.slice(0, 5).map((c: any) => 
+${localCompetitors?.results?.slice(0, 5).map((c: any) => 
   `- ${c.title}: Rating ${c.rating}/5 (${c.rating_count} reviews), ${c.distance}mi away`
 ).join('\n') || 'No local competitor data available'}
 
@@ -460,10 +461,7 @@ function createEnhancedResearchData(
         new Date().getFullYear() - insights.practiceProfile.yearsInBusiness + '' : undefined
     },
     credentials: {
-      boardCertifications: [doctor.specialty],
-      verified: true,
-      npi: doctor.npi,
-      credential: doctor.credential
+      boardCertifications: [doctor.specialty]
     },
     reviews: {
       averageRating: insights.marketPosition?.reputation?.includes('highly rated') ? 4.5 : undefined,
@@ -516,10 +514,7 @@ function createBasicResearchData(doctor: Doctor): ResearchData {
       specialties: [doctor.specialty]
     },
     credentials: {
-      boardCertifications: [doctor.specialty],
-      verified: true,
-      npi: doctor.npi,
-      credential: doctor.credential
+      boardCertifications: [doctor.specialty]
     },
     reviews: {},
     businessIntel: {

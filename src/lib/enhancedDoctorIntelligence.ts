@@ -3,7 +3,7 @@
  * Uses multiple data sources and Claude 4 for premium insights
  */
 
-import { callBraveSearch, callPerplexitySearch, callFirecrawlScrape, callOpenRouter } from './apiEndpoints';
+import { callBraveSearch, callPerplexitySearch, callOpenRouter } from './apiEndpoints';
 import type { Doctor } from '../components/DoctorAutocomplete';
 import type { ResearchData, ResearchSource } from './webResearch';
 
@@ -120,7 +120,7 @@ async function gatherAllIntelligence(doctor: Doctor, product: string): Promise<I
   });
   
   // Add Perplexity results as high-confidence sources
-  if (perplexityResults1?.answer) {
+  if (perplexityResults1 && 'answer' in perplexityResults1 && perplexityResults1.answer) {
     allSources.push({
       url: 'perplexity-analysis',
       title: 'AI Analysis: Doctor Profile',
@@ -131,7 +131,7 @@ async function gatherAllIntelligence(doctor: Doctor, product: string): Promise<I
     });
   }
   
-  if (perplexityResults2?.answer) {
+  if (perplexityResults2 && 'answer' in perplexityResults2 && perplexityResults2.answer) {
     allSources.push({
       url: 'perplexity-market',
       title: 'AI Analysis: Market Position',
@@ -148,7 +148,7 @@ async function gatherAllIntelligence(doctor: Doctor, product: string): Promise<I
   const technologyIntel = await callBraveSearch(`"${product}" dental practices ${location} case studies`, 5);
   
   // Add competitor and technology sources
-  (competitorIntel?.web?.results || []).forEach(result => {
+  (competitorIntel?.web?.results || []).forEach((result: any) => {
     allSources.push({
       url: result.url || '',
       title: result.title || '',
@@ -332,10 +332,7 @@ function createEnhancedResearchData(
         new Date().getFullYear() - insights.practiceProfile.yearsInBusiness + '' : undefined
     },
     credentials: {
-      boardCertifications: [doctor.specialty],
-      verified: true,
-      npi: doctor.npi,
-      credential: doctor.credential
+      boardCertifications: [doctor.specialty]
     },
     reviews: {
       averageRating: insights.marketPosition?.reputation?.includes('highly rated') ? 4.5 : undefined,
@@ -397,10 +394,7 @@ function createBasicResearchData(doctor: Doctor): ResearchData {
       specialties: [doctor.specialty]
     },
     credentials: {
-      boardCertifications: [doctor.specialty],
-      verified: true,
-      npi: doctor.npi,
-      credential: doctor.credential
+      boardCertifications: [doctor.specialty]
     },
     reviews: {},
     businessIntel: {

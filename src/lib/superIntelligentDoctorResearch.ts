@@ -245,10 +245,7 @@ function createSuperResearchData(
         (new Date().getFullYear() - insights.yearsInBusiness).toString() : undefined
     },
     credentials: {
-      boardCertifications: [doctor.specialty],
-      verified: true,
-      npi: doctor.npi,
-      credential: doctor.credential
+      boardCertifications: [doctor.specialty]
     },
     reviews: {
       averageRating: insights.reputationScore ? insights.reputationScore / 2 : undefined,
@@ -290,10 +287,7 @@ function createFallbackResearchData(doctor: Doctor): ResearchData {
       specialties: [doctor.specialty]
     },
     credentials: {
-      boardCertifications: [doctor.specialty],
-      verified: true,
-      npi: doctor.npi,
-      credential: doctor.credential
+      boardCertifications: [doctor.specialty]
     },
     reviews: {},
     businessIntel: {

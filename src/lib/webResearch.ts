@@ -48,6 +48,9 @@ export interface ResearchData {
   completedAt: string;
   linkedinUrl?: string;
   enhancedInsights?: any; // Rich insights from Claude 4 synthesis
+  productIntelligence?: any; // Product/procedure market intelligence
+  combinedStrategy?: any; // Combined doctor+product strategy
+  superIntelligence?: any; // Advanced multi-model insights
 }
 
 /**

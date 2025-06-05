@@ -1758,6 +1758,12 @@ export async function generateMcKinseyExecutiveReport(
   companyName: string,
   productName: string
 ): Promise<Blob> {
+  // Use enhanced version if product intelligence is available
+  if (researchData.productIntelligence || researchData.enhancedInsights) {
+    const { generateEnhancedMcKinseyExecutiveReport } = await import('./enhancedSalesRepReports');
+    return generateEnhancedMcKinseyExecutiveReport(scanResult, researchData, salesRepName, companyName, productName);
+  }
+  
   const generator = new SalesRepReportGenerator();
   
   return await generator.generateSalesRepReport(scanResult, researchData, {
@@ -1778,6 +1784,12 @@ export async function generateInitialOutreachReport(
   companyName: string,
   productName: string
 ): Promise<Blob> {
+  // Use enhanced version if product intelligence is available
+  if (researchData.productIntelligence || researchData.enhancedInsights) {
+    const { generateEnhancedInitialOutreachReport } = await import('./enhancedSalesRepReports');
+    return generateEnhancedInitialOutreachReport(scanResult, researchData, salesRepName, companyName, productName);
+  }
+  
   const generator = new SalesRepReportGenerator();
   
   return await generator.generateSalesRepReport(scanResult, researchData, {
@@ -1798,6 +1810,12 @@ export async function generateFollowUpReport(
   companyName: string,
   productName: string
 ): Promise<Blob> {
+  // Use enhanced version if product intelligence is available
+  if (researchData.productIntelligence || researchData.enhancedInsights) {
+    const { generateEnhancedFollowUpReport } = await import('./enhancedSalesRepReports');
+    return generateEnhancedFollowUpReport(scanResult, researchData, salesRepName, companyName, productName);
+  }
+  
   const generator = new SalesRepReportGenerator();
   
   return await generator.generateSalesRepReport(scanResult, researchData, {
@@ -1818,6 +1836,12 @@ export async function generateBreakthroughReport(
   companyName: string,
   productName: string
 ): Promise<Blob> {
+  // Use enhanced version if product intelligence is available
+  if (researchData.productIntelligence || researchData.enhancedInsights) {
+    const { generateEnhancedBreakthroughReport } = await import('./enhancedSalesRepReports');
+    return generateEnhancedBreakthroughReport(scanResult, researchData, salesRepName, companyName, productName);
+  }
+  
   const generator = new SalesRepReportGenerator();
   
   return await generator.generateSalesRepReport(scanResult, researchData, {
@@ -1838,6 +1862,12 @@ export async function generateClosingReport(
   companyName: string,
   productName: string
 ): Promise<Blob> {
+  // Use enhanced version if product intelligence is available
+  if (researchData.productIntelligence || researchData.enhancedInsights) {
+    const { generateEnhancedClosingReport } = await import('./enhancedSalesRepReports');
+    return generateEnhancedClosingReport(scanResult, researchData, salesRepName, companyName, productName);
+  }
+  
   const generator = new SalesRepReportGenerator();
   
   return await generator.generateSalesRepReport(scanResult, researchData, {

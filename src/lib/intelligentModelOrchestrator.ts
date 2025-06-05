@@ -11,6 +11,7 @@ interface ModelCapabilities {
   bestFor: string[];
 }
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 const MODEL_CAPABILITIES: Record<string, ModelCapabilities> = {
   // Perplexity Models (via Perplexity API)
   'perplexity-sonar-small': {
@@ -79,11 +80,9 @@ const MODEL_CAPABILITIES: Record<string, ModelCapabilities> = {
     bestFor: ['multimodal', 'long context', 'technical analysis']
   }
 };
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 export class IntelligentModelOrchestrator {
-  private usePerplexityForRealTime = true;
-  private useClaudeForSynthesis = true;
-  private useGPT4ForMedical = true;
   
   constructor() {
     console.log('🧠 Intelligent Model Orchestrator initialized');

@@ -1,4 +1,6 @@
 import { type EmailCampaign } from './magicLinks';
+import type { ResearchData } from './webResearch';
+import { generateEnhancedEmailCampaign } from './enhancedEmailTemplates';
 
 interface ScanResult {
   doctor: string;
@@ -8,13 +10,29 @@ interface ScanResult {
   productIntel: string;
   salesBrief: string;
   insights: string[];
+  email?: string;
+  specialty?: string;
+  location?: string;
+  salesRep?: string;
 }
 
 export const generateEmailFromScanResult = (
   scanResult: ScanResult,
   salesRepInfo: { name: string; company: string; product: string },
-  emailType: 'initial' | 'follow_up' | 'closing' = 'initial'
+  emailType: 'initial' | 'follow_up' | 'closing' = 'initial',
+  researchData?: ResearchData
 ): EmailCampaign => {
+  // Use enhanced templates if research data is available
+  if (researchData?.productIntelligence || researchData?.enhancedInsights) {
+    return generateEnhancedEmailCampaign({
+      scanResult: scanResult as any,
+      researchData,
+      salesRep: salesRepInfo,
+      type: emailType
+    });
+  }
+  
+  // Fallback to basic templates
   const id = `canvas-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   
   switch (emailType) {
