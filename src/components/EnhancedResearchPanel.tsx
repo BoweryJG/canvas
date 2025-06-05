@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { MagicResearchForm } from './MagicResearchForm';
 import { ProgressiveResearchEngine } from '../lib/progressiveResearch';
 import { conductEnhancedResearch } from '../lib/enhancedWebResearch';
-import { useAuth } from '../auth/hooks';
+import { useAuth } from '../auth';
 
 interface ResearchProgress {
   stage: 'idle' | 'instant' | 'basic' | 'enhanced' | 'deep' | 'complete';
