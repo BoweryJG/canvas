@@ -23,17 +23,34 @@ export const handler: Handler = async (event, context) => {
       };
     }
 
-    // Parse search term
+    // Parse search term - handle variations
+    const searchLower = search.toLowerCase().trim();
     const terms = search.trim().split(/\s+/);
-    const firstName = terms[0];
-    const lastName = terms.length > 1 ? terms[terms.length - 1] : '';
+    let firstName = terms[0];
+    let lastName = terms.length > 1 ? terms[terms.length - 1] : '';
+    let state = '';
+    let city = '';
+    
+    // Check if search includes location hints
+    if (searchLower.includes('buffalo') || searchLower.includes('ny')) {
+      // Extract location if present
+      const locationMatch = searchLower.match(/(buffalo|williamsville|west seneca)/);
+      if (locationMatch) {
+        city = locationMatch[1];
+      }
+      if (searchLower.includes('ny')) {
+        state = 'NY';
+      }
+    }
 
-    // Build NPI API URL
+    // Build NPI API URL with flexible parameters
     const params = new URLSearchParams({
       version: '2.1',
-      limit: '10',
+      limit: '20',  // Increased limit
       first_name: firstName,
-      ...(lastName && { last_name: lastName })
+      ...(lastName && { last_name: lastName }),
+      ...(state && { state: state }),
+      ...(city && { city: city })
     });
 
     const npiResponse = await fetch(
@@ -49,21 +66,35 @@ export const handler: Handler = async (event, context) => {
     // Transform results for easy consumption
     const doctors = (data.results || []).map((result: any) => {
       const basic = result.basic || {};
-      const address = result.addresses?.[0] || {};
+      // Prefer location address over mailing address
+      const locationAddress = result.addresses?.find((a: any) => a.address_purpose === 'LOCATION') || {};
+      const mailingAddress = result.addresses?.find((a: any) => a.address_purpose === 'MAILING') || {};
+      const address = locationAddress.address_1 ? locationAddress : mailingAddress;
+      
       const taxonomy = result.taxonomies?.find((t: any) => t.primary) || {};
+      
+      // Format name properly
+      const formattedFirstName = basic.first_name
+        ? basic.first_name.charAt(0).toUpperCase() + basic.first_name.slice(1).toLowerCase()
+        : '';
+      const formattedLastName = basic.last_name
+        ? basic.last_name.charAt(0).toUpperCase() + basic.last_name.slice(1).toLowerCase()
+        : '';
       
       return {
         npi: result.number,
-        displayName: `Dr. ${basic.first_name} ${basic.last_name}${basic.credential ? ', ' + basic.credential : ''}`,
-        firstName: basic.first_name,
-        lastName: basic.last_name,
-        credential: basic.credential,
+        displayName: `Dr. ${formattedFirstName} ${formattedLastName}${basic.credential ? ', ' + basic.credential : ''}`,
+        firstName: formattedFirstName,
+        lastName: formattedLastName,
+        credential: basic.credential || '',
         specialty: taxonomy.desc || 'Not specified',
-        city: address.city,
-        state: address.state,
-        fullAddress: `${address.address_1}, ${address.city}, ${address.state} ${address.postal_code}`,
-        phone: address.telephone_number,
-        organizationName: basic.organization_name
+        city: address.city || '',
+        state: address.state || '',
+        fullAddress: address.address_1 
+          ? `${address.address_1}, ${address.city}, ${address.state} ${address.postal_code}`
+          : '',
+        phone: address.telephone_number || '',
+        organizationName: basic.organization_name || ''
       };
     });
 
