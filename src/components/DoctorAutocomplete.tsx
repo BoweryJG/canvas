@@ -42,13 +42,19 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
       }
 
       setLoading(true);
+      console.log('🔍 Searching for:', searchTerm);
+      
       try {
         const response = await fetch(`/.netlify/functions/npi-lookup?search=${encodeURIComponent(searchTerm)}`);
+        console.log('📡 Response status:', response.status);
+        
         const doctors = await response.json();
+        console.log('👥 Found doctors:', doctors);
+        
         setSuggestions(doctors);
         setShowDropdown(true);
       } catch (error) {
-        console.error('Failed to search doctors:', error);
+        console.error('❌ Failed to search doctors:', error);
         setSuggestions([]);
       } finally {
         setLoading(false);
@@ -78,7 +84,12 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
           onChange={handleInputChange}
           onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
           placeholder={placeholder}
-          className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${inputClassName}`}
+          className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/5 text-white placeholder-white/50 backdrop-blur-sm ${inputClassName}`}
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+            color: 'white',
+            borderColor: 'rgba(255, 255, 255, 0.2)'
+          }}
         />
         {loading && (
           <div className="absolute right-3 top-2.5">

@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Bolt, AutoAwesome } from '@mui/icons-material';
 import SimpleCinematicScan from './SimpleCinematicScan';
 import SimpleProgressiveResults from './SimpleProgressiveResults';
+import { DoctorAutocomplete, type Doctor } from './DoctorAutocomplete';
 import { useAuth } from '../auth';
 import { checkUserCredits, deductCredit } from '../lib/creditManager';
 import AuthModal from './AuthModal';
@@ -97,6 +98,7 @@ const LaunchButton = styled(Button)`
 
 export default function IntegratedCanvasExperience() {
   const [doctor, setDoctor] = useState('');
+  const [doctorDetails, setDoctorDetails] = useState<Doctor | null>(null);
   const [product, setProduct] = useState('');
   const [location, setLocation] = useState('');
   const [stage, setStage] = useState<'input' | 'scanning' | 'results'>('input');
@@ -211,16 +213,22 @@ export default function IntegratedCanvasExperience() {
         
         <SearchContainer>
           <Box sx={{ display: 'grid', gap: 3 }}>
-            <StyledTextField
-              fullWidth
-              label="Doctor Name"
-              placeholder="e.g., Dr. John Smith"
-              value={doctor}
-              onChange={(e) => setDoctor(e.target.value)}
-              InputProps={{
-                startAdornment: <Search sx={{ color: '#00ffc6', mr: 1 }} />
-              }}
-            />
+            <Box>
+              <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 1 }}>
+                Doctor Name
+              </Typography>
+              <DoctorAutocomplete 
+                onSelect={(selectedDoctor) => {
+                  setDoctor(`${selectedDoctor.firstName} ${selectedDoctor.lastName}`);
+                  setDoctorDetails(selectedDoctor);
+                  if (selectedDoctor.city && selectedDoctor.state) {
+                    setLocation(`${selectedDoctor.city}, ${selectedDoctor.state}`);
+                  }
+                }}
+                placeholder="Start typing doctor's name..."
+                inputClassName="w-full"
+              />
+            </Box>
             
             <StyledTextField
               fullWidth
