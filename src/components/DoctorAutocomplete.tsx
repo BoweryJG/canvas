@@ -102,7 +102,8 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
       </div>
 
       {showDropdown && suggestions.length > 0 && (
-        <div className={`absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-auto ${dropdownClassName}`}>
+        <div className={`absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-auto ${dropdownClassName}`}
+             style={{ backgroundColor: 'white', color: 'black' }}>
           {suggestions.map((doctor) => (
             <button
               key={doctor.npi}

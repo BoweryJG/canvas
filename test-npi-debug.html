@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NPI API Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .results {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .error {
+            color: #dc3545;
+            padding: 10px;
+            background: #f8d7da;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .success {
+            color: #155724;
+            padding: 10px;
+            background: #d4edda;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .loading {
+            color: #0056b3;
+            padding: 10px;
+            background: #cce5ff;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .doctor-card {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .doctor-name {
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+        }
+        .doctor-info {
+            color: #666;
+            margin-top: 5px;
+        }
+        .test-section {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <h1>NPI API Debug Test</h1>
+    
+    <div class="container">
+        <h2>1. Direct NPI API Test</h2>
+        <input type="text" id="directSearch" placeholder="Enter doctor name (e.g., Greg White)" value="Greg White">
+        <button onclick="testDirectAPI()">Test Direct API</button>
+        <button onclick="testDirectAPIWithVariations()">Test Name Variations</button>
+        <div id="directResults"></div>
+    </div>
+
+    <div class="container">
+        <h2>2. Netlify Function Test</h2>
+        <p>This will test your local Netlify function endpoint</p>
+        <input type="text" id="netlifySearch" placeholder="Enter doctor name" value="Greg White">
+        <button onclick="testNetlifyFunction()">Test Netlify Function</button>
+        <div id="netlifyResults"></div>
+    </div>
+
+    <div class="container">
+        <h2>3. Network Diagnostics</h2>
+        <button onclick="runDiagnostics()">Run Full Diagnostics</button>
+        <div id="diagnosticsResults"></div>
+    </div>
+
+    <script>
+        // Test direct NPI API
+        async function testDirectAPI() {
+            const search = document.getElementById('directSearch').value;
+            const resultsDiv = document.getElementById('directResults');
+            
+            resultsDiv.innerHTML = '<div class="loading">Searching...</div>';
+            
+            const names = search.split(' ');
+            const firstName = names[0];
+            const lastName = names[names.length - 1];
+            
+            const url = `https://npiregistry.cms.hhs.gov/api/?version=2.1&first_name=${firstName}&last_name=${lastName}&limit=10`;
+            
+            try {
+                console.log('Fetching:', url);
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                resultsDiv.innerHTML = `
+                    <div class="success">Found ${data.result_count} results</div>
+                    <h3>Results:</h3>
+                    <div class="results">
+                        ${formatResults(data.results)}
+                    </div>
+                    <h3>Raw Response:</h3>
+                    <pre class="results">${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+                console.error('Direct API Error:', error);
+            }
+        }
+
+        // Test with name variations
+        async function testDirectAPIWithVariations() {
+            const resultsDiv = document.getElementById('directResults');
+            resultsDiv.innerHTML = '<div class="loading">Testing variations...</div>';
+            
+            const variations = [
+                { first: 'Greg', last: 'White' },
+                { first: 'Gregory', last: 'White' },
+                { first: 'G', last: 'White' },
+                { first: 'Greg*', last: 'White' }
+            ];
+            
+            let allResults = '';
+            
+            for (const variation of variations) {
+                const url = `https://npiregistry.cms.hhs.gov/api/?version=2.1&first_name=${variation.first}&last_name=${variation.last}&limit=5`;
+                
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    
+                    allResults += `
+                        <div class="doctor-card">
+                            <div class="doctor-name">Search: ${variation.first} ${variation.last}</div>
+                            <div class="doctor-info">Found ${data.result_count} results</div>
+                            ${data.results.length > 0 ? formatResults(data.results.slice(0, 3)) : '<p>No results</p>'}
+                        </div>
+                    `;
+                } catch (error) {
+                    allResults += `<div class="error">Error for ${variation.first} ${variation.last}: ${error.message}</div>`;
+                }
+            }
+            
+            resultsDiv.innerHTML = allResults;
+        }
+
+        // Test Netlify function
+        async function testNetlifyFunction() {
+            const search = document.getElementById('netlifySearch').value;
+            const resultsDiv = document.getElementById('netlifyResults');
+            
+            resultsDiv.innerHTML = '<div class="loading">Testing Netlify function...</div>';
+            
+            // Try both local and production URLs
+            const urls = [
+                `http://localhost:8888/.netlify/functions/npi-lookup?search=${encodeURIComponent(search)}`,
+                `/.netlify/functions/npi-lookup?search=${encodeURIComponent(search)}`
+            ];
+            
+            let results = '';
+            
+            for (const url of urls) {
+                try {
+                    console.log('Testing:', url);
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    
+                    results += `
+                        <div class="doctor-card">
+                            <div class="doctor-name">URL: ${url}</div>
+                            <div class="success">Status: ${response.status} - Success</div>
+                            <div class="doctor-info">Results: ${Array.isArray(data) ? data.length : 'Invalid response'}</div>
+                            ${Array.isArray(data) && data.length > 0 ? formatDoctorResults(data) : '<p>No results or invalid format</p>'}
+                        </div>
+                    `;
+                } catch (error) {
+                    results += `
+                        <div class="doctor-card">
+                            <div class="doctor-name">URL: ${url}</div>
+                            <div class="error">Error: ${error.message}</div>
+                        </div>
+                    `;
+                }
+            }
+            
+            resultsDiv.innerHTML = results;
+        }
+
+        // Run full diagnostics
+        async function runDiagnostics() {
+            const resultsDiv = document.getElementById('diagnosticsResults');
+            resultsDiv.innerHTML = '<div class="loading">Running diagnostics...</div>';
+            
+            let diagnostics = '<h3>Diagnostics Report</h3>';
+            
+            // Check CORS headers
+            try {
+                const response = await fetch('/.netlify/functions/npi-lookup?search=test', {
+                    method: 'OPTIONS'
+                });
+                diagnostics += `
+                    <div class="doctor-card">
+                        <div class="doctor-name">CORS Preflight Check</div>
+                        <div class="${response.ok ? 'success' : 'error'}">
+                            Status: ${response.status}
+                        </div>
+                        <div class="doctor-info">
+                            Headers: ${Array.from(response.headers.entries()).map(([k,v]) => `${k}: ${v}`).join(', ')}
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                diagnostics += `
+                    <div class="doctor-card">
+                        <div class="doctor-name">CORS Preflight Check</div>
+                        <div class="error">Failed: ${error.message}</div>
+                    </div>
+                `;
+            }
+            
+            // Check console for errors
+            diagnostics += `
+                <div class="doctor-card">
+                    <div class="doctor-name">Console Check</div>
+                    <div class="doctor-info">
+                        Open DevTools (F12) and check Console tab for any errors.
+                        Look for:
+                        <ul>
+                            <li>CORS errors</li>
+                            <li>Network errors</li>
+                            <li>JavaScript errors</li>
+                            <li>Failed fetch requests</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            
+            // Network timing test
+            const timingTest = await testNetworkTiming();
+            diagnostics += timingTest;
+            
+            resultsDiv.innerHTML = diagnostics;
+        }
+
+        // Test network timing
+        async function testNetworkTiming() {
+            const url = 'https://npiregistry.cms.hhs.gov/api/?version=2.1&first_name=test&last_name=test&limit=1';
+            const start = Date.now();
+            
+            try {
+                await fetch(url);
+                const duration = Date.now() - start;
+                
+                return `
+                    <div class="doctor-card">
+                        <div class="doctor-name">Network Timing</div>
+                        <div class="success">NPI API Response Time: ${duration}ms</div>
+                        <div class="doctor-info">
+                            ${duration < 500 ? 'Good' : duration < 1000 ? 'Acceptable' : 'Slow'} response time
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                return `
+                    <div class="doctor-card">
+                        <div class="doctor-name">Network Timing</div>
+                        <div class="error">Failed to reach NPI API: ${error.message}</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Format results from NPI API
+        function formatResults(results) {
+            if (!results || results.length === 0) return '<p>No results found</p>';
+            
+            return results.map(result => {
+                const basic = result.basic || {};
+                const address = (result.addresses || []).find(a => a.address_purpose === 'LOCATION') || {};
+                const taxonomy = (result.taxonomies || []).find(t => t.primary) || {};
+                
+                return `
+                    <div class="doctor-card">
+                        <div class="doctor-name">
+                            ${basic.first_name || ''} ${basic.last_name || ''}
+                            ${basic.credential ? ', ' + basic.credential : ''}
+                        </div>
+                        <div class="doctor-info">
+                            <strong>NPI:</strong> ${result.number}<br>
+                            <strong>Specialty:</strong> ${taxonomy.desc || 'Not specified'}<br>
+                            <strong>Location:</strong> ${address.city || ''}, ${address.state || ''}<br>
+                            <strong>Phone:</strong> ${address.telephone_number || 'Not available'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Format doctor results from Netlify function
+        function formatDoctorResults(doctors) {
+            return doctors.map(doctor => `
+                <div class="doctor-card">
+                    <div class="doctor-name">${doctor.displayName}</div>
+                    <div class="doctor-info">
+                        <strong>NPI:</strong> ${doctor.npi}<br>
+                        <strong>Specialty:</strong> ${doctor.specialty}<br>
+                        <strong>Location:</strong> ${doctor.city}, ${doctor.state}<br>
+                        <strong>Phone:</strong> ${doctor.phone || 'Not available'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Run initial test on load
+        window.onload = () => {
+            console.log('NPI Debug Test Page Loaded');
+            console.log('Current URL:', window.location.href);
+        };
+    </script>
+</body>
+</html>
