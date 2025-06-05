@@ -11,6 +11,7 @@ interface FormData {
   address: string;
   npi: string;
   productName: string;
+  verifiedWebsite?: string;
 }
 
 interface MagicResearchFormProps {

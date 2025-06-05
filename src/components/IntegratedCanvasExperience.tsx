@@ -98,6 +98,7 @@ const LaunchButton = styled(Button)`
 
 export default function IntegratedCanvasExperience() {
   const [doctor, setDoctor] = useState('');
+  const [practiceName, setPracticeName] = useState('');
   const [product, setProduct] = useState('');
   const [location, setLocation] = useState('');
   const [stage, setStage] = useState<'input' | 'scanning' | 'results'>('input');
@@ -227,6 +228,21 @@ export default function IntegratedCanvasExperience() {
                 inputClassName="w-full"
               />
             </Box>
+            
+            <StyledTextField
+              fullWidth
+              label="Practice Name (e.g., Pure Dental)"
+              placeholder="Enter practice or clinic name"
+              value={practiceName}
+              onChange={(e) => setPracticeName(e.target.value)}
+              helperText="Helps us find the exact practice website"
+              sx={{ 
+                '& .MuiFormHelperText-root': { 
+                  color: 'rgba(255, 255, 255, 0.5)',
+                  fontSize: '0.75rem'
+                } 
+              }}
+            />
             
             <StyledTextField
               fullWidth

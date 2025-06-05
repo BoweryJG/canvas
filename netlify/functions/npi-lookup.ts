@@ -33,13 +33,11 @@ export const handler: Handler = async (event, context) => {
     
     // Check if search includes location hints
     if (searchLower.includes('buffalo') || searchLower.includes('ny')) {
-      // Extract location if present
-      const locationMatch = searchLower.match(/(buffalo|williamsville|west seneca)/);
-      if (locationMatch) {
-        city = locationMatch[1];
-      }
+      // For Buffalo area, don't specify city - just use state
+      // This catches suburbs like Williamsville, Amherst, etc.
       if (searchLower.includes('ny')) {
         state = 'NY';
+        // Don't set city for Buffalo area - too many suburbs
       }
     }
 

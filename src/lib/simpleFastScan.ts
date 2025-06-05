@@ -3,8 +3,14 @@
  */
 
 import { callBraveSearch } from './apiEndpoints';
+import { smartVerifyDoctor } from './smartDoctorVerification';
 
-export async function simpleFastScan(doctorName: string, location?: string) {
+export async function simpleFastScan(
+  doctorName: string, 
+  location?: string,
+  practiceName?: string,
+  specialty?: string
+) {
   const results: any = {
     instant: null,
     basic: null,
@@ -22,9 +28,69 @@ export async function simpleFastScan(doctorName: string, location?: string) {
   };
   
   try {
-    // BASIC - One quick search (1-2 seconds)
-    const searchQuery = `"Dr. ${doctorName}" ${location || ''} medical practice`;
-    const searchResults = await callBraveSearch(searchQuery, 5);
+    // FIRST: Try smart verification if we have practice name
+    if (practiceName || specialty) {
+      console.log(`🎯 Using smart verification with practice: ${practiceName}`);
+      const verification = await smartVerifyDoctor(
+        doctorName,
+        location,
+        specialty,
+        practiceName
+      );
+      
+      if (verification.confidence >= 70 && verification.verifiedWebsite) {
+        // HIGH CONFIDENCE - Found the right practice!
+        results.basic = {
+          stage: 'basic',
+          doctor: doctorName,
+          confidence: verification.confidence,
+          summary: `Found: ${verification.practiceName} - ${verification.verifiedWebsite}`,
+          keyPoints: [
+            '✅ Practice website verified',
+            `🏥 ${verification.practiceName}`,
+            `📍 ${location || 'Location confirmed'}`,
+            '🎯 High confidence match',
+            `🔗 ${verification.verifiedWebsite}`
+          ],
+          source: verification.verifiedWebsite,
+          verification: verification,
+          timeElapsed: 2
+        };
+        
+        // Skip other searches if we have high confidence
+        results.enhanced = {
+          stage: 'enhanced',
+          doctor: doctorName,
+          confidence: verification.confidence,
+          summary: `Verified: Dr. ${doctorName} at ${verification.practiceName}`,
+          keyPoints: [
+            '✅ Practice website confirmed',
+            '🎯 Ready for targeted outreach',
+            '📊 High accuracy verification',
+            '🔗 Direct practice contact available'
+          ],
+          timeElapsed: 3
+        };
+        
+        return results;
+      }
+    }
+    
+    // FALLBACK: Original search if no practice name or low confidence
+    const queries = [
+      `"Dr. ${doctorName}" ${location || ''} ${specialty || 'medical'} practice website`,
+      `"${doctorName}" ${practiceName || ''} ${location || ''}`,
+      `"Dr. ${doctorName}" ${location || ''} contact`
+    ];
+    
+    let searchResults = null;
+    for (const searchQuery of queries) {
+      console.log(`🔍 Trying search: ${searchQuery}`);
+      searchResults = await callBraveSearch(searchQuery, 10);
+      if (searchResults?.web?.results?.length > 0) {
+        break;
+      }
+    }
     
     if (searchResults?.web?.results?.length > 0) {
       const firstResult = searchResults.web.results[0];
