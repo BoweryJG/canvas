@@ -10,7 +10,9 @@ import { performEnhancedResearch, generateEnhancedSalesBrief } from '../lib/enha
 import { DoctorAutocomplete } from '../components/DoctorAutocomplete'
 import type { Doctor } from '../components/DoctorAutocomplete'
 import { conductNPIEnhancedResearch } from '../lib/npiEnhancedResearch'
+import { gatherComprehensiveDoctorIntelligenceWithProgress } from '../lib/enhancedDoctorIntelligenceWithProgress'
 import type { ResearchData } from '../lib/webResearch'
+import { IntelligenceProgress } from '../components/IntelligenceProgress'
 
 interface ScanResult {
   doctor: string;
@@ -23,6 +25,105 @@ interface ScanResult {
   researchQuality?: 'verified' | 'partial' | 'inferred' | 'unknown';
   researchSources?: number;
   factBased?: boolean;
+}
+
+// Helper functions for creating enhanced content
+function calculateOpportunityScore(insights: any, analysis: any): number {
+  if (!insights) return analysis?.interestLevel || 50;
+  
+  let score = 50; // Base score
+  
+  // Add points for buying signals
+  if (insights.buyingSignals?.length > 0) score += insights.buyingSignals.length * 5;
+  
+  // Add points for pain points that match product
+  if (insights.painPoints?.length > 0) score += insights.painPoints.length * 3;
+  
+  // Add points for technology gaps
+  if (insights.technologyStack?.gaps?.length > 0) score += insights.technologyStack.gaps.length * 4;
+  
+  // Add points for budget indicators
+  if (insights.budgetIndicators?.technologyBudget) score += 10;
+  
+  // Cap at 100
+  return Math.min(score, 100);
+}
+
+function createDoctorProfile(insights: any, research: ResearchData): string {
+  if (!insights) return 'Limited information available.';
+  
+  const profile = insights.practiceProfile || {};
+  const market = insights.marketPosition || {};
+  
+  return `**${research.doctorName}** - ${profile.size || 'Unknown size'} practice
+${profile.patientVolume ? `Patient Volume: ${profile.patientVolume}` : ''}
+${profile.technologyLevel ? `Technology: ${profile.technologyLevel}` : ''}
+${market.ranking ? `Market Position: ${market.ranking}` : ''}
+${market.reputation ? `Reputation: ${market.reputation}` : ''}`;
+}
+
+function createProductIntel(insights: any, product: string): string {
+  if (!insights) return `${product} could benefit this practice.`;
+  
+  const gaps = insights.technologyStack?.gaps || [];
+  const painPoints = insights.painPoints || [];
+  
+  return `${product} directly addresses:
+${gaps.length > 0 ? `• Technology gaps: ${gaps.join(', ')}` : ''}
+${painPoints.length > 0 ? `• Pain points: ${painPoints.slice(0, 3).join(', ')}` : ''}
+${insights.approachStrategy?.keyMessage || ''}`;
+}
+
+function createPowerfulSalesBrief(insights: any, doctor: string, product: string): string {
+  if (!insights?.salesBrief) {
+    return `Contact ${doctor} about ${product} benefits.`;
+  }
+  
+  // If we have a brief from Claude 4, enhance it with specific details
+  let brief = insights.salesBrief;
+  
+  // Add timing and approach
+  if (insights.approachStrategy) {
+    brief += `\n\n**Approach**: ${insights.approachStrategy.preferredChannel || 'Direct'} contact ${insights.approachStrategy.bestTiming || 'during business hours'}.`;
+  }
+  
+  // Add decision maker info
+  if (insights.decisionMakers?.primary) {
+    brief += `\n**Target**: ${insights.decisionMakers.primary}`;
+  }
+  
+  return brief;
+}
+
+function extractKeyInsights(insights: any, research: ResearchData): string[] {
+  const keyInsights: string[] = [];
+  
+  // Add source count
+  keyInsights.push(`📊 Analyzed ${research.sources.length} sources with ${research.confidenceScore}% confidence`);
+  
+  if (insights) {
+    // Add technology insights
+    if (insights.technologyStack?.current?.length > 0) {
+      keyInsights.push(`💻 Current tech: ${insights.technologyStack.current.slice(0, 3).join(', ')}`);
+    }
+    
+    // Add buying signals
+    insights.buyingSignals?.forEach((signal: string) => {
+      keyInsights.push(`🎯 ${signal}`);
+    });
+    
+    // Add competition insights
+    if (insights.competition?.currentVendors?.length > 0) {
+      keyInsights.push(`🏢 Working with: ${insights.competition.currentVendors.join(', ')}`);
+    }
+    
+    // Add budget insights
+    if (insights.budgetIndicators?.purchaseTimeframe) {
+      keyInsights.push(`💰 Purchase timeframe: ${insights.budgetIndicators.purchaseTimeframe}`);
+    }
+  }
+  
+  return keyInsights;
 }
 
 export default function CanvasHome() {
@@ -41,6 +142,9 @@ export default function CanvasHome() {
   const [isGeneratingBrief, setIsGeneratingBrief] = useState(false)
   const [showEnhancements, setShowEnhancements] = useState(false)
   const [researchData, setResearchData] = useState<ResearchData | null>(null)
+  const [intelligenceSteps, setIntelligenceSteps] = useState<any[]>([])
+  const [sourcesFound, setSourcesFound] = useState(0)
+  const [confidenceScore, setConfidenceScore] = useState(50)
   const [enhancements, setEnhancements] = useState({
     website: '',
     recentPurchases: '',
@@ -114,47 +218,56 @@ export default function CanvasHome() {
     setScanStage('Gathering comprehensive doctor information...')
     
     try {
-      // Step 1: Conduct comprehensive NPI-enhanced research
-      setScanStage('Searching for practice website and reviews...')
-      const comprehensiveResearch = await conductNPIEnhancedResearch(selectedDoctor!, product)
-      setResearchData(comprehensiveResearch)
+      // Initialize progress tracking
+      setIntelligenceSteps([
+        { id: 'practice', label: 'Searching Practice Information', sublabel: 'Website, contact details, services', status: 'pending' },
+        { id: 'reviews', label: 'Gathering Patient Reviews', sublabel: 'Ratings, feedback, reputation', status: 'pending' },
+        { id: 'professional', label: 'Professional Activities', sublabel: 'Conferences, publications, achievements', status: 'pending' },
+        { id: 'website', label: 'Deep Website Analysis', sublabel: 'Using Firecrawl for rich data', status: 'pending' },
+        { id: 'competition', label: 'Market Competition Analysis', sublabel: 'Local competitors, market position', status: 'pending' },
+        { id: 'technology', label: 'Technology Research', sublabel: `${product} adoption and readiness`, status: 'pending' },
+        { id: 'synthesis', label: 'Claude 4 Opus Synthesis', sublabel: 'Creating personalized intelligence', status: 'pending' }
+      ]);
       
-      // Step 2: Basic analysis
-      setScanStage('Performing deep industry analysis...')
+      // Progress callbacks
+      const progressCallbacks = {
+        updateStep: (stepId: string, status: 'pending' | 'active' | 'completed' | 'found', result?: string) => {
+          setIntelligenceSteps(prev => prev.map(step => 
+            step.id === stepId ? { ...step, status, result } : step
+          ));
+        },
+        updateSources: (count: number) => setSourcesFound(count),
+        updateConfidence: (score: number) => setConfidenceScore(score),
+        updateStage: (stage: string) => setScanStage(stage)
+      };
+      
+      // Step 1: Gather comprehensive intelligence using multiple sources
+      const comprehensiveResearch = await gatherComprehensiveDoctorIntelligenceWithProgress(
+        selectedDoctor!, 
+        product,
+        progressCallbacks
+      );
+      setResearchData(comprehensiveResearch);
+      
+      // Step 2: Extract insights from the enhanced research
+      const insights = comprehensiveResearch.enhancedInsights;
+      
+      // Step 3: Create a powerful sales brief
+      const strategicBrief = insights?.salesBrief || 'No brief available';
+      
+      // Step 4: Basic analysis for compatibility score
+      setScanStage('Finalizing intelligence report...')
       const analysis = await analyzeDoctor(profile.name, profile.location, product)
       
-      // Step 3: Enhanced industry-specific research
-      setScanStage('Analyzing practice metrics & technology stack...')
-      const enhancedProfile = await performEnhancedResearch(
-        profile.name,
-        profile.location,
-        product,
-        profile
-      )
-      
-      // Step 4: Generate strategic sales brief
-      setScanStage('Creating strategic sales brief...')
-      const strategicBrief = generateEnhancedSalesBrief(
-        enhancedProfile,
-        profile.name,
-        product
-      )
-      
-      // Create enhanced scan result with deep insights
+      // Create enhanced scan result with deep insights from Claude 4
       const enhancedResult: ScanResult = {
         doctor: profile.name,
         product: product,
-        score: analysis.interestLevel,
-        doctorProfile: `${analysis.synthesis}\n\n**Practice Profile**: ${enhancedProfile.prospectType.replace('_', ' ')} | ${enhancedProfile.businessMetrics.practiceSize} practice | ${enhancedProfile.businessMetrics.technologyAdoption.replace('_', ' ')} adopter`,
-        productIntel: analysis.productAlignment,
-        salesBrief: strategicBrief,
-        insights: [
-          `✅ Verified ${enhancedProfile.prospectType.replace('_', ' ')} - ${enhancedProfile.businessMetrics.decisionMakingSpeed} decision maker`,
-          `🎯 Technology adoption: ${enhancedProfile.businessMetrics.technologyAdoption}`,
-          `📊 Practice size: ${enhancedProfile.businessMetrics.practiceSize}`,
-          ...enhancedProfile.buyingSignals.map(signal => `💡 ${signal}`),
-          ...analysis.keyFactors
-        ],
+        score: calculateOpportunityScore(insights, analysis),
+        doctorProfile: createDoctorProfile(insights, comprehensiveResearch),
+        productIntel: createProductIntel(insights, product),
+        salesBrief: createPowerfulSalesBrief(insights, doctor, product),
+        insights: extractKeyInsights(insights, comprehensiveResearch),
         researchQuality: 'verified' as const,
         researchSources: comprehensiveResearch.sources.length,
         factBased: true
@@ -403,8 +516,18 @@ export default function CanvasHome() {
         )}
       </div>
 
-      {/* Status */}
-      {(isScanning || isGeneratingBrief) && (
+      {/* Intelligence Progress Display */}
+      {isGeneratingBrief && intelligenceSteps.length > 0 && (
+        <IntelligenceProgress
+          steps={intelligenceSteps}
+          currentStage={scanStage}
+          sourcesFound={sourcesFound}
+          confidenceScore={confidenceScore}
+        />
+      )}
+      
+      {/* Legacy Status (hidden when progress is shown) */}
+      {(isScanning || (isGeneratingBrief && intelligenceSteps.length === 0)) && (
         <div className="status">
           <p className="scanning-text">{scanStage}</p>
         </div>

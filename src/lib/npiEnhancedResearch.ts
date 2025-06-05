@@ -199,7 +199,11 @@ async function gatherReviews(doctor: Doctor): Promise<any> {
     // AI analysis of reviews
     const reviewAnalysis = await analyzeReviewsWithAI(response, doctor);
     
-    return reviewAnalysis;
+    // Return both the analysis and the raw sources
+    return {
+      ...reviewAnalysis,
+      sources: response?.web?.results || []
+    };
   } catch (error) {
     console.error('Error gathering reviews:', error);
     return {
@@ -207,7 +211,8 @@ async function gatherReviews(doctor: Doctor): Promise<any> {
       totalReviews: 0,
       commonPraise: [],
       commonConcerns: [],
-      recentFeedback: []
+      recentFeedback: [],
+      sources: []
     };
   }
 }
@@ -410,7 +415,9 @@ Return ONLY a JSON object with:
 async function synthesizeResearchData(data: any): Promise<ResearchData> {
   const sources: ResearchSource[] = [];
   
-  // Add sources from various searches
+  // Add ALL sources from various searches
+  
+  // 1. Practice website sources
   if (data.practiceWebsite.sources && Array.isArray(data.practiceWebsite.sources)) {
     sources.push(...data.practiceWebsite.sources.map((s: any) => ({
       url: s.url || '',
@@ -422,7 +429,43 @@ async function synthesizeResearchData(data: any): Promise<ResearchData> {
     })));
   }
   
-  // Add sources from additional searches if available
+  // 2. Review sources
+  if (data.reviews.sources && Array.isArray(data.reviews.sources)) {
+    sources.push(...data.reviews.sources.map((s: any) => ({
+      url: s.url || '',
+      title: s.title || '',
+      type: 'review_site' as const,
+      content: s.description || '',
+      confidence: 75,
+      lastUpdated: new Date().toISOString()
+    })));
+  }
+  
+  // 3. Credential sources (if we added them)
+  if (data.credentials.sources && Array.isArray(data.credentials.sources)) {
+    sources.push(...data.credentials.sources.map((s: any) => ({
+      url: s.url || '',
+      title: s.title || '',
+      type: 'medical_directory' as const,
+      content: s.description || '',
+      confidence: 85,
+      lastUpdated: new Date().toISOString()
+    })));
+  }
+  
+  // 4. Business intel sources
+  if (data.businessIntel.sources && Array.isArray(data.businessIntel.sources)) {
+    sources.push(...data.businessIntel.sources.map((s: any) => ({
+      url: s.url || '',
+      title: s.title || '',
+      type: 'news_article' as const,
+      content: s.description || '',
+      confidence: 70,
+      lastUpdated: new Date().toISOString()
+    })));
+  }
+  
+  // Add recent news if available
   if (data.businessIntel && Array.isArray(data.businessIntel.recentNews)) {
     data.businessIntel.recentNews.forEach((news: string) => {
       sources.push({

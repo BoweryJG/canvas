@@ -47,6 +47,7 @@ export interface ResearchData {
   confidenceScore: number;
   completedAt: string;
   linkedinUrl?: string;
+  enhancedInsights?: any; // Rich insights from Claude 4 synthesis
 }
 
 /**

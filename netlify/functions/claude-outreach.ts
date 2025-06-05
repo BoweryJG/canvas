@@ -67,7 +67,7 @@ export const handler: Handler = async (event, context) => {
         'X-Title': 'Canvas Intelligence Platform'
       },
       body: JSON.stringify({
-        model: 'anthropic/claude-opus-4',
+        model: 'anthropic/claude-opus-4-20250514',
         messages: messages || [
           {
             role: 'system',

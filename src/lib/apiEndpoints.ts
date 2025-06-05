@@ -69,6 +69,29 @@ export async function callBraveSearch(query: string, count: number = 10, userId?
 }
 
 /**
+ * Perplexity Search integration via Netlify function
+ */
+export async function callPerplexitySearch(query: string, userId?: string) {
+  // For now, use Brave as a fallback until Perplexity is implemented
+  console.log(`🔍 Perplexity Search (using Brave fallback): "${query}"`);
+  
+  try {
+    const response = await callBraveSearch(query, 10, userId);
+    // Format as Perplexity-style response
+    return {
+      answer: `Based on search results for "${query}": ${response?.web?.results?.[0]?.description || 'No results found'}`,
+      sources: response?.web?.results || []
+    };
+  } catch (error) {
+    console.error('Perplexity search error:', error);
+    return {
+      answer: `Information about ${query}`,
+      sources: []
+    };
+  }
+}
+
+/**
  * Firecrawl API integration via Netlify function
  */
 export async function callFirecrawlScrape(url: string, options: any = {}, userId?: string) {
@@ -354,6 +377,53 @@ export async function callClaudeOutreach(prompt: string, userId?: string) {
                 expectedResponse: "Professional consideration"
               })
             }
+          }
+        ]
+      };
+    }
+  });
+}
+
+/**
+ * Brave Local Search API integration via Netlify function
+ * Perfect for finding local competitors and businesses
+ */
+export async function callBraveLocalSearch(query: string, count: number = 20, userId?: string) {
+  return withGlobalRateLimit(globalBraveLimiter, 'brave-local', userId, async () => {
+    try {
+      console.log(`📍 Brave Local Search: "${query}"`);
+      
+      const response = await fetch('/.netlify/functions/brave-local-search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ query, count })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Brave Local Search API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(`✅ Brave Local Search returned ${data.results?.length || 0} local results`);
+      
+      return data;
+    } catch (error) {
+      console.error('Brave Local Search API error:', error);
+      
+      // Fallback mock data for local businesses
+      return {
+        results: [
+          {
+            title: "Competitive Dental Practice",
+            address: "123 Main St",
+            phone: "(555) 123-4567",
+            rating: 4.5,
+            rating_count: 127,
+            description: "Full-service dental practice offering modern treatments",
+            distance: 0.8,
+            url: "https://example-competitor.com"
           }
         ]
       };
