@@ -335,6 +335,28 @@ body {
   color: #666;
 }
 
+/* Canvas input style for autocomplete */
+.canvas-input {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: white;
+  font-family: 'JetBrains Mono', monospace;
+  transition: border-color 0.3s;
+}
+
+.canvas-input:focus {
+  outline: none;
+  border-color: #00d4ff;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.2);
+}
+
+.canvas-input::placeholder {
+  color: #666;
+}
+
 .scan-btn {
   width: 100%;
   max-width: 200px;

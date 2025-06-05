@@ -8,6 +8,8 @@ import IntegratedCanvasExperience from '../components/IntegratedCanvasExperience
 import DoctorVerification from '../components/DoctorVerification'
 import { analyzeDoctor } from '../lib/intelligentAnalysis'
 import { performEnhancedResearch, generateEnhancedSalesBrief } from '../lib/enhancedResearch'
+import { DoctorAutocomplete } from '../components/DoctorAutocomplete'
+import type { Doctor } from '../components/DoctorAutocomplete'
 
 interface ScanResult {
   doctor: string;
@@ -26,12 +28,25 @@ export default function CanvasHome() {
   const [doctor, setDoctor] = useState('')
   const [product, setProduct] = useState('')
   const [location, setLocation] = useState('')
+  // @ts-ignore - Will use for enhanced verification
+  const [practiceName, setPracticeName] = useState('')
+  // @ts-ignore - Will use for NPI data
+  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null)
   const [isScanning, setIsScanning] = useState(false)
   const [scanResult, setScanResult] = useState<ScanResult | null>(null)
   const [scanStage, setScanStage] = useState('')
   const [cinematicMode, setCinematicMode] = useState(false)
   const [showVerification, setShowVerification] = useState(false)
   const [isGeneratingBrief, setIsGeneratingBrief] = useState(false)
+
+  const handleDoctorSelect = (selectedDoc: Doctor) => {
+    setSelectedDoctor(selectedDoc)
+    setDoctor(selectedDoc.displayName)
+    setLocation(`${selectedDoc.city}, ${selectedDoc.state}`)
+    if (selectedDoc.organizationName) {
+      setPracticeName(selectedDoc.organizationName)
+    }
+  }
 
   const handleScan = async () => {
     if (!doctor || !product) return
@@ -186,12 +201,11 @@ export default function CanvasHome() {
         <div className="input-group">
           <div className="input-with-icon">
             <DoctorTargetIcon className="input-icon" />
-            <input
-              type="text"
+            <DoctorAutocomplete 
+              onSelect={handleDoctorSelect}
               placeholder="Doctor Name"
-              value={doctor}
-              onChange={(e) => setDoctor(e.target.value)}
-              disabled={isScanning || showVerification || isGeneratingBrief}
+              inputClassName="canvas-input"
+              dropdownClassName="canvas-dropdown"
             />
           </div>
           <div className="input-with-icon">

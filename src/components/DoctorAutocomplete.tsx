@@ -130,8 +130,8 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
             }, 200);
           }}
           placeholder={placeholder}
-          className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${inputClassName}`}
-          style={{
+          className={`w-full ${inputClassName}`}
+          style={inputClassName === 'canvas-input' ? {} : {
             backgroundColor: 'white',
             color: 'black',
             borderColor: '#d1d5db'
@@ -139,7 +139,9 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
         />
         {loading && (
           <div className="absolute right-3 top-2.5">
-            <svg className="animate-spin h-5 w-5 text-blue-500" viewBox="0 0 24 24">
+            <svg className={`animate-spin h-5 w-5 ${
+              inputClassName === 'canvas-input' ? 'text-cyan-400' : 'text-blue-500'
+            }`} viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
@@ -148,10 +150,21 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
       </div>
 
       {showDropdown && suggestions.length > 0 && (
-        <div className={`absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-auto ${dropdownClassName}`}
-             style={{ 
+        <div className={`absolute z-50 w-full mt-1 rounded-lg shadow-lg max-h-60 overflow-auto ${dropdownClassName}`}
+             style={dropdownClassName === 'canvas-dropdown' ? { 
+               backgroundColor: '#1a1a1a', 
+               color: 'white',
+               border: '1px solid #333',
+               position: 'absolute',
+               top: '100%',
+               left: 0,
+               right: 0,
+               zIndex: 9999,
+               marginTop: '0.5rem'
+             } : { 
                backgroundColor: 'white', 
                color: 'black',
+               border: '1px solid #e5e7eb',
                position: 'absolute',
                top: '100%',
                left: 0,
@@ -162,16 +175,26 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
             <button
               key={doctor.npi}
               onClick={() => handleSelect(doctor)}
-              className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 focus:outline-none border-b border-gray-100 last:border-b-0"
+              className={`w-full px-4 py-3 text-left focus:outline-none ${
+                dropdownClassName === 'canvas-dropdown' 
+                  ? 'hover:bg-gray-800 focus:bg-gray-800 border-b border-gray-700 last:border-b-0' 
+                  : 'hover:bg-gray-50 focus:bg-gray-50 border-b border-gray-100 last:border-b-0'
+              }`}
             >
-              <div className="font-semibold text-gray-900">
+              <div className={`font-semibold ${
+                dropdownClassName === 'canvas-dropdown' ? 'text-white' : 'text-gray-900'
+              }`}>
                 {doctor.displayName}
               </div>
-              <div className="text-sm text-gray-600">
+              <div className={`text-sm ${
+                dropdownClassName === 'canvas-dropdown' ? 'text-gray-400' : 'text-gray-600'
+              }`}>
                 {doctor.specialty} • {doctor.city}, {doctor.state}
               </div>
               {doctor.organizationName && (
-                <div className="text-xs text-gray-500 mt-1">
+                <div className={`text-xs mt-1 ${
+                  dropdownClassName === 'canvas-dropdown' ? 'text-gray-500' : 'text-gray-500'
+                }`}>
                   {doctor.organizationName}
                 </div>
               )}
@@ -181,35 +204,27 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
       )}
 
       {showDropdown && search.length >= 3 && suggestions.length === 0 && !loading && (
-        <div className="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-4 text-center">
+        <div className={`absolute z-50 w-full mt-1 rounded-lg shadow-lg p-4 text-center ${
+          dropdownClassName === 'canvas-dropdown' 
+            ? 'bg-gray-900 border border-gray-700' 
+            : 'bg-white border border-gray-200'
+        }`}>
           {error ? (
-            <div className="text-red-600">
+            <div className={dropdownClassName === 'canvas-dropdown' ? 'text-red-400' : 'text-red-600'}>
               <div className="font-semibold">Error</div>
               <div className="text-sm mt-1">{error}</div>
-              <div className="text-xs mt-2 text-gray-500">Check console for details</div>
+              <div className={`text-xs mt-2 ${
+                dropdownClassName === 'canvas-dropdown' ? 'text-gray-500' : 'text-gray-500'
+              }`}>Check console for details</div>
             </div>
           ) : (
-            <div className="text-gray-500">No doctors found. Try a different search.</div>
+            <div className={dropdownClassName === 'canvas-dropdown' ? 'text-gray-400' : 'text-gray-500'}>
+              No doctors found. Try a different search.
+            </div>
           )}
         </div>
       )}
       
-      {/* Debug: Force show dropdown info */}
-      {search.length >= 3 && (
-        <div style={{
-          position: 'fixed',
-          bottom: '10px',
-          right: '10px',
-          background: 'black',
-          color: 'white',
-          padding: '10px',
-          borderRadius: '5px',
-          fontSize: '12px',
-          zIndex: 10000
-        }}>
-          Debug: showDropdown={showDropdown.toString()}, suggestions={suggestions.length}, loading={loading.toString()}
-        </div>
-      )}
     </div>
   );
 };
