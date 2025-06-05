@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bolt, AutoAwesome } from '@mui/icons-material';
 import SimpleCinematicScan from './SimpleCinematicScan';
 import SimpleProgressiveResults from './SimpleProgressiveResults';
-import { DoctorAutocomplete, type Doctor } from './DoctorAutocomplete';
+import { DoctorAutocomplete } from './DoctorAutocomplete';
 import { useAuth } from '../auth';
 import { checkUserCredits, deductCredit } from '../lib/creditManager';
 import AuthModal from './AuthModal';
@@ -98,7 +98,6 @@ const LaunchButton = styled(Button)`
 
 export default function IntegratedCanvasExperience() {
   const [doctor, setDoctor] = useState('');
-  const [doctorDetails, setDoctorDetails] = useState<Doctor | null>(null);
   const [product, setProduct] = useState('');
   const [location, setLocation] = useState('');
   const [stage, setStage] = useState<'input' | 'scanning' | 'results'>('input');
@@ -220,7 +219,6 @@ export default function IntegratedCanvasExperience() {
               <DoctorAutocomplete 
                 onSelect={(selectedDoctor) => {
                   setDoctor(`${selectedDoctor.firstName} ${selectedDoctor.lastName}`);
-                  setDoctorDetails(selectedDoctor);
                   if (selectedDoctor.city && selectedDoctor.state) {
                     setLocation(`${selectedDoctor.city}, ${selectedDoctor.state}`);
                   }
@@ -367,7 +365,6 @@ export default function IntegratedCanvasExperience() {
           doctorName={doctor}
           userTier={userTier}
           onUpgradeClick={handleUpgrade}
-          doctorDetails={doctorDetails}
         />
       </motion.div>
     </Container>
@@ -383,7 +380,6 @@ export default function IntegratedCanvasExperience() {
             doctorName={doctor}
             location={location}
             onComplete={() => setStage('results')}
-            doctorDetails={doctorDetails}
           />
         )}
         {stage === 'results' && renderResults()}
