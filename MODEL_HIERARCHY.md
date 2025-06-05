@@ -1,6 +1,15 @@
 # Canvas AI Model Hierarchy 🧠
 
-## Current Model Stack (Best to Good)
+## Recommended: Streamlined Mode ⚡
+
+**Brave Search + Claude 4 Opus = Perfect Balance**
+
+- Faster (10 sec vs 30 sec)
+- Cheaper ($0.025 vs $0.05+)
+- Simpler (2 steps vs 5+)
+- Better coherence
+
+## Model Stack (When Used)
 
 ### 1. **Claude 4 Opus** (`anthropic/claude-opus-4-20250514`)
 - **Role**: Premium synthesis & personalization

@@ -35,11 +35,20 @@ export async function gatherComprehensiveDoctorIntelligenceWithProgress(
 ): Promise<ResearchData> {
   console.log('🚀 Starting ENHANCED intelligence gathering for:', doctor.displayName);
   
-  // Check if we should use super intelligent mode
+  // Check if we should use streamlined mode (recommended)
+  const useStreamlined = process.env.REACT_APP_USE_STREAMLINED !== 'false';
+  
+  if (useStreamlined) {
+    console.log('⚡ Using STREAMLINED mode: Brave + Claude 4 Opus');
+    const { gatherStreamlinedDoctorIntelligence } = await import('./streamlinedDoctorIntelligence');
+    return gatherStreamlinedDoctorIntelligence(doctor, product, progress);
+  }
+  
+  // Legacy super mode (if explicitly disabled streamlined)
   const useSuperMode = process.env.REACT_APP_USE_SUPER_INTELLIGENCE === 'true';
   
   if (useSuperMode) {
-    console.log('🧠 Using SUPER INTELLIGENT mode with Perplexity + GPT-4 + Claude');
+    console.log('🧠 Using SUPER INTELLIGENT mode (legacy)');
     const { gatherSuperIntelligentDoctorResearch } = await import('./superIntelligentDoctorResearch');
     return gatherSuperIntelligentDoctorResearch(doctor, product, progress);
   }
