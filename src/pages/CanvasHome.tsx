@@ -5,7 +5,6 @@ import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon, 
 import EnhancedActionSuite from '../components/EnhancedActionSuite'
 import ResearchPanel from '../components/ResearchPanel'
 import IntegratedCanvasExperience from '../components/IntegratedCanvasExperience'
-import DoctorVerification from '../components/DoctorVerification'
 import { analyzeDoctor } from '../lib/intelligentAnalysis'
 import { performEnhancedResearch, generateEnhancedSalesBrief } from '../lib/enhancedResearch'
 import { DoctorAutocomplete } from '../components/DoctorAutocomplete'
@@ -32,12 +31,20 @@ export default function CanvasHome() {
   const [practiceName, setPracticeName] = useState('')
   // @ts-ignore - Will use for NPI data
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null)
+  // @ts-ignore - Might use for future features
   const [isScanning, setIsScanning] = useState(false)
   const [scanResult, setScanResult] = useState<ScanResult | null>(null)
   const [scanStage, setScanStage] = useState('')
   const [cinematicMode, setCinematicMode] = useState(false)
-  const [showVerification, setShowVerification] = useState(false)
   const [isGeneratingBrief, setIsGeneratingBrief] = useState(false)
+  const [showEnhancements, setShowEnhancements] = useState(false)
+  const [enhancements, setEnhancements] = useState({
+    website: '',
+    recentPurchases: '',
+    painPoints: '',
+    practiceSize: '',
+    notes: ''
+  })
 
   const handleDoctorSelect = (selectedDoc: Doctor) => {
     setSelectedDoctor(selectedDoc)
@@ -46,22 +53,47 @@ export default function CanvasHome() {
     if (selectedDoc.organizationName) {
       setPracticeName(selectedDoc.organizationName)
     }
+    
+    // Show immediate "we know this doctor" feedback
+    setShowEnhancements(true)
+    
+    // Log NPI data for verification
+    console.log('✅ NPI Verified Doctor Selected:', {
+      npi: selectedDoc.npi,
+      name: selectedDoc.displayName,
+      specialty: selectedDoc.specialty,
+      location: `${selectedDoc.city}, ${selectedDoc.state}`,
+      organization: selectedDoc.organizationName || 'Private Practice'
+    });
   }
 
   const handleScan = async () => {
-    if (!doctor || !product) return
+    if (!doctor || !product || !selectedDoctor) return
     
-    setIsScanning(true)
-    setScanResult(null)
-    setScanStage('Verifying doctor identity...')
-    setShowVerification(true)
+    // Skip verification - NPI is already verified!
+    // Go straight to generating the brief
+    const npiProfile = {
+      name: selectedDoctor.displayName,
+      npi: selectedDoctor.npi,
+      specialty: selectedDoctor.specialty,
+      location: `${selectedDoctor.city}, ${selectedDoctor.state}`,
+      practice: selectedDoctor.organizationName || practiceName || 'Private Practice',
+      phone: selectedDoctor.phone,
+      // Add any enhancements
+      website: enhancements.website,
+      additionalContext: {
+        recentPurchases: enhancements.recentPurchases,
+        painPoints: enhancements.painPoints,
+        practiceSize: enhancements.practiceSize,
+        notes: enhancements.notes
+      }
+    };
     
-    // Start verification process immediately
-    setIsScanning(false)
+    console.log('🚀 Generating intel with NPI-verified profile:', npiProfile);
+    handleDoctorConfirmed(npiProfile);
   }
 
   const handleDoctorConfirmed = async (profile: any) => {
-    setShowVerification(false)
     setIsGeneratingBrief(true)
     setScanStage('Performing deep industry analysis...')
     
@@ -117,10 +149,6 @@ export default function CanvasHome() {
     }
   }
 
-  const handleDoctorRejected = () => {
-    setShowVerification(false)
-    // Reset form to let user try again
-  }
 
   if (cinematicMode) {
     return (
@@ -215,7 +243,7 @@ export default function CanvasHome() {
               placeholder="Product Name"
               value={product}
               onChange={(e) => setProduct(e.target.value)}
-              disabled={isScanning || showVerification || isGeneratingBrief}
+              disabled={isScanning || isGeneratingBrief}
             />
           </div>
           <div className="input-with-icon">
@@ -225,16 +253,100 @@ export default function CanvasHome() {
               placeholder="Location (City, State)"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              disabled={isScanning || showVerification || isGeneratingBrief}
+              disabled={isScanning || isGeneratingBrief}
             />
           </div>
         </div>
+        
+        {/* Instant Knowledge Display - Shows after NPI selection */}
+        {selectedDoctor && showEnhancements && (
+          <div className="npi-verified-display">
+            <div className="verified-header">
+              <div className="verified-badge">
+                <span className="checkmark">✓</span>
+                <span>NPI VERIFIED</span>
+              </div>
+              <div className="npi-number">NPI: {selectedDoctor.npi}</div>
+            </div>
+            
+            <div className="doctor-insights">
+              <h3>{selectedDoctor.displayName}</h3>
+              <div className="insight-grid">
+                <div className="insight-item">
+                  <span className="label">SPECIALTY</span>
+                  <span className="value">{selectedDoctor.specialty}</span>
+                </div>
+                {selectedDoctor.organizationName && (
+                  <div className="insight-item">
+                    <span className="label">PRACTICE</span>
+                    <span className="value">{selectedDoctor.organizationName}</span>
+                  </div>
+                )}
+                <div className="insight-item">
+                  <span className="label">LOCATION</span>
+                  <span className="value">{selectedDoctor.city}, {selectedDoctor.state}</span>
+                </div>
+              </div>
+              
+              {/* Intelligent insights based on specialty */}
+              <div className="specialty-insights">
+                {selectedDoctor.specialty.toLowerCase().includes('oral') && (
+                  <p className="insight-text">
+                    💡 Oral surgeons typically focus on implants, wisdom teeth, and reconstructive procedures. 
+                    High-value practice with surgical suite requirements.
+                  </p>
+                )}
+                {selectedDoctor.city === 'WILLIAMSVILLE' && (
+                  <p className="insight-text">
+                    📍 Williamsville is an affluent Buffalo suburb. Practices here often cater to 
+                    higher-income patients seeking premium services.
+                  </p>
+                )}
+              </div>
+            </div>
+            
+            {/* Optional Enhancements */}
+            <div className="enhancement-section">
+              <p className="enhancement-prompt">
+                <span className="glow">ENHANCE YOUR INTEL</span> - Add any insider knowledge:
+              </p>
+              <div className="enhancement-fields">
+                <input
+                  type="text"
+                  placeholder="Practice website (if known)"
+                  value={enhancements.website}
+                  onChange={(e) => setEnhancements({...enhancements, website: e.target.value})}
+                  className="enhancement-input"
+                />
+                <input
+                  type="text"
+                  placeholder="Recent purchases or interests"
+                  value={enhancements.recentPurchases}
+                  onChange={(e) => setEnhancements({...enhancements, recentPurchases: e.target.value})}
+                  className="enhancement-input"
+                />
+                <input
+                  type="text"
+                  placeholder="Known pain points or needs"
+                  value={enhancements.painPoints}
+                  onChange={(e) => setEnhancements({...enhancements, painPoints: e.target.value})}
+                  className="enhancement-input"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+        
         <button 
           onClick={handleScan}
-          disabled={!doctor || !product || isScanning || showVerification || isGeneratingBrief}
-          className={`scan-btn ${(isScanning || showVerification || isGeneratingBrief) ? 'scanning' : ''}`}
+          disabled={!doctor || !product || !selectedDoctor || isScanning || isGeneratingBrief}
+          className={`scan-btn ${(isScanning || isGeneratingBrief) ? 'scanning' : ''} ${selectedDoctor ? 'ready' : ''}`}
         >
-          {showVerification ? 'VERIFYING...' : isGeneratingBrief ? 'ANALYZING...' : isScanning ? 'SCANNING...' : 'VERIFY & SCAN'}
+          {selectedDoctor ? (
+            isGeneratingBrief ? 'ANALYZING...' : isScanning ? 'SCANNING...' : '🎯 GENERATE INTEL'
+          ) : (
+            'SELECT DOCTOR FIRST'
+          )}
         </button>
       </div>
 
@@ -270,17 +382,7 @@ export default function CanvasHome() {
         </div>
       )}
 
-      {/* Doctor Verification */}
-      {showVerification && (
-        <div style={{ marginTop: '2rem' }}>
-          <DoctorVerification 
-            doctorName={doctor}
-            location={location}
-            onConfirm={handleDoctorConfirmed}
-            onReject={handleDoctorRejected}
-          />
-        </div>
-      )}
+      {/* Doctor Verification - Removed: NPI selection IS the verification! */}
 
       {/* Research Panel */}
       {scanResult && (

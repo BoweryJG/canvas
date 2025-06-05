@@ -355,12 +355,21 @@ function findBestSource(sources: VerificationSource[]): VerificationSource | nul
   // Sort by type priority then confidence
   const typePriority = { practice: 3, social: 2, news: 1, directory: 0 };
   
-  return sources.sort((a, b) => {
+  const sorted = sources.sort((a, b) => {
     const typeScoreA = (typePriority[a.type] || 0) * 100;
     const typeScoreB = (typePriority[b.type] || 0) * 100;
     
     return (typeScoreB + b.confidence) - (typeScoreA + a.confidence);
-  })[0];
+  });
+  
+  console.log('🔝 Top 5 sources:', sorted.slice(0, 5).map(s => ({
+    url: s.url,
+    type: s.type,
+    confidence: s.confidence,
+    signals: s.signals
+  })));
+  
+  return sorted[0];
 }
 
 /**

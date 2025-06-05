@@ -88,9 +88,12 @@ export default function DoctorVerification({ doctorName, location, onConfirm, on
       );
       
       console.log('✅ Smart verification result:', smartResult);
+      console.log('🌐 Smart verification website:', smartResult.verifiedWebsite);
+      console.log('🏥 Smart verification practice:', smartResult.practiceName);
       
       // Get regular verification data for additional info
       const regularResult = await verifyDoctor(doctorName, location);
+      console.log('📋 Regular verification result:', regularResult);
       
       // Merge results - prioritize practice website from smart verification
       const mergedProfile = {
@@ -109,6 +112,10 @@ export default function DoctorVerification({ doctorName, location, onConfirm, on
           })) || [])
         ]
       };
+      
+      console.log('🔀 Merged profile:', mergedProfile);
+      console.log('🌐 Final website:', mergedProfile.website);
+      console.log('✅ Is practice website?', mergedProfile.website ? isPracticeWebsite(mergedProfile.website) : 'No website');
       
       setProfile(mergedProfile);
       setShowDetails(true);

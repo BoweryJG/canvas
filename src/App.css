@@ -357,6 +357,161 @@ body {
   color: #666;
 }
 
+/* NPI Verified Display */
+.npi-verified-display {
+  background: linear-gradient(135deg, rgba(0,255,198,0.1) 0%, rgba(123,66,246,0.1) 100%);
+  border: 2px solid rgba(0,255,198,0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.verified-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.verified-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #00ffc6;
+  color: #0a0a0a;
+  padding: 0.25rem 1rem;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+}
+
+.verified-badge .checkmark {
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.npi-number {
+  color: #00ffc6;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.doctor-insights h3 {
+  color: #fff;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.insight-item {
+  background: rgba(255,255,255,0.05);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.insight-item .label {
+  display: block;
+  color: #00ffc6;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.25rem;
+}
+
+.insight-item .value {
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.specialty-insights {
+  margin-bottom: 1.5rem;
+}
+
+.insight-text {
+  background: rgba(0,212,255,0.1);
+  border-left: 3px solid #00d4ff;
+  padding: 0.75rem 1rem;
+  margin: 0.5rem 0;
+  color: rgba(255,255,255,0.9);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.enhancement-section {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.enhancement-prompt {
+  color: rgba(255,255,255,0.7);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.enhancement-prompt .glow {
+  color: #00ffc6;
+  font-weight: 700;
+  text-shadow: 0 0 10px rgba(0,255,198,0.5);
+}
+
+.enhancement-fields {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.enhancement-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(26,26,26,0.8);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: white;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.enhancement-input:focus {
+  outline: none;
+  border-color: rgba(0,212,255,0.5);
+  background: rgba(26,26,26,0.95);
+}
+
+.enhancement-input::placeholder {
+  color: rgba(255,255,255,0.4);
+}
+
+/* Update scan button when doctor is selected */
+.scan-btn.ready {
+  background: linear-gradient(90deg, #00ffc6 0%, #00d4ff 100%);
+  box-shadow: 0 0 20px rgba(0,255,198,0.5);
+  animation: pulse 2s infinite;
+}
+
 .scan-btn {
   width: 100%;
   max-width: 200px;
