@@ -70,14 +70,17 @@ export default function CanvasHome() {
     });
     
     // Start background research to find website
-    try {
-      const quickResearch = await conductNPIEnhancedResearch(selectedDoc, 'general');
-      if (quickResearch.practiceInfo?.website) {
-        setEnhancements(prev => ({ ...prev, website: quickResearch.practiceInfo.website || '' }));
+    setTimeout(async () => {
+      try {
+        const quickResearch = await conductNPIEnhancedResearch(selectedDoc, 'general');
+        if (quickResearch.practiceInfo?.website) {
+          setEnhancements(prev => ({ ...prev, website: quickResearch.practiceInfo.website || '' }));
+          console.log('Found website in background:', quickResearch.practiceInfo.website);
+        }
+      } catch (error) {
+        console.log('Could not fetch website in background:', error);
       }
-    } catch (error) {
-      console.log('Could not fetch website in background');
-    }
+    }, 100);
   }
 
   const handleScan = async () => {

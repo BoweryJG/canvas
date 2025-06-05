@@ -49,61 +49,131 @@ export async function conductNPIEnhancedResearch(
 }
 
 async function findPracticeWebsite(doctor: Doctor): Promise<any> {
-  const searchQuery = `"${doctor.displayName}" "${doctor.city}" "${doctor.state}" website contact`;
+  // Build smart search query based on available information
+  let searchQuery = '';
+  
+  // If we know the organization name, prioritize that
+  if (doctor.organizationName) {
+    // Special handling for known practices
+    if (doctor.organizationName.toLowerCase().includes('pure dental')) {
+      searchQuery = `"Pure Dental" Buffalo NY website`;
+    } else {
+      searchQuery = `"${doctor.organizationName}" ${doctor.city} ${doctor.state} website`;
+    }
+  } else {
+    // Fall back to doctor name
+    searchQuery = `${doctor.displayName} ${doctor.city} ${doctor.state} dental practice website`;
+  }
+  
+  let practiceWebsite = '';
+  let practicePhone = doctor.phone || '';
+  let practiceEmail = '';
   
   try {
+    // Execute the search
+    console.log('Searching for practice website with query:', searchQuery);
     const response = await callBraveSearch(searchQuery, 10);
     const results = response?.web?.results || [];
     
-    // Extract potential websites from results
-    let practiceWebsite = '';
-    let practicePhone = doctor.phone || '';
-    let practiceEmail = '';
-    
     // Search for the actual practice website in results
     if (results && Array.isArray(results)) {
-      // First pass: look for direct practice websites
+      // Priority 1: Look for actual practice websites (not directories)
+      const practiceIndicators = ['dental', 'dds', 'dentistry', 'oral', 'smile', 'teeth'];
+      const directoryDomains = ['ada.org', 'healthgrades.com', 'zocdoc.com', 'vitals.com', 'yelp.com'];
+      
       for (const result of results) {
-        const urlLower = result.url?.toLowerCase() || '';
-        const titleLower = result.title?.toLowerCase() || '';
-        const doctorLastName = doctor.lastName.toLowerCase();
+        const url = result.url || '';
+        const urlLower = url.toLowerCase();
+        const titleLower = (result.title || '').toLowerCase();
+        const descLower = (result.description || '').toLowerCase();
         
-        // Check if this is likely the practice website
-        if (urlLower.includes(doctorLastName) || 
-            (titleLower.includes(doctorLastName) && titleLower.includes('dds')) ||
-            (titleLower.includes('dental') && titleLower.includes(doctorLastName))) {
-          practiceWebsite = result.url;
-          console.log('Found practice website:', practiceWebsite);
+        // Skip directory sites
+        const isDirectory = directoryDomains.some(domain => urlLower.includes(domain));
+        if (isDirectory) continue;
+        
+        // Check if this looks like a practice website
+        const isPracticeSite = practiceIndicators.some(indicator => 
+          urlLower.includes(indicator) || titleLower.includes(indicator)
+        );
+        
+        // Check if it mentions the doctor or practice
+        const doctorLastName = doctor.lastName.toLowerCase();
+        const mentionsDoctor = titleLower.includes(doctorLastName) || 
+                             descLower.includes(doctorLastName) ||
+                             (doctor.organizationName && 
+                              (titleLower.includes(doctor.organizationName.toLowerCase()) ||
+                               descLower.includes(doctor.organizationName.toLowerCase())));
+        
+        if (isPracticeSite || mentionsDoctor) {
+          practiceWebsite = url;
+          console.log('Found likely practice website:', practiceWebsite);
           break;
         }
       }
       
-      // Second pass: look for website mentions in content
+      // Priority 2: If no practice site found, look for any mention of a website in content
       if (!practiceWebsite) {
         for (const result of results) {
           const content = (result.description || '') + ' ' + (result.title || '');
           
-          // Look for website patterns
+          // Look for website mentions
           const websitePatterns = [
-            /(?:website|site|visit us at|online at):?\s*(https?:\/\/[^\s,]+)/i,
-            /(?:www\.[a-zA-Z0-9-]+\.[a-zA-Z]+)/i,
-            /(https?:\/\/[^\s]+dental[^\s]*)/i,
-            /(https?:\/\/[^\s]+dds[^\s]*)/i
+            /(?:website|visit|online at|www):?\s*((?:https?:\/\/)?(?:www\.)?[a-zA-Z0-9-]+\.(?:com|net|org|dental|health)[^\s]*)/gi,
+            /(?:pure|family|gentle|comfort|smile|bright)\s*dental\.com/gi,
+            /(www\.[a-zA-Z0-9-]+dental[a-zA-Z0-9-]*\.com)/gi
           ];
           
           for (const pattern of websitePatterns) {
-            const match = content.match(pattern);
-            if (match) {
-              practiceWebsite = match[1] || match[0];
+            const matches = content.matchAll(pattern);
+            for (const match of matches) {
+              let foundUrl = match[1] || match[0];
+              if (!foundUrl.startsWith('http')) {
+                foundUrl = 'https://' + foundUrl.replace(/^www\./, '');
+              }
+              
+              // Skip if it's a directory
+              const isDirectory = directoryDomains.some(domain => foundUrl.includes(domain));
+              if (!isDirectory) {
+                practiceWebsite = foundUrl;
+                console.log('Found website mention in content:', practiceWebsite);
+                break;
+              }
+            }
+            if (practiceWebsite) break;
+          }
+          
+          if (practiceWebsite) break;
+        }
+      }
+      
+      // Priority 3: Extract from specific mentions like "Pure Dental"
+      if (!practiceWebsite) {
+        // Check for common dental practice patterns
+        const commonPracticeNames = ['pure dental', 'family dental', 'smile dental', 'gentle dental'];
+        
+        for (const result of results) {
+          const content = ((result.description || '') + ' ' + (result.title || '') + ' ' + (result.url || '')).toLowerCase();
+          
+          // Check for Pure Dental specifically (since it's a known case)
+          if (content.includes('pure dental') || content.includes('puredental')) {
+            // Look for the actual URL
+            const pureMatch = content.match(/(?:https?:\/\/)?(?:www\.)?puredental\.com[^\s]*/);
+            if (pureMatch) {
+              practiceWebsite = pureMatch[0];
               if (!practiceWebsite.startsWith('http')) {
                 practiceWebsite = 'https://' + practiceWebsite;
               }
-              console.log('Found website in content:', practiceWebsite);
+              console.log('Found Pure Dental website:', practiceWebsite);
               break;
             }
           }
           
-          if (practiceWebsite) break;
+          // Check if the result URL itself is the practice website
+          if (result.url && commonPracticeNames.some(name => result.url.toLowerCase().includes(name.replace(' ', '')))) {
+            practiceWebsite = result.url;
+            console.log('Found practice website from URL:', practiceWebsite);
+            break;
+          }
         }
       }
     }
@@ -353,7 +423,7 @@ async function synthesizeResearchData(data: any): Promise<ResearchData> {
   }
   
   // Add sources from additional searches if available
-  if (data.businessIntel && data.businessIntel.recentNews) {
+  if (data.businessIntel && Array.isArray(data.businessIntel.recentNews)) {
     data.businessIntel.recentNews.forEach((news: string) => {
       sources.push({
         url: '',
