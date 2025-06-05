@@ -52,10 +52,12 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
         console.log('👥 Found doctors:', doctors);
         
         setSuggestions(doctors);
-        setShowDropdown(true);
+        setShowDropdown(doctors.length > 0);
+        console.log('🔍 Setting showDropdown to:', doctors.length > 0);
       } catch (error) {
         console.error('❌ Failed to search doctors:', error);
         setSuggestions([]);
+        setShowDropdown(false);
       } finally {
         setLoading(false);
       }
@@ -65,6 +67,7 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
+    console.log('🔍 Input changed:', value);
     setSearch(value);
     searchDoctors(value);
   };
@@ -75,6 +78,14 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
     onSelect(doctor);
   };
 
+  // Debug: Log render state
+  console.log('🔍 DoctorAutocomplete render:', {
+    search,
+    suggestionsCount: suggestions.length,
+    showDropdown,
+    loading
+  });
+
   return (
     <div className="relative">
       <div className="relative">
@@ -82,13 +93,25 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
           type="text"
           value={search}
           onChange={handleInputChange}
-          onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
+          onFocus={() => {
+            console.log('🔍 Input focused, suggestions:', suggestions.length);
+            if (suggestions.length > 0) {
+              setShowDropdown(true);
+            }
+          }}
+          onBlur={() => {
+            // Delay to allow clicking on dropdown items
+            setTimeout(() => {
+              console.log('🔍 Input blurred, hiding dropdown');
+              setShowDropdown(false);
+            }, 200);
+          }}
           placeholder={placeholder}
-          className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/5 text-white placeholder-white/50 backdrop-blur-sm ${inputClassName}`}
+          className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${inputClassName}`}
           style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            color: 'white',
-            borderColor: 'rgba(255, 255, 255, 0.2)'
+            backgroundColor: 'white',
+            color: 'black',
+            borderColor: '#d1d5db'
           }}
         />
         {loading && (
@@ -103,7 +126,15 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
 
       {showDropdown && suggestions.length > 0 && (
         <div className={`absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-auto ${dropdownClassName}`}
-             style={{ backgroundColor: 'white', color: 'black' }}>
+             style={{ 
+               backgroundColor: 'white', 
+               color: 'black',
+               position: 'absolute',
+               top: '100%',
+               left: 0,
+               right: 0,
+               zIndex: 9999
+             }}>
           {suggestions.map((doctor) => (
             <button
               key={doctor.npi}
@@ -129,6 +160,23 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
       {showDropdown && search.length >= 3 && suggestions.length === 0 && !loading && (
         <div className="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 p-4 text-center text-gray-500">
           No doctors found. Try a different search.
+        </div>
+      )}
+      
+      {/* Debug: Force show dropdown info */}
+      {search.length >= 3 && (
+        <div style={{
+          position: 'fixed',
+          bottom: '10px',
+          right: '10px',
+          background: 'black',
+          color: 'white',
+          padding: '10px',
+          borderRadius: '5px',
+          fontSize: '12px',
+          zIndex: 10000
+        }}>
+          Debug: showDropdown={showDropdown.toString()}, suggestions={suggestions.length}, loading={loading.toString()}
         </div>
       )}
     </div>

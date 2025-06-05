@@ -203,7 +203,7 @@ function scorePracticeWebsite(
 } {
   const url = result.url.toLowerCase();
   const title = (result.title || '').toLowerCase();
-  const description = (result.description || '').toLowerCase();
+  const _description = (result.description || '').toLowerCase();
   const practiceNameLower = practiceName.toLowerCase();
   
   let score = 0;
@@ -365,7 +365,7 @@ function extractPracticeName(url: string): string {
 function generateConfirmation(
   result: VerificationResult,
   doctorName: string,
-  location?: string
+  _location?: string
 ): string {
   if (result.confidence >= 80 && result.verifiedWebsite) {
     return `✅ Found: ${result.practiceName || 'Practice'} - ${result.verifiedWebsite}`;
