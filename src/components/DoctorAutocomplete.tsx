@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { debounce } from 'lodash';
 
 export interface Doctor {
@@ -78,7 +78,7 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
           onChange={handleInputChange}
           onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
           placeholder={placeholder}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${inputClassName}`}
         />
         {loading && (
           <div className="absolute right-3 top-2.5">
@@ -91,7 +91,7 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
       </div>
 
       {showDropdown && suggestions.length > 0 && (
-        <div className="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-auto">
+        <div className={`absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-auto ${dropdownClassName}`}>
           {suggestions.map((doctor) => (
             <button
               key={doctor.npi}

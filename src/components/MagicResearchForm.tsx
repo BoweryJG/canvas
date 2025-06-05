@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { DoctorAutocomplete, Doctor } from './DoctorAutocomplete';
+import { DoctorAutocomplete, type Doctor } from './DoctorAutocomplete';
 
 interface FormData {
   doctorName: string;

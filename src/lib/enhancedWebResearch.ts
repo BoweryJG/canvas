@@ -17,14 +17,35 @@ export interface EnhancedSearchParams {
 /**
  * Conduct enhanced research using NPI-verified data
  */
+interface EnhancedSource {
+  url: string;
+  title: string;
+  description?: string;
+  confidenceScore: number;
+  isLikelyPracticeWebsite: boolean;
+}
+
+interface PracticeWebsite {
+  url: string;
+  content: string;
+  confidence: number;
+}
+
+interface EnhancedResults {
+  confidence: number;
+  sources: EnhancedSource[];
+  practiceWebsite: PracticeWebsite | null;
+  verifiedInfo: boolean;
+}
+
 export async function conductEnhancedResearch(
   params: EnhancedSearchParams,
   userId?: string
-) {
+): Promise<EnhancedResults> {
   console.log(`🎯 Enhanced research with NPI data:`, params);
   
   const searchQueries = buildSmartQueries(params);
-  const results = {
+  const results: EnhancedResults = {
     confidence: 0,
     sources: [],
     practiceWebsite: null,
