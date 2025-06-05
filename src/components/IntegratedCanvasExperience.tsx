@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 import { Box, TextField, Button, Typography, Container, Alert, Snackbar } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Bolt, AutoAwesome } from '@mui/icons-material';
+import { Bolt, AutoAwesome } from '@mui/icons-material';
 import SimpleCinematicScan from './SimpleCinematicScan';
 import SimpleProgressiveResults from './SimpleProgressiveResults';
 import { DoctorAutocomplete, type Doctor } from './DoctorAutocomplete';
@@ -367,6 +367,7 @@ export default function IntegratedCanvasExperience() {
           doctorName={doctor}
           userTier={userTier}
           onUpgradeClick={handleUpgrade}
+          doctorDetails={doctorDetails}
         />
       </motion.div>
     </Container>
@@ -382,6 +383,7 @@ export default function IntegratedCanvasExperience() {
             doctorName={doctor}
             location={location}
             onComplete={() => setStage('results')}
+            doctorDetails={doctorDetails}
           />
         )}
         {stage === 'results' && renderResults()}
