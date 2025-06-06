@@ -72,13 +72,29 @@ export const IntelligenceProgress: React.FC<IntelligenceProgressProps> = ({
           }}>
             Building Your Intelligence Arsenal
           </h3>
-          <p style={{ 
-            color: 'rgba(255, 255, 255, 0.7)', 
-            fontSize: '0.9rem',
-            marginTop: '5px'
-          }}>
+          <motion.div
+            key={currentStage}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{ 
+              color: '#00ffc6', 
+              fontSize: '0.95rem',
+              marginTop: '5px',
+              fontWeight: '500',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
             {currentStage}
-          </p>
+            <motion.span
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              style={{ display: 'inline-flex', gap: '2px' }}
+            >
+              <span>.</span><span>.</span><span>.</span>
+            </motion.span>
+          </motion.div>
         </div>
         
         <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
