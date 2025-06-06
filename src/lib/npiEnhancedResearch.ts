@@ -14,21 +14,24 @@ export async function conductNPIEnhancedResearch(
 ): Promise<ResearchData> {
   console.log('🔬 Starting NPI-enhanced comprehensive research for:', doctor.displayName);
   
+  let practiceWebsite, reviews, credentials, businessIntel, additionalInfo;
+  
   try {
-    // Parallel research for all data points
-    const [
-      practiceWebsite,
-      reviews,
-      credentials,
-      businessIntel,
-      additionalInfo
-    ] = await Promise.all([
+    // Parallel research for all data points - but handle errors individually
+    const results = await Promise.allSettled([
       findPracticeWebsite(doctor),
       gatherReviews(doctor),
       validateCredentials(doctor),
       gatherBusinessIntelligence(doctor),
       searchAdditionalInfo(doctor)
     ]);
+    
+    // Extract results, using defaults for any failures
+    practiceWebsite = results[0].status === 'fulfilled' ? results[0].value : { website: '', phone: doctor.phone, email: '', sources: [] };
+    reviews = results[1].status === 'fulfilled' ? results[1].value : { averageRating: undefined, totalReviews: 0, commonPraise: [], commonConcerns: [], recentFeedback: [], sources: [] };
+    credentials = results[2].status === 'fulfilled' ? results[2].value : { credential: doctor.credential, specialty: doctor.specialty, npi: doctor.npi, verified: true };
+    businessIntel = results[3].status === 'fulfilled' ? results[3].value : { practiceType: 'Unknown', patientVolume: 'Unknown', marketPosition: 'Unknown', recentNews: [], growthIndicators: [] };
+    additionalInfo = results[4].status === 'fulfilled' ? results[4].value : { technology: [], professionalActivities: [], recentNews: [] };
 
     // Synthesize all research into a comprehensive profile
     const synthesizedData = await synthesizeResearchData({
@@ -42,9 +45,16 @@ export async function conductNPIEnhancedResearch(
 
     return synthesizedData;
   } catch (error) {
-    console.error('Error in NPI-enhanced research:', error);
-    // Return basic data from NPI
-    return createBasicResearchData(doctor);
+    console.error('Error in NPI-enhanced research synthesis:', error);
+    // Even if synthesis fails, try to return data with website if we found it
+    return {
+      ...createBasicResearchData(doctor),
+      practiceInfo: {
+        ...createBasicResearchData(doctor).practiceInfo,
+        website: practiceWebsite?.website || ''
+      },
+      sources: practiceWebsite?.sources || []
+    };
   }
 }
 
@@ -511,8 +521,8 @@ async function synthesizeResearchData(data: any): Promise<ResearchData> {
     businessIntel: {
       ...data.businessIntel,
       recentNews: [
-        ...data.businessIntel.recentNews,
-        ...data.additionalInfo.recentNews
+        ...(Array.isArray(data.businessIntel.recentNews) ? data.businessIntel.recentNews : []),
+        ...(Array.isArray(data.additionalInfo.recentNews) ? data.additionalInfo.recentNews : [])
       ].slice(0, 5)
     },
     sources,
