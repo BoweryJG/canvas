@@ -41,7 +41,11 @@ export async function gatherComprehensiveDoctorIntelligenceWithProgress(
   if (useStreamlined) {
     console.log('⚡ Using STREAMLINED mode: Brave + Claude 4 Opus');
     const { gatherStreamlinedDoctorIntelligence } = await import('./streamlinedDoctorIntelligence');
-    return gatherStreamlinedDoctorIntelligence(doctor, product, progress);
+    
+    // Check if we have a pre-discovered website from NPI research
+    const existingWebsite = (doctor as any).practiceWebsite || (doctor as any).website;
+    
+    return gatherStreamlinedDoctorIntelligence(doctor, product, progress, existingWebsite);
   }
   
   // Legacy super mode (if explicitly disabled streamlined)

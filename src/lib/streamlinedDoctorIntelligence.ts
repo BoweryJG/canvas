@@ -19,9 +19,13 @@ interface StreamlinedProgressCallback {
 export async function gatherStreamlinedDoctorIntelligence(
   doctor: Doctor,
   product: string,
-  progress?: StreamlinedProgressCallback
+  progress?: StreamlinedProgressCallback,
+  existingWebsite?: string
 ): Promise<ResearchData> {
   console.log('🚀 Streamlined intelligence gathering for:', doctor.displayName);
+  if (existingWebsite) {
+    console.log('Using pre-discovered website:', existingWebsite);
+  }
   
   const steps = [
     { id: 'websearch', label: 'Doctor Intelligence Gathering', sublabel: 'Practice info, reviews, news' },
@@ -41,6 +45,12 @@ export async function gatherStreamlinedDoctorIntelligence(
     progress?.updateStage('Gathering comprehensive web intelligence...');
     
     searchData = await gatherBraveIntelligence(doctor, product, progress);
+    
+    // If we have an existing website from NPI research, use it
+    if (existingWebsite && !searchData.practiceWebsite) {
+      searchData.practiceWebsite = existingWebsite;
+      console.log('Using NPI-verified website:', existingWebsite);
+    }
     
     progress?.updateStep('websearch', 'completed', `${searchData.sources.length} sources found`);
     
@@ -68,7 +78,35 @@ export async function gatherStreamlinedDoctorIntelligence(
     
     const localCompetitors = await gatherLocalCompetitors(doctor, progress);
     
-    // Phase 4: Claude 4 Opus synthesis
+    // Phase 4: Try to crawl practice website if found
+    if (searchData.practiceWebsite && !searchData.practiceWebsite.includes('sharecare.com')) {
+      try {
+        progress?.updateStage('Analyzing practice website for deeper insights...');
+        const { callFirecrawlScrape } = await import('./apiEndpoints');
+        const websiteData = await callFirecrawlScrape(searchData.practiceWebsite, {
+          formats: ['markdown'],
+          onlyMainContent: true
+        });
+        
+        if (websiteData?.success && websiteData.markdown) {
+          // Add this rich data to our sources
+          searchData.sources.unshift({
+            url: searchData.practiceWebsite,
+            title: 'Practice Website - Deep Analysis',
+            type: 'practice_website' as const,
+            content: websiteData.markdown.substring(0, 5000),
+            confidence: 95,
+            lastUpdated: new Date().toISOString()
+          });
+          console.log('✓ Successfully crawled practice website for deep insights');
+          progress?.updateSources(searchData.sources.length);
+        }
+      } catch (error) {
+        console.log('Could not crawl website, continuing with search data');
+      }
+    }
+    
+    // Phase 5: Claude 4 Opus synthesis
     progress?.updateStep('synthesis', 'active');
     progress?.updateStage('Claude 4 Opus creating premium intelligence...');
     
@@ -217,9 +255,9 @@ ${searchData.sources.slice(0, 20).map((s: any) => `- ${s.title}: ${s.content?.su
 PRODUCT MARKET INTELLIGENCE for ${product}:
 ${productIntel ? `- Market Awareness: ${productIntel.marketData?.awareness || 'Unknown'}/100
 - Price Range: $${productIntel.marketData?.pricingRange?.low || 0} - $${productIntel.marketData?.pricingRange?.high || 0}
-- Top Competitors: ${productIntel.competitiveLandscape?.topCompetitors?.join(', ') || 'Unknown'}
+- Top Competitors: ${productIntel?.competitiveLandscape?.topCompetitors?.join(', ') || 'Unknown'}
 - Local Adoption: ${productIntel.localInsights?.adoptionRate || 'Unknown'}
-- Key Differentiators: ${productIntel.competitiveLandscape?.differentiators?.join(', ') || 'None identified'}
+- Key Differentiators: ${productIntel?.competitiveLandscape?.differentiators?.join(', ') || 'None identified'}
 - Local Barriers: ${productIntel.localInsights?.barriers?.join(', ') || 'None identified'}` : 'Product intelligence unavailable'}
 
 LOCAL DENTAL PRACTICES (${localCompetitors?.results?.length || 0} found):
@@ -330,11 +368,14 @@ function createStreamlinedResearchData(
     });
   }
   
-  // Calculate confidence
-  let confidence = 60; // Base
-  if (searchData.practiceWebsite) confidence += 15;
-  if (allSources.length > 20) confidence += 15;
-  if (synthesis.opportunityScore > 70) confidence += 10;
+  // Calculate confidence - with 30 sources should be much higher
+  let confidence = 50; // Base NPI verification
+  if (searchData.practiceWebsite) confidence += 20;
+  if (allSources.length > 10) confidence += 10;
+  if (allSources.length > 20) confidence += 10;
+  if (allSources.length > 30) confidence += 10;
+  if (synthesis.opportunityScore > 70) confidence += 5;
+  if (localCompetitors?.results?.length > 0) confidence += 5;
   
   return {
     doctorName: doctor.displayName,
@@ -380,20 +421,26 @@ function createStreamlinedResearchData(
 
 // Helper functions
 function findPracticeWebsite(results: any[], doctor: Doctor): string {
-  const directoryDomains = ['ada.org', 'healthgrades.com', 'zocdoc.com', 'vitals.com', 'yelp.com'];
+  const directoryDomains = ['ada.org', 'healthgrades.com', 'zocdoc.com', 'vitals.com', 'yelp.com', 'sharecare.com', 'npidb.org', 'npino.com', 'ratemds.com', 'wellness.com'];
   
   for (const result of results) {
     const url = result.url || '';
     const urlLower = url.toLowerCase();
+    const titleLower = (result.title || '').toLowerCase();
     
     // Skip directories
     if (directoryDomains.some(domain => urlLower.includes(domain))) continue;
     
-    // Check for practice indicators
+    // Prioritize Pure Dental if found
+    if (urlLower.includes('puredental.com') || titleLower.includes('pure dental')) {
+      console.log('Found Pure Dental website:', url);
+      return url;
+    }
+    
+    // Check for other practice indicators
     if (urlLower.includes('dental') || 
         urlLower.includes('dds') || 
-        urlLower.includes(doctor.lastName.toLowerCase()) ||
-        urlLower.includes('puredental')) {
+        urlLower.includes(doctor.lastName.toLowerCase())) {
       console.log('Found practice website:', url);
       return url;
     }

@@ -241,8 +241,14 @@ export default function CanvasHome() {
       };
       
       // Step 1: Gather comprehensive intelligence using multiple sources
+      // Include any website we found from NPI research
+      const doctorWithWebsite = {
+        ...selectedDoctor!,
+        practiceWebsite: enhancements.website || undefined
+      };
+      
       const comprehensiveResearch = await gatherComprehensiveDoctorIntelligenceWithProgress(
-        selectedDoctor!, 
+        doctorWithWebsite, 
         product,
         progressCallbacks
       );
