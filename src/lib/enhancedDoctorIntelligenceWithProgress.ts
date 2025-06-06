@@ -35,6 +35,19 @@ export async function gatherComprehensiveDoctorIntelligenceWithProgress(
 ): Promise<ResearchData> {
   console.log('🚀 Starting ENHANCED intelligence gathering for:', doctor.displayName);
   
+  // Check if we should use baseline mode (cleanest implementation)
+  const useBaseline = process.env.REACT_APP_USE_BASELINE === 'true';
+  
+  if (useBaseline) {
+    console.log('🎯 Using BASELINE mode: Clean, focused research');
+    const { gatherBaselineIntelligence } = await import('./useBaselineResearch');
+    
+    // Check if we have a pre-discovered website from NPI research
+    const existingWebsite = (doctor as any).practiceWebsite || (doctor as any).website;
+    
+    return gatherBaselineIntelligence(doctor, product, progress, existingWebsite);
+  }
+  
   // Check if we should use streamlined mode (recommended)
   const useStreamlined = process.env.REACT_APP_USE_STREAMLINED !== 'false';
   
