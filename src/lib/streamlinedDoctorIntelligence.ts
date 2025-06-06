@@ -46,11 +46,17 @@ export async function gatherStreamlinedDoctorIntelligence(
     progress?.updateStep('product', 'active');
     progress?.updateStage(`Researching ${product} in local market...`);
     
-    const productIntel = await gatherProductIntelligence(
-      product,
-      { city: doctor.city, state: doctor.state },
-      doctor.specialty
-    );
+    let productIntel;
+    try {
+      productIntel = await gatherProductIntelligence(
+        product,
+        { city: doctor.city, state: doctor.state },
+        doctor.specialty
+      );
+    } catch (error) {
+      console.error('Product intelligence gathering failed:', error);
+      productIntel = null;
+    }
     
     progress?.updateStep('product', 'completed', 'Market analysis complete');
     
@@ -174,12 +180,12 @@ WEB INTELLIGENCE (${searchData.sources.length} sources):
 ${searchData.sources.slice(0, 20).map((s: any) => `- ${s.title}: ${s.content?.substring(0, 150)}...`).join('\n')}
 
 PRODUCT MARKET INTELLIGENCE for ${product}:
-- Market Awareness: ${productIntel?.marketData?.awareness || 'Unknown'}/100
-- Price Range: $${productIntel?.marketData?.pricingRange?.low || 0} - $${productIntel?.marketData?.pricingRange?.high || 0}
-- Top Competitors: ${productIntel?.competitiveLandscape?.topCompetitors?.join(', ') || 'Unknown'}
-- Local Adoption: ${productIntel?.localInsights?.adoptionRate || 'Unknown'}
-- Key Differentiators: ${productIntel?.competitiveLandscape?.differentiators?.join(', ') || 'None identified'}
-- Local Barriers: ${productIntel?.localInsights?.barriers?.join(', ') || 'None identified'}
+${productIntel ? `- Market Awareness: ${productIntel.marketData?.awareness || 'Unknown'}/100
+- Price Range: $${productIntel.marketData?.pricingRange?.low || 0} - $${productIntel.marketData?.pricingRange?.high || 0}
+- Top Competitors: ${productIntel.competitiveLandscape?.topCompetitors?.join(', ') || 'Unknown'}
+- Local Adoption: ${productIntel.localInsights?.adoptionRate || 'Unknown'}
+- Key Differentiators: ${productIntel.competitiveLandscape?.differentiators?.join(', ') || 'None identified'}
+- Local Barriers: ${productIntel.localInsights?.barriers?.join(', ') || 'None identified'}` : 'Product intelligence unavailable'}
 
 LOCAL DENTAL PRACTICES (${localCompetitors?.results?.length || 0} found):
 ${localCompetitors?.results?.slice(0, 5).map((c: any) => 
