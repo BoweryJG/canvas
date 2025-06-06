@@ -33,12 +33,14 @@ export async function gatherStreamlinedDoctorIntelligence(
   // Initialize progress
   steps.forEach(step => progress?.updateStep(step.id, 'pending'));
   
+  let searchData: any = null;
+  
   try {
     // Phase 1: Gather all data with Brave
     progress?.updateStep('websearch', 'active');
     progress?.updateStage('Gathering comprehensive web intelligence...');
     
-    const searchData = await gatherBraveIntelligence(doctor, product, progress);
+    searchData = await gatherBraveIntelligence(doctor, product, progress);
     
     progress?.updateStep('websearch', 'completed', `${searchData.sources.length} sources found`);
     
@@ -91,6 +93,39 @@ export async function gatherStreamlinedDoctorIntelligence(
     
   } catch (error) {
     console.error('Streamlined intelligence error:', error);
+    // Try to salvage what we can from the search data
+    if (searchData && searchData.sources && searchData.sources.length > 0) {
+      return {
+        doctorName: doctor.displayName,
+        practiceInfo: {
+          name: doctor.organizationName || `${doctor.displayName}'s Practice`,
+          address: doctor.fullAddress,
+          phone: doctor.phone,
+          website: searchData.practiceWebsite || undefined,
+          specialties: [doctor.specialty],
+          services: []
+        },
+        credentials: {
+          boardCertifications: [doctor.specialty],
+          yearsExperience: undefined
+        },
+        reviews: {
+          averageRating: undefined,
+          totalReviews: 0,
+          commonPraise: [],
+          commonConcerns: [],
+          recentFeedback: []
+        },
+        businessIntel: {
+          practiceType: 'Unknown',
+          patientVolume: 'Unknown',
+          marketPosition: 'Unknown'
+        },
+        sources: searchData.sources,
+        confidenceScore: 50,
+        completedAt: new Date().toISOString()
+      };
+    }
     return createBasicResearchData(doctor);
   }
 }

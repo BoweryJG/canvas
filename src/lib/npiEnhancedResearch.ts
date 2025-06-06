@@ -62,18 +62,23 @@ async function findPracticeWebsite(doctor: Doctor): Promise<any> {
   // Build smart search query based on available information
   let searchQuery = '';
   
-  // If we know the organization name, prioritize that
+  // Try multiple search strategies
+  const searchQueries = [];
+  
+  // First, try specific practice names if mentioned in organization
   if (doctor.organizationName) {
-    // Special handling for known practices
+    searchQueries.push(`"${doctor.organizationName}" ${doctor.city} ${doctor.state}`);
     if (doctor.organizationName.toLowerCase().includes('pure dental')) {
-      searchQuery = `"Pure Dental" Buffalo NY website`;
-    } else {
-      searchQuery = `"${doctor.organizationName}" ${doctor.city} ${doctor.state} website`;
+      searchQueries.push(`"Pure Dental" Buffalo NY`);
     }
-  } else {
-    // Fall back to doctor name
-    searchQuery = `${doctor.displayName} ${doctor.city} ${doctor.state} dental practice website`;
   }
+  
+  // Also search for doctor name with common practice names
+  searchQueries.push(`"${doctor.displayName}" "Pure Dental" ${doctor.city}`);
+  searchQueries.push(`${doctor.displayName} ${doctor.city} ${doctor.state} dental practice -directory -healthgrades -sharecare`);
+  
+  // Use the first query for now
+  searchQuery = searchQueries[0] || `${doctor.displayName} ${doctor.city} ${doctor.state} dental practice website`;
   
   let practiceWebsite = '';
   let practicePhone = doctor.phone || '';
@@ -89,7 +94,7 @@ async function findPracticeWebsite(doctor: Doctor): Promise<any> {
     if (results && Array.isArray(results)) {
       // Priority 1: Look for actual practice websites (not directories)
       const practiceIndicators = ['dental', 'dds', 'dentistry', 'oral', 'smile', 'teeth'];
-      const directoryDomains = ['ada.org', 'healthgrades.com', 'zocdoc.com', 'vitals.com', 'yelp.com'];
+      const directoryDomains = ['ada.org', 'healthgrades.com', 'zocdoc.com', 'vitals.com', 'yelp.com', 'sharecare.com', 'npidb.org', 'npino.com', 'ratemds.com', 'wellness.com'];
       
       for (const result of results) {
         const url = result.url || '';
@@ -113,6 +118,13 @@ async function findPracticeWebsite(doctor: Doctor): Promise<any> {
                              (doctor.organizationName && 
                               (titleLower.includes(doctor.organizationName.toLowerCase()) ||
                                descLower.includes(doctor.organizationName.toLowerCase())));
+        
+        // Prioritize Pure Dental if found
+        if (urlLower.includes('puredental.com') || titleLower.includes('pure dental')) {
+          practiceWebsite = url;
+          console.log('Found Pure Dental website:', practiceWebsite);
+          break;
+        }
         
         if (isPracticeSite || mentionsDoctor) {
           practiceWebsite = url;
