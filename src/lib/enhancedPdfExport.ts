@@ -180,7 +180,7 @@ export class EnhancedPDFExporter {
   addEnhancedExecutiveSummary(
     scanResult: EnhancedScanResult,
     researchData: ResearchData,
-    product: string
+    _product: string
   ): void {
     this.addSectionHeader('EXECUTIVE SUMMARY');
     
