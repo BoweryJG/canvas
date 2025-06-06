@@ -11,6 +11,7 @@ interface SalesRepInfo {
   name: string;
   company: string;
   product: string;
+  email?: string;
 }
 
 interface EmailContext {

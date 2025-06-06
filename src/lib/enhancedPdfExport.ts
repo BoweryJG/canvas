@@ -39,13 +39,17 @@ export class EnhancedPDFExporter {
     
     if (productIntel.marketData) {
       this.addMetric('Market Awareness', `${productIntel.marketData.awareness || 0}/100`);
-      this.addMetric('Adoption Rate', `${productIntel.marketData.adoptionRate || 0}%`);
+      if (productIntel.marketData.adoptionRate) {
+        this.addMetric('Adoption Rate', `${productIntel.marketData.adoptionRate}%`);
+      }
       this.addMetric('Price Range', 
         `$${productIntel.marketData.pricingRange?.low || 0} - $${productIntel.marketData.pricingRange?.high || 0}`
       );
-      this.addMetric('Average ROI', 
-        `${productIntel.marketData.roi?.low || 0}x - ${productIntel.marketData.roi?.high || 0}x in ${productIntel.marketData.roi?.timeframe || '18 months'}`
-      );
+      if (productIntel.marketData.roi) {
+        this.addMetric('Average ROI', 
+          `${productIntel.marketData.roi.min || 0}x - ${productIntel.marketData.roi.max || 0}x in ${productIntel.marketData.roi.average || '18 months'}`
+        );
+      }
     }
     
     this.currentY += 20;
@@ -56,7 +60,9 @@ export class EnhancedPDFExporter {
     if (productIntel.competitiveLandscape) {
       this.addBulletList('Top Competitors', productIntel.competitiveLandscape.topCompetitors || []);
       this.addBulletList('Key Differentiators', productIntel.competitiveLandscape.differentiators || []);
-      this.addMetric('Market Share', `${productIntel.competitiveLandscape.marketShare || 0}%`);
+      if (productIntel.competitiveLandscape.marketShare) {
+        this.addMetric('Market Share', `${productIntel.competitiveLandscape.marketShare}%`);
+      }
     }
     
     this.currentY += 20;
@@ -99,7 +105,7 @@ export class EnhancedPDFExporter {
   /**
    * Add Combined Strategy Section
    */
-  addCombinedStrategy(researchData: ResearchData, doctor: string, product: string): void {
+  addCombinedStrategy(researchData: ResearchData, _doctor: string, _product: string): void {
     const combined = researchData.combinedStrategy;
     if (!combined) return;
 
@@ -159,7 +165,7 @@ export class EnhancedPDFExporter {
       this.currentY += 20;
       this.addSubsectionHeader('Recommended Next Steps');
       
-      combined.nextSteps.forEach((step, index) => {
+      combined.nextSteps.forEach((step: any, index: number) => {
         this.currentY += 18;
         this.doc.setFontSize(11);
         this.doc.setFont('helvetica', 'normal');

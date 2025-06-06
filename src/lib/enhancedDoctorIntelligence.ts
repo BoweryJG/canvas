@@ -131,12 +131,12 @@ async function gatherAllIntelligence(doctor: Doctor, product: string): Promise<I
     });
   }
   
-  if (perplexityResults2 && 'answer' in perplexityResults2 && perplexityResults2.answer) {
+  if (perplexityResults2 && typeof perplexityResults2 === 'object' && 'answer' in perplexityResults2) {
     allSources.push({
       url: 'perplexity-market',
       title: 'AI Analysis: Market Position',
       type: 'news_article',
-      content: perplexityResults2.answer,
+      content: (perplexityResults2 as any).answer || JSON.stringify(perplexityResults2),
       confidence: 85,
       lastUpdated: new Date().toISOString()
     });

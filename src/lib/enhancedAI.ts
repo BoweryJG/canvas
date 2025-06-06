@@ -39,6 +39,10 @@ export interface EnhancedScanResult {
   researchQuality: 'verified' | 'partial' | 'inferred' | 'unknown';
   researchSources: number;
   factBased: boolean;
+  // Additional properties used in various components
+  specialty?: string;
+  location?: string;
+  email?: string;
 }
 
 /**

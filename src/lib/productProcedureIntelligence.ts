@@ -19,12 +19,18 @@ export interface ProductIntelligence {
     };
     marketSize: string;
     growthRate: string;
+    adoptionRate?: string;
+    roi?: { min: string; max: string; average: string };
+    typicalResults?: string[];
+    limitedTimeOffers?: string[];
   };
   competitiveLandscape: {
     topCompetitors: string[];
     marketLeader: string;
     differentiators: string[];
     weaknesses: string[];
+    marketShare?: string;
+    vsCompetitors?: string;
   };
   localInsights: {
     adoptionRate: string;
@@ -32,6 +38,7 @@ export interface ProductIntelligence {
     socialProof: SocialPost[];
     localExperts: string[];
     barriers: string[];
+    topAdopters?: string[];
   };
   messagingStrategy: {
     keyBenefits: string[];

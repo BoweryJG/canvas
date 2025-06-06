@@ -11,7 +11,8 @@ interface ModelCapabilities {
   bestFor: string[];
 }
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
+// Model capabilities for reference - currently not used but may be useful for future optimization
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const MODEL_CAPABILITIES: Record<string, ModelCapabilities> = {
   // Perplexity Models (via Perplexity API)
   'perplexity-sonar-small': {
@@ -80,7 +81,6 @@ const MODEL_CAPABILITIES: Record<string, ModelCapabilities> = {
     bestFor: ['multimodal', 'long context', 'technical analysis']
   }
 };
-/* eslint-enable @typescript-eslint/no-unused-vars */
 
 export class IntelligentModelOrchestrator {
   

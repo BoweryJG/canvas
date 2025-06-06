@@ -249,8 +249,8 @@ ESCALATION TRIGGERS
 export async function generateEnhancedBreakthroughReport(
   scanResult: EnhancedScanResult,
   researchData: ResearchData,
-  salesRepName: string,
-  companyName: string,
+  _salesRepName: string,
+  _companyName: string,
   productName: string
 ): Promise<Blob> {
   const productIntel = researchData.productIntelligence as ProductIntelligence;
@@ -282,7 +282,7 @@ ALTERNATIVE APPROACHES
 
 NEW VALUE ANGLES
 ----------------
-${combinedStrategy?.messagingStrategy?.valueProps?.slice(1, 4).map(v => `• ${v}`).join('\n') || 
+${combinedStrategy?.messagingStrategy?.valueProps?.slice(1, 4).map((v: any) => `• ${v}`).join('\n') || 
   '• Competitive differentiation\n• Patient satisfaction scores\n• Staff efficiency gains'}
 
 URGENCY AMPLIFIERS
@@ -319,9 +319,9 @@ Day 10: Final opportunity email
 export async function generateEnhancedClosingReport(
   scanResult: EnhancedScanResult,
   researchData: ResearchData,
-  salesRepName: string,
-  companyName: string,
-  productName: string
+  _salesRepName: string,
+  _companyName: string,
+  _productName: string
 ): Promise<Blob> {
   const productIntel = researchData.productIntelligence as ProductIntelligence;
   const doctorIntel = researchData.enhancedInsights;

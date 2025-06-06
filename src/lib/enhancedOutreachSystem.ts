@@ -216,7 +216,7 @@ I noticed many ${scanResult.specialty || 'dental'} practices evaluating ${compet
 
 Key differences that matter for practices like yours:
 
-${productIntel?.competitiveLandscape?.differentiators?.map(d => `• ${salesRep.product}: ${d}`).join('\n') || 
+${productIntel?.competitiveLandscape?.differentiators?.map((d: string) => `• ${salesRep.product}: ${d}`).join('\n') || 
 `• ${salesRep.product}: Enhanced efficiency and ROI`}
 
 ${productIntel?.competitiveLandscape?.vsCompetitors || 
@@ -240,17 +240,25 @@ function generateBreakthroughEmail(
   const productIntel = researchData.productIntelligence;
   const urgency = researchData.combinedStrategy?.messagingStrategy?.urgencyTrigger;
   
+  const urgencyMessage = urgency || ('Important update about ' + salesRep.product + ' availability in your area.');
+  
+  const topAdopterMessage = productIntel?.localInsights?.topAdopters?.[0] 
+    ? productIntel.localInsights.topAdopters[0] + ' just secured one of the remaining slots.'
+    : `Leading practices in ${scanResult.location || 'your area'} are moving quickly.`;
+  
+  const vulnerabilityMessage = doctorIntel?.competitivePosition?.vulnerabilities?.[0]
+    ? 'This directly addresses your ' + doctorIntel.competitivePosition.vulnerabilities[0] + '.'
+    : `This could be the competitive edge you've been looking for.`;
+  
+  const postscript = productIntel?.marketData?.limitedTimeOffers?.[0] || 'This opportunity will not last long.';
+  
   return `Dr. ${scanResult.doctor.split(' ').pop()},
 
-${urgency || `Important update about ${salesRep.product} availability in your area.`}
+${urgencyMessage}
 
-${productIntel?.localInsights?.topAdopters?.[0] 
-  ? `${productIntel.localInsights.topAdopters[0]} just secured one of the remaining slots.`
-  : `Leading practices in ${scanResult.location || 'your area'} are moving quickly.`}
+${topAdopterMessage}
 
-${doctorIntel?.competitivePosition?.vulnerabilities?.[0]
-  ? `This directly addresses your ${doctorIntel.competitivePosition.vulnerabilities[0]}.`
-  : `This could be the competitive edge you've been looking for.`}
+${vulnerabilityMessage}
 
 I have just 15 minutes needed to share:
 • Exclusive pricing valid only this month
@@ -260,7 +268,7 @@ I have just 15 minutes needed to share:
 Reply with "YES" for immediate scheduling.
 
 ${salesRep.name}
-P.S. ${productIntel?.marketData?.limitedTimeOffers?.[0] || 'This opportunity won't last long.'}`;
+P.S. ${postscript}`;
 }
 
 /**

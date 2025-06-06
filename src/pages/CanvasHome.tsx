@@ -6,12 +6,12 @@ import EnhancedActionSuite from '../components/EnhancedActionSuite'
 import ResearchPanel from '../components/ResearchPanel'
 import IntegratedCanvasExperience from '../components/IntegratedCanvasExperience'
 import { analyzeDoctor } from '../lib/intelligentAnalysis'
-import { generateEnhancedSalesBrief } from '../lib/enhancedResearch'
 import { DoctorAutocomplete } from '../components/DoctorAutocomplete'
 import type { Doctor } from '../components/DoctorAutocomplete'
 import { gatherComprehensiveDoctorIntelligenceWithProgress } from '../lib/enhancedDoctorIntelligenceWithProgress'
 import type { ResearchData } from '../lib/webResearch'
 import { IntelligenceProgress } from '../components/IntelligenceProgress'
+import { conductNPIEnhancedResearch } from '../lib/npiEnhancedResearch'
 
 interface ScanResult {
   doctor: string;

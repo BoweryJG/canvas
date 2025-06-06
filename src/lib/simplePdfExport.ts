@@ -21,7 +21,7 @@ export interface PDFExportOptions {
 export async function generatePDFReport(
   scanResult: EnhancedScanResult,
   researchData: ResearchData,
-  options?: PDFExportOptions
+  _options?: PDFExportOptions
 ): Promise<Blob> {
   // Use enhanced exporter if product intelligence is available
   if (researchData.productIntelligence || researchData.enhancedInsights) {
