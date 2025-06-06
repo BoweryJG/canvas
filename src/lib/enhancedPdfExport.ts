@@ -9,7 +9,7 @@ import { type ResearchData } from './webResearch';
 import { type ProductIntelligence } from './productProcedureIntelligence';
 
 export class EnhancedPDFExporter {
-  private doc: jsPDF;
+  doc: jsPDF;
   private currentY: number;
   private pageWidth: number;
   private pageHeight: number;
@@ -73,7 +73,7 @@ export class EnhancedPDFExporter {
     if (productIntel.localInsights) {
       this.addMetric('Local Adoption', productIntel.localInsights.adoptionRate || 'Unknown');
       
-      if (productIntel.localInsights.topAdopters?.length > 0) {
+      if (productIntel.localInsights.topAdopters && productIntel.localInsights.topAdopters.length > 0) {
         this.addBulletList('Current Users', productIntel.localInsights.topAdopters.slice(0, 3));
       }
       
@@ -92,7 +92,7 @@ export class EnhancedPDFExporter {
           this.doc.setFont('helvetica', 'italic');
           this.doc.setFontSize(10);
           const lines = this.doc.splitTextToSize(`"${proof}"`, this.pageWidth - 2 * this.margin - 20);
-          lines.forEach(line => {
+          lines.forEach((line: string) => {
             this.currentY += this.lineHeight;
             this.doc.text(line, this.margin + 20, this.currentY);
           });
@@ -196,7 +196,7 @@ export class EnhancedPDFExporter {
         enhancedInsights.executiveSummary,
         this.pageWidth - 2 * this.margin
       );
-      summaryLines.forEach(line => {
+      summaryLines.forEach((line: string) => {
         this.currentY += this.lineHeight + 2;
         this.doc.text(line, this.margin, this.currentY);
       });
@@ -235,7 +235,7 @@ export class EnhancedPDFExporter {
       this.doc.setFont('helvetica', 'italic');
       const proof = productIntel.localInsights.socialProof[0];
       const proofLines = this.doc.splitTextToSize(`"${proof}"`, this.pageWidth - 2 * this.margin - 20);
-      proofLines.forEach(line => {
+      proofLines.forEach((line: string) => {
         this.currentY += this.lineHeight;
         this.doc.text(line, this.margin + 10, this.currentY);
       });
@@ -304,7 +304,7 @@ export class EnhancedPDFExporter {
     this.doc.setFont('helvetica', 'italic');
     this.doc.setFontSize(10);
     const lines = this.doc.splitTextToSize(`"${quote}"`, this.pageWidth - 2 * this.margin - 30);
-    lines.forEach(line => {
+    lines.forEach((line: string) => {
       this.checkPageBreak(20);
       this.doc.text(line, this.margin + 20, this.currentY);
       this.currentY += this.lineHeight;
@@ -339,7 +339,7 @@ export class EnhancedPDFExporter {
     }
   }
 
-  private addNewPage(): void {
+  addNewPage(): void {
     this.doc.addPage();
     this.currentY = this.margin;
   }

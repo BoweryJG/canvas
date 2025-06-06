@@ -123,8 +123,8 @@ function processSuperIntelligence(
   practiceWebsite: string,
   braveResults: any,
   localCompetitors: any,
-  doctor: Doctor,
-  product: string
+  _doctor: Doctor,
+  _product: string
 ): SuperIntelligenceResult {
   // Extract insights from each model's output
   const perplexityInsights = orchestratedData.realTimeData;

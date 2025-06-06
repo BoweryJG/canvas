@@ -43,7 +43,7 @@ MARKET INTELLIGENCE: ${productName}
 • Market Awareness: ${productIntel?.marketData?.awareness || 0}/100
 • Local Adoption Rate: ${productIntel?.localInsights?.adoptionRate || 'Unknown'}
 • Price Range: $${productIntel?.marketData?.pricingRange?.low || 0} - $${productIntel?.marketData?.pricingRange?.high || 0}
-• Expected ROI: ${productIntel?.marketData?.roi?.low || 2}x - ${productIntel?.marketData?.roi?.high || 5}x
+• Expected ROI: ${productIntel?.marketData?.roi?.min || '2'}x - ${productIntel?.marketData?.roi?.max || '5'}x
 
 PRACTICE PROFILE: ${scanResult.doctor}
 --------------------------------------
@@ -56,11 +56,11 @@ COMPETITIVE POSITION
 ${doctorIntel?.competitivePosition?.marketRank || 'Market position unknown'}
 
 Top Competitors Using ${productName}:
-${productIntel?.localInsights?.topAdopters?.slice(0, 3).map(a => `• ${a}`).join('\n') || 'No local adoption data'}
+${productIntel?.localInsights?.topAdopters?.slice(0, 3).map((a: string) => `• ${a}`).join('\n') || 'No local adoption data'}
 
 VALUE PROPOSITION
 -----------------
-${combinedStrategy?.messagingStrategy?.valueProps?.map(v => `• ${v}`).join('\n') || 
+${combinedStrategy?.messagingStrategy?.valueProps?.map((v: any) => `• ${v}`).join('\n') || 
   'Custom value propositions to be developed'}
 
 RECOMMENDED APPROACH
@@ -72,17 +72,17 @@ Timing: ${doctorIntel?.salesStrategy?.timing || 'Business hours'}
 FINANCIAL PROJECTIONS
 ---------------------
 Investment: $${productIntel?.marketData?.pricingRange?.low || 0} - $${productIntel?.marketData?.pricingRange?.high || 0}
-ROI Timeline: ${productIntel?.marketData?.roi?.timeframe || '18 months'}
-Expected Return: ${productIntel?.marketData?.roi?.high || 5}x investment
+ROI Timeline: ${productIntel?.marketData?.roi?.average || '18 months'}
+Expected Return: ${productIntel?.marketData?.roi?.max || '5'}x investment
 
 IMPLEMENTATION ROADMAP
 ----------------------
-${combinedStrategy?.nextSteps?.map((step, i) => `${i + 1}. ${step}`).join('\n') || 
+${combinedStrategy?.nextSteps?.map((step: any, i: number) => `${i + 1}. ${step}`).join('\n') || 
   '1. Initial contact\n2. Needs assessment\n3. Demonstration\n4. Proposal\n5. Close'}
 
 KEY SUCCESS FACTORS
 -------------------
-${doctorIntel?.buyingSignals?.map(s => `✓ ${s}`).join('\n') || 'Success factors to be identified'}
+${doctorIntel?.buyingSignals?.map((s: any) => `✓ ${s}`).join('\n') || 'Success factors to be identified'}
 
 RISK MITIGATION
 ---------------
@@ -110,7 +110,7 @@ export async function generateEnhancedInitialOutreachReport(
   scanResult: EnhancedScanResult,
   researchData: ResearchData,
   salesRepName: string,
-  companyName: string,
+  _companyName: string,
   productName: string
 ): Promise<Blob> {
   const productIntel = researchData.productIntelligence as ProductIntelligence;
@@ -137,7 +137,7 @@ ${combinedStrategy?.messagingStrategy?.primaryHook || 'Standard introduction app
 
 KEY TALKING POINTS
 ------------------
-${combinedStrategy?.messagingStrategy?.valueProps?.map((v, i) => `${i + 1}. ${v}`).join('\n') || 
+${combinedStrategy?.messagingStrategy?.valueProps?.map((v: any, i: number) => `${i + 1}. ${v}`).join('\n') || 
   '1. ROI within 18 months\n2. Proven local success\n3. Competitive advantage'}
 
 LOCAL MARKET CONTEXT
@@ -173,7 +173,7 @@ SUCCESS METRICS
 
 NEXT STEPS
 ----------
-${combinedStrategy?.nextSteps?.slice(0, 3).map((step, i) => `${i + 1}. ${step}`).join('\n') || 
+${combinedStrategy?.nextSteps?.slice(0, 3).map((step: any, i: number) => `${i + 1}. ${step}`).join('\n') || 
   '1. Send personalized email\n2. Follow up within 48 hours\n3. Schedule discovery call'}
   `.trim();
   
@@ -186,9 +186,9 @@ ${combinedStrategy?.nextSteps?.slice(0, 3).map((step, i) => `${i + 1}. ${step}`)
 export async function generateEnhancedFollowUpReport(
   scanResult: EnhancedScanResult,
   researchData: ResearchData,
-  salesRepName: string,
-  companyName: string,
-  productName: string
+  _salesRepName: string,
+  _companyName: string,
+  _productName: string
 ): Promise<Blob> {
   const productIntel = researchData.productIntelligence as ProductIntelligence;
   const doctorIntel = researchData.enhancedInsights;
@@ -217,7 +217,7 @@ COMPETITIVE INTELLIGENCE
 
 CASE STUDY TO SHARE
 -------------------
-${productIntel?.localInsights?.caseStudies?.[0] || `Similar practice achieved ${productIntel?.marketData?.typicalResults || 'significant ROI'}`}
+${productIntel?.localInsights?.recentCases?.[0] || `Similar practice achieved ${productIntel?.marketData?.typicalResults || 'significant ROI'}`}
 
 OBJECTION RESPONSES
 -------------------
@@ -340,13 +340,13 @@ Budget Confirmed: ${doctorIntel?.budgetIndicators?.techBudget ? 'Yes' : 'Pending
 FINAL VALUE STACK
 -----------------
 Investment: $${productIntel?.marketData?.pricingRange?.low || 0} - $${productIntel?.marketData?.pricingRange?.high || 0}
-Expected ROI: ${productIntel?.marketData?.roi?.high || 5}x in ${productIntel?.marketData?.roi?.timeframe || '18 months'}
+Expected ROI: ${productIntel?.marketData?.roi?.max || '5'}x in ${productIntel?.marketData?.roi?.average || '18 months'}
 Competitive Advantage: ${productIntel?.competitiveLandscape?.differentiators?.[0] || 'Market leadership'}
 Risk Mitigation: ${productIntel?.marketData?.limitedTimeOffers?.[0] || '90-day guarantee'}
 
 DECISION DRIVERS
 ----------------
-${combinedStrategy?.closingStrategy?.decisionDrivers?.map(d => `✓ ${d}`).join('\n') || 
+${combinedStrategy?.closingStrategy?.decisionDrivers?.map((d: any) => `✓ ${d}`).join('\n') || 
   '✓ ROI certainty\n✓ Competitive pressure\n✓ Implementation support\n✓ Peer success'}
 
 CLOSING TACTICS
