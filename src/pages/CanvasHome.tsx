@@ -491,7 +491,7 @@ export default function CanvasHome() {
 
       {/* Gauge */}
       <div className="gauge-container">
-        <div className={`gauge ${isScanning ? 'spinning' : ''} ${(scanResult?.score || 0) >= 80 ? 'high-value' : ''}`}>
+        <div className={`gauge ${(isScanning || isGeneratingBrief) ? 'spinning' : ''} ${(scanResult?.score || 0) >= 80 ? 'high-value' : ''}`}>
           <div className="gauge-frame">
             <div 
               className="gauge-needle" 

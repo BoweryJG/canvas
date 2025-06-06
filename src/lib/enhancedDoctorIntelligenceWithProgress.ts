@@ -101,6 +101,7 @@ async function gatherAllIntelligenceWithProgress(
 ): Promise<IntelligenceGatheringResult> {
   const allSources: ResearchSource[] = [];
   let sourcesCount = 0;
+  let practiceWebsite = '';
   
   // Smart query building
   const doctorFullName = doctor.displayName;
@@ -116,7 +117,14 @@ async function gatherAllIntelligenceWithProgress(
   if (braveResults1?.web?.results) {
     sourcesCount += braveResults1.web.results.length;
     progress.updateSources(sourcesCount);
-    progress.updateStep('practice', 'completed', `${braveResults1.web.results.length} sources`);
+    
+    // Extract practice website early for display
+    practiceWebsite = findPracticeWebsite(braveResults1.web.results, doctor);
+    if (practiceWebsite) {
+      progress.updateStep('practice', 'completed', `Found: ${practiceWebsite}`);
+    } else {
+      progress.updateStep('practice', 'completed', `${braveResults1.web.results.length} sources`);
+    }
   }
   
   // Wait to avoid rate limit
@@ -148,9 +156,8 @@ async function gatherAllIntelligenceWithProgress(
     progress.updateStep('professional', 'completed', `${braveResults3.web.results.length} sources`);
   }
   
-  // Extract practice website
-  let practiceWebsite = '';
-  const websiteResult = findPracticeWebsite(braveResults1?.web?.results || [], doctor);
+  // Practice website already extracted above
+  const websiteResult = practiceWebsite;
   
   // Step 4: Deep Website Analysis (if found)
   if (websiteResult) {
