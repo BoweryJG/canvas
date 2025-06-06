@@ -174,12 +174,12 @@ WEB INTELLIGENCE (${searchData.sources.length} sources):
 ${searchData.sources.slice(0, 20).map((s: any) => `- ${s.title}: ${s.content?.substring(0, 150)}...`).join('\n')}
 
 PRODUCT MARKET INTELLIGENCE for ${product}:
-- Market Awareness: ${productIntel.marketData?.awareness || 'Unknown'}/100
-- Price Range: $${productIntel.marketData?.pricingRange?.low || 0} - $${productIntel.marketData?.pricingRange?.high || 0}
-- Top Competitors: ${productIntel.competitiveLandscape?.topCompetitors?.join(', ') || 'Unknown'}
-- Local Adoption: ${productIntel.localInsights?.adoptionRate || 'Unknown'}
-- Key Differentiators: ${productIntel.competitiveLandscape?.differentiators?.join(', ') || 'None identified'}
-- Local Barriers: ${productIntel.localInsights?.barriers?.join(', ') || 'None identified'}
+- Market Awareness: ${productIntel?.marketData?.awareness || 'Unknown'}/100
+- Price Range: $${productIntel?.marketData?.pricingRange?.low || 0} - $${productIntel?.marketData?.pricingRange?.high || 0}
+- Top Competitors: ${productIntel?.competitiveLandscape?.topCompetitors?.join(', ') || 'Unknown'}
+- Local Adoption: ${productIntel?.localInsights?.adoptionRate || 'Unknown'}
+- Key Differentiators: ${productIntel?.competitiveLandscape?.differentiators?.join(', ') || 'None identified'}
+- Local Barriers: ${productIntel?.localInsights?.barriers?.join(', ') || 'None identified'}
 
 LOCAL DENTAL PRACTICES (${localCompetitors?.results?.length || 0} found):
 ${localCompetitors?.results?.slice(0, 5).map((c: any) => 
