@@ -565,7 +565,7 @@ export default function CanvasHome() {
           {/* Action Suite */}
           <EnhancedActionSuite 
             scanResult={scanResult as any} 
-            researchData={undefined}
+            researchData={researchData}
           />
         </div>
       )}
