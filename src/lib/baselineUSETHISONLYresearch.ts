@@ -19,7 +19,8 @@ import {
 const DIRECTORY_DOMAINS = [
   'sharecare.com', 'healthgrades.com', 'zocdoc.com', 'vitals.com', 
   'yelp.com', 'ada.org', 'npidb.org', 'npino.com', 'ratemds.com', 
-  'wellness.com', 'webmd.com', 'findadoctor.com', 'docinfo.org'
+  'wellness.com', 'webmd.com', 'findadoctor.com', 'docinfo.org',
+  'mapquest.com', 'maps.google.com', 'bing.com/maps', 'yellowpages.com'
 ];
 
 interface BaselineProgress {

@@ -52,7 +52,7 @@ class IntelligentCache {
     if (this.config.useSupabase) {
       try {
         const { data, error } = await supabase
-          .from('research_cache')
+          .from('canvas_research_cache')
           .select('*')
           .eq('cache_key', key)
           .gt('expires_at', new Date().toISOString())
