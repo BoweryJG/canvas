@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { MagicResearchForm } from './MagicResearchForm';
 import { useRenderBackend } from '../lib/useRenderBackend';
-import { useAuth } from '../auth';
 import { AlertCircle, CheckCircle, Loader, TrendingUp, Globe, Users, Brain } from 'lucide-react';
 
 interface StageInfo {
@@ -18,7 +17,6 @@ const STAGE_INFO: Record<string, StageInfo> = {
 };
 
 export const EnhancedResearchPanelWithRender: React.FC = () => {
-  const { user } = useAuth();
   const { runResearch, researchProgress, backendHealthy } = useRenderBackend();
   const [researchResult, setResearchResult] = useState<any>(null);
   const [showResults, setShowResults] = useState(false);

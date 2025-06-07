@@ -217,10 +217,12 @@ export async function batchResearch(
   
   // Poll for all completions
   const completions = await Promise.all(
-    jobs.map(async ({ doctor, job, error }) => {
-      if (error) {
-        return { doctor, error };
+    jobs.map(async (jobResult) => {
+      if ('error' in jobResult) {
+        return { doctor: jobResult.doctor, error: jobResult.error };
       }
+      
+      const { doctor, job } = jobResult;
       
       try {
         if (job.fromCache) {

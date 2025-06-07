@@ -190,7 +190,6 @@ Write an email that:
 Keep it under 150 words. Make every word count.`;
 
 export const FOLLOW_UP_SEQUENCE_PROMPT = (
-  doctorName: string,
   previousInteraction: string,
   insights: any
 ) => `Create a follow-up strategy based on no response to initial outreach.

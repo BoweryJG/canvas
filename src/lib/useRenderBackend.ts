@@ -5,7 +5,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { conductResearch, checkBackendHealth } from './renderBackendAPI';
-import { useAuth } from '../auth/hooks';
+import { useAuth } from '../auth';
 
 export interface ResearchProgress {
   isLoading: boolean;
@@ -112,8 +112,7 @@ export function useBatchResearch() {
   });
 
   const runBatchResearch = useCallback(async (
-    doctors: any[],
-    product: string
+    doctors: any[]
   ) => {
     setBatchProgress({
       total: doctors.length,

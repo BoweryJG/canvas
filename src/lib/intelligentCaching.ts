@@ -108,7 +108,9 @@ class IntelligentCache {
     // Enforce max size
     if (this.config.maxSize && this.memoryCache.size > this.config.maxSize) {
       const oldestKey = this.memoryCache.keys().next().value;
-      this.memoryCache.delete(oldestKey);
+      if (oldestKey) {
+        this.memoryCache.delete(oldestKey);
+      }
     }
     
     // Store in Supabase if enabled
