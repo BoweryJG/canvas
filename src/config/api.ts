@@ -10,9 +10,7 @@ console.log('🌍 Current hostname:', hostname);
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 
   (hostname === 'localhost' 
     ? 'http://localhost:3001' // Local development server
-    : hostname === 'canvas.repspheres.com'
-    ? 'https://canvas-backend.onrender.com' // Production Render backend
-    : '/.netlify/functions'); // Fallback for Netlify if still used
+    : '/.netlify/functions'); // Use Netlify functions until CORS is fixed on Render
 
 console.log('🔧 Using API_BASE_URL:', API_BASE_URL);
 
