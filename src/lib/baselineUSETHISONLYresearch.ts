@@ -7,6 +7,13 @@
 import { type Doctor } from '../components/DoctorAutocomplete';
 import { type ResearchData, type ResearchSource } from './webResearch';
 import { callBraveSearch, callBraveLocalSearch, callFirecrawlScrape, callOpenRouter } from './apiEndpoints';
+import { calculateEnhancedConfidence, extractConfidenceFactors } from './enhancedConfidenceScoring';
+import { ENHANCED_SYNTHESIS_PROMPT } from './enhancedSynthesisPrompts';
+import { 
+  cachedApiCall, 
+  synthesisCache,
+  CacheKeys 
+} from './intelligentCaching';
 
 // Directory domains to always skip
 const DIRECTORY_DOMAINS = [
@@ -138,15 +145,20 @@ export async function baselineResearch(
     
     progress?.updateStep?.('synthesis', 'completed', 'Report ready');
     
-    // Step 6: Calculate transparent confidence score
-    const confidence = calculateTransparentConfidence(
+    // Step 6: Calculate enhanced confidence score
+    const confidenceFactors = extractConfidenceFactors(
+      true, // NPI verified
       websiteIntel,
       reviewData,
-      sources.length,
-      synthesis
+      sources,
+      synthesis,
+      competitors
     );
     
+    const confidence = calculateEnhancedConfidence(confidenceFactors);
+    
     progress?.updateConfidence?.(confidence.score);
+    console.log(`🎯 Confidence Score: ${confidence.score}% with ${sources.length} sources`);
     
     // Return clean, comprehensive data
     return {
@@ -189,7 +201,8 @@ export async function baselineResearch(
       completedAt: new Date().toISOString(),
       enhancedInsights: synthesis,
       // Add confidence transparency
-      confidenceFactors: confidence.factors
+      confidenceFactors: confidence.factors,
+      confidenceBreakdown: confidence.breakdown
     };
     
   } catch (error) {
@@ -643,113 +656,49 @@ async function synthesizeIntelligence(
   productFit: any,
   sources: ResearchSource[]
 ): Promise<any> {
-  const prompt = `Analyze this comprehensive research and create specific, actionable intelligence.
+  // Try cache first
+  const cacheKey = CacheKeys.synthesis(doctor.npi, product);
+  
+  return cachedApiCall(
+    synthesisCache,
+    cacheKey,
+    async () => {
+      const prompt = ENHANCED_SYNTHESIS_PROMPT(
+        doctor,
+        product,
+        websiteIntel,
+        reviewData,
+        competitors,
+        productFit,
+        sources
+      );
 
-DOCTOR: ${doctor.displayName}
-SPECIALTY: ${doctor.specialty}
-LOCATION: ${doctor.city}, ${doctor.state}
-ORGANIZATION: ${doctor.organizationName || 'Private Practice'}
-
-PRACTICE WEBSITE: ${websiteIntel.url || 'Not found'}
-Website Crawled: ${websiteIntel.crawled ? 'Yes' : 'No'}
-Services Found: ${websiteIntel.services?.join(', ') || 'Unknown'}
-Technology: ${websiteIntel.technology?.join(', ') || 'None mentioned'}
-
-REVIEWS:
-- Doctor Reviews: ${reviewData.doctorReviews.rating || 'No rating'}/5 (${reviewData.doctorReviews.count} reviews)
-- Practice Reviews: ${reviewData.practiceReviews.rating || 'No rating'}/5 (${reviewData.practiceReviews.count} reviews)
-- Combined: ${reviewData.combinedRating || 'No rating'}/5 (${reviewData.totalReviews} total)
-
-LOCAL COMPETITION: ${competitors.length} similar practices nearby
-${competitors.slice(0, 3).map(c => `- ${c.title}: ${c.rating}/5, ${c.distance}mi away`).join('\n')}
-
-PRODUCT: ${product}
-Product Fit Score: ${productFit.fitScore}/100
-Opportunities: ${productFit.opportunities?.join(', ') || 'None identified'}
-
-TOTAL SOURCES ANALYZED: ${sources.length}
-
-Create a JSON response with:
-{
-  "executiveSummary": "2-3 sentences on why this is a good/bad opportunity",
-  "practiceProfile": {
-    "size": "solo/small/medium/large based on evidence",
-    "patientVolume": "low/medium/high based on reviews and competition",
-    "technologyAdoption": "conservative/mainstream/progressive"
-  },
-  "marketPosition": "their position vs local competition",
-  "buyingSignals": ["specific opportunities identified"],
-  "painPoints": ["specific challenges based on reviews or gaps"],
-  "approachStrategy": {
-    "bestChannel": "email/phone/in-person",
-    "timing": "specific recommendation",
-    "keyMessage": "one sentence pitch"
-  },
-  "confidenceNotes": "what we found vs what we couldn't find"
-}`;
-
-  try {
-    const response = await callOpenRouter(prompt, 'anthropic/claude-3-haiku-20240307');
-    return JSON.parse(response);
-  } catch (error) {
-    console.error('Synthesis failed:', error);
-    return {
-      executiveSummary: `${doctor.displayName} operates a ${doctor.specialty} practice in ${doctor.city}. Consider ${product} for their needs.`,
-      practiceProfile: { size: 'Unknown' },
-      buyingSignals: productFit.opportunities || [],
-      painPoints: []
-    };
-  }
+      try {
+        const response = await callOpenRouter(prompt, 'anthropic/claude-3-haiku-20240307');
+        return JSON.parse(response);
+      } catch (error) {
+        console.error('Synthesis failed:', error);
+        return {
+          executiveSummary: `${doctor.displayName} operates a ${doctor.specialty} practice in ${doctor.city}. Consider ${product} for their needs.`,
+          practiceProfile: { size: 'Unknown' },
+          buyingSignals: productFit.opportunities || [],
+          painPoints: [],
+          actionPlan: [
+            {
+              step: 1,
+              action: `Research ${doctor.displayName}'s current technology stack`,
+              timing: 'Immediately',
+              successMetric: 'Identify specific systems in use'
+            }
+          ]
+        };
+      }
+    },
+    60 * 24 * 3 // 3 days cache for synthesis
+  );
 }
 
-function calculateTransparentConfidence(
-  websiteIntel: WebsiteIntelligence,
-  reviewData: ReviewData,
-  sourceCount: number,
-  synthesis: any
-): { score: number; factors: string[] } {
-  let score = 50; // Base NPI verification
-  const factors = ['✓ NPI Verified'];
-  
-  // Website discovery and crawling (biggest factor)
-  if (websiteIntel.url) {
-    score += 15;
-    factors.push('✓ Practice Website Found');
-    
-    if (websiteIntel.crawled) {
-      score += 15;
-      factors.push('✓ Website Successfully Analyzed');
-    }
-  }
-  
-  // Reviews found
-  if (reviewData.totalReviews > 0) {
-    score += 10;
-    factors.push(`✓ ${reviewData.totalReviews} Reviews Found`);
-    
-    if (reviewData.totalReviews > 20) {
-      score += 5;
-      factors.push('✓ Substantial Review Data');
-    }
-  }
-  
-  // Source diversity
-  if (sourceCount > 20) {
-    score += 5;
-    factors.push(`✓ ${sourceCount} Sources Analyzed`);
-  }
-  
-  // Synthesis quality
-  if (synthesis.buyingSignals && synthesis.buyingSignals.length > 0) {
-    score += 5;
-    factors.push('✓ Clear Opportunities Identified');
-  }
-  
-  return {
-    score: Math.min(score, 95),
-    factors
-  };
-}
+// Removed - now using enhanced confidence scoring from enhancedConfidenceScoring.ts
 
 function createFallbackData(doctor: Doctor, sources: ResearchSource[]): ResearchData {
   return {

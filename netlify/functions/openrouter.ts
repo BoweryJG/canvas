@@ -1,5 +1,10 @@
 import { Handler } from '@netlify/functions';
 
+// Simple in-memory rate limiter for serverless functions
+const requestLog: Map<string, number[]> = new Map();
+const MAX_REQUESTS_PER_MINUTE = 20;
+const WINDOW_MS = 60 * 1000;
+
 export const handler: Handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -21,7 +26,7 @@ export const handler: Handler = async (event, context) => {
   }
 
   try {
-    const { prompt, model = 'anthropic/claude-3-sonnet' } = JSON.parse(event.body || '{}');
+    const { prompt, model = 'anthropic/claude-3-sonnet', userId = 'anonymous' } = JSON.parse(event.body || '{}');
     
     if (!prompt) {
       return {
@@ -29,6 +34,39 @@ export const handler: Handler = async (event, context) => {
         headers,
         body: JSON.stringify({ error: 'Prompt is required' })
       };
+    }
+    
+    // Rate limiting check
+    const now = Date.now();
+    const userRequests = requestLog.get(userId) || [];
+    const recentRequests = userRequests.filter(timestamp => now - timestamp < WINDOW_MS);
+    
+    if (recentRequests.length >= MAX_REQUESTS_PER_MINUTE) {
+      console.log(`Rate limit exceeded for user ${userId}: ${recentRequests.length} requests in last minute`);
+      return {
+        statusCode: 429,
+        headers,
+        body: JSON.stringify({ 
+          error: 'Rate limit exceeded. Please wait before making more requests.',
+          retryAfter: Math.ceil((recentRequests[0] + WINDOW_MS - now) / 1000)
+        })
+      };
+    }
+    
+    // Log this request
+    recentRequests.push(now);
+    requestLog.set(userId, recentRequests);
+    
+    // Clean up old entries periodically
+    if (Math.random() < 0.1) { // 10% chance to clean up
+      for (const [key, timestamps] of requestLog.entries()) {
+        const validTimestamps = timestamps.filter(t => now - t < WINDOW_MS);
+        if (validTimestamps.length === 0) {
+          requestLog.delete(key);
+        } else {
+          requestLog.set(key, validTimestamps);
+        }
+      }
     }
 
     // Check for OpenRouter API key

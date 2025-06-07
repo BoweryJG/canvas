@@ -6,6 +6,7 @@ import CanvasHome from './pages/CanvasHome'
 import { TestNPI } from './pages/TestNPI'
 import { TestNPIDebug } from './pages/TestNPIDebug'
 import { TestNPIMinimal } from './pages/TestNPIMinimal'
+import { UnifiedResearchPanel } from './components/UnifiedResearchPanel'
 import './App.css'
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <NavBar />
         <Routes>
           <Route path="/" element={<CanvasHome />} />
+          <Route path="/research" element={<UnifiedResearchPanel />} />
           <Route path="/market-insights" element={<MarketInsights />} />
           <Route path="/test-npi" element={<TestNPI />} />
           <Route path="/test-npi-debug" element={<TestNPIDebug />} />

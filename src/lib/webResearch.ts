@@ -52,6 +52,13 @@ export interface ResearchData {
   combinedStrategy?: any; // Combined doctor+product strategy
   superIntelligence?: any; // Advanced multi-model insights
   confidenceFactors?: string[]; // Transparency for confidence scoring
+  confidenceBreakdown?: {
+    npiPoints: number;
+    sourcePoints: number;
+    websitePoints: number;
+    reviewPoints: number;
+    analysisPoints: number;
+  };
 }
 
 /**

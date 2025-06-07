@@ -5,6 +5,7 @@ import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon, 
 import EnhancedActionSuite from '../components/EnhancedActionSuite'
 import ResearchPanel from '../components/ResearchPanel'
 import IntegratedCanvasExperience from '../components/IntegratedCanvasExperience'
+import { EnhancedResearchPanelWithRender } from '../components/EnhancedResearchPanelWithRender'
 import { analyzeDoctor } from '../lib/intelligentAnalysis'
 import { DoctorAutocomplete } from '../components/DoctorAutocomplete'
 import type { Doctor } from '../components/DoctorAutocomplete'
