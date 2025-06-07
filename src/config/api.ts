@@ -4,12 +4,17 @@
  */
 
 // Determine the API base URL based on environment
+const hostname = window.location.hostname;
+console.log('🌍 Current hostname:', hostname);
+
 export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 
-  (window.location.hostname === 'localhost' 
+  (hostname === 'localhost' 
     ? 'http://localhost:3001' // Local development server
-    : window.location.hostname === 'canvas.repspheres.com'
+    : hostname === 'canvas.repspheres.com'
     ? 'https://canvas-backend.onrender.com' // Production Render backend
     : '/.netlify/functions'); // Fallback for Netlify if still used
+
+console.log('🔧 Using API_BASE_URL:', API_BASE_URL);
 
 // API endpoint paths
 const isNetlify = API_BASE_URL === '/.netlify/functions';

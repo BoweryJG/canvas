@@ -49,7 +49,8 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
       
       try {
         const url = `${getApiEndpoint('npiLookup')}?search=${encodeURIComponent(searchTerm)}`;
-        console.log('🌐 Fetching URL:', window.location.origin + url);
+        console.log('🌐 Fetching URL:', url);
+        console.log('🔧 API Base URL:', getApiEndpoint('npiLookup'));
         
         const response = await fetch(url);
         console.log('📡 Response status:', response.status);
