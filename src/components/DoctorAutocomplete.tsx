@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { debounce } from 'lodash';
+import { getApiEndpoint } from '../config/api';
 
 export interface Doctor {
   npi: string;
@@ -47,7 +48,7 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
       console.log('🔍 Searching for:', searchTerm);
       
       try {
-        const url = `/.netlify/functions/npi-lookup?search=${encodeURIComponent(searchTerm)}`;
+        const url = `${getApiEndpoint('npiLookup')}?search=${encodeURIComponent(searchTerm)}`;
         console.log('🌐 Fetching URL:', window.location.origin + url);
         
         const response = await fetch(url);

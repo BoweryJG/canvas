@@ -11,6 +11,7 @@ import {
   withGlobalRateLimit,
   // staggerUserStart - not used here 
 } from './globalRateLimiter';
+import { getApiEndpoint } from '../config/api';
 
 /**
  * Brave Search API integration via Netlify function
@@ -20,7 +21,7 @@ export async function callBraveSearch(query: string, count: number = 10, userId?
     try {
       console.log(`🔍 Brave Search: "${query}"`);
       
-      const response = await fetch('/.netlify/functions/brave-search', {
+      const response = await fetch(getApiEndpoint('braveSearch'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -99,7 +100,7 @@ export async function callFirecrawlScrape(url: string, options: any = {}, userId
     try {
       console.log(`🕷️ Firecrawl scraping: ${url}`);
       
-      const response = await fetch('/.netlify/functions/firecrawl-scrape', {
+      const response = await fetch(getApiEndpoint('firecrawlScrape'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -254,7 +255,7 @@ export async function callPerplexityResearch(query: string, mode: 'search' | 're
   try {
     console.log(`🧠 Perplexity ${mode}: "${query}"`);
     
-    const response = await fetch('/.netlify/functions/perplexity-research', {
+    const response = await fetch(getApiEndpoint('perplexityResearch'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -301,7 +302,7 @@ export async function callOpenRouter(prompt: string, model: string = 'anthropic/
     try {
       console.log(`🧠 OpenRouter ${model}: "${prompt.substring(0, 50)}..."`);
       
-      const response = await fetch('/.netlify/functions/openrouter', {
+      const response = await fetch(getApiEndpoint('openRouter'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -344,7 +345,7 @@ export async function callClaudeOutreach(prompt: string, userId?: string) {
     try {
       console.log(`🧠 Claude 4 Outreach Generation`);
       
-      const response = await fetch('/.netlify/functions/claude-outreach', {
+      const response = await fetch(getApiEndpoint('openRouter'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -393,7 +394,7 @@ export async function callBraveLocalSearch(query: string, count: number = 20, us
     try {
       console.log(`📍 Brave Local Search: "${query}"`);
       
-      const response = await fetch('/.netlify/functions/brave-local-search', {
+      const response = await fetch(getApiEndpoint('braveSearch'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
