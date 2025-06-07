@@ -224,7 +224,10 @@ async function findAndAnalyzePracticeWebsite(
   if (existingWebsite && !DIRECTORY_DOMAINS.some(domain => existingWebsite.includes(domain))) {
     practiceUrl = existingWebsite;
     console.log('Using pre-discovered website:', practiceUrl);
-  } else {
+  } 
+  
+  // If we already have a good website, skip searching
+  if (!practiceUrl) {
     // Search for the real practice website
     const queries = [
       // If we have organization name, prioritize that
@@ -675,7 +678,7 @@ async function synthesizeIntelligence(
       );
 
       try {
-        const response = await callOpenRouter(prompt, 'anthropic/claude-3-haiku-20240307');
+        const response = await callOpenRouter(prompt, 'anthropic/claude-3.5-sonnet-20241022');
         return JSON.parse(response);
       } catch (error) {
         console.error('Synthesis failed:', error);

@@ -52,7 +52,7 @@ class IntelligentCache {
     if (this.config.useSupabase) {
       try {
         const { data, error } = await supabase
-          .from('canvas_research_cache')
+          .from('cache_entries')
           .select('*')
           .eq('cache_key', key)
           .gt('expires_at', new Date().toISOString())
@@ -61,7 +61,7 @@ class IntelligentCache {
         if (data && !error) {
           // Update hit count
           await supabase
-            .from('research_cache')
+            .from('cache_entries')
             .update({ hit_count: data.hit_count + 1 })
             .eq('cache_key', key);
             
@@ -117,7 +117,7 @@ class IntelligentCache {
     if (this.config.useSupabase) {
       try {
         await supabase
-          .from('research_cache')
+          .from('cache_entries')
           .upsert({
             cache_key: key,
             cache_data: data,
@@ -149,7 +149,7 @@ class IntelligentCache {
     if (this.config.useSupabase) {
       try {
         await supabase
-          .from('research_cache')
+          .from('cache_entries')
           .delete()
           .lt('expires_at', now.toISOString());
       } catch (error) {

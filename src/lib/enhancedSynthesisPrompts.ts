@@ -155,7 +155,9 @@ Create a detailed JSON response following this EXACT structure:
     ],
     "rapportBuilders": ["Non-business topics based on location/interests"],
     "closingPower": "The ONE thing that will likely close this deal"
-  }
+  },
+  
+  "salesBrief": "Create a POWERFUL 2-3 sentence tactical sales brief that a rep can use immediately. Include: 1) The specific hook/angle based on their situation, 2) The key benefit of ${product} for their exact needs, 3) A compelling reason to meet THIS WEEK. Make it conversational and natural, not salesy."
 }
 
 BE SPECIFIC. NO GENERIC STATEMENTS. Every point must be backed by data from the provided information.`;
