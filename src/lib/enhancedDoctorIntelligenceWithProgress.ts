@@ -36,7 +36,8 @@ export async function gatherComprehensiveDoctorIntelligenceWithProgress(
   console.log('🚀 Starting ENHANCED intelligence gathering for:', doctor.displayName);
   
   // Check if we should use baseline mode (cleanest implementation)
-  const useBaseline = process.env.REACT_APP_USE_BASELINE === 'true';
+  // FORCE BASELINE MODE FOR NOW
+  const useBaseline = true; // process.env.REACT_APP_USE_BASELINE === 'true';
   
   if (useBaseline) {
     console.log('🎯 Using BASELINE mode: Clean, focused research');
