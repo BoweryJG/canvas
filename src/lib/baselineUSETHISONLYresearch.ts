@@ -678,7 +678,7 @@ async function synthesizeIntelligence(
       );
 
       try {
-        const response = await callOpenRouter(prompt, 'anthropic/claude-3.5-sonnet-20241022');
+        const response = await callOpenRouter(prompt, 'anthropic/claude-3-opus-20240229');
         return JSON.parse(response);
       } catch (error) {
         console.error('Synthesis failed:', error);
