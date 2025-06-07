@@ -62,19 +62,16 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
           throw new Error(`HTTP ${response.status}: ${errorText}`);
         }
         
-        const doctors = await response.json();
-        console.log('👥 Found doctors:', doctors);
-        console.log('👥 Number of results:', Array.isArray(doctors) ? doctors.length : 0);
+        const data = await response.json();
+        console.log('👥 Found doctors:', data);
         
-        if (Array.isArray(doctors)) {
-          setSuggestions(doctors);
-          setShowDropdown(doctors.length > 0);
-          console.log('✅ Set suggestions and dropdown visibility');
-        } else {
-          console.error('❌ Invalid response format:', doctors);
-          setSuggestions([]);
-          setShowDropdown(false);
-        }
+        // Handle both array format (Netlify) and object format (backend)
+        const doctors = Array.isArray(data) ? data : (data.results || []);
+        console.log('👥 Number of results:', doctors.length);
+        
+        setSuggestions(doctors);
+        setShowDropdown(doctors.length > 0);
+        console.log('✅ Set suggestions and dropdown visibility');
       } catch (error) {
         console.error('❌ Failed to search doctors:', error);
         const errorMessage = error instanceof Error ? error.message : 'Failed to search doctors';
