@@ -11,7 +11,7 @@ export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ||
   (hostname === 'localhost' 
     ? 'http://localhost:3001' // Local development server
     : hostname === 'canvas.repspheres.com'
-    ? 'https://spheres-consolidated-backend.onrender.com' // Production Render backend
+    ? 'https://osbackend-zl1h.onrender.com' // Production Render backend
     : '/.netlify/functions'); // Fallback for other deployments
 
 console.log('🔧 Using API_BASE_URL:', API_BASE_URL);
