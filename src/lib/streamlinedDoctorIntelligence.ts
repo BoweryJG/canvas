@@ -133,6 +133,13 @@ export async function gatherStreamlinedDoctorIntelligence(
     console.error('Streamlined intelligence error:', error);
     // Try to salvage what we can from the search data
     if (searchData && searchData.sources && searchData.sources.length > 0) {
+      // Calculate confidence based on sources found
+      let confidence = 50; // Base
+      if (searchData.practiceWebsite) confidence += 20;
+      if (searchData.sources.length > 10) confidence += 10;
+      if (searchData.sources.length > 20) confidence += 10;
+      if (searchData.sources.length > 30) confidence += 10;
+      
       return {
         doctorName: doctor.displayName,
         practiceInfo: {
@@ -157,10 +164,12 @@ export async function gatherStreamlinedDoctorIntelligence(
         businessIntel: {
           practiceType: 'Unknown',
           patientVolume: 'Unknown',
-          marketPosition: 'Unknown'
+          marketPosition: 'Unknown',
+          recentNews: [],
+          growthIndicators: []
         },
         sources: searchData.sources,
-        confidenceScore: 50,
+        confidenceScore: Math.min(confidence, 95),
         completedAt: new Date().toISOString()
       };
     }
