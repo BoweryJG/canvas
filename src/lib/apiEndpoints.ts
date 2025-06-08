@@ -343,7 +343,10 @@ export async function callOpenRouter(prompt: string, model: string = 'anthropic/
     try {
       console.log(`🧠 OpenRouter ${model}: "${prompt.substring(0, 50)}..."`);
       
-      const response = await fetch(getApiEndpoint('openRouter'), {
+      const endpoint = getApiEndpoint('openRouter');
+      console.log(`🔗 Calling OpenRouter at: ${endpoint}`);
+      
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

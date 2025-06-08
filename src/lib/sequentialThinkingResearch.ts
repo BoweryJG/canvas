@@ -347,8 +347,11 @@ ${synthesisPlan.thought}
 Sales Approach Recommendation:
 ${salesApproach.thought}
 
-Research Data:
-${JSON.stringify(researchData, null, 2)}
+Research Summary:
+- Sources found: ${researchData.sources?.length || 0}
+- Doctor: ${doctor.displayName}, ${doctor.specialty}
+- Product: ${product}
+- Key findings: ${JSON.stringify(researchData.searchResults?.slice(0, 2) || [], null, 2).substring(0, 500)}...
 
 Create a comprehensive sales intelligence report with the following structure:
 {
