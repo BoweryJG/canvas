@@ -5,6 +5,7 @@
 
 const express = require('express');
 const router = express.Router();
+const fetch = require('node-fetch');
 
 // In-memory stores (use Redis in production)
 const researchJobs = new Map();
@@ -38,6 +39,145 @@ const checkRateLimit = (req, res, next) => {
   rateLimiter.set(userId, validRequests);
   next();
 };
+
+// Brave Search proxy
+router.post('/brave-search', async (req, res) => {
+  const { q } = req.body;
+  
+  if (!q) {
+    return res.status(400).json({ error: 'Query required' });
+  }
+  
+  const BRAVE_API_KEY = process.env.BRAVE_API_KEY;
+  if (!BRAVE_API_KEY) {
+    console.error('BRAVE_API_KEY not configured');
+    return res.status(500).json({ error: 'Brave Search not configured' });
+  }
+  
+  try {
+    const response = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(q)}`, {
+      headers: {
+        'Accept': 'application/json',
+        'Accept-Encoding': 'gzip',
+        'X-Subscription-Token': BRAVE_API_KEY
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Brave API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('Brave Search error:', error);
+    res.status(500).json({ error: 'Brave Search API error', message: error.message });
+  }
+});
+
+// OpenRouter proxy
+router.post('/openrouter', async (req, res) => {
+  const { prompt, model = 'anthropic/claude-3-haiku-20240307' } = req.body;
+  
+  if (!prompt) {
+    return res.status(400).json({ error: 'Prompt is required' });
+  }
+  
+  const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+  if (!OPENROUTER_API_KEY) {
+    console.error('OPENROUTER_API_KEY not configured');
+    return res.status(500).json({ error: 'OpenRouter not configured' });
+  }
+  
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://canvas.repspheres.com',
+        'X-Title': 'Canvas Sales Intelligence'
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 1000
+      })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('OpenRouter error:', errorText);
+      throw new Error(`OpenRouter API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('OpenRouter error:', error);
+    res.status(500).json({ error: 'OpenRouter API failed', message: error.message });
+  }
+});
+
+// Firecrawl proxy
+router.post('/firecrawl-scrape', async (req, res) => {
+  const { url } = req.body;
+  
+  if (!url) {
+    return res.status(400).json({ error: 'URL required' });
+  }
+  
+  const FIRECRAWL_API_KEY = process.env.FIRECRAWL_API_KEY;
+  if (!FIRECRAWL_API_KEY) {
+    console.error('FIRECRAWL_API_KEY not configured');
+    return res.status(500).json({ error: 'Firecrawl not configured' });
+  }
+  
+  try {
+    const response = await fetch('https://api.firecrawl.dev/v0/scrape', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${FIRECRAWL_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ url })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Firecrawl API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('Firecrawl error:', error);
+    res.status(500).json({ error: 'Firecrawl API error', message: error.message });
+  }
+});
+
+// NPI Lookup proxy
+router.get('/npi-lookup', async (req, res) => {
+  const { search } = req.query;
+  
+  if (!search) {
+    return res.status(400).json({ error: 'Search query required' });
+  }
+  
+  try {
+    const response = await fetch(`https://npiregistry.cms.hhs.gov/api/?version=2.1&search_type=NPI&name=${encodeURIComponent(search)}`);
+    
+    if (!response.ok) {
+      throw new Error(`NPI API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('NPI lookup error:', error);
+    res.status(500).json({ error: 'NPI lookup failed', message: error.message });
+  }
+});
 
 // Start research job
 router.post('/research/start', checkRateLimit, async (req, res) => {
