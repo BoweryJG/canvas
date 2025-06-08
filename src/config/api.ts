@@ -25,6 +25,7 @@ export const API_ENDPOINTS = {
   perplexityResearch: isNetlify ? `${API_BASE_URL}/perplexity-research` : `${API_BASE_URL}/api/perplexity-research`,
   npiLookup: isNetlify ? `${API_BASE_URL}/npi-lookup` : `${API_BASE_URL}/api/npi-lookup`,
   sendMagicLink: isNetlify ? `${API_BASE_URL}/send-magic-link` : `${API_BASE_URL}/api/send-magic-link`,
+  apifyActor: isNetlify ? `${API_BASE_URL}/apify-actor` : `${API_BASE_URL}/api/apify-actor`,
 };
 
 // Helper to get the correct API endpoint

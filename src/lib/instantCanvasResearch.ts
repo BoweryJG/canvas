@@ -8,6 +8,7 @@ import { callBraveSearch, callOpenRouter, callPerplexityResearch } from './apiEn
 import { type Doctor } from '../components/DoctorAutocomplete';
 import { cachedApiCall, CacheKeys } from './intelligentCaching';
 import { supabase } from '../auth/supabase';
+import { gatherSocialMediaIntelligence, type SocialMediaIntelligence } from './socialMediaIntelligence';
 
 // Rate limiting configuration
 const RATE_LIMITS = {
@@ -70,6 +71,7 @@ export interface DeepResearchResult {
     responses: Record<string, string>;
   };
   seoReport?: SEOReport;
+  socialMediaIntelligence?: SocialMediaIntelligence;
 }
 
 export interface SEOReport {
@@ -344,12 +346,16 @@ export async function deepCanvasResearch(
       }
     }
     
+    // Phase 6: Social Media Intelligence
+    const socialMediaIntel = await gatherSocialMediaIntelligence(doctor);
+    
     const result: DeepResearchResult = {
       psychologicalProfile: psychProfile,
       competitorAnalysis: competitors,
       salesCollateral: salesContent,
       obstacles: obstacles,
-      seoReport: seoReport
+      seoReport: seoReport,
+      socialMediaIntelligence: socialMediaIntel
     };
     
     // Save completed research
