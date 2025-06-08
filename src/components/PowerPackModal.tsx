@@ -18,8 +18,7 @@ interface PowerPackModalProps {
 export const PowerPackModal: React.FC<PowerPackModalProps> = ({ 
   isOpen, 
   onClose, 
-  onSelectPack,
-  currentProduct 
+  onSelectPack
 }) => {
   const [selectedPack, setSelectedPack] = useState<PowerPack | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);

@@ -209,8 +209,6 @@ export function getROIMessage(pack: PowerPack): string {
  * Get comparison to subscription
  */
 export function getSubscriptionComparison(pack: PowerPack): string {
-  // Compare to Professional tier at $149/mo for 500 scans
-  const subscriptionCostPerScan = 149 / 500;
   const savings = Math.round((1 - (pack.pricePerScan / BASE_PRICE_PER_SCAN)) * 100);
   
   if (pack.scans >= 500) {

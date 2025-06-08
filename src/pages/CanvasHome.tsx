@@ -13,7 +13,6 @@ import type { ResearchData } from '../lib/webResearch'
 import { IntelligenceProgress } from '../components/IntelligenceProgress'
 import { conductNPIEnhancedResearch } from '../lib/npiEnhancedResearch'
 import { MOCK_MODE } from '../lib/mockResearch'
-import BatchAnalysisPanel from '../components/BatchAnalysisPanel'
 import PowerPackModal from '../components/PowerPackModal'
 
 interface ScanResult {
