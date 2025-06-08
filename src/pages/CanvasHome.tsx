@@ -13,6 +13,8 @@ import type { ResearchData } from '../lib/webResearch'
 import { IntelligenceProgress } from '../components/IntelligenceProgress'
 import { conductNPIEnhancedResearch } from '../lib/npiEnhancedResearch'
 import { MOCK_MODE } from '../lib/mockResearch'
+import BatchAnalysisPanel from '../components/BatchAnalysisPanel'
+import PowerPackModal from '../components/PowerPackModal'
 
 interface ScanResult {
   doctor: string;
@@ -153,6 +155,7 @@ export default function CanvasHome() {
   const [intelligenceSteps, setIntelligenceSteps] = useState<any[]>([])
   const [sourcesFound, setSourcesFound] = useState(0)
   const [confidenceScore, setConfidenceScore] = useState(50)
+  const [showBatchPanel, setShowBatchPanel] = useState(false)
   const [enhancements, setEnhancements] = useState({
     website: '',
     recentPurchases: '',
@@ -611,6 +614,29 @@ export default function CanvasHome() {
           />
         </div>
       )}
+
+      {/* Scale CTA Button - Shows after successful scan */}
+      {scanResult && !isGeneratingBrief && !showBatchPanel && (
+        <button 
+          className="scale-cta-button"
+          onClick={() => setShowBatchPanel(true)}
+        >
+          <span className="icon">🚀</span>
+          <span>Scale This x10-2500</span>
+        </button>
+      )}
+
+      {/* Power Pack Modal */}
+      <PowerPackModal
+        isOpen={showBatchPanel}
+        onClose={() => setShowBatchPanel(false)}
+        onSelectPack={(pack) => {
+          console.log('Selected power pack:', pack);
+          // TODO: Handle pack selection - redirect to batch panel or checkout
+          setShowBatchPanel(false);
+        }}
+        currentProduct={product}
+      />
     </div>
   )
 }
