@@ -14,6 +14,25 @@ import { callOpenRouter } from './apiEndpoints';
 import { type ResearchData, type ResearchSource } from './webResearch';
 import { type Doctor } from '../components/DoctorAutocomplete';
 
+// Helper to safely parse AI JSON responses
+function parseAIResponse(response: any): any {
+  if (typeof response !== 'string') return response;
+  
+  // Clean markdown code blocks if present
+  let cleanResponse = response;
+  if (response.includes('```')) {
+    cleanResponse = response.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+  }
+  
+  // Remove any leading text before the JSON
+  const jsonMatch = cleanResponse.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    cleanResponse = jsonMatch[0];
+  }
+  
+  return JSON.parse(cleanResponse);
+}
+
 export async function conductNPIEnhancedResearch(
   doctor: Doctor,
   _product: string
@@ -338,7 +357,7 @@ Analyze these search results about Dr. ${doctor.displayName} to extract review i
 Search Results:
 ${JSON.stringify(results.slice(0, 5), null, 2)}
 
-Extract and return ONLY a JSON object with:
+You must respond with ONLY valid JSON, no other text. Return exactly this structure:
 {
   "averageRating": number or null,
   "totalReviews": number,
@@ -347,11 +366,19 @@ Extract and return ONLY a JSON object with:
   "recentFeedback": ["max 3 recent comments"]
 }
 
-If no review data is found, use appropriate null/empty values.`;
+If no review data is found, use null for averageRating and empty arrays for lists.
+IMPORTANT: Respond with ONLY the JSON object, no explanations or other text.`;
 
   try {
     const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
-    return JSON.parse(response);
+    
+    // Clean response if wrapped in markdown
+    let cleanResponse = response;
+    if (typeof response === 'string' && response.includes('```')) {
+      cleanResponse = response.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    }
+    
+    return parseAIResponse(cleanResponse);
   } catch (error) {
     console.error('Error analyzing reviews with AI:', error);
     return {
@@ -391,7 +418,7 @@ Return ONLY a JSON object with:
 
   try {
     const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
-    return JSON.parse(response);
+    return parseAIResponse(response);
   } catch (error) {
     return {
       ...npiCredentials,
@@ -426,7 +453,7 @@ Return ONLY a JSON object with:
 
   try {
     const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
-    return JSON.parse(response);
+    return parseAIResponse(response);
   } catch (error) {
     return {
       practiceType: doctor.organizationName ? 'Group Practice' : 'Private Practice',
