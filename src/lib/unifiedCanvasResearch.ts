@@ -7,17 +7,19 @@
 import { type Doctor } from '../components/DoctorAutocomplete';
 import { runCanvasResearch, type InstantScanResult, type DeepResearchResult } from './instantCanvasResearch';
 import { baselineResearch } from './baselineUSETHISONLYresearch';
+import { adaptiveResearch } from './adaptiveResearch';
 import type { ResearchData } from './webResearch';
 
 // Feature flags for controlling which system to use
 const FEATURE_FLAGS = {
-  USE_INSTANT_SCAN: process.env.REACT_APP_USE_INSTANT_SCAN === 'true' || true, // Default to new system
+  USE_INSTANT_SCAN: process.env.REACT_APP_USE_INSTANT_SCAN === 'true' || false, // Disabled when using adaptive
   USE_LEGACY_BASELINE: process.env.REACT_APP_USE_LEGACY === 'true' || false,
+  USE_ADAPTIVE_AI: process.env.REACT_APP_USE_ADAPTIVE === 'true' || true, // NEW: Sequential Thinking
   ENABLE_SOCIAL_MEDIA: process.env.REACT_APP_ENABLE_SOCIAL === 'true' || true,
   ENABLE_SEO_REPORT: process.env.REACT_APP_ENABLE_SEO === 'true' || true,
 };
 
-export type ResearchMode = 'instant' | 'legacy' | 'auto';
+export type ResearchMode = 'instant' | 'legacy' | 'adaptive' | 'auto';
 
 export interface UnifiedResearchOptions {
   mode?: ResearchMode;
@@ -35,10 +37,11 @@ export interface ResearchProgressCallback {
 }
 
 export interface UnifiedResearchResult {
-  mode: 'instant' | 'legacy';
+  mode: 'instant' | 'legacy' | 'adaptive';
   instant?: InstantScanResult;
   deep?: DeepResearchResult;
   legacy?: ResearchData;
+  adaptive?: ResearchData;
   error?: string;
 }
 
@@ -64,13 +67,31 @@ export async function unifiedCanvasResearch(
   
   try {
     // Determine which mode to use
-    const useInstantScan = mode === 'instant' || 
-                          (mode === 'auto' && FEATURE_FLAGS.USE_INSTANT_SCAN);
+    const useAdaptive = mode === 'adaptive' || 
+                        (mode === 'auto' && FEATURE_FLAGS.USE_ADAPTIVE_AI);
+    const useInstantScan = !useAdaptive && (mode === 'instant' || 
+                          (mode === 'auto' && FEATURE_FLAGS.USE_INSTANT_SCAN));
     
-    if (useInstantScan) {
+    if (useAdaptive) {
+      console.log('🧠 Using ADAPTIVE AI system with Sequential Thinking');
+      
+      // Use the new adaptive research with intelligent routing
+      const adaptiveResult = await adaptiveResearch(
+        doctor,
+        product,
+        existingWebsite,
+        progress
+      );
+      
+      return {
+        mode: 'adaptive',
+        adaptive: adaptiveResult
+      };
+      
+    } else if (useInstantScan) {
       console.log('⚡ Using INSTANT SCAN system (3-second + deep research)');
       
-      // Use the new instant + deep research system
+      // Use the instant + deep research system
       await runCanvasResearch(
         doctor,
         product,

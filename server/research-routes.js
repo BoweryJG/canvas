@@ -77,7 +77,7 @@ router.post('/brave-search', async (req, res) => {
 
 // OpenRouter proxy
 router.post('/openrouter', async (req, res) => {
-  const { prompt, model = 'anthropic/claude-3-haiku-20240307' } = req.body;
+  const { prompt, model = 'anthropic/claude-opus-4' } = req.body;
   
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is required' });

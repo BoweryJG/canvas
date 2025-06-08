@@ -38,13 +38,6 @@ const MODEL_CAPABILITIES: Record<string, ModelCapabilities> = {
   },
   
   // OpenRouter Models
-  'anthropic/claude-3-opus-20240229': {
-    realTimeData: false,
-    deepReasoning: true,
-    costPerRequest: 0.015,
-    speedRating: 6,
-    bestFor: ['synthesis', 'personalization', 'creative content', 'sales strategy']
-  },
   'anthropic/claude-opus-4': {
     realTimeData: false,
     deepReasoning: true,
@@ -57,7 +50,14 @@ const MODEL_CAPABILITIES: Record<string, ModelCapabilities> = {
     deepReasoning: true,
     costPerRequest: 0.003,
     speedRating: 8,
-    bestFor: ['fast analysis', 'code generation', 'structured data']
+    bestFor: ['fast analysis', 'code generation', 'structured data', 'efficient fallback']
+  },
+  'anthropic/claude-3-opus-20240229': {
+    realTimeData: false,
+    deepReasoning: true,
+    costPerRequest: 0.015,
+    speedRating: 6,
+    bestFor: ['legacy support', 'alternative synthesis', 'creative content']
   },
   'openai/gpt-4-turbo': {
     realTimeData: false,
@@ -221,8 +221,40 @@ Format as JSON with these fields:
   }
 }`;
 
-    // Use Claude 4 Opus for premium synthesis
-    return this.callOpenRouterModel(prompt, 'anthropic/claude-opus-4');
+    try {
+      // Try Claude 4 Opus first for premium synthesis
+      return await this.callOpenRouterModel(prompt, 'anthropic/claude-opus-4');
+    } catch (error) {
+      console.error('Claude 4 Opus error, trying Claude 3.5 Sonnet fallback:', error);
+      // Fallback to Claude 3.5 Sonnet if Claude 4 Opus fails
+      try {
+        return await this.callOpenRouterModel(prompt, 'anthropic/claude-3.5-sonnet-20241022');
+      } catch (fallbackError) {
+        console.error('Claude 3.5 Sonnet also failed:', fallbackError);
+        // Return a default response structure
+        return {
+          executiveSummary: `${doctor.displayName} presents a potential opportunity for ${product} based on available data.`,
+          opportunityScore: 70,
+          scoringRationale: "Score based on available practice information and market indicators",
+          perfectPitch: `Dr. ${doctor.displayName}, I've been researching practices in your area and believe ${product} could address some key challenges.`,
+          keyInsights: [
+            "Practice shows potential for technology adoption",
+            "Market conditions favor new solutions",
+            "Timing appears favorable for outreach"
+          ],
+          approachStrategy: {
+            channel: "email",
+            timing: "Tuesday-Thursday, 10-11 AM",
+            opener: "Personalized research-based approach",
+            valueProps: ["Efficiency improvements", "Patient satisfaction", "ROI potential"]
+          },
+          objectionHandling: {
+            "Too busy": "I understand your time is valuable. That's exactly why our solution is designed to save you time.",
+            "Already have a solution": "Many practices find our approach complements existing systems while adding unique value."
+          }
+        };
+      }
+    }
   }
   
   /**
@@ -261,7 +293,7 @@ Format as JSON with these fields:
         medicalAnalysis,
         finalSynthesis,
         processingTime,
-        modelsUsed: ['perplexity-sonar', 'gpt-4-turbo', 'claude-3-opus']
+        modelsUsed: ['perplexity-sonar', 'gpt-4-turbo', 'claude-4-opus']
       };
       
     } catch (error) {

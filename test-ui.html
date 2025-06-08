@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas Test</title>
+</head>
+<body>
+    <h1>Canvas Research Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        async function testCanvasResearch() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>Testing Canvas Research System...</p>';
+            
+            // Import functions from the app
+            const script = document.createElement('script');
+            script.type = 'module';
+            script.textContent = `
+                import { callOpenRouter } from 'http://localhost:3000/src/lib/apiEndpoints.ts';
+                
+                window.testAPI = async function() {
+                    try {
+                        const response = await callOpenRouter('Hello, confirm you are Claude Opus 4', 'anthropic/claude-opus-4');
+                        return response;
+                    } catch (error) {
+                        return { error: error.message };
+                    }
+                };
+            `;
+            document.body.appendChild(script);
+            
+            // Give it time to load
+            setTimeout(async () => {
+                if (window.testAPI) {
+                    const result = await window.testAPI();
+                    results.innerHTML += '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+                } else {
+                    results.innerHTML += '<p>Failed to load API functions</p>';
+                }
+            }, 1000);
+        }
+        
+        // Test direct API call
+        async function testDirectAPI() {
+            const results = document.getElementById('results');
+            
+            try {
+                const response = await fetch('http://localhost:3001/api/openrouter', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt: 'Say hello and which Claude model you are',
+                        model: 'anthropic/claude-opus-4'
+                    })
+                });
+                
+                const data = await response.json();
+                results.innerHTML += '<h3>Direct API Response:</h3><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (error) {
+                results.innerHTML += '<p>API Error: ' + error.message + '</p>';
+            }
+        }
+        
+        // Run tests
+        testDirectAPI();
+    </script>
+</body>
+</html>

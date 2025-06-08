@@ -250,14 +250,14 @@ Format as JSON with these exact fields:
 }`;
 
   try {
-    // Use Claude 3 Sonnet as primary (Claude 4/Opus may not be available)
-    const response = await callOpenRouter(prompt, 'anthropic/claude-3-sonnet');
+    // Try Claude 4 Opus first (premium model)
+    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
     return JSON.parse(response);
   } catch (error) {
-    console.error('Claude synthesis error:', error);
-    // Fallback to Haiku for speed
+    console.error('Claude 4 Opus error, trying fallback:', error);
+    // Fallback to Claude 3.5 Sonnet (fast, efficient alternative)
     try {
-      const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
+      const response = await callOpenRouter(prompt, 'anthropic/claude-3.5-sonnet-20241022');
       return JSON.parse(response);
     } catch (fallbackError) {
       return createDefaultInsights(doctor, product);
