@@ -257,7 +257,7 @@ export default function CanvasHome() {
         }
       );
       
-      const comprehensiveResearch = result.adaptive || result.legacy || result.instant?.deep;
+      const comprehensiveResearch = result.adaptive || result.legacy || result.deep;
       setResearchData(comprehensiveResearch);
       
       // Step 2: Extract insights from the enhanced research
