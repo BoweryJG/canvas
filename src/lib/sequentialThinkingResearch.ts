@@ -77,8 +77,14 @@ Respond with JSON:
       'anthropic/claude-opus-4'
     );
     
+    // Clean response - remove markdown code blocks if present
+    let cleanResponse = response;
+    if (response.includes('```json')) {
+      cleanResponse = response.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    }
+    
     // Try to parse as JSON
-    const parsed = JSON.parse(response);
+    const parsed = JSON.parse(cleanResponse);
     return {
       thought: parsed.thought || response,
       nextThoughtNeeded: parsed.nextThoughtNeeded ?? ((params.thoughtNumber || 1) < (params.totalThoughts || 3)),
@@ -344,7 +350,59 @@ ${salesApproach.thought}
 Research Data:
 ${JSON.stringify(researchData, null, 2)}
 
-Create a comprehensive sales intelligence report.`;
+Create a comprehensive sales intelligence report with the following structure:
+{
+  "practiceProfile": {
+    "name": "Practice name",
+    "size": "Practice size estimate",
+    "focus": "Primary focus areas"
+  },
+  "technologyStack": {
+    "current": ["List current technologies"],
+    "gaps": ["Technology gaps"],
+    "readiness": "Tech adoption readiness"
+  },
+  "buyingSignals": ["List specific buying signals found"],
+  "painPoints": ["List pain points that product addresses"],
+  "competition": {
+    "currentVendors": ["Current vendors if known"],
+    "recentPurchases": ["Recent technology purchases"]
+  },
+  "approachStrategy": {
+    "bestTiming": "When to reach out",
+    "preferredChannel": "How to contact",
+    "keyMessage": "Primary value proposition",
+    "avoidTopics": ["Topics to avoid"]
+  },
+  "decisionMakers": {
+    "primary": "Primary decision maker",
+    "influencers": ["Key influencers"]
+  },
+  "salesBrief": "TACTICAL SALES BRIEF: A compelling 2-3 paragraph sales approach that combines all insights into an actionable plan. Include specific talking points, value props, and how to address their pain points with ${product}."
+}`;
 
-  return await callOpenRouter(enhancedPrompt, 'anthropic/claude-opus-4');
+  try {
+    const synthesisResponse = await callOpenRouter(enhancedPrompt, 'anthropic/claude-opus-4');
+    
+    // Clean and parse response
+    let cleanSynthesis = synthesisResponse;
+    if (synthesisResponse.includes('```json')) {
+      cleanSynthesis = synthesisResponse.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    }
+    
+    return JSON.parse(cleanSynthesis);
+  } catch (error) {
+    console.error('Synthesis parsing error:', error);
+    // Return a basic structure with the raw response
+    return {
+      salesBrief: synthesisResponse || `Contact ${doctor.displayName} about ${product}. Based on research, they may benefit from modern solutions.`,
+      practiceProfile: {},
+      technologyStack: {},
+      buyingSignals: [],
+      painPoints: [],
+      competition: {},
+      approachStrategy: {},
+      decisionMakers: {}
+    };
+  }
 }
