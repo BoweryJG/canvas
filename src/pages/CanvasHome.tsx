@@ -276,7 +276,7 @@ export default function CanvasHome() {
         score: calculateOpportunityScore(insights, analysis),
         doctorProfile: createDoctorProfile(insights, comprehensiveResearch),
         productIntel: createProductIntel(insights, product),
-        salesBrief: createPowerfulSalesBrief(insights, doctor, product),
+        salesBrief: comprehensiveResearch.salesBrief || createPowerfulSalesBrief(insights, doctor, product),
         insights: extractKeyInsights(insights, comprehensiveResearch),
         researchQuality: 'verified' as const,
         researchSources: comprehensiveResearch.sources.length,
@@ -546,7 +546,7 @@ export default function CanvasHome() {
       {/* Doctor Verification - Removed: NPI selection IS the verification! */}
 
       {/* Research Panel */}
-      {scanResult && researchData && (
+      {scanResult && researchData && !isGeneratingBrief && (
         <ResearchPanel 
           researchData={researchData}
           isResearching={false}
@@ -555,7 +555,7 @@ export default function CanvasHome() {
       )}
 
       {/* Insights */}
-      {scanResult && !isScanning && (
+      {scanResult && !isGeneratingBrief && (
         <div className="insights-section">
           <div className="insights-grid">
             {scanResult.insights.map((insight, index) => (
