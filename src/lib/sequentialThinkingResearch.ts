@@ -398,7 +398,7 @@ Create a comprehensive sales intelligence report with the following structure:
     console.error('Synthesis parsing error:', error);
     // Return a basic structure with the raw response
     return {
-      salesBrief: synthesisResponse || `Contact ${doctor.displayName} about ${product}. Based on research, they may benefit from modern solutions.`,
+      salesBrief: `Contact ${doctor.displayName} about ${product}. Based on research, they may benefit from modern solutions.`,
       practiceProfile: {},
       technologyStack: {},
       buyingSignals: [],

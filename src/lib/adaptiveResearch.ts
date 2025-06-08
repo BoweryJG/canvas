@@ -371,7 +371,6 @@ function generateBackupSalesBrief(
   sources: ResearchSource[]
 ): string {
   const hasWebsite = sources.some(s => s.type === 'practice_website');
-  const hasReviews = sources.some(s => s.type === 'review_site');
   
   let brief = `**TACTICAL SALES BRIEF for ${doctor.displayName}**\n\n`;
   
