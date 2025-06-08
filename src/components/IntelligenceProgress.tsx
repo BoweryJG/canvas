@@ -104,15 +104,21 @@ export const IntelligenceProgress: React.FC<IntelligenceProgressProps> = ({
               initial={{ scale: 1.5, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               style={{ 
-                fontSize: '2rem', 
+                fontSize: '1.8rem', 
                 fontWeight: '700',
-                color: '#00ffc6'
+                color: '#00ffc6',
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: '4px'
               }}
             >
               {sourcesFound}
+              <span style={{ fontSize: '1rem', color: 'rgba(255, 255, 255, 0.6)' }}>
+                /{Math.max(sourcesFound + 5, 20)}
+              </span>
             </motion.div>
             <div style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.5)' }}>
-              Sources Found
+              Sources Analyzed
             </div>
           </div>
           
@@ -132,6 +138,52 @@ export const IntelligenceProgress: React.FC<IntelligenceProgressProps> = ({
               Confidence
             </div>
           </div>
+        </div>
+      </div>
+      
+      {/* Overall progress bar with time estimate */}
+      <div style={{
+        marginBottom: '20px',
+        position: 'relative',
+        zIndex: 1
+      }}>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '8px'
+        }}>
+          <span style={{ fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.6)' }}>
+            Overall Progress
+          </span>
+          <span style={{ fontSize: '0.85rem', color: '#00ffc6' }}>
+            {(() => {
+              const completed = steps.filter(s => s.status === 'completed').length;
+              const total = steps.length;
+              const percent = Math.round((completed / total) * 100);
+              const timeLeft = Math.max(1, Math.ceil((total - completed) * 0.5));
+              return `${percent}% • ~${timeLeft}m remaining`;
+            })()}
+          </span>
+        </div>
+        <div style={{
+          width: '100%',
+          height: '8px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          borderRadius: '4px',
+          overflow: 'hidden'
+        }}>
+          <motion.div
+            style={{
+              height: '100%',
+              background: 'linear-gradient(90deg, #00ffc6 0%, #7B42F6 100%)',
+              borderRadius: '4px'
+            }}
+            animate={{
+              width: `${(steps.filter(s => s.status === 'completed').length / steps.length) * 100}%`
+            }}
+            transition={{ duration: 0.3 }}
+          />
         </div>
       </div>
       

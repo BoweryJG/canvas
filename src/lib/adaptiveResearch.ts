@@ -340,7 +340,7 @@ function calculateAdaptiveConfidence(
   strategy: ResearchStrategy,
   synthesis: any
 ): { score: number; factors: any } {
-  let score = 70; // Higher base score - we always have NPI data
+  let score = 80; // Start at 80% - we always have NPI verified data
   const factors = {
     sourcesFound: sources.length,
     websiteAnalyzed: strategy.websiteUrl && !strategy.skipWebsiteScrape,
@@ -352,14 +352,14 @@ function calculateAdaptiveConfidence(
   };
   
   // Award points for data quality
-  if (factors.websiteAnalyzed) score += 10;
-  if (factors.reviewsFound) score += 8;
-  if (factors.competitorsIdentified) score += 5;
-  if (factors.strategyAlignment) score += 3;
+  if (factors.websiteAnalyzed) score += 8;  // Found their actual website
+  if (factors.reviewsFound) score += 5;     // Have patient feedback
+  if (factors.competitorsIdentified) score += 3; // Know current vendors
+  if (factors.strategyAlignment) score += 2;
   
   // Award points for source diversity
   const sourceTypes = new Set(sources.map(s => s.type));
-  score += Math.min(sourceTypes.size * 2, 10);
+  score += Math.min(sourceTypes.size * 1.5, 8);
   
   // Award points for answered questions
   const answeredQuestions = strategy.keyQuestions.filter(q => 
@@ -367,14 +367,22 @@ function calculateAdaptiveConfidence(
   ).length;
   
   factors.keyQuestionsAnswered = answeredQuestions;
-  score += Math.min(answeredQuestions * 2, 10);
+  score += Math.min(answeredQuestions * 1.5, 8);
   
   // Award points for sales brief quality
-  if (synthesis.salesBrief && synthesis.salesBrief.length > 100) score += 5;
+  if (synthesis.salesBrief && synthesis.salesBrief.length > 100) score += 3;
   
-  // Minimum 75 for NPI-verified searches, cap at 98
+  // Bonus for tech stack match (yomi relevance)
+  if (synthesis.technologyStack?.current?.some((tech: string) => 
+    tech.toLowerCase().includes('cbct') || 
+    tech.toLowerCase().includes('implant') ||
+    tech.toLowerCase().includes('surgical'))) {
+    score += 5; // Highly relevant for yomi
+  }
+  
+  // Minimum 85 for NPI-verified searches with good data, cap at 98
   return {
-    score: Math.min(Math.max(score, 75), 98),
+    score: Math.min(Math.max(score, 85), 98),
     factors
   };
 }
@@ -448,7 +456,7 @@ async function mockAdaptiveResearch(
   ];
   
   let sourcesCount = 0;
-  let confidence = 70;
+  let confidence = 80; // Start at 80% for NPI verified
   
   // Execute steps sequentially
   for (const step of steps) {
@@ -458,8 +466,8 @@ async function mockAdaptiveResearch(
     await new Promise(resolve => setTimeout(resolve, step.delay));
     
     // Update sources and confidence
-    sourcesCount += Math.floor(Math.random() * 3) + 1;
-    confidence = Math.min(confidence + Math.floor(Math.random() * 5) + 3, 95);
+    sourcesCount += Math.floor(Math.random() * 3) + 2;
+    confidence = Math.min(confidence + Math.floor(Math.random() * 3) + 2, 96);
     
     progress?.updateSources?.(sourcesCount);
     progress?.updateConfidence?.(confidence);

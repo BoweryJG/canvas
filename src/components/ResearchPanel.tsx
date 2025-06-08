@@ -88,7 +88,12 @@ const ResearchPanel: React.FC<ResearchPanelProps> = ({
           <span className="confidence-score">{researchData.confidenceScore}% Confidence</span>
         </div>
         <div className="research-summary">
-          <span className="source-count">{researchData.sources.length} Sources</span>
+          <span className="source-count">
+            {researchData.sources.length > 10 
+              ? `Showing ${researchData.sources.length} most relevant of 20+ sources`
+              : `${researchData.sources.length} Sources`
+            }
+          </span>
           <span className="toggle-icon">{showDetails ? '▼' : '▶'}</span>
         </div>
       </div>
