@@ -393,7 +393,7 @@ Format as JSON with these exact fields:
   try {
     // Try Claude 4 Opus first via OpenRouter
     console.log('🎯 Attempting Claude 4 Opus synthesis...');
-    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4-20250514');
+    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
     return JSON.parse(response);
   } catch (error) {
     console.error('Claude 4 Opus not available, trying Claude 3.5 Sonnet:', error);

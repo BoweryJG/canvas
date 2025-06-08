@@ -338,7 +338,7 @@ export async function callPerplexityResearch(query: string, mode: 'search' | 're
 /**
  * OpenRouter API integration for AI model calls
  */
-export async function callOpenRouter(prompt: string, model: string = 'anthropic/claude-3-sonnet', userId?: string) {
+export async function callOpenRouter(prompt: string, model: string = 'anthropic/claude-opus-4', userId?: string) {
   return withGlobalRateLimit(globalOpenRouterLimiter, 'openrouter', userId, async () => {
     try {
       console.log(`🧠 OpenRouter ${model}: "${prompt.substring(0, 50)}..."`);
@@ -524,7 +524,7 @@ function extractTitleFromUrl(url: string): string {
 /**
  * Call Perplexity Research API for deep market insights
  */
-export async function callPerplexityResearch(query: string, model: 'sonar' | 'sonar-pro' = 'sonar') {
+export async function callPerplexityMarketResearch(query: string, model: 'sonar' | 'sonar-pro' = 'sonar') {
   return cachedApiCall(
     CacheKeys.PERPLEXITY,
     `${query}_${model}`,

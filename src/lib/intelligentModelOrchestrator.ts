@@ -45,7 +45,7 @@ const MODEL_CAPABILITIES: Record<string, ModelCapabilities> = {
     speedRating: 6,
     bestFor: ['synthesis', 'personalization', 'creative content', 'sales strategy']
   },
-  'anthropic/claude-opus-4-20250514': {
+  'anthropic/claude-opus-4': {
     realTimeData: false,
     deepReasoning: true,
     costPerRequest: 0.025,
@@ -222,7 +222,7 @@ Format as JSON with these fields:
 }`;
 
     // Use Claude 4 Opus for premium synthesis
-    return this.callOpenRouterModel(prompt, 'anthropic/claude-opus-4-20250514');
+    return this.callOpenRouterModel(prompt, 'anthropic/claude-opus-4');
   }
   
   /**

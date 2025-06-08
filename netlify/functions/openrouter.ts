@@ -26,7 +26,7 @@ export const handler: Handler = async (event, context) => {
   }
 
   try {
-    const { prompt, model = 'anthropic/claude-3-sonnet', userId = 'anonymous' } = JSON.parse(event.body || '{}');
+    const { prompt, model = 'anthropic/claude-opus-4', userId = 'anonymous' } = JSON.parse(event.body || '{}');
     
     if (!prompt) {
       return {

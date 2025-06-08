@@ -120,51 +120,28 @@ export async function simpleCanvasResearch(
   product: string,
   onComplete: (result: ResearchData | InstantScanResult) => void
 ): Promise<void> {
-  const result = await unifiedCanvasResearch(doctor, product, {
+  await unifiedCanvasResearch(doctor, product, {
     mode: 'auto',
     onInstantComplete: (instant) => {
       // Convert instant result to ResearchData format for compatibility
       const compatibleResult: ResearchData = {
-        targetDoctor: {
-          name: instant.doctor.name,
-          npi: instant.doctor.npi,
-          specialty: instant.doctor.specialty,
-          location: instant.doctor.location,
-          practiceInfo: {
-            name: instant.doctor.practice,
-            size: instant.quickInsights.practiceSize,
-            website: '',
-            phone: '',
-            patientVolume: instant.quickInsights.patientVolume,
-            insuranceAccepted: []
-          }
+        doctorName: instant.doctor.name,
+        practiceInfo: {
+          name: instant.doctor.practice,
+          specialties: [instant.doctor.specialty]
         },
-        practiceWebsite: '',
-        confidence: {
-          score: instant.confidence,
-          sources: instant.confidence,
-          factors: {
-            npiVerified: 35,
-            sourceCount: Math.min(30, instant.confidence - 35),
-            websiteAnalyzed: 0,
-            reviewsFound: 0,
-            analysisDepth: 0
-          }
+        credentials: {
+          boardCertifications: [instant.doctor.specialty]
         },
-        keyInsights: {
-          buyingSignals: instant.buyingSignals,
-          painPoints: instant.techStack.gaps,
-          decisionMakers: [],
-          budget: 'Unknown',
-          timeline: 'Unknown'
+        reviews: {},
+        businessIntel: {
+          practiceType: instant.quickInsights.practiceSize,
+          patientVolume: instant.quickInsights.patientVolume,
+          marketPosition: instant.quickInsights.competitivePosition
         },
-        salesIntelligence: {
-          bestApproach: 'Consultative selling focused on ROI',
-          talkingPoints: instant.buyingSignals,
-          objections: [],
-          competitors: []
-        },
-        sources: []
+        sources: [],
+        confidenceScore: instant.confidence,
+        completedAt: new Date().toISOString()
       };
       
       onComplete(compatibleResult);

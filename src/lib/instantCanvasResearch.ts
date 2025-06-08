@@ -4,9 +4,9 @@
  * Comprehensive sales intelligence with Harvard/McKinsey-level content
  */
 
-import { callBraveSearch, callOpenRouter, callPerplexityResearch } from './apiEndpoints';
+import { callBraveSearch, callOpenRouter, callPerplexityResearch, callFirecrawlScrape } from './apiEndpoints';
 import { type Doctor } from '../components/DoctorAutocomplete';
-import { cachedApiCall, CacheKeys } from './intelligentCaching';
+import { cachedApiCall, CacheKeys, searchCache } from './intelligentCaching';
 import { supabase } from '../auth/supabase';
 import { gatherSocialMediaIntelligence, type SocialMediaIntelligence } from './socialMediaIntelligence';
 
@@ -15,8 +15,9 @@ const RATE_LIMITS = {
   brave: { calls: 10, window: 60000 }, // 10 calls per minute
   openrouter: { calls: 5, window: 60000 }, // 5 calls per minute
   perplexity: { calls: 3, window: 60000 }, // 3 calls per minute
-  delayBetweenCalls: 200 // 200ms between API calls
 };
+
+const DELAY_BETWEEN_CALLS = 200; // 200ms between API calls
 
 export interface InstantScanResult {
   doctor: {
@@ -172,8 +173,8 @@ export async function instantCanvasScan(
     const [techSearch, practiceSearch] = await Promise.all([
       // Tech stack search
       cachedApiCall(
-        CacheKeys.BRAVE_SEARCH,
-        `${doctor.displayName} ${doctor.city} dental technology software`,
+        searchCache,
+        CacheKeys.search(`${doctor.displayName} ${doctor.city} dental technology software`),
         async () => {
           if (!checkRateLimit('brave')) throw new Error('Rate limited');
           return callBraveSearch(`"${doctor.displayName}" "${doctor.city}" dental technology software systems`);
@@ -183,10 +184,10 @@ export async function instantCanvasScan(
       
       // Practice info search
       cachedApiCall(
-        CacheKeys.BRAVE_SEARCH,
-        `${doctor.displayName} ${doctor.organizationName} practice size`,
+        searchCache,
+        CacheKeys.search(`${doctor.displayName} ${doctor.organizationName} practice size`),
         async () => {
-          await delay(RATE_LIMITS.delayBetweenCalls);
+          await delay(DELAY_BETWEEN_CALLS);
           if (!checkRateLimit('brave')) throw new Error('Rate limited');
           return callBraveSearch(`"${doctor.displayName}" "${doctor.organizationName || 'dental practice'}" size staff patients`);
         },
@@ -198,8 +199,7 @@ export async function instantCanvasScan(
     const timeRemaining = scanDeadline - Date.now();
     if (timeRemaining > 500) {
       const quickAnalysis = await Promise.race([
-        callOpenRouter({
-          prompt: `Analyze this dental practice in 2 seconds. Be specific and actionable.
+        callOpenRouter(`Analyze this dental practice in 2 seconds. Be specific and actionable.
 
 Doctor: ${doctor.displayName}, ${doctor.specialty}
 Location: ${doctor.city}, ${doctor.state}
@@ -217,15 +217,13 @@ Provide JSON:
   "digitalPresence": "Strong|Moderate|Weak",
   "buyingSignals": [3 specific signals],
   "competitivePosition": "one sentence"
-}`,
-          model: 'anthropic/claude-instant-1.2' // Use faster model for instant scan
-        }),
+}`, 'anthropic/claude-instant-1.2'),
         new Promise(resolve => setTimeout(() => resolve(null), timeRemaining - 100))
       ]);
       
-      if (quickAnalysis?.choices?.[0]?.message?.content) {
+      if (quickAnalysis) {
         try {
-          const parsed = JSON.parse(quickAnalysis.choices[0].message.content);
+          const parsed = JSON.parse(quickAnalysis);
           
           return {
             doctor: {
@@ -261,7 +259,7 @@ Provide JSON:
   }
 }
 
-function generateFallbackInstantResult(doctor: Doctor, product: string): InstantScanResult {
+function generateFallbackInstantResult(doctor: Doctor, _product: string): InstantScanResult {
   return {
     doctor: {
       name: doctor.displayName,
@@ -380,7 +378,7 @@ export async function deepCanvasResearch(
         .from('research_jobs')
         .update({
           status: 'failed',
-          error: error.message
+          error: (error as Error).message
         })
         .eq('id', jobId);
     }
@@ -394,10 +392,9 @@ async function analyzeDecisionMaking(
   product: string,
   instantResults: InstantScanResult
 ): Promise<DeepResearchResult['psychologicalProfile']> {
-  await delay(RATE_LIMITS.delayBetweenCalls);
+  await delay(DELAY_BETWEEN_CALLS);
   
-  const analysis = await callOpenRouter({
-    prompt: `You are an expert sales psychologist. Analyze this dental professional's likely decision-making style.
+  const analysis = await callOpenRouter(`You are an expert sales psychologist. Analyze this dental professional's likely decision-making style.
 
 Doctor: ${doctor.displayName}, ${doctor.specialty}
 Practice: ${instantResults.doctor.practice}
@@ -415,12 +412,10 @@ Provide specific, actionable psychological insights in JSON:
   "triggers": ["specific psychological triggers that motivate action"],
   "objections": ["likely specific objections they'll raise"],
   "motivators": ["what truly drives their decisions"]
-}`,
-    model: 'anthropic/claude-opus-4'
-  });
+}`, 'anthropic/claude-opus-4');
   
   try {
-    return JSON.parse(analysis.choices[0].message.content);
+    return JSON.parse(analysis);
   } catch {
     return {
       decisionStyle: 'Analytical',
@@ -445,8 +440,7 @@ async function deepCompetitorAnalysis(
       // Parse Perplexity's response
       if (perplexityResult?.answer) {
         // Process the detailed research into structured data
-        const competitorData = await callOpenRouter({
-          prompt: `Extract competitor intelligence from this research:
+        const competitorData = await callOpenRouter(`Extract competitor intelligence from this research:
 
 ${perplexityResult.answer}
 
@@ -462,12 +456,10 @@ Provide JSON with local dental competitors:
   ],
   "marketPosition": "where target doctor stands",
   "pricingStrategy": "recommended pricing approach"
-}`,
-          model: 'anthropic/claude-opus-4'
-        });
+}`, 'anthropic/claude-opus-4');
         
         try {
-          return JSON.parse(competitorData.choices[0].message.content);
+          return JSON.parse(competitorData);
         } catch {
           // Fallback if parsing fails
         }
@@ -478,7 +470,7 @@ Provide JSON with local dental competitors:
   }
   
   // Fallback to Brave search
-  const competitorSearch = await callBraveSearch(
+  await callBraveSearch(
     `dental practices ${doctor.city} ${doctor.state} -"${doctor.displayName}"`
   );
   
@@ -499,14 +491,13 @@ Provide JSON with local dental competitors:
 async function generatePremiumSalesContent(
   doctor: Doctor,
   product: string,
-  instantResults: InstantScanResult,
+  _instantResults: InstantScanResult,
   psychProfile: DeepResearchResult['psychologicalProfile'],
   competitors: DeepResearchResult['competitorAnalysis']
 ): Promise<DeepResearchResult['salesCollateral']> {
-  await delay(RATE_LIMITS.delayBetweenCalls);
+  await delay(DELAY_BETWEEN_CALLS);
   
-  const contentGeneration = await callOpenRouter({
-    prompt: `You are a McKinsey consultant creating premium sales collateral.
+  const contentGeneration = await callOpenRouter(`You are a McKinsey consultant creating premium sales collateral.
 
 Target: Dr. ${doctor.displayName}
 Product: ${product}
@@ -528,12 +519,10 @@ Each piece should:
 - Include personalized elements
 - End with clear call-to-action
 
-Format as JSON with the structure shown.`,
-    model: 'anthropic/claude-opus-4'
-  });
+Format as JSON with the structure shown.`, 'anthropic/claude-opus-4');
   
   try {
-    const parsed = JSON.parse(contentGeneration.choices[0].message.content);
+    const parsed = JSON.parse(contentGeneration);
     return parsed;
   } catch {
     // Return structured fallback content
@@ -651,8 +640,7 @@ async function generateSEOReport(doctor: Doctor, websiteUrl: string): Promise<SE
     const websiteContent = await callFirecrawlScrape(websiteUrl);
     
     // Use Claude Opus 4 to analyze SEO
-    const seoAnalysis = await callOpenRouter({
-      prompt: `You are an expert SEO analyst. Analyze this dental practice website and provide a comprehensive SEO report.
+    const seoAnalysis = await callOpenRouter(`You are an expert SEO analyst. Analyze this dental practice website and provide a comprehensive SEO report.
 
 Website: ${websiteUrl}
 Doctor: ${doctor.displayName}
@@ -702,11 +690,9 @@ Provide a detailed SEO analysis in JSON format:
     "contentGaps": ["Blog topics they're missing"],
     "technicalFixes": ["Specific technical improvements"]
   }
-}`,
-      model: 'anthropic/claude-opus-4'
-    });
+}`, 'anthropic/claude-opus-4');
     
-    const parsed = JSON.parse(seoAnalysis.choices[0].message.content);
+    const parsed = JSON.parse(seoAnalysis);
     
     // Search for competitors ranking for same keywords
     const competitorData = await searchLocalSEOCompetitors(doctor);
@@ -735,7 +721,7 @@ async function searchLocalSEOCompetitors(doctor: Doctor): Promise<SEOReport['com
     const results = competitorSearch?.web?.results?.slice(0, 3) || [];
     
     return {
-      topRanking: results.map(r => ({
+      topRanking: results.map((r: any) => ({
         name: r.title || 'Competitor',
         domain: new URL(r.url).hostname,
         estimatedTraffic: 'Medium',

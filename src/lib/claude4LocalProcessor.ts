@@ -67,7 +67,7 @@ export class Claude4LocalProcessor {
     const { callOpenRouter } = await import('./apiEndpoints');
     // Try Claude 4 Opus first, then fall back to Claude 3.5 Sonnet
     try {
-      const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4-20250514');
+      const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
       return JSON.parse(response);
     } catch (error) {
       console.log('Claude 4 Opus not available, using Claude 3.5 Sonnet');

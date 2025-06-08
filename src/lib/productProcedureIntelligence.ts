@@ -218,7 +218,7 @@ Focus on:
 - Winning message angles for this specific market`;
 
   try {
-    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4-20250514');
+    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
     return JSON.parse(response);
   } catch (error) {
     console.error('Claude 4 synthesis error:', error);

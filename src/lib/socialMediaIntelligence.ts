@@ -116,6 +116,7 @@ export async function scrapeInstagramProfile(doctor: Doctor): Promise<SocialMedi
     ].filter(Boolean);
     
     for (const term of searchTerms) {
+      if (!term) continue;
       const results = await callApifyActor(APIFY_ACTORS.INSTAGRAM_PROFILE, {
         usernames: [term.toLowerCase().replace(/[^a-z0-9]/g, '')],
         resultsLimit: 1
@@ -130,7 +131,7 @@ export async function scrapeInstagramProfile(doctor: Doctor): Promise<SocialMedi
           resultsLimit: 12 // Last 12 posts
         });
         
-        const recentPosts = (postsData || []).map(post => ({
+        const recentPosts = (postsData || []).map((post: any) => ({
           id: post.id,
           url: post.url,
           text: post.caption || '',
@@ -169,7 +170,7 @@ export async function scrapeInstagramProfile(doctor: Doctor): Promise<SocialMedi
  */
 export async function scrapeGoogleReviews(doctor: Doctor): Promise<any> {
   try {
-    const searchQuery = `${doctor.organizationName || doctor.displayName} ${doctor.address1} ${doctor.city} ${doctor.state}`;
+    const searchQuery = `${doctor.organizationName || doctor.displayName} ${doctor.city} ${doctor.state}`;
     
     const results = await callApifyActor(APIFY_ACTORS.GOOGLE_REVIEWS, {
       queries: [searchQuery],
@@ -183,7 +184,7 @@ export async function scrapeGoogleReviews(doctor: Doctor): Promise<any> {
       return {
         totalReviews: results[0].totalScore,
         averageRating: results[0].averageRating,
-        reviews: reviews.map(r => ({
+        reviews: reviews.map((r: any) => ({
           text: r.text,
           rating: r.stars,
           date: r.publishedAtDate,
@@ -209,7 +210,7 @@ export async function gatherSocialMediaIntelligence(doctor: Doctor): Promise<Soc
   const profiles: SocialMediaProfile[] = [];
   
   // Scrape multiple platforms in parallel
-  const [instagram, googleReviews] = await Promise.all([
+  const [instagram, _googleReviews] = await Promise.all([
     scrapeInstagramProfile(doctor),
     scrapeGoogleReviews(doctor)
   ]);
@@ -233,8 +234,8 @@ export async function gatherSocialMediaIntelligence(doctor: Doctor): Promise<Soc
   const competitorComparison = {
     averageFollowers: 850,
     averageEngagement: 3.2,
-    position: profiles.length > 0 && profiles[0].followerCount > 850 ? 'Leader' : 
-              profiles.length > 0 ? 'Average' : 'Lagging'
+    position: (profiles.length > 0 && profiles[0].followerCount > 850 ? 'Leader' : 
+              profiles.length > 0 ? 'Average' : 'Lagging') as 'Leader' | 'Average' | 'Lagging'
   };
   
   return {
@@ -293,7 +294,7 @@ function analyzePostContent(post: any): SocialPost['insights'] {
   return { sentiment, topics, engagement };
 }
 
-function generateInstagramInsights(profile: any, posts: SocialPost[]): SocialMediaProfile['insights'] {
+function generateInstagramInsights(_profile: any, posts: SocialPost[]): SocialMediaProfile['insights'] {
   // Calculate posting frequency
   const dateRange = posts.length > 1 ? 
     (Date.now() - posts[posts.length - 1].timestamp.getTime()) / (1000 * 60 * 60 * 24) : 30;
@@ -367,7 +368,7 @@ function analyzeContentStrategy(profiles: SocialMediaProfile[]): SocialMediaInte
   };
 }
 
-function identifyOpportunities(profiles: SocialMediaProfile[], doctor: Doctor): SocialMediaIntelligence['opportunities'] {
+function identifyOpportunities(profiles: SocialMediaProfile[], _doctor: Doctor): SocialMediaIntelligence['opportunities'] {
   const activePlatforms = new Set(profiles.map(p => p.platform));
   const allPlatforms = ['instagram', 'facebook', 'linkedin', 'twitter', 'tiktok'];
   
