@@ -7,8 +7,9 @@ import { type Doctor } from '../components/DoctorAutocomplete';
 import { type ResearchSource } from './webResearch';
 import { type ExtendedResearchData } from './types/research';
 import { callBraveSearch, callFirecrawlScrape } from './apiEndpoints';
-import { analyzeInitialResults, synthesizeWithSequentialGuidance, ResearchStrategy } from './sequentialThinkingResearch';
-import { cachedApiCall, CacheKeys } from './intelligentCaching';
+import { analyzeInitialResults, synthesizeWithSequentialGuidance } from './sequentialThinkingResearch';
+import type { ResearchStrategy } from './sequentialThinkingResearch';
+import { searchCache, cachedApiCall, CacheKeys, websiteCache } from './intelligentCaching';
 
 interface AdaptiveProgress {
   updateStep?: (stepId: string, status: 'pending' | 'active' | 'completed' | 'found', result?: string) => void;
@@ -36,16 +37,17 @@ export async function adaptiveResearch(
     
     // Quick initial search
     const initialSearch = await cachedApiCall(
+      searchCache,
       CacheKeys.search(doctor.displayName + ' ' + doctor.city),
       async () => callBraveSearch(`"${doctor.displayName}" ${doctor.specialty} ${doctor.city} ${doctor.state}`),
-      300000 // 5 min cache
+      5 // 5 min cache
     );
     
     sources.push({
-      type: 'medical_directory' as const,
+      type: 'medical_directory',
       title: 'Initial Web Search',
       url: 'brave.com',
-      content: '',
+      content: JSON.stringify(initialSearch?.web?.results?.slice(0, 3) || []),
       confidence: 80,
       lastUpdated: new Date().toISOString()
     });
@@ -217,16 +219,19 @@ async function scrapeWebsiteIfNeeded(
 ): Promise<any> {
   try {
     const scraped = await cachedApiCall(
-      CacheKeys.websiteScrape(url),
-      () => callFirecrawlScrape(url, true, true),
-      86400000 // 24 hour cache
+      websiteCache,
+      CacheKeys.website(url),
+      () => callFirecrawlScrape(url, { includeMarkdown: true, includeMetadata: true }),
+      60 * 24 // 24 hour cache
     );
     
     sources.push({
-      type: 'website',
+      type: 'practice_website',
       title: 'Practice Website',
       url,
-      summary: scraped?.metadata?.description || 'Website analyzed'
+      content: scraped?.content?.substring(0, 1000) || scraped?.metadata?.description || 'Website analyzed',
+      confidence: 90,
+      lastUpdated: new Date().toISOString()
     });
     
     return scraped;
@@ -258,10 +263,12 @@ async function gatherTargetedReviews(
     totalReviews += count;
     if (count > 0) {
       sources.push({
-        type: 'reviews',
+        type: 'review_site',
         title: `${reviewSites[index]} Reviews`,
-        url: reviewSites[index],
-        summary: `${count} results found`
+        url: `https://${reviewSites[index]}.com`,
+        content: `${count} results found`,
+        confidence: 75,
+        lastUpdated: new Date().toISOString()
       });
     }
   });
@@ -278,10 +285,12 @@ async function performFocusedSearch(
   
   if (result?.web?.results?.length > 0) {
     sources.push({
-      type: 'search',
+      type: 'medical_directory',
       title: label,
       url: 'brave.com',
-      summary: `${result.web.results.length} results for: ${query.substring(0, 50)}...`
+      content: `${result.web.results.length} results for: ${query.substring(0, 50)}...`,
+      confidence: 70,
+      lastUpdated: new Date().toISOString()
     });
   }
   
@@ -290,7 +299,7 @@ async function performFocusedSearch(
 
 async function analyzeCompetitors(
   doctor: Doctor,
-  product: string,
+  _product: string,
   knownCompetitors: string[],
   sources: ResearchSource[]
 ): Promise<any> {
@@ -307,10 +316,12 @@ async function analyzeCompetitors(
   
   if (competitors.length > 0) {
     sources.push({
-      type: 'competition',
+      type: 'news_article',
       title: 'Competitor Analysis',
       url: 'competitive-intelligence',
-      summary: `Found mentions of: ${competitors.map(c => c.name).join(', ')}`
+      content: `Found mentions of: ${competitors.map(c => c.name).join(', ')}`,
+      confidence: 65,
+      lastUpdated: new Date().toISOString()
     });
   }
   
@@ -326,7 +337,7 @@ function calculateAdaptiveConfidence(
   const factors = {
     sourcesFound: sources.length,
     websiteAnalyzed: strategy.websiteUrl && !strategy.skipWebsiteScrape,
-    reviewsFound: sources.some(s => s.type === 'reviews'),
+    reviewsFound: sources.some(s => s.type === 'review_site'),
     competitorsIdentified: synthesis.competition?.currentVendors?.length > 0,
     strategyAlignment: strategy.focusAreas.length > 0,
     keyQuestionsAnswered: 0

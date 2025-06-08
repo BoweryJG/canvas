@@ -4,8 +4,7 @@
  */
 
 import { type Doctor } from '../components/DoctorAutocomplete';
-import { callBraveSearch, callBraveLocalSearch, callFirecrawlScrape, callPerplexityResearch, callOpenRouter } from './apiEndpoints';
-import { type ResearchData, type ResearchSource } from './webResearch';
+import { callOpenRouter } from './apiEndpoints';
 
 interface SequentialThought {
   thought: string;
@@ -82,7 +81,7 @@ Respond with JSON:
     const parsed = JSON.parse(response);
     return {
       thought: parsed.thought || response,
-      nextThoughtNeeded: parsed.nextThoughtNeeded ?? (params.thoughtNumber < params.totalThoughts),
+      nextThoughtNeeded: parsed.nextThoughtNeeded ?? ((params.thoughtNumber || 1) < (params.totalThoughts || 3)),
       thoughtNumber: parsed.thoughtNumber || params.thoughtNumber || 1,
       totalThoughts: parsed.totalThoughts || params.totalThoughts || 3,
       isRevision: params.isRevision,
@@ -90,9 +89,9 @@ Respond with JSON:
     };
   } catch (error) {
     // Fallback if JSON parsing fails
-    console.warn('Sequential Thinking JSON parse failed, using raw response');
+    console.warn('Sequential Thinking JSON parse failed, using raw response:', error);
     return {
-      thought: response,
+      thought: 'Analysis failed, using default strategy',
       nextThoughtNeeded: (params.thoughtNumber || 1) < (params.totalThoughts || 3),
       thoughtNumber: params.thoughtNumber || 1,
       totalThoughts: params.totalThoughts || 3
@@ -230,7 +229,7 @@ function buildSmartQueries(
   doctor: Doctor, 
   product: string, 
   focusAreas: string[],
-  analysisThought: string
+  _analysisThought: string
 ): string[] {
   const queries = [];
   
@@ -262,7 +261,7 @@ function buildSmartQueries(
  * Extract competitor names from analysis
  */
 function extractCompetitorNames(thought: string): string[] {
-  const competitors = [];
+  const competitors: string[] = [];
   
   // Common dental industry competitors
   const knownCompetitors = [

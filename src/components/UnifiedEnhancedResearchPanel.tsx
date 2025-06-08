@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MagicResearchForm } from './MagicResearchForm';
 import { useUnifiedResearch } from '../lib/useUnifiedResearch';
-import { useAuth } from '../auth';
 import { type Doctor } from './DoctorAutocomplete';
 
 export const UnifiedEnhancedResearchPanel: React.FC = () => {

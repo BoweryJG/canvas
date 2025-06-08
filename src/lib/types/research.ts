@@ -3,7 +3,7 @@
  * Augments the base ResearchData type with additional fields
  */
 
-import { ResearchData } from '../webResearch';
+import type { ResearchData } from '../webResearch';
 
 export interface ExtendedResearchData extends ResearchData {
   // Sales Intelligence
