@@ -228,7 +228,25 @@ async function findAndAnalyzePracticeWebsite(
     // If we already have a good website from NPI research, USE IT
     console.log('✅ Using website from NPI research - NOT searching again');
     // Skip ALL searching - go straight to crawling
-    return crawlPracticeWebsite(practiceUrl, doctor, sources);
+    try {
+      const crawlData = await callFirecrawlScrape(practiceUrl);
+      if (crawlData?.success && crawlData?.data?.markdown) {
+        const extracted = await extractWebsiteIntelligence(crawlData.data.markdown);
+        return {
+          url: practiceUrl,
+          crawled: true,
+          content: crawlData.data.markdown,
+          ...extracted
+        };
+      }
+    } catch (error) {
+      console.log('Could not crawl website:', error);
+    }
+    
+    return {
+      url: practiceUrl,
+      crawled: false
+    };
   } 
   
   // If we already have a good website, skip searching
