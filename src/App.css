@@ -20,23 +20,9 @@ body {
   overflow-x: hidden;
 }
 
-/* FORCE NAVBAR TO FULL WIDTH - OVERRIDE MATERIAL-UI */
+/* Allow navbar to have curved inward effect */
 .MuiAppBar-root {
-  width: 100% !important;
-  max-width: none !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-}
-
-@media (min-width: 900px) {
-  .MuiAppBar-root {
-    width: 100% !important;
-    max-width: none !important;
-    margin: 0 !important;
-    border-radius: 0 !important;
-  }
+  /* Styles are now controlled by the sx prop in NavBar component */
 }
 
 .canvas-app {
