@@ -1,7 +1,13 @@
 /**
+ * @deprecated Use unifiedCanvasResearch() from './unifiedCanvasResearch' instead
+ * 
  * Streamlined Doctor Intelligence System
  * Uses Brave Search for data gathering and Claude 4 Opus for analysis
  * Simpler, faster, more cost-effective
+ * 
+ * MIGRATION: Replace with:
+ * import { unifiedCanvasResearch } from './unifiedCanvasResearch';
+ * await unifiedCanvasResearch(doctor, product, { mode: 'instant' });
  */
 
 import { callBraveSearch, callBraveLocalSearch, callOpenRouter } from './apiEndpoints';

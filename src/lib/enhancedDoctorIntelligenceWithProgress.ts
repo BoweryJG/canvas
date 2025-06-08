@@ -35,19 +35,25 @@ export async function gatherComprehensiveDoctorIntelligenceWithProgress(
 ): Promise<ResearchData> {
   console.log('🚀 Starting ENHANCED intelligence gathering for:', doctor.displayName);
   
-  // Check if we should use baseline mode (cleanest implementation)
-  // FORCE BASELINE MODE FOR NOW
-  const useBaseline = true; // process.env.REACT_APP_USE_BASELINE === 'true';
+  // DEPRECATED: This function now routes to unified research
+  console.warn('⚠️ DEPRECATED: gatherComprehensiveDoctorIntelligenceWithProgress');
+  console.warn('⚠️ Please use unifiedCanvasResearch() from unifiedCanvasResearch.ts instead');
   
-  if (useBaseline) {
-    console.log('🎯 Using BASELINE mode: Clean, focused research');
-    const { gatherBaselineIntelligence } = await import('./useBaselineResearch');
-    
-    // Check if we have a pre-discovered website from NPI research
-    const existingWebsite = (doctor as any).practiceWebsite || (doctor as any).website;
-    
-    return gatherBaselineIntelligence(doctor, product, progress, existingWebsite);
+  // Import and use the unified system
+  const { unifiedCanvasResearch } = await import('./unifiedCanvasResearch');
+  
+  const result = await unifiedCanvasResearch(doctor, product, {
+    mode: 'legacy', // Keep legacy mode for backward compatibility
+    progress,
+    existingWebsite: (doctor as any).practiceWebsite || (doctor as any).website
+  });
+  
+  if (result.legacy) {
+    return result.legacy;
   }
+  
+  // This shouldn't happen with mode: 'legacy'
+  throw new Error('Failed to get legacy research data');
   
   // Check if we should use streamlined mode (recommended)
   const useStreamlined = process.env.REACT_APP_USE_STREAMLINED !== 'false';

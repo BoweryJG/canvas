@@ -1,6 +1,12 @@
 /**
+ * @deprecated Use unifiedCanvasResearch() from './unifiedCanvasResearch' instead
+ * 
  * Enhanced NPI-based Research System
  * Pulls comprehensive data including website, reviews, credentials, and more
+ * 
+ * MIGRATION NOTICE:
+ * This file is deprecated. Please use:
+ * import { unifiedCanvasResearch } from './unifiedCanvasResearch';
  */
 
 import { callBraveSearch } from './apiEndpoints';
