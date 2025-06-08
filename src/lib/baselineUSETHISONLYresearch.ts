@@ -414,7 +414,7 @@ Return ONLY a JSON object with these fields:
 Website content:
 ${content.substring(0, 3000)}`;
 
-    const response = await callOpenRouter(prompt, 'anthropic/claude-3-haiku-20240307');
+    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
     return JSON.parse(response);
   } catch (error) {
     console.log('Could not extract website intelligence:', error);

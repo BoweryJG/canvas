@@ -257,7 +257,7 @@ Format as JSON with these exact fields:
     console.error('Claude synthesis error:', error);
     // Fallback to Haiku for speed
     try {
-      const response = await callOpenRouter(prompt, 'anthropic/claude-3-haiku-20240307');
+      const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
       return JSON.parse(response);
     } catch (fallbackError) {
       return createDefaultInsights(doctor, product);

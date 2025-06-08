@@ -344,7 +344,7 @@ Extract and return ONLY a JSON object with:
 If no review data is found, use appropriate null/empty values.`;
 
   try {
-    const response = await callOpenRouter(prompt, 'anthropic/claude-3-haiku-20240307');
+    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
     return JSON.parse(response);
   } catch (error) {
     console.error('Error analyzing reviews with AI:', error);
@@ -384,7 +384,7 @@ Return ONLY a JSON object with:
 }`;
 
   try {
-    const response = await callOpenRouter(prompt, 'anthropic/claude-3-haiku-20240307');
+    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
     return JSON.parse(response);
   } catch (error) {
     return {
@@ -419,7 +419,7 @@ Return ONLY a JSON object with:
 }`;
 
   try {
-    const response = await callOpenRouter(prompt, 'anthropic/claude-3-haiku-20240307');
+    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
     return JSON.parse(response);
   } catch (error) {
     return {
