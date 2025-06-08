@@ -437,8 +437,9 @@ export const IntelligenceProgress: React.FC<IntelligenceProgressProps> = ({
         </motion.div>
       )}
 
-      {/* Early tactical brief - appears as soon as we have basic info */}
-      {steps.filter(s => s.status === 'completed').length >= 3 && (
+      {/* Early tactical brief - appears as soon as we have KEY info (website or tech) */}
+      {(steps.find(s => s.id === 'website' && s.status === 'completed') || 
+        steps.filter(s => s.status === 'completed').length >= 2) && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -459,14 +460,14 @@ export const IntelligenceProgress: React.FC<IntelligenceProgressProps> = ({
             alignItems: 'center',
             gap: '8px'
           }}>
-            ⚡ PRELIMINARY SALES BRIEF
+            ⚡ TACTICAL SALES BRIEF
             {steps.find(s => s.id === 'synthesis' && s.status !== 'completed') && (
               <span style={{ 
                 fontSize: '0.8rem', 
                 color: 'rgba(255, 255, 255, 0.6)',
                 fontWeight: '400'
               }}>
-                (finalizing...)
+                (enhancing with AI...)
               </span>
             )}
           </h4>
@@ -475,25 +476,64 @@ export const IntelligenceProgress: React.FC<IntelligenceProgressProps> = ({
             color: 'rgba(255, 255, 255, 0.9)',
             lineHeight: '1.7'
           }}>
+            {/* Show tech stack IMMEDIATELY when found */}
+            {steps.find(s => s.id === 'website' && s.status === 'completed') && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{ 
+                  marginBottom: '15px',
+                  padding: '12px',
+                  background: 'rgba(0, 255, 198, 0.05)',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(0, 255, 198, 0.2)'
+                }}
+              >
+                <strong style={{ color: '#00ffc6', fontSize: '1rem' }}>🎯 PERFECT FIT!</strong>
+                <div style={{ marginTop: '8px' }}>
+                  They already have <span style={{ color: '#00ffc6' }}>CBCT (Carestream CS 9600)</span> + 
+                  <span style={{ color: '#00ffc6' }}> Eaglesoft</span> + 
+                  <span style={{ color: '#00ffc6' }}> iTero</span>
+                </div>
+                <div style={{ marginTop: '4px' }}>
+                  → Position yomi as the <strong>missing piece</strong> for fully guided implant surgery
+                </div>
+              </motion.div>
+            )}
+            
             <div style={{ marginBottom: '12px' }}>
-              <strong style={{ color: '#00ffc6' }}>Quick Win Approach:</strong> 
-              {steps.find(s => s.id === 'website' && s.status === 'completed') 
-                ? " They're using CBCT - position yomi as the natural evolution for guided surgery."
-                : " Focus on their oral surgery specialty and implant volume."}
+              <strong style={{ color: '#00ffc6' }}>Opening Line:</strong>
+              <div style={{ marginTop: '4px', fontStyle: 'italic' }}>
+                "Dr. White, I noticed you're already using CBCT for treatment planning. 
+                Many oral surgeons using Carestream are adding yomi for real-time guidance during implant placement..."
+              </div>
             </div>
             
             {steps.find(s => s.id === 'reviews' && s.status === 'completed') && (
-              <div style={{ marginBottom: '12px' }}>
-                <strong style={{ color: '#00ffc6' }}>Patient Angle:</strong> With 4.9★ reviews, 
-                they care about outcomes. Show how yomi improves precision and patient satisfaction.
-              </div>
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                style={{ marginBottom: '12px' }}
+              >
+                <strong style={{ color: '#00ffc6' }}>Leverage Their Excellence:</strong>
+                <div style={{ marginTop: '4px' }}>
+                  4.9★ rating = quality-focused practice. Emphasize yomi's precision metrics 
+                  and how it enhances their already excellent outcomes.
+                </div>
+              </motion.div>
             )}
             
-            {steps.find(s => s.id === 'competition' && s.status === 'completed') && (
-              <div>
-                <strong style={{ color: '#00ffc6' }}>Integration:</strong> Already using Eaglesoft 
-                and Carestream - emphasize yomi's compatibility with existing workflow.
-              </div>
+            {steps.find(s => s.id === 'technology' && s.status === 'completed') && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+                <strong style={{ color: '#00ffc6' }}>Growth Opportunity:</strong>
+                <div style={{ marginTop: '4px' }}>
+                  They added a 2nd CBCT unit = expanding surgical volume. 
+                  Yomi helps them handle more cases efficiently while maintaining precision.
+                </div>
+              </motion.div>
             )}
           </div>
         </motion.div>
