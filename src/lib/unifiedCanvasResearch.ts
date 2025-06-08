@@ -34,6 +34,7 @@ export interface ResearchProgressCallback {
   updateSources: (count: number) => void;
   updateConfidence: (score: number) => void;
   updateStage: (stage: string) => void;
+  updateStrategy?: (strategy: string) => void;
 }
 
 export interface UnifiedResearchResult {
@@ -41,7 +42,7 @@ export interface UnifiedResearchResult {
   instant?: InstantScanResult;
   deep?: DeepResearchResult;
   legacy?: ResearchData;
-  adaptive?: ResearchData;
+  adaptive?: ResearchData | any; // ExtendedResearchData
   error?: string;
 }
 

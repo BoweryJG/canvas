@@ -12,7 +12,7 @@ export const UnifiedResearchPanel: React.FC = () => {
     return saved === 'true';
   });
   
-  const [useAdaptiveAI, setUseAdaptiveAI] = useState(() => {
+  const [useAdaptiveAI] = useState(() => {
     // Check for adaptive AI preference (defaults to true)
     const saved = localStorage.getItem('useAdaptiveAI');
     return saved !== 'false'; // Default to true

@@ -5,7 +5,6 @@ import { useAuth } from '../auth';
 import { type Doctor } from './DoctorAutocomplete';
 
 export const UnifiedEnhancedResearchPanel: React.FC = () => {
-  const { user } = useAuth();
   const { isResearching, progress, result, error, startResearch, reset } = useUnifiedResearch();
   const [showResults, setShowResults] = useState(false);
 
@@ -21,7 +20,9 @@ export const UnifiedEnhancedResearchPanel: React.FC = () => {
         city: formData.location.split(',')[0]?.trim() || '',
         state: formData.location.split(',')[1]?.trim() || '',
         organizationName: formData.practiceName || '',
-        credential: formData.credential || ''
+        credential: formData.credential || '',
+        fullAddress: formData.location || '',
+        phone: formData.phone || ''
       };
 
       await startResearch(doctor, formData.productName || 'dental product');
@@ -92,31 +93,31 @@ export const UnifiedEnhancedResearchPanel: React.FC = () => {
             </div>
 
             {/* Sales Brief */}
-            {result.salesBrief && (
+            {(result as any).salesBrief && (
               <div className="mb-6 p-4 bg-green-50 rounded-lg">
                 <h3 className="font-semibold mb-2">Sales Brief</h3>
-                <p className="text-gray-700">{result.salesBrief}</p>
+                <p className="text-gray-700">{(result as any).salesBrief}</p>
               </div>
             )}
 
             {/* Key Insights */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              {result.buyingSignals && result.buyingSignals.length > 0 && (
+              {(result as any).buyingSignals && (result as any).buyingSignals.length > 0 && (
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <h4 className="font-semibold mb-2">Buying Signals</h4>
                   <ul className="list-disc list-inside text-sm text-gray-700">
-                    {result.buyingSignals.map((signal, idx) => (
+                    {(result as any).buyingSignals.map((signal: string, idx: number) => (
                       <li key={idx}>{signal}</li>
                     ))}
                   </ul>
                 </div>
               )}
 
-              {result.painPoints && result.painPoints.length > 0 && (
+              {(result as any).painPoints && (result as any).painPoints.length > 0 && (
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <h4 className="font-semibold mb-2">Pain Points</h4>
                   <ul className="list-disc list-inside text-sm text-gray-700">
-                    {result.painPoints.map((pain, idx) => (
+                    {(result as any).painPoints.map((pain: string, idx: number) => (
                       <li key={idx}>{pain}</li>
                     ))}
                   </ul>
@@ -125,18 +126,18 @@ export const UnifiedEnhancedResearchPanel: React.FC = () => {
             </div>
 
             {/* Strategy Details */}
-            {result.strategyUsed && (
+            {(result as any).strategyUsed && (
               <div className="p-4 bg-purple-50 rounded-lg">
                 <h4 className="font-semibold mb-2">Research Strategy Used</h4>
                 <p className="text-sm text-gray-700">
-                  Focus Areas: {result.strategyUsed.focusAreas.join(', ')}
+                  Focus Areas: {(result as any).strategyUsed.focusAreas.join(', ')}
                 </p>
-                {result.strategyUsed.skipReasons && (
+                {(result as any).strategyUsed.skipReasons && (
                   <div className="mt-2 text-xs text-gray-600">
-                    {Object.entries(result.strategyUsed.skipReasons)
+                    {Object.entries((result as any).strategyUsed.skipReasons)
                       .filter(([_, reason]) => reason)
                       .map(([area, reason]) => (
-                        <div key={area}>Skipped {area}: {reason}</div>
+                        <div key={area}>Skipped {area}: {reason as React.ReactNode}</div>
                       ))}
                   </div>
                 )}

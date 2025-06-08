@@ -4,10 +4,10 @@
  */
 
 import { type Doctor } from '../components/DoctorAutocomplete';
-import { type ResearchData, type ResearchSource } from './webResearch';
-import { callBraveSearch, callBraveLocalSearch, callFirecrawlScrape, callOpenRouter } from './apiEndpoints';
-import { analyzeInitialResults, synthesizeWithSequentialGuidance, type ResearchStrategy } from './sequentialThinkingResearch';
-import { calculateEnhancedConfidence } from './enhancedConfidenceScoring';
+import { type ResearchSource } from './webResearch';
+import { type ExtendedResearchData } from './types/research';
+import { callBraveSearch, callFirecrawlScrape } from './apiEndpoints';
+import { analyzeInitialResults, synthesizeWithSequentialGuidance, ResearchStrategy } from './sequentialThinkingResearch';
 import { cachedApiCall, CacheKeys } from './intelligentCaching';
 
 interface AdaptiveProgress {
@@ -21,9 +21,9 @@ interface AdaptiveProgress {
 export async function adaptiveResearch(
   doctor: Doctor,
   product: string,
-  existingWebsite?: string,
+  _existingWebsite?: string,
   progress?: AdaptiveProgress
-): Promise<ResearchData> {
+): Promise<ExtendedResearchData> {
   console.log('🧠 ADAPTIVE RESEARCH with Sequential Thinking for:', doctor.displayName);
   
   const sources: ResearchSource[] = [];
@@ -36,16 +36,18 @@ export async function adaptiveResearch(
     
     // Quick initial search
     const initialSearch = await cachedApiCall(
-      CacheKeys.webSearch(doctor.displayName, doctor.city),
-      () => callBraveSearch(`"${doctor.displayName}" ${doctor.specialty} ${doctor.city} ${doctor.state}`),
+      CacheKeys.search(doctor.displayName + ' ' + doctor.city),
+      async () => callBraveSearch(`"${doctor.displayName}" ${doctor.specialty} ${doctor.city} ${doctor.state}`),
       300000 // 5 min cache
     );
     
     sources.push({
-      type: 'search',
+      type: 'medical_directory' as const,
       title: 'Initial Web Search',
       url: 'brave.com',
-      summary: `Found ${initialSearch?.web?.results?.length || 0} results`
+      content: '',
+      confidence: 80,
+      lastUpdated: new Date().toISOString()
     });
     
     // Step 2: Sequential Thinking Analysis
@@ -115,7 +117,7 @@ export async function adaptiveResearch(
     }
     
     // Custom searches based on focus areas
-    strategy.searchQueries.forEach((query, index) => {
+    strategy.searchQueries.forEach((query: string, index: number) => {
       searchPromises.push(
         performFocusedSearch(query, `Focus Area ${index + 1}`, sources)
       );
@@ -167,12 +169,16 @@ export async function adaptiveResearch(
     progress?.updateConfidence?.(confidence.score);
     
     // Build final research data
-    const researchData: ResearchData = {
+    const researchData: ExtendedResearchData = {
       doctorName: doctor.displayName,
       practiceInfo: synthesis.practiceProfile || {},
       credentials: synthesis.credentials || {},
       reviews: synthesis.reviews || {},
       businessIntel: synthesis.businessIntel || {},
+      sources,
+      confidenceScore: confidence.score,
+      completedAt: new Date().toISOString(),
+      // Extended fields
       technologyStack: synthesis.technologyStack || {},
       marketPosition: synthesis.marketPosition || {},
       buyingSignals: synthesis.buyingSignals || [],
@@ -181,11 +187,7 @@ export async function adaptiveResearch(
       painPoints: synthesis.painPoints || [],
       decisionMakers: synthesis.decisionMakers || {},
       budgetInfo: synthesis.budgetIndicators || {},
-      sources,
-      confidenceScore: confidence.score,
-      confidenceFactors: confidence.factors,
       salesBrief: synthesis.salesBrief || '',
-      completedAt: new Date().toISOString(),
       totalTime: Date.now() - startTime,
       strategyUsed: {
         focusAreas: strategy.focusAreas,

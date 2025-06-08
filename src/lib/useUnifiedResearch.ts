@@ -5,7 +5,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { type Doctor } from '../components/DoctorAutocomplete';
-import { unifiedCanvasResearch, type UnifiedResearchResult, type ResearchProgressCallback } from './unifiedCanvasResearch';
+import { unifiedCanvasResearch, type ResearchProgressCallback } from './unifiedCanvasResearch';
 import { type ResearchData } from './webResearch';
 
 export interface UseUnifiedResearchState {

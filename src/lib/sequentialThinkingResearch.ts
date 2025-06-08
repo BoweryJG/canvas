@@ -19,7 +19,7 @@ interface SequentialThought {
   needsMoreThoughts?: boolean;
 }
 
-interface ResearchStrategy {
+export interface ResearchStrategy {
   searchQueries: string[];
   skipWebsiteScrape: boolean;
   skipReviews: boolean;
