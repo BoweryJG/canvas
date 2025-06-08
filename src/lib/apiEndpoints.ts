@@ -13,6 +13,47 @@ import {
 } from './globalRateLimiter';
 import { getApiEndpoint } from '../config/api';
 
+// Cache keys for API responses
+const CacheKeys = {
+  BRAVE_SEARCH: 'brave_search',
+  FIRECRAWL: 'firecrawl',
+  OPENROUTER: 'openrouter',
+  PERPLEXITY: 'perplexity'
+};
+
+// Simple in-memory cache
+const apiCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 300000; // 5 minutes
+
+async function cachedApiCall<T>(
+  cacheType: string,
+  cacheKey: string,
+  apiCall: () => Promise<T>,
+  ttl: number = CACHE_TTL
+): Promise<T> {
+  const fullKey = `${cacheType}::${cacheKey}`;
+  const cached = apiCache.get(fullKey);
+  
+  if (cached && Date.now() - cached.timestamp < ttl) {
+    return cached.data;
+  }
+  
+  const data = await apiCall();
+  apiCache.set(fullKey, { data, timestamp: Date.now() });
+  
+  // Clean old entries
+  if (apiCache.size > 100) {
+    const now = Date.now();
+    for (const [key, value] of apiCache.entries()) {
+      if (now - value.timestamp > ttl * 2) {
+        apiCache.delete(key);
+      }
+    }
+  }
+  
+  return data;
+}
+
 /**
  * Brave Search API integration via Netlify function
  */
@@ -479,3 +520,45 @@ function extractTitleFromUrl(url: string): string {
  * Create /api/brave-search.ts and /api/firecrawl-scrape.ts
  * to handle these API calls securely on the server side.
  */
+
+/**
+ * Call Perplexity Research API for deep market insights
+ */
+export async function callPerplexityResearch(query: string, model: 'sonar' | 'sonar-pro' = 'sonar') {
+  return cachedApiCall(
+    CacheKeys.PERPLEXITY,
+    `${query}_${model}`,
+    async () => {
+      try {
+        console.log(`🔍 Perplexity Research: "${query}"`);
+        
+        const response = await fetch(getApiEndpoint('perplexityResearch'), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ query, model })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Perplexity API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(`✅ Perplexity returned comprehensive research`);
+        
+        return data;
+      } catch (error) {
+        console.error('Perplexity API error:', error);
+        
+        // Return a basic response
+        return {
+          answer: 'Research data unavailable',
+          sources: [],
+          error: true
+        };
+      }
+    },
+    600000 // 10 minute cache
+  );
+}
