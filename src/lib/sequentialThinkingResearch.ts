@@ -5,6 +5,7 @@
 
 import { type Doctor } from '../components/DoctorAutocomplete';
 import { callOpenRouter } from './apiEndpoints';
+import { MOCK_MODE, mockSequentialThinking, mockOpenRouterSynthesis } from './mockResearch';
 
 interface SequentialThought {
   thought: string;
@@ -42,6 +43,11 @@ async function callSequentialThinking(params: {
   isRevision?: boolean;
   revisesThought?: number;
 }): Promise<SequentialThought> {
+  // Check if mock mode is enabled
+  if (MOCK_MODE) {
+    return mockSequentialThinking(params);
+  }
+  
   // TODO: When MCP Sequential Thinking is available, replace with:
   // return await window.__MCP__.sequentialThinking(params);
   
@@ -395,7 +401,9 @@ Create a comprehensive sales intelligence report with the following structure:
 }`;
 
   try {
-    const synthesisResponse = await callOpenRouter(enhancedPrompt, 'anthropic/claude-opus-4');
+    const synthesisResponse = MOCK_MODE 
+      ? await mockOpenRouterSynthesis(enhancedPrompt)
+      : await callOpenRouter(enhancedPrompt, 'anthropic/claude-opus-4');
     
     // Clean and parse response
     let cleanSynthesis = synthesisResponse;

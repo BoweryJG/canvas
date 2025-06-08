@@ -12,6 +12,7 @@ import { unifiedCanvasResearch } from '../lib/unifiedCanvasResearch'
 import type { ResearchData } from '../lib/webResearch'
 import { IntelligenceProgress } from '../components/IntelligenceProgress'
 import { conductNPIEnhancedResearch } from '../lib/npiEnhancedResearch'
+import { MOCK_MODE } from '../lib/mockResearch'
 
 interface ScanResult {
   doctor: string;
@@ -348,6 +349,24 @@ export default function CanvasHome() {
         </div>
         <h1><span className="glow">CANVAS</span></h1>
         <p>INSTANT AI-POWERED SALES INTELLIGENCE</p>
+        
+        {/* Mock Mode Indicator */}
+        {MOCK_MODE && (
+          <div style={{
+            position: 'absolute',
+            top: '10px',
+            left: '10px',
+            background: 'rgba(255, 193, 7, 0.2)',
+            border: '1px solid #ffc107',
+            borderRadius: '8px',
+            padding: '5px 15px',
+            fontSize: '0.85rem',
+            color: '#ffc107',
+            fontWeight: '600'
+          }}>
+            🧪 MOCK MODE
+          </div>
+        )}
         
         {/* Discreet Cinematic Mode Toggle */}
         <button

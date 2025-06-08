@@ -10,6 +10,7 @@ import { callBraveSearch, callFirecrawlScrape } from './apiEndpoints';
 import { analyzeInitialResults, synthesizeWithSequentialGuidance } from './sequentialThinkingResearch';
 import type { ResearchStrategy } from './sequentialThinkingResearch';
 import { searchCache, cachedApiCall, CacheKeys, websiteCache } from './intelligentCaching';
+import { MOCK_MODE, mockBraveSearch, mockFirecrawlScrape, createMockResearchData, createMockStrategy } from './mockResearch';
 
 interface AdaptiveProgress {
   updateStep?: (stepId: string, status: 'pending' | 'active' | 'completed' | 'found', result?: string) => void;
@@ -26,6 +27,12 @@ export async function adaptiveResearch(
   progress?: AdaptiveProgress
 ): Promise<ExtendedResearchData> {
   console.log('🧠 ADAPTIVE RESEARCH with Sequential Thinking for:', doctor.displayName);
+  
+  // Check if mock mode is enabled
+  if (MOCK_MODE) {
+    console.log('🧪 MOCK MODE ENABLED - Using simulated data');
+    return mockAdaptiveResearch(doctor, product, progress);
+  }
   
   const sources: ResearchSource[] = [];
   const startTime = Date.now();
@@ -417,6 +424,55 @@ function generateBackupSalesBrief(
   }
   
   return brief;
+}
+
+/**
+ * Mock adaptive research for testing without API calls
+ */
+async function mockAdaptiveResearch(
+  doctor: Doctor,
+  product: string,
+  progress?: AdaptiveProgress
+): Promise<ExtendedResearchData> {
+  console.log('🧪 Running mock research for:', doctor.displayName);
+  
+  // Simulate research steps with realistic timing
+  const steps = [
+    { id: 'practice', delay: 800, result: 'Website found' },
+    { id: 'reviews', delay: 1200, result: '127 reviews analyzed' },
+    { id: 'professional', delay: 1000, result: 'Board certified' },
+    { id: 'website', delay: 1500, result: 'Technology stack identified' },
+    { id: 'competition', delay: 1000, result: '3 competitors found' },
+    { id: 'technology', delay: 1200, result: 'CBCT & digital workflow' },
+    { id: 'synthesis', delay: 2000, result: 'Intelligence complete' }
+  ];
+  
+  let sourcesCount = 0;
+  let confidence = 70;
+  
+  // Execute steps sequentially
+  for (const step of steps) {
+    progress?.updateStep?.(step.id, 'active');
+    progress?.updateStage?.(`Analyzing ${step.id}...`);
+    
+    await new Promise(resolve => setTimeout(resolve, step.delay));
+    
+    // Update sources and confidence
+    sourcesCount += Math.floor(Math.random() * 3) + 1;
+    confidence = Math.min(confidence + Math.floor(Math.random() * 5) + 3, 95);
+    
+    progress?.updateSources?.(sourcesCount);
+    progress?.updateConfidence?.(confidence);
+    progress?.updateStep?.(step.id, 'completed', step.result);
+  }
+  
+  // Return mock research data
+  const mockData = createMockResearchData();
+  mockData.doctorName = doctor.displayName;
+  mockData.practiceInfo.name = doctor.organizationName || doctor.displayName + ' Practice';
+  mockData.confidenceScore = confidence;
+  
+  return mockData;
 }
 
 export { adaptiveResearch as default };

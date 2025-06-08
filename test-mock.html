@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Mock Mode Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        h1 {
+            color: #00ffc6;
+        }
+        .instructions {
+            background: rgba(0, 255, 198, 0.1);
+            border: 1px solid rgba(0, 255, 198, 0.3);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        button {
+            background: #00ffc6;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #00e5b3;
+            transform: translateY(-2px);
+        }
+        button.secondary {
+            background: #7B42F6;
+            color: #fff;
+        }
+        button.secondary:hover {
+            background: #6835d3;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .status.enabled {
+            background: rgba(0, 255, 198, 0.2);
+            border: 1px solid #00ffc6;
+        }
+        .status.disabled {
+            background: rgba(255, 71, 87, 0.2);
+            border: 1px solid #ff4757;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Canvas Mock Mode Test</h1>
+    
+    <div class="instructions">
+        <h2>Testing Without API Calls</h2>
+        <p>Use mock mode to test the Canvas UI and progress indicators without making expensive API calls to OpenRouter, Brave, or Firecrawl.</p>
+        
+        <h3>How to Use:</h3>
+        <ol>
+            <li>Click "Enable Mock Mode" below</li>
+            <li>Go to your Canvas app</li>
+            <li>Search for any doctor and generate intel</li>
+            <li>You'll see realistic progress animations with mock data</li>
+        </ol>
+        
+        <h3>Alternative Methods:</h3>
+        <ul>
+            <li>Add <code>?mock=true</code> to your URL</li>
+            <li>Open console and run <code>enableMockMode()</code></li>
+        </ul>
+    </div>
+    
+    <div id="status" class="status disabled">
+        Mock Mode: <strong>DISABLED</strong>
+    </div>
+    
+    <div class="button-group">
+        <button onclick="enableMock()">Enable Mock Mode</button>
+        <button onclick="disableMock()" class="secondary">Disable Mock Mode</button>
+        <button onclick="checkStatus()">Check Status</button>
+    </div>
+    
+    <div class="instructions">
+        <h3>What Mock Mode Simulates:</h3>
+        <ul>
+            <li>✅ Sequential thinking analysis steps</li>
+            <li>✅ Realistic timing for each research phase</li>
+            <li>✅ Progressive source discovery (up to 15+ sources)</li>
+            <li>✅ Confidence score increases (75-95%)</li>
+            <li>✅ Practice website, reviews, competition data</li>
+            <li>✅ Full tactical sales brief generation</li>
+            <li>✅ All source indicators showing as collected</li>
+        </ul>
+        
+        <p><strong>Note:</strong> Mock data uses "Pure Dental" and "Dr. Gregory White" as examples, but will adapt to show the doctor name you search for.</p>
+    </div>
+
+    <script>
+        function checkStatus() {
+            const mockEnabled = localStorage.getItem('mockMode') === 'true';
+            const status = document.getElementById('status');
+            
+            if (mockEnabled) {
+                status.className = 'status enabled';
+                status.innerHTML = 'Mock Mode: <strong>ENABLED</strong> ✅';
+            } else {
+                status.className = 'status disabled';
+                status.innerHTML = 'Mock Mode: <strong>DISABLED</strong>';
+            }
+        }
+        
+        function enableMock() {
+            localStorage.setItem('mockMode', 'true');
+            checkStatus();
+            alert('Mock mode enabled! Refresh your Canvas app to use mock data.');
+        }
+        
+        function disableMock() {
+            localStorage.removeItem('mockMode');
+            checkStatus();
+            alert('Mock mode disabled. Refresh your Canvas app to use real APIs.');
+        }
+        
+        // Check status on load
+        checkStatus();
+    </script>
+</body>
+</html>
