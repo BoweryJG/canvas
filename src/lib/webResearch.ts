@@ -42,6 +42,8 @@ export interface ResearchData {
     marketPosition?: string;
     recentNews?: string[];
     growthIndicators?: string[];
+    technologyStack?: string[];
+    specialty?: string;
   };
   sources: ResearchSource[];
   confidenceScore: number;

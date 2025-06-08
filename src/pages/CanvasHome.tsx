@@ -24,6 +24,7 @@ interface ScanResult {
   researchQuality?: 'verified' | 'partial' | 'inferred' | 'unknown';
   researchSources?: number;
   factBased?: boolean;
+  confidenceScore?: number;
 }
 
 // Helper functions for creating enhanced content
