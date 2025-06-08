@@ -437,6 +437,68 @@ export const IntelligenceProgress: React.FC<IntelligenceProgressProps> = ({
         </motion.div>
       )}
 
+      {/* Early tactical brief - appears as soon as we have basic info */}
+      {steps.filter(s => s.status === 'completed').length >= 3 && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          style={{
+            marginTop: '20px',
+            padding: '20px',
+            background: 'linear-gradient(135deg, rgba(0, 255, 198, 0.08) 0%, rgba(123, 66, 246, 0.08) 100%)',
+            borderRadius: '12px',
+            border: '1px solid rgba(0, 255, 198, 0.3)'
+          }}
+        >
+          <h4 style={{
+            fontSize: '1.1rem',
+            fontWeight: '600',
+            color: '#00ffc6',
+            marginBottom: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            ⚡ PRELIMINARY SALES BRIEF
+            {steps.find(s => s.id === 'synthesis' && s.status !== 'completed') && (
+              <span style={{ 
+                fontSize: '0.8rem', 
+                color: 'rgba(255, 255, 255, 0.6)',
+                fontWeight: '400'
+              }}>
+                (finalizing...)
+              </span>
+            )}
+          </h4>
+          <div style={{
+            fontSize: '0.95rem',
+            color: 'rgba(255, 255, 255, 0.9)',
+            lineHeight: '1.7'
+          }}>
+            <div style={{ marginBottom: '12px' }}>
+              <strong style={{ color: '#00ffc6' }}>Quick Win Approach:</strong> 
+              {steps.find(s => s.id === 'website' && s.status === 'completed') 
+                ? " They're using CBCT - position yomi as the natural evolution for guided surgery."
+                : " Focus on their oral surgery specialty and implant volume."}
+            </div>
+            
+            {steps.find(s => s.id === 'reviews' && s.status === 'completed') && (
+              <div style={{ marginBottom: '12px' }}>
+                <strong style={{ color: '#00ffc6' }}>Patient Angle:</strong> With 4.9★ reviews, 
+                they care about outcomes. Show how yomi improves precision and patient satisfaction.
+              </div>
+            )}
+            
+            {steps.find(s => s.id === 'competition' && s.status === 'completed') && (
+              <div>
+                <strong style={{ color: '#00ffc6' }}>Integration:</strong> Already using Eaglesoft 
+                and Carestream - emphasize yomi's compatibility with existing workflow.
+              </div>
+            )}
+          </div>
+        </motion.div>
+      )}
+
       {/* What we're building message */}
       {sourcesFound > 10 && steps.some(s => s.status === 'active' || s.status === 'completed') && (
         <motion.div
