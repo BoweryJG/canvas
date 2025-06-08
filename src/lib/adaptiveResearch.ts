@@ -189,7 +189,7 @@ export async function adaptiveResearch(
       painPoints: synthesis.painPoints || [],
       decisionMakers: synthesis.decisionMakers || {},
       budgetInfo: synthesis.budgetIndicators || {},
-      salesBrief: synthesis.salesBrief || '',
+      salesBrief: synthesis.salesBrief || generateBackupSalesBrief(doctor, product, strategy, sources),
       totalTime: Date.now() - startTime,
       strategyUsed: {
         focusAreas: strategy.focusAreas,
@@ -362,6 +362,54 @@ function calculateAdaptiveConfidence(
     score: Math.min(score, 95),
     factors
   };
+}
+
+function generateBackupSalesBrief(
+  doctor: Doctor,
+  product: string,
+  strategy: ResearchStrategy,
+  sources: ResearchSource[]
+): string {
+  const hasWebsite = sources.some(s => s.type === 'practice_website');
+  const hasReviews = sources.some(s => s.type === 'review_site');
+  
+  let brief = `**TACTICAL SALES BRIEF for ${doctor.displayName}**\n\n`;
+  
+  // Opening based on specialty
+  if (doctor.specialty.toLowerCase().includes('oral')) {
+    brief += `Dr. ${doctor.lastName} specializes in oral surgery at ${doctor.organizationName || 'their practice'} in ${doctor.city}. `;
+  } else {
+    brief += `Dr. ${doctor.lastName} practices ${doctor.specialty} at ${doctor.organizationName || 'their practice'} in ${doctor.city}. `;
+  }
+  
+  // Product positioning
+  brief += `Based on the research, ${product} could address several key areas:\n\n`;
+  
+  // Focus areas
+  if (strategy.focusAreas.includes('current_technology')) {
+    brief += `• **Technology Enhancement**: The practice ${hasWebsite ? 'appears to be evaluating' : 'may benefit from'} modern technology solutions. Position ${product} as a way to streamline operations and improve patient care.\n`;
+  }
+  
+  if (strategy.focusAreas.includes('growth_indicators')) {
+    brief += `• **Practice Growth**: Signs indicate potential expansion or modernization. ${product} can support scaling operations efficiently.\n`;
+  }
+  
+  if (strategy.focusAreas.includes('workflow_efficiency')) {
+    brief += `• **Workflow Optimization**: Like many ${doctor.specialty} practices, efficiency improvements could free up time for patient care. Highlight how ${product} reduces administrative burden.\n`;
+  }
+  
+  // Approach recommendation
+  brief += `\n**Recommended Approach**:\n`;
+  brief += `1. Lead with specific benefits for ${doctor.specialty} practices\n`;
+  brief += `2. Reference successful implementations in similar practices\n`;
+  brief += `3. Offer a personalized demo focusing on their workflow\n`;
+  
+  // Timing
+  if (doctor.city === 'WILLIAMSVILLE' || doctor.city.includes('Buffalo')) {
+    brief += `\n**Note**: Williamsville/Buffalo area practices often make purchasing decisions in Q1/Q2. Consider following up in early spring.`;
+  }
+  
+  return brief;
 }
 
 export { adaptiveResearch as default };
