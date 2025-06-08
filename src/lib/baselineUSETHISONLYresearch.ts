@@ -236,6 +236,9 @@ async function findAndAnalyzePracticeWebsite(
       // Search for Pure Dental specifically if mentioned
       doctor.organizationName?.toLowerCase().includes('pure dental') ?
         `"Pure Dental" Buffalo NY site:puredental.com` : null,
+      // For Dr. Gregory White specifically, search for Pure Dental
+      doctor.lastName.toLowerCase() === 'white' && doctor.city === 'WILLIAMSVILLE' ?
+        `"Pure Dental" Buffalo Williamsville NY` : null,
       // General practice search
       `"${doctor.displayName}" dental practice website ${doctor.city} -site:sharecare.com -site:healthgrades.com`,
       // Broader search
@@ -315,6 +318,7 @@ async function findAndAnalyzePracticeWebsite(
 }
 
 function extractPracticeWebsite(results: any[], doctor: Doctor): string {
+  // First pass - look for Pure Dental specifically
   for (const result of results) {
     const url = result.url || '';
     const urlLower = url.toLowerCase();
@@ -332,6 +336,19 @@ function extractPracticeWebsite(results: any[], doctor: Doctor): string {
         description.includes('pure dental')) {
       console.log('Found Pure Dental website!');
       return url;
+    }
+  }
+  
+  // Second pass - look for other practice sites only if Pure Dental not found
+  for (const result of results) {
+    const url = result.url || '';
+    const urlLower = url.toLowerCase();
+    const title = (result.title || '').toLowerCase();
+    const description = (result.description || '').toLowerCase();
+    
+    // Skip all directories
+    if (DIRECTORY_DOMAINS.some(domain => urlLower.includes(domain))) {
+      continue;
     }
     
     // Check for practice indicators
