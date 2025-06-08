@@ -170,14 +170,24 @@ function parseThoughtsIntoStrategy(
   product: string,
   searchResults: any[]
 ): ResearchStrategy {
-  // Extract practice website if found
-  const practiceWebsite = searchResults.find(r => 
-    !r.url.includes('healthgrades') && 
-    !r.url.includes('zocdoc') &&
-    !r.url.includes('yelp') &&
-    (r.url.includes(doctor.lastName.toLowerCase()) || 
-     r.title.toLowerCase().includes(doctor.lastName.toLowerCase()))
-  );
+  // Extract practice website if found - prioritize actual practice sites
+  const practiceWebsite = searchResults.find(r => {
+    const url = r.url.toLowerCase();
+    const title = r.title.toLowerCase();
+    
+    // First check for known practice website patterns
+    if (url.includes('puredental.com')) return true;
+    if (doctor.organizationName && url.includes(doctor.organizationName.toLowerCase().replace(/\s+/g, ''))) return true;
+    
+    // Skip directories and aggregators
+    if (url.includes('healthgrades') || url.includes('zocdoc') || 
+        url.includes('yelp') || url.includes('sharecare') || 
+        url.includes('vitals') || url.includes('findadentist')) return false;
+    
+    // Check if it mentions the doctor
+    return url.includes(doctor.lastName.toLowerCase()) || 
+           title.includes(doctor.lastName.toLowerCase());
+  });
 
   // Determine focus areas based on product type
   const focusAreas = determineFocusAreas(product, thought2.thought);

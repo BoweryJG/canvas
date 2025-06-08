@@ -25,6 +25,8 @@ async function testCanvasUI() {
       console.warn('⚠️ Console warning:', text);
     } else if (text.includes('error') || text.includes('Error') || text.includes('failed')) {
       console.log('🔍 Console message with error:', text);
+    } else if (text.includes('API') || text.includes('fetch') || text.includes('research')) {
+      console.log('🔍 API/Research log:', text);
     }
   });
   
@@ -104,16 +106,32 @@ async function testCanvasUI() {
     console.log('⏳ Waiting for results...');
     await new Promise(resolve => setTimeout(resolve, 15000)); // Give it more time to process
     
-    // Check if still analyzing
-    try {
+    // Check if still analyzing and wait for completion
+    let attempts = 0;
+    const maxAttempts = 6; // Total 60 seconds max wait
+    
+    while (attempts < maxAttempts) {
       const isStillAnalyzing = await page.$('.intelligence-progress');
-      if (isStillAnalyzing) {
-        console.log('⏳ Still analyzing, waiting more...');
-        await new Promise(resolve => setTimeout(resolve, 10000));
+      const hasResults = await page.$('.sales-brief');
+      
+      if (hasResults) {
+        console.log('✅ Results found!');
+        break;
       }
-    } catch (e) {
-      // Progress section gone, might have results
+      
+      if (isStillAnalyzing) {
+        console.log(`⏳ Still analyzing... (attempt ${attempts + 1}/${maxAttempts})`);
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        attempts++;
+      } else {
+        console.log('❓ Progress indicator gone but no results found');
+        break;
+      }
     }
+    
+    // Check final state
+    const finalButton = await page.$eval('.scan-btn', el => el.textContent).catch(() => null);
+    console.log('Final button state:', finalButton);
     
     // Take screenshot of results
     console.log('📸 Taking results screenshot...');

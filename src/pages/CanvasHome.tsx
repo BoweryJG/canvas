@@ -73,13 +73,20 @@ ${painPoints.length > 0 ? `• Pain points: ${painPoints.slice(0, 3).join(', ')}
 ${insights.approachStrategy?.keyMessage || ''}`;
 }
 
-function createPowerfulSalesBrief(insights: any, doctor: string, product: string): string {
-  if (!insights?.salesBrief) {
-    return `Contact ${doctor} about ${product} benefits.`;
+function createPowerfulSalesBrief(insights: any, doctor: string, product: string, researchData?: any): string {
+  // First check if we have a salesBrief at the top level of research data
+  if (researchData?.salesBrief) {
+    return researchData.salesBrief;
   }
   
-  // If we have a brief from Claude 4, enhance it with specific details
-  let brief = insights.salesBrief;
+  // Then check insights
+  if (insights?.salesBrief) {
+    return insights.salesBrief;
+  }
+  
+  // Fallback brief
+  let brief = `**TACTICAL APPROACH for ${doctor}**\n\n`;
+  brief += `Position ${product} as a modern solution for their ${insights?.specialty || 'practice'} needs. `;
   
   // Add timing and approach
   if (insights.approachStrategy) {
@@ -276,7 +283,7 @@ export default function CanvasHome() {
         score: calculateOpportunityScore(insights, analysis),
         doctorProfile: createDoctorProfile(insights, comprehensiveResearch),
         productIntel: createProductIntel(insights, product),
-        salesBrief: comprehensiveResearch.salesBrief || createPowerfulSalesBrief(insights, doctor, product),
+        salesBrief: comprehensiveResearch.salesBrief || createPowerfulSalesBrief(insights, doctor, product, comprehensiveResearch),
         insights: extractKeyInsights(insights, comprehensiveResearch),
         researchQuality: 'verified' as const,
         researchSources: comprehensiveResearch.sources.length,
