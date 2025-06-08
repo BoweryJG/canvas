@@ -8,7 +8,7 @@ import IntegratedCanvasExperience from '../components/IntegratedCanvasExperience
 import { analyzeDoctor } from '../lib/intelligentAnalysis'
 import { DoctorAutocomplete } from '../components/DoctorAutocomplete'
 import type { Doctor } from '../components/DoctorAutocomplete'
-import { gatherComprehensiveDoctorIntelligenceWithProgress } from '../lib/enhancedDoctorIntelligenceWithProgress'
+import { unifiedCanvasResearch } from '../lib/unifiedCanvasResearch'
 import type { ResearchData } from '../lib/webResearch'
 import { IntelligenceProgress } from '../components/IntelligenceProgress'
 import { conductNPIEnhancedResearch } from '../lib/npiEnhancedResearch'
@@ -247,11 +247,17 @@ export default function CanvasHome() {
         practiceWebsite: enhancements.website || undefined
       };
       
-      const comprehensiveResearch = await gatherComprehensiveDoctorIntelligenceWithProgress(
+      const result = await unifiedCanvasResearch(
         doctorWithWebsite, 
         product,
-        progressCallbacks
+        {
+          mode: 'adaptive', // Use Sequential Thinking!
+          existingWebsite: enhancements.website,
+          progress: progressCallbacks
+        }
       );
+      
+      const comprehensiveResearch = result.adaptive || result.legacy || result.instant?.deep;
       setResearchData(comprehensiveResearch);
       
       // Step 2: Extract insights from the enhanced research
