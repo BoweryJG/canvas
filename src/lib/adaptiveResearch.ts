@@ -10,7 +10,7 @@ import { callBraveSearch, callFirecrawlScrape } from './apiEndpoints';
 import { analyzeInitialResults, synthesizeWithSequentialGuidance } from './sequentialThinkingResearch';
 import type { ResearchStrategy } from './sequentialThinkingResearch';
 import { searchCache, cachedApiCall, CacheKeys, websiteCache } from './intelligentCaching';
-import { MOCK_MODE, mockBraveSearch, mockFirecrawlScrape, createMockResearchData, createMockStrategy } from './mockResearch';
+import { MOCK_MODE, createMockResearchData } from './mockResearch';
 
 interface AdaptiveProgress {
   updateStep?: (stepId: string, status: 'pending' | 'active' | 'completed' | 'found', result?: string) => void;
@@ -431,7 +431,7 @@ function generateBackupSalesBrief(
  */
 async function mockAdaptiveResearch(
   doctor: Doctor,
-  product: string,
+  _product: string,
   progress?: AdaptiveProgress
 ): Promise<ExtendedResearchData> {
   console.log('🧪 Running mock research for:', doctor.displayName);

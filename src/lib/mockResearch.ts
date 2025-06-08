@@ -38,7 +38,7 @@ export async function mockSequentialThinking(params: any): Promise<any> {
   };
 }
 
-export async function mockBraveSearch(query: string): Promise<any> {
+export async function mockBraveSearch(_query: string): Promise<any> {
   await new Promise(resolve => setTimeout(resolve, 300));
   
   return {
@@ -64,7 +64,7 @@ export async function mockBraveSearch(query: string): Promise<any> {
   };
 }
 
-export async function mockFirecrawlScrape(url: string): Promise<any> {
+export async function mockFirecrawlScrape(_url: string): Promise<any> {
   await new Promise(resolve => setTimeout(resolve, 800));
   
   return {
@@ -99,7 +99,7 @@ Dr. White specializes in oral and maxillofacial surgery with over 15 years of ex
   };
 }
 
-export async function mockOpenRouterSynthesis(prompt: string): Promise<string> {
+export async function mockOpenRouterSynthesis(_prompt: string): Promise<string> {
   await new Promise(resolve => setTimeout(resolve, 1500));
   
   const synthesis = {
