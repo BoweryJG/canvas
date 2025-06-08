@@ -226,15 +226,15 @@ export default function CanvasHome() {
     setScanStage('Gathering comprehensive doctor information...')
     
     try {
-      // Initialize progress tracking
+      // Initialize progress tracking with clear explanations
       setIntelligenceSteps([
-        { id: 'practice', label: 'Searching Practice Information', sublabel: 'Website, contact details, services', status: 'pending' },
-        { id: 'reviews', label: 'Gathering Patient Reviews', sublabel: 'Ratings, feedback, reputation', status: 'pending' },
-        { id: 'professional', label: 'Professional Activities', sublabel: 'Conferences, publications, achievements', status: 'pending' },
-        { id: 'website', label: 'Deep Website Analysis', sublabel: 'Using Firecrawl for rich data', status: 'pending' },
-        { id: 'competition', label: 'Market Competition Analysis', sublabel: 'Local competitors, market position', status: 'pending' },
-        { id: 'technology', label: 'Technology Research', sublabel: `${product} adoption and readiness`, status: 'pending' },
-        { id: 'synthesis', label: 'Claude 4 Opus Synthesis', sublabel: 'Creating personalized intelligence', status: 'pending' }
+        { id: 'practice', label: '🔍 Finding Their Practice Website', sublabel: 'Searching for official site, not directories', status: 'pending' },
+        { id: 'reviews', label: '⭐ What Patients Say', sublabel: 'Checking Google, Healthgrades, Yelp reviews', status: 'pending' },
+        { id: 'professional', label: '🎓 Verifying Credentials', sublabel: 'Board certifications, NPI validation', status: 'pending' },
+        { id: 'website', label: '🌐 Analyzing Their Tech Stack', sublabel: 'Scanning for CBCT, software, digital tools', status: 'pending' },
+        { id: 'competition', label: '🏢 Current Vendor Analysis', sublabel: 'Who they buy from now', status: 'pending' },
+        { id: 'technology', label: `🎯 ${product} Fit Assessment`, sublabel: 'Finding integration opportunities', status: 'pending' },
+        { id: 'synthesis', label: '🧠 Creating Your Sales Arsenal', sublabel: 'Custom brief, talking points, objection handlers', status: 'pending' }
       ]);
       
       // Progress callbacks

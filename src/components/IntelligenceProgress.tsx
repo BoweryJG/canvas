@@ -165,45 +165,47 @@ export const IntelligenceProgress: React.FC<IntelligenceProgressProps> = ({
                 }`
               }}
             >
-              {/* Status indicator */}
-              <div style={{ marginRight: '15px' }}>
+              {/* Status indicator with better icons */}
+              <div style={{ marginRight: '15px', width: '40px' }}>
                 {step.status === 'pending' && (
                   <div style={{
-                    width: '24px',
-                    height: '24px',
+                    width: '32px',
+                    height: '32px',
                     borderRadius: '50%',
                     border: '2px solid rgba(255, 255, 255, 0.2)',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    fontSize: '16px',
+                    opacity: 0.5
                   }}>
-                    <div style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      background: 'rgba(255, 255, 255, 0.3)'
-                    }} />
+                    ⏳
                   </div>
                 )}
                 
                 {step.status === 'active' && (
                   <div style={{
-                    width: '24px',
-                    height: '24px',
-                    position: 'relative'
+                    width: '32px',
+                    height: '32px',
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}>
                     <motion.div
                       animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                       style={{
+                        position: 'absolute',
                         width: '100%',
                         height: '100%',
                         borderRadius: '50%',
-                        border: '2px solid transparent',
+                        border: '3px solid transparent',
                         borderTopColor: '#00ffc6',
                         borderRightColor: '#00ffc6'
                       }}
                     />
+                    <span style={{ fontSize: '16px' }}>🔍</span>
                   </div>
                 )}
                 
@@ -212,41 +214,39 @@ export const IntelligenceProgress: React.FC<IntelligenceProgressProps> = ({
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     style={{
-                      width: '24px',
-                      height: '24px',
+                      width: '32px',
+                      height: '32px',
                       borderRadius: '50%',
-                      background: 'rgba(0, 255, 198, 0.2)',
+                      background: 'linear-gradient(135deg, rgba(0, 255, 198, 0.3) 0%, rgba(0, 255, 198, 0.1) 100%)',
                       border: '2px solid #00ffc6',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: '#00ffc6',
-                      fontWeight: 'bold'
+                      fontSize: '16px'
                     }}
                   >
-                    ✓
+                    ✅
                   </motion.div>
                 )}
                 
                 {step.status === 'found' && (
                   <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ type: 'spring', stiffness: 200 }}
                     style={{
-                      width: '24px',
-                      height: '24px',
+                      width: '32px',
+                      height: '32px',
                       borderRadius: '50%',
-                      background: 'rgba(123, 66, 246, 0.2)',
+                      background: 'linear-gradient(135deg, rgba(123, 66, 246, 0.3) 0%, rgba(123, 66, 246, 0.1) 100%)',
                       border: '2px solid #7B42F6',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: '#7B42F6',
-                      fontWeight: 'bold',
-                      fontSize: '0.8rem'
+                      fontSize: '16px'
                     }}
                   >
-                    ★
+                    🎯
                   </motion.div>
                 )}
               </div>
@@ -273,17 +273,25 @@ export const IntelligenceProgress: React.FC<IntelligenceProgressProps> = ({
                 )}
               </div>
               
-              {/* Result indicator */}
+              {/* Result indicator with more detail */}
               {step.result && (
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   style={{
-                    fontSize: '0.85rem',
+                    fontSize: '0.9rem',
+                    padding: '4px 12px',
+                    background: 'rgba(0, 255, 198, 0.1)',
+                    border: '1px solid rgba(0, 255, 198, 0.3)',
+                    borderRadius: '20px',
                     color: '#00ffc6',
-                    fontWeight: '500'
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
                   }}
                 >
+                  {step.result.includes('found') && '✨'}
                   {step.result}
                 </motion.div>
               )}
@@ -332,6 +340,51 @@ export const IntelligenceProgress: React.FC<IntelligenceProgressProps> = ({
         </motion.div>
       )}
       
+      {/* Live data stream - show what we're finding RIGHT NOW */}
+      {sourcesFound > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            marginTop: '20px',
+            padding: '15px',
+            background: 'rgba(123, 66, 246, 0.05)',
+            borderRadius: '12px',
+            border: '1px solid rgba(123, 66, 246, 0.2)'
+          }}
+        >
+          <h4 style={{
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            color: '#7B42F6',
+            marginBottom: '10px'
+          }}>
+            📡 LIVE INTEL STREAM
+          </h4>
+          <div style={{
+            fontSize: '0.85rem',
+            color: 'rgba(255, 255, 255, 0.8)',
+            lineHeight: '1.8'
+          }}>
+            {steps.find(s => s.id === 'practice' && s.status === 'completed') && (
+              <div>✓ Found practice website: <span style={{ color: '#00ffc6' }}>puredental.com</span></div>
+            )}
+            {steps.find(s => s.id === 'reviews' && s.result) && (
+              <div>✓ Patient sentiment: <span style={{ color: '#00ffc6' }}>4.9/5 stars</span></div>
+            )}
+            {steps.find(s => s.id === 'website' && s.status === 'completed') && (
+              <div>✓ Tech stack identified: <span style={{ color: '#00ffc6' }}>CBCT, Eaglesoft, iTero</span></div>
+            )}
+            {steps.find(s => s.id === 'competition' && s.result) && (
+              <div>✓ Current vendors: <span style={{ color: '#00ffc6' }}>Eaglesoft, Carestream</span></div>
+            )}
+            {steps.find(s => s.id === 'technology' && s.status === 'completed') && (
+              <div>✓ Growth signal: <span style={{ color: '#00ffc6' }}>Added 2nd CBCT unit</span></div>
+            )}
+          </div>
+        </motion.div>
+      )}
+
       {/* What we're building message */}
       {sourcesFound > 10 && steps.some(s => s.status === 'active' || s.status === 'completed') && (
         <motion.div

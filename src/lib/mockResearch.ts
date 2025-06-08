@@ -5,7 +5,7 @@
 import type { ExtendedResearchData } from './types/research';
 import type { ResearchStrategy } from './sequentialThinkingResearch';
 
-export const MOCK_MODE = process.env.NODE_ENV === 'development' && 
+export const MOCK_MODE = import.meta.env.DEV && 
   (window.location.search.includes('mock=true') || localStorage.getItem('mockMode') === 'true');
 
 export function enableMockMode() {
