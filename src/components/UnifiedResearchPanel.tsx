@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { EnhancedResearchPanelWithRender } from './EnhancedResearchPanelWithRender';
 import { EnhancedResearchPanel } from './EnhancedResearchPanel';
+import { UnifiedEnhancedResearchPanel } from './UnifiedEnhancedResearchPanel';
 import { BackendToggle } from './BackendToggle';
 import { checkBackendHealth } from '../lib/renderBackendAPI';
 
@@ -9,6 +10,12 @@ export const UnifiedResearchPanel: React.FC = () => {
     // Check localStorage for preference
     const saved = localStorage.getItem('preferRenderBackend');
     return saved === 'true';
+  });
+  
+  const [useAdaptiveAI, setUseAdaptiveAI] = useState(() => {
+    // Check for adaptive AI preference (defaults to true)
+    const saved = localStorage.getItem('useAdaptiveAI');
+    return saved !== 'false'; // Default to true
   });
   
   const [renderHealthy, setRenderHealthy] = useState(true);
@@ -30,6 +37,20 @@ export const UnifiedResearchPanel: React.FC = () => {
     localStorage.setItem('preferRenderBackend', String(useRender));
   };
 
+  // Determine which panel to show
+  if (useAdaptiveAI) {
+    // Use the new unified panel with Sequential Thinking
+    return (
+      <>
+        <UnifiedEnhancedResearchPanel />
+        <div className="fixed bottom-4 right-4 bg-green-100 text-green-800 px-4 py-2 rounded-lg shadow-lg text-sm">
+          🧠 Using Adaptive AI with Sequential Thinking
+        </div>
+      </>
+    );
+  }
+
+  // Legacy mode
   return (
     <>
       {useRenderBackend && renderHealthy ? (

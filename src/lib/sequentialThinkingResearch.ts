@@ -32,6 +32,8 @@ interface ResearchStrategy {
 
 /**
  * Call the Sequential Thinking MCP tool
+ * Note: In production, this would connect to the actual MCP Sequential Thinking tool
+ * For now, we use a specialized prompt with Claude 4 Opus
  */
 async function callSequentialThinking(params: {
   thought: string;
@@ -41,23 +43,61 @@ async function callSequentialThinking(params: {
   isRevision?: boolean;
   revisesThought?: number;
 }): Promise<SequentialThought> {
-  // This would call the actual MCP Sequential Thinking tool
-  // For now, we'll integrate with OpenRouter to simulate
-  const prompt = `You are analyzing research data for sales intelligence.
-Current thought: ${params.thought}
-Thought ${params.thoughtNumber || 1} of ${params.totalThoughts || 3}
-
-Respond with your analysis and whether more thoughts are needed.`;
-
-  const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
+  // TODO: When MCP Sequential Thinking is available, replace with:
+  // return await window.__MCP__.sequentialThinking(params);
   
-  // Parse response into SequentialThought format
-  return {
-    thought: response,
-    nextThoughtNeeded: params.thoughtNumber < params.totalThoughts,
-    thoughtNumber: params.thoughtNumber || 1,
-    totalThoughts: params.totalThoughts || 3
-  };
+  // Current implementation using Claude 4 Opus with structured thinking
+  const systemPrompt = `You are a Sequential Thinking system analyzing research data for sales intelligence.
+You must respond with structured JSON containing your thought process.
+
+Rules:
+1. Each thought builds on previous insights
+2. Identify specific, actionable information
+3. Question assumptions when data conflicts
+4. Suggest concrete next steps
+5. Be concise but thorough`;
+
+  const userPrompt = `Thought ${params.thoughtNumber || 1} of ${params.totalThoughts || 3}:
+${params.thought}
+
+${params.isRevision ? `This revises thought ${params.revisesThought}` : ''}
+
+Respond with JSON:
+{
+  "thought": "Your analytical response here",
+  "nextThoughtNeeded": boolean,
+  "thoughtNumber": ${params.thoughtNumber || 1},
+  "totalThoughts": ${params.totalThoughts || 3},
+  "keyInsights": ["insight1", "insight2"],
+  "nextActions": ["action1", "action2"]
+}`;
+
+  try {
+    const response = await callOpenRouter(
+      `${systemPrompt}\n\n${userPrompt}`,
+      'anthropic/claude-opus-4'
+    );
+    
+    // Try to parse as JSON
+    const parsed = JSON.parse(response);
+    return {
+      thought: parsed.thought || response,
+      nextThoughtNeeded: parsed.nextThoughtNeeded ?? (params.thoughtNumber < params.totalThoughts),
+      thoughtNumber: parsed.thoughtNumber || params.thoughtNumber || 1,
+      totalThoughts: parsed.totalThoughts || params.totalThoughts || 3,
+      isRevision: params.isRevision,
+      revisesThought: params.revisesThought
+    };
+  } catch (error) {
+    // Fallback if JSON parsing fails
+    console.warn('Sequential Thinking JSON parse failed, using raw response');
+    return {
+      thought: response,
+      nextThoughtNeeded: (params.thoughtNumber || 1) < (params.totalThoughts || 3),
+      thoughtNumber: params.thoughtNumber || 1,
+      totalThoughts: params.totalThoughts || 3
+    };
+  }
 }
 
 /**

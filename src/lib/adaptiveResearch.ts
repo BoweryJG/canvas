@@ -52,7 +52,24 @@ export async function adaptiveResearch(
     progress?.updateStage?.('Analyzing results with AI reasoning...');
     progress?.updateStrategy?.('Sequential Thinking analyzing initial findings...');
     
-    const strategy = await analyzeInitialResults(doctor, product, initialSearch);
+    let strategy: ResearchStrategy;
+    try {
+      strategy = await analyzeInitialResults(doctor, product, initialSearch);
+    } catch (error) {
+      console.warn('Sequential Thinking failed, using fallback strategy:', error);
+      // Fallback strategy if Sequential Thinking fails
+      strategy = {
+        searchQueries: [
+          `"${doctor.displayName}" ${doctor.specialty} ${doctor.city}`,
+          `"${doctor.organizationName || doctor.displayName}" technology reviews`
+        ],
+        skipWebsiteScrape: false,
+        skipReviews: false,
+        skipCompetitorAnalysis: false,
+        focusAreas: ['general_practice', 'technology', 'reviews'],
+        keyQuestions: ['What is their current technology?', 'What are their pain points?']
+      };
+    }
     
     console.log('📋 Research Strategy:', {
       focusAreas: strategy.focusAreas,
