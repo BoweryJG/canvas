@@ -224,6 +224,13 @@ async function findAndAnalyzePracticeWebsite(
   if (existingWebsite && !DIRECTORY_DOMAINS.some(domain => existingWebsite.includes(domain))) {
     practiceUrl = existingWebsite;
     console.log('Using pre-discovered website:', practiceUrl);
+    
+    // If we have Pure Dental from NPI, USE IT AND SKIP SEARCHING
+    if (practiceUrl.toLowerCase().includes('puredental.com')) {
+      console.log('✅ Using Pure Dental website from NPI research');
+      // Skip ALL searching - go straight to crawling
+      return crawlPracticeWebsite(practiceUrl, doctor, sources);
+    }
   } 
   
   // If we already have a good website, skip searching
