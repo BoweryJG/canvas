@@ -371,9 +371,9 @@ Create a comprehensive sales intelligence report with the following structure:
     "focus": "Primary focus areas"
   },
   "technologyStack": {
-    "current": ["List current technologies"],
-    "gaps": ["Technology gaps"],
-    "readiness": "Tech adoption readiness"
+    "current": ["List current technologies - include CBCT, imaging systems, practice management software"],
+    "gaps": ["Technology gaps - missing systems or upgrade opportunities"],
+    "readiness": "Tech adoption readiness (early adopter, mainstream, conservative)"
   },
   "buyingSignals": ["List specific buying signals found"],
   "painPoints": ["List pain points that product addresses"],
@@ -391,7 +391,7 @@ Create a comprehensive sales intelligence report with the following structure:
     "primary": "Primary decision maker",
     "influencers": ["Key influencers"]
   },
-  "salesBrief": "TACTICAL SALES BRIEF: A compelling 2-3 paragraph sales approach that combines all insights into an actionable plan. Include specific talking points, value props, and how to address their pain points with ${product}."
+  "salesBrief": "**TACTICAL SALES BRIEF**\\n\\nProvide a structured 3-section brief:\\n\\n**1. PRACTICE OVERVIEW**\\n[2-3 sentences about the practice, specialty focus (e.g., full arch implants, CBCT imaging), and current technology]\\n\\n**2. OPPORTUNITY ANALYSIS**\\n[2-3 bullet points of specific opportunities for ${product}, including tech stack gaps and pain points]\\n\\n**3. RECOMMENDED APPROACH**\\n[Specific action plan with timing, key message, and value proposition tailored to their practice]\\n\\nBe specific about tech stack details like CBCT systems, full arch implant capabilities, digital workflow tools, etc."
 }`;
 
   try {

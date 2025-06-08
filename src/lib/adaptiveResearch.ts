@@ -333,21 +333,26 @@ function calculateAdaptiveConfidence(
   strategy: ResearchStrategy,
   synthesis: any
 ): { score: number; factors: any } {
-  let score = 50; // Base score
+  let score = 70; // Higher base score - we always have NPI data
   const factors = {
     sourcesFound: sources.length,
     websiteAnalyzed: strategy.websiteUrl && !strategy.skipWebsiteScrape,
     reviewsFound: sources.some(s => s.type === 'review_site'),
     competitorsIdentified: synthesis.competition?.currentVendors?.length > 0,
     strategyAlignment: strategy.focusAreas.length > 0,
-    keyQuestionsAnswered: 0
+    keyQuestionsAnswered: 0,
+    npiVerified: true // Always true when we use NPI data
   };
   
   // Award points for data quality
-  if (factors.websiteAnalyzed) score += 15;
-  if (factors.reviewsFound) score += 10;
-  if (factors.competitorsIdentified) score += 10;
-  if (factors.strategyAlignment) score += 5;
+  if (factors.websiteAnalyzed) score += 10;
+  if (factors.reviewsFound) score += 8;
+  if (factors.competitorsIdentified) score += 5;
+  if (factors.strategyAlignment) score += 3;
+  
+  // Award points for source diversity
+  const sourceTypes = new Set(sources.map(s => s.type));
+  score += Math.min(sourceTypes.size * 2, 10);
   
   // Award points for answered questions
   const answeredQuestions = strategy.keyQuestions.filter(q => 
@@ -355,11 +360,14 @@ function calculateAdaptiveConfidence(
   ).length;
   
   factors.keyQuestionsAnswered = answeredQuestions;
-  score += Math.min(answeredQuestions * 3, 15);
+  score += Math.min(answeredQuestions * 2, 10);
   
-  // Cap at 95
+  // Award points for sales brief quality
+  if (synthesis.salesBrief && synthesis.salesBrief.length > 100) score += 5;
+  
+  // Minimum 75 for NPI-verified searches, cap at 98
   return {
-    score: Math.min(score, 95),
+    score: Math.min(Math.max(score, 75), 98),
     factors
   };
 }

@@ -277,17 +277,20 @@ export default function CanvasHome() {
       const analysis = await analyzeDoctor(profile.name, profile.location, product)
       
       // Create enhanced scan result with deep insights from Claude 4
+      const score = calculateOpportunityScore(insights, analysis);
       const enhancedResult: ScanResult = {
         doctor: profile.name,
         product: product,
-        score: calculateOpportunityScore(insights, analysis),
+        score: score,
         doctorProfile: createDoctorProfile(insights, comprehensiveResearch),
         productIntel: createProductIntel(insights, product),
         salesBrief: comprehensiveResearch.salesBrief || createPowerfulSalesBrief(insights, doctor, product, comprehensiveResearch),
         insights: extractKeyInsights(insights, comprehensiveResearch),
         researchQuality: 'verified' as const,
         researchSources: comprehensiveResearch.sources.length,
-        factBased: true
+        factBased: true,
+        // Pass confidence score to match target alignment
+        confidenceScore: comprehensiveResearch.confidenceScore || score
       }
       
       setScanResult(enhancedResult)

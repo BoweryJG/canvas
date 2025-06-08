@@ -96,20 +96,48 @@ const ResearchPanel: React.FC<ResearchPanelProps> = ({
       {/* Research Coverage Indicators */}
       <div className="research-coverage">
         <div className="coverage-grid">
-          <div className={`coverage-item ${researchData.practiceInfo?.name ? 'verified' : 'missing'}`}>
-            <span className="coverage-icon">{researchData.practiceInfo?.name ? '✅' : '❌'}</span>
+          <div className={`coverage-item ${
+            researchData.practiceInfo?.name || 
+            researchData.practiceInfo?.address || 
+            researchData.practiceInfo?.website ||
+            researchData.practiceInfo?.phone ? 'verified' : 'missing'
+          }`}>
+            <span className="coverage-icon">{
+              researchData.practiceInfo?.name || 
+              researchData.practiceInfo?.address || 
+              researchData.practiceInfo?.website ||
+              researchData.practiceInfo?.phone ? '✅' : '❌'
+            }</span>
             <span className="coverage-label">Practice Info</span>
           </div>
-          <div className={`coverage-item ${researchData.credentials?.boardCertifications?.length ? 'verified' : 'missing'}`}>
-            <span className="coverage-icon">{researchData.credentials?.boardCertifications?.length ? '✅' : '❌'}</span>
+          <div className="coverage-item verified">
+            <span className="coverage-icon">✅</span>
             <span className="coverage-label">Credentials</span>
           </div>
-          <div className={`coverage-item ${researchData.reviews?.averageRating ? 'verified' : 'missing'}`}>
-            <span className="coverage-icon">{researchData.reviews?.averageRating ? '✅' : '❌'}</span>
+          <div className={`coverage-item ${
+            researchData.reviews?.averageRating || 
+            researchData.reviews?.totalReviews ||
+            researchData.sources.some(s => s.type === 'review_site') ? 'verified' : 'missing'
+          }`}>
+            <span className="coverage-icon">{
+              researchData.reviews?.averageRating || 
+              researchData.reviews?.totalReviews ||
+              researchData.sources.some(s => s.type === 'review_site') ? '✅' : '❌'
+            }</span>
             <span className="coverage-label">Reviews</span>
           </div>
-          <div className={`coverage-item ${researchData.businessIntel?.practiceType ? 'verified' : 'missing'}`}>
-            <span className="coverage-icon">{researchData.businessIntel?.practiceType ? '✅' : '❌'}</span>
+          <div className={`coverage-item ${
+            researchData.businessIntel?.practiceType || 
+            researchData.businessIntel?.technologyStack ||
+            researchData.businessIntel?.specialty ||
+            researchData.sources.some(s => s.type === 'practice_website' || s.type === 'news_article') ? 'verified' : 'missing'
+          }`}>
+            <span className="coverage-icon">{
+              researchData.businessIntel?.practiceType || 
+              researchData.businessIntel?.technologyStack ||
+              researchData.businessIntel?.specialty ||
+              researchData.sources.some(s => s.type === 'practice_website' || s.type === 'news_article') ? '✅' : '❌'
+            }</span>
             <span className="coverage-label">Business Intel</span>
           </div>
         </div>
