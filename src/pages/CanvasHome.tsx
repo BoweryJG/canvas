@@ -11,7 +11,6 @@ import type { Doctor } from '../components/DoctorAutocomplete'
 import { unifiedCanvasResearch } from '../lib/unifiedCanvasResearch'
 import type { ResearchData } from '../lib/webResearch'
 import { IntelligenceProgress } from '../components/IntelligenceProgress'
-import { conductNPIEnhancedResearch } from '../lib/npiEnhancedResearch'
 import { MOCK_MODE } from '../lib/mockResearch'
 import PowerPackModal from '../components/PowerPackModal'
 
