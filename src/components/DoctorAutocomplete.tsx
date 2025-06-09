@@ -142,13 +142,57 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
           }}
         />
         {loading && (
-          <div className="absolute right-3 top-2.5">
-            <svg className={`animate-spin h-5 w-5 ${
-              inputClassName === 'canvas-input' ? 'text-cyan-400' : 'text-blue-500'
-            }`} viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-            </svg>
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            {/* Enhanced loading animation */}
+            <div className="relative">
+              {/* Outer glow effect */}
+              <div className="absolute inset-0 rounded-full blur-md animate-pulse"
+                   style={{
+                     background: 'radial-gradient(circle, rgba(0, 255, 198, 0.4) 0%, transparent 70%)',
+                     width: '28px',
+                     height: '28px',
+                     left: '-4px',
+                     top: '-4px'
+                   }} />
+              
+              {/* Main spinner */}
+              <svg className="animate-spin h-5 w-5 relative z-10" viewBox="0 0 24 24">
+                <defs>
+                  <linearGradient id="spinner-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#00ffc6" />
+                    <stop offset="100%" stopColor="#7B42F6" />
+                  </linearGradient>
+                </defs>
+                <circle 
+                  className="opacity-20" 
+                  cx="12" 
+                  cy="12" 
+                  r="10" 
+                  stroke={inputClassName === 'canvas-input' ? '#00ffc6' : '#3b82f6'}
+                  strokeWidth="3" 
+                  fill="none" 
+                />
+                <path 
+                  className="opacity-90" 
+                  fill="none"
+                  stroke="url(#spinner-gradient)"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  d="M12 2a10 10 0 0 1 10 10"
+                />
+              </svg>
+              
+              {/* Center dot */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-1.5 h-1.5 rounded-full animate-pulse"
+                     style={{
+                       background: inputClassName === 'canvas-input' ? '#00ffc6' : '#3b82f6',
+                       boxShadow: inputClassName === 'canvas-input' 
+                         ? '0 0 4px rgba(0, 255, 198, 0.8)' 
+                         : '0 0 4px rgba(59, 130, 246, 0.8)'
+                     }} />
+              </div>
+            </div>
           </div>
         )}
       </div>

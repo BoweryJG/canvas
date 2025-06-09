@@ -28,7 +28,13 @@ export const ManualDoctorForm: React.FC<ManualDoctorFormProps> = ({
 
   // Handle autocomplete selection
   const handleAutocompleteSelect = (doctor: Doctor) => {
-    // Fill manual fields
+    // For NPI selections, ALWAYS use the parent handler to skip verification
+    if (onAutocompleteSelect) {
+      onAutocompleteSelect(doctor);
+      return; // Exit early - don't do anything else
+    }
+    
+    // Only fill manual fields if no parent handler (fallback mode)
     setDoctorName(`${doctor.firstName} ${doctor.lastName}`);
     setSpecialty(doctor.specialty);
     setLocation(`${doctor.city}, ${doctor.state}`);
@@ -36,15 +42,8 @@ export const ManualDoctorForm: React.FC<ManualDoctorFormProps> = ({
     // Hide autocomplete after selection
     setShowAutocomplete(false);
     
-    // Notify parent if they want to handle autocomplete differently
-    if (onAutocompleteSelect) {
-      onAutocompleteSelect(doctor);
-    } else {
-      // Auto-verify if we have all fields
-      if (doctor.firstName && doctor.specialty && doctor.city) {
-        handleVerification(doctor.npi);
-      }
-    }
+    // DON'T auto-verify NPI selections - they're already verified!
+    console.log('✅ NPI doctor selected, skipping verification');
   };
 
   // Check if form is complete
