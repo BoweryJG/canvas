@@ -68,6 +68,20 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
   const [showSEOReport, setShowSEOReport] = useState(false);
   const { user } = useAuth();
   
+  // Contact information state
+  const [contactInfo, setContactInfo] = useState({
+    email: '',
+    phone: '',
+    preferredName: scanResult.doctor
+  });
+  
+  // Sales rep information
+  const [salesRepInfo, setSalesRepInfo] = useState({
+    name: 'Sales Representative',
+    company: 'Your Company',
+    product: 'Your Product'
+  });
+  
   // Initialize magic link campaign with instant intelligence data if available
   useEffect(() => {
     if (instantIntel && !magicLinkCampaign) {
@@ -81,21 +95,6 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       setMagicLinkCampaign(campaign);
     }
   }, [instantIntel, contactInfo.email]);
-  
-  
-  // Sales rep information
-  const [salesRepInfo, setSalesRepInfo] = useState({
-    name: 'Sales Representative',
-    company: 'Your Company',
-    product: 'Your Product'
-  });
-
-  // Contact information state
-  const [contactInfo, setContactInfo] = useState({
-    email: '',
-    phone: '',
-    preferredName: scanResult.doctor
-  });
 
 
   /**
@@ -108,12 +107,12 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         loading: false, 
         sent: false, 
         content: {
-          type: 'sms',
-          stage: 'first_contact',
+          subject: '',
           content: instantIntel.outreachTemplates.sms,
-          personalization: scanResult.doctor,
+          personalizations: [scanResult.doctor],
+          researchInsights: [],
           urgencyScore: 8,
-          timestamp: new Date()
+          expectedResponse: 'Quick response'
         }
       });
       return;
@@ -192,37 +191,41 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       if (instantIntel && !researchData) {
         const simplifiedCampaign: OutreachCampaign = {
           id: `instant-campaign-${Date.now()}`,
-          type: scanResult.score > 80 ? 'aggressive' : 'professional',
-          doctor: scanResult.doctor,
-          product: scanResult.product,
+          doctorName: scanResult.doctor,
+          productName: scanResult.product,
+          templates: [],
           sequence: [
             {
               id: 'day-1-email',
               day: 1,
               type: 'email',
               time: '9:00 AM',
-              content: instantIntel.outreachTemplates.email.body,
-              subject: instantIntel.outreachTemplates.email.subject
+              templateId: 'instant-email'
             },
             {
               id: 'day-3-sms',
               day: 3,
               type: 'sms',
               time: '2:00 PM',
-              content: instantIntel.outreachTemplates.sms
+              templateId: 'instant-sms'
             },
             {
               id: 'day-5-linkedin',
               day: 5,
               type: 'linkedin',
               time: '11:00 AM',
-              content: instantIntel.outreachTemplates.linkedin
+              templateId: 'instant-linkedin'
             }
           ],
-          metrics: {
-            expectedResponseRate: 0.25,
-            optimalSendTimes: ['9:00 AM', '2:00 PM', '11:00 AM']
-          }
+          analytics: {
+            sent: 0,
+            opened: 0,
+            clicked: 0,
+            replied: 0,
+            meetings: 0,
+            revenue: 0
+          },
+          status: 'draft'
         };
         
         setCampaignState({ 
