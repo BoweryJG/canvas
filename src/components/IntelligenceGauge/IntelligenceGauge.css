@@ -1,0 +1,481 @@
+/* Intelligence Gauge Container */
+.intelligence-gauge-container {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2rem auto;
+}
+
+.intelligence-gauge {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Glow Effect */
+.gauge-glow {
+  position: absolute;
+  width: 120%;
+  height: 120%;
+  background: radial-gradient(circle, rgba(0, 255, 198, 0.2) 0%, transparent 70%);
+  filter: blur(40px);
+  opacity: 0.6;
+  pointer-events: none;
+  animation: breathe 4s ease-in-out infinite;
+}
+
+.gauge-glow.pulse {
+  animation: pulseGlow 0.5s ease-out 3;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.6; }
+}
+
+/* Gauge Layers */
+.gauge-layers {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Outer Authority Ring */
+.outer-authority-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ring-svg, .text-svg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.authority-text-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.authority-text {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-family: 'Orbitron', monospace;
+}
+
+.tick-marks {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.tick {
+  position: absolute;
+  width: 1px;
+  height: 8px;
+  background: #00ffc6;
+  top: 50%;
+  left: 50%;
+  transform-origin: 0 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Progress Ring */
+.progress-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.progress-decorations {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.scan-line {
+  position: absolute;
+  width: 300px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #00ffc6, transparent);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+}
+
+.scan-line.secondary {
+  width: 280px;
+  opacity: 0.5;
+}
+
+/* Status Ring */
+.status-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-svg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.status-text-container {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  pointer-events: none;
+}
+
+.status-text {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #00ffc6;
+  font-family: 'Orbitron', monospace;
+  text-shadow: 0 0 10px rgba(0, 255, 198, 0.8);
+}
+
+.scan-stage-text {
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #7B42F6;
+  margin-top: 5px;
+}
+
+.status-indicators {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.status-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: 0 0;
+}
+
+.indicator-dot {
+  width: 4px;
+  height: 4px;
+  background: #00ffc6;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(0, 255, 198, 0.8);
+}
+
+.lock-pulse {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  border: 2px solid #00ffc6;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Core Meter */
+.core-meter {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.core-background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.core-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.gauge-needle-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gauge-needle {
+  position: absolute;
+  width: 3px;
+  height: 80px;
+  background: linear-gradient(to top, transparent, #00ffc6, #00ffc6);
+  bottom: 50%;
+  transform-origin: bottom center;
+  box-shadow: 0 0 10px rgba(0, 255, 198, 0.8);
+}
+
+.needle-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, transparent, #00ffc6);
+  filter: blur(4px);
+  opacity: 0.8;
+}
+
+.gauge-center-pivot {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.pivot-core {
+  width: 12px;
+  height: 12px;
+  background: #00ffc6;
+  border-radius: 50%;
+  border: 2px solid #001122;
+  box-shadow: 0 0 20px #00ffc6;
+}
+
+.score-display {
+  position: absolute;
+  text-align: center;
+  pointer-events: none;
+}
+
+.score-value {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+
+.score-number {
+  font-size: 48px;
+  font-weight: 700;
+  color: #00ffc6;
+  font-family: 'Orbitron', monospace;
+  text-shadow: 0 0 20px rgba(0, 255, 198, 0.8);
+  line-height: 1;
+}
+
+.score-percent {
+  font-size: 24px;
+  font-weight: 400;
+  color: #00ffc6;
+  margin-left: 2px;
+  opacity: 0.8;
+}
+
+.score-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #7B42F6;
+  font-family: 'Orbitron', monospace;
+  margin-bottom: 5px;
+}
+
+.score-status {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #00ffc6;
+  font-family: 'Orbitron', monospace;
+  text-shadow: 0 0 10px rgba(0, 255, 198, 0.8);
+}
+
+.scan-sweep {
+  position: absolute;
+  width: 160px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #00ffc6 50%, transparent);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+}
+
+.high-value-burst {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  border: 3px solid #00ffc6;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Data Particles */
+.data-particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.data-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  top: 50%;
+  left: 50%;
+}
+
+.particle-core {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #00ffc6;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(0, 255, 198, 0.8);
+}
+
+.particle-glow {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(0, 255, 198, 0.6) 0%, transparent 70%);
+  top: -50%;
+  left: -50%;
+  border-radius: 50%;
+}
+
+.particle-trail {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 1px solid rgba(0, 255, 198, 0.3);
+  border-radius: 50%;
+  top: -7px;
+  left: -7px;
+}
+
+.orbital-paths {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.data-streams {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.data-stream {
+  position: absolute;
+  width: 2px;
+  height: 60px;
+  background: linear-gradient(to top, transparent, #00ffc6, transparent);
+  top: 50%;
+  left: 50%;
+  transform-origin: center bottom;
+  margin-left: -1px;
+  margin-top: -120px;
+}
+
+/* Phase Indicators */
+.phase-indicators {
+  position: absolute;
+  bottom: -40px;
+  width: 100%;
+  text-align: center;
+}
+
+.phase-text {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #00ffc6;
+  font-family: 'Orbitron', monospace;
+  text-shadow: 0 0 10px rgba(0, 255, 198, 0.6);
+}
+
+.phase-text.pulse {
+  animation: textPulse 0.5s ease-out 3;
+}
+
+@keyframes textPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .intelligence-gauge-container {
+    width: 320px;
+    height: 320px;
+  }
+  
+  .score-number {
+    font-size: 36px;
+  }
+  
+  .score-percent {
+    font-size: 18px;
+  }
+  
+  .authority-text {
+    font-size: 11px;
+  }
+  
+  .status-text {
+    font-size: 9px;
+  }
+}
+
+/* Import Orbitron font */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&display=swap');

@@ -28,100 +28,130 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { verifyDoctor } from '../lib/doctorVerification';
 import { smartVerifyDoctor } from '../lib/smartDoctorVerification';
+import { analyzePracticeWebsite } from '../lib/practiceWebsiteDetector';
 
-// Helper function to check if website is a practice website
-const isPracticeWebsite = (website: string): boolean => {
-  const url = website.toLowerCase();
-  const excludeList = [
-    'healthgrades', 'vitals.com', 'webmd.com', 'zocdoc.com', 
-    'yellowpages', 'yelp.com', 'google.com', 'facebook.com',
-    'linkedin.com', 'wikipedia.org', 'ratemds.com'
-  ];
-  
-  if (excludeList.some(excluded => url.includes(excluded))) {
-    return false;
-  }
-  
-  const practiceIndicators = [
-    'dental', 'medical', 'health', 'clinic', 'practice', 
-    'care', 'center', 'associates', 'group', 'family',
-    'orthopedic', 'cardio', 'neuro', 'pediatric', 'dermat'
-  ];
-  
-  if (practiceIndicators.some(indicator => url.includes(indicator))) {
-    return true;
-  }
-  
-  return (url.includes('.com') || url.includes('.org') || url.includes('.health'));
+// Enhanced helper using our new detector
+const isPracticeWebsite = (website: string, title?: string, description?: string): boolean => {
+  const analysis = analyzePracticeWebsite(website, title, description);
+  return analysis.isPracticeWebsite && analysis.confidence > 60;
 };
 
 interface Props {
   doctorName: string;
   location?: string;
+  specialty?: string;
+  npi?: string;
+  website?: string;
+  practice?: string;
+  confidence?: number;
   onConfirm: (verifiedProfile: any) => void;
   onReject: () => void;
 }
 
-export default function DoctorVerification({ doctorName, location, onConfirm, onReject }: Props) {
-  const [loading, setLoading] = useState(true);
+export default function DoctorVerification({ 
+  doctorName, 
+  location, 
+  specialty,
+  npi,
+  website,
+  practice,
+  confidence,
+  onConfirm, 
+  onReject 
+}: Props) {
+  const [loading, setLoading] = useState(false); // Changed: no loading if we already have data
   const [profile, setProfile] = useState<any>(null);
   const [error, setError] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useState(true); // Changed: always show details
 
   useEffect(() => {
-    performVerification();
-  }, [doctorName, location]);
+    // If we already have data from parent, use it
+    if (website || practice || confidence) {
+      setProfile({
+        name: doctorName,
+        specialty: specialty,
+        location: location,
+        website: website,
+        practice: practice,
+        confidence: confidence || 0,
+        npi: npi,
+        additionalInfo: generateAdditionalInfo()
+      });
+      setLoading(false);
+    } else {
+      // Only perform verification if we don't have data
+      performVerification();
+    }
+  }, [doctorName, location, website, practice]);
+
+  const generateAdditionalInfo = () => {
+    if (!website) {
+      return "We couldn't find a practice website. Please confirm if this is the correct doctor.";
+    }
+    
+    const analysis = analyzePracticeWebsite(website, undefined, undefined, doctorName);
+    
+    if (analysis.isPracticeWebsite) {
+      return `Found practice website: ${practice || 'Practice'}. This appears to be their official site.`;
+    } else if (analysis.websiteType === 'social' && analysis.confidence > 60) {
+      // Official social media pages are valid!
+      const platform = website.includes('facebook') ? 'Facebook' : 
+                       website.includes('instagram') ? 'Instagram' : 'social media';
+      return `Found official ${platform} page for ${practice || 'the practice'}. This is a verified practice page.`;
+    } else if (analysis.websiteType === 'directory') {
+      return `Found on ${analysis.websiteType} listing. We'll search for their official website during research.`;
+    } else {
+      return `Found online presence. We'll gather more information during research.`;
+    }
+  };
 
   const performVerification = async () => {
     setLoading(true);
     setError(false);
     
     try {
-      // First try smart verification to find practice website
-      console.log('🔍 Starting smart doctor verification...');
+      // Only do additional verification if needed
+      console.log('🔍 Performing additional verification...');
       const smartResult = await smartVerifyDoctor(
         doctorName, 
         location,
-        undefined, // specialty
-        undefined, // practice name - we'll try to find it
+        specialty,
+        practice,
         undefined  // userId
       );
       
       console.log('✅ Smart verification result:', smartResult);
-      console.log('🌐 Smart verification website:', smartResult.verifiedWebsite);
-      console.log('🏥 Smart verification practice:', smartResult.practiceName);
       
-      // Get regular verification data for additional info
-      const regularResult = await verifyDoctor(doctorName, location);
-      console.log('📋 Regular verification result:', regularResult);
+      setProfile({
+        name: doctorName,
+        specialty: specialty,
+        location: location,
+        website: smartResult.verifiedWebsite || website,
+        practice: smartResult.practiceName || practice,
+        confidence: Math.max(smartResult.confidence, confidence || 0),
+        npi: npi,
+        additionalInfo: smartResult.suggestedConfirmation || generateAdditionalInfo(),
+        sources: smartResult.sources?.map(s => ({
+          name: s.type === 'practice' ? 'Practice Website' : s.type,
+          url: s.url,
+          type: s.type as any
+        })) || []
+      });
       
-      // Merge results - prioritize practice website from smart verification
-      const mergedProfile = {
-        ...regularResult,
-        website: smartResult.verifiedWebsite || regularResult.website,
-        practice: smartResult.practiceName || regularResult.practice,
-        confidence: Math.max(smartResult.confidence, regularResult.confidence),
-        additionalInfo: smartResult.suggestedConfirmation || regularResult.additionalInfo,
-        // Add verification sources
-        sources: [
-          ...(regularResult.sources || []),
-          ...(smartResult.sources?.map(s => ({
-            name: s.type === 'practice' ? 'Practice Website' : s.type,
-            url: s.url,
-            type: s.type as any
-          })) || [])
-        ]
-      };
-      
-      console.log('🔀 Merged profile:', mergedProfile);
-      console.log('🌐 Final website:', mergedProfile.website);
-      console.log('✅ Is practice website?', mergedProfile.website ? isPracticeWebsite(mergedProfile.website) : 'No website');
-      
-      setProfile(mergedProfile);
       setShowDetails(true);
     } catch (err) {
       console.error('Verification error:', err);
-      setError(true);
+      // On error, still show what we have
+      setProfile({
+        name: doctorName,
+        specialty: specialty,
+        location: location,
+        website: website,
+        practice: practice,
+        confidence: confidence || 0,
+        npi: npi,
+        additionalInfo: generateAdditionalInfo()
+      });
     } finally {
       setLoading(false);
     }
@@ -234,46 +264,62 @@ export default function DoctorVerification({ doctorName, location, onConfirm, on
                 Dr. {profile.name}
               </Typography>
 
-              {/* PRIMARY VERIFICATION - Website (if practice website) */}
-              {profile.website && isPracticeWebsite(profile.website) ? (
-                <Box sx={{ 
-                  background: 'linear-gradient(135deg, rgba(0,255,198,0.2) 0%, rgba(123,66,246,0.2) 100%)',
-                  borderRadius: '8px',
-                  p: 2,
-                  mb: 3,
-                  border: '2px solid #00ffc6'
-                }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
-                    <Language sx={{ color: '#00ffc6', fontSize: 28 }} />
-                    <Box>
-                      <Typography variant="caption" sx={{ color: '#00ffc6', fontWeight: 700 }}>
-                        ✓ PRIMARY VERIFICATION - PRACTICE WEBSITE
-                      </Typography>
-                      <Typography 
-                        component="a" 
-                        href={profile.website} 
-                        target="_blank"
-                        sx={{ 
-                          color: '#fff',
-                          textDecoration: 'none',
-                          fontSize: '1.1rem',
-                          fontWeight: 600,
-                          display: 'block',
-                          '&:hover': { 
-                            textDecoration: 'underline',
-                            color: '#00ffc6' 
-                          }
-                        }}
-                      >
-                        {profile.website}
-                      </Typography>
+              {/* PRIMARY VERIFICATION - Website or Social Media */}
+              {profile.website && (() => {
+                const analysis = analyzePracticeWebsite(profile.website, undefined, undefined, profile.name);
+                const isValidVerification = analysis.isPracticeWebsite || 
+                  (analysis.websiteType === 'social' && analysis.confidence > 60);
+                
+                if (!isValidVerification) return null;
+                
+                const isSocialMedia = analysis.websiteType === 'social';
+                const platform = profile.website.includes('facebook') ? 'Facebook' : 
+                                profile.website.includes('instagram') ? 'Instagram' : 
+                                profile.website.includes('linkedin') ? 'LinkedIn' : 'Social Media';
+                
+                return (
+                  <Box sx={{ 
+                    background: 'linear-gradient(135deg, rgba(0,255,198,0.2) 0%, rgba(123,66,246,0.2) 100%)',
+                    borderRadius: '8px',
+                    p: 2,
+                    mb: 3,
+                    border: '2px solid #00ffc6'
+                  }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
+                      <Language sx={{ color: '#00ffc6', fontSize: 28 }} />
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#00ffc6', fontWeight: 700 }}>
+                          ✓ {isSocialMedia ? `VERIFIED ${platform.toUpperCase()} PAGE` : 'PRIMARY VERIFICATION - PRACTICE WEBSITE'}
+                        </Typography>
+                        <Typography 
+                          component="a" 
+                          href={profile.website} 
+                          target="_blank"
+                          sx={{ 
+                            color: '#fff',
+                            textDecoration: 'none',
+                            fontSize: '1.1rem',
+                            fontWeight: 600,
+                            display: 'block',
+                            '&:hover': { 
+                              textDecoration: 'underline',
+                              color: '#00ffc6' 
+                            }
+                          }}
+                        >
+                          {profile.website}
+                        </Typography>
+                      </Box>
                     </Box>
+                    <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
+                      {isSocialMedia 
+                        ? `Official ${platform} practice page - verified for contact and updates`
+                        : 'Official practice website found - highest confidence verification'
+                      }
+                    </Typography>
                   </Box>
-                  <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                    Official practice website found - highest confidence verification
-                  </Typography>
-                </Box>
-              ) : null}
+                );
+              })()}
 
               {/* Other Information */}
               <Box sx={{ display: 'grid', gap: 2 }}>
@@ -307,27 +353,40 @@ export default function DoctorVerification({ doctorName, location, onConfirm, on
                   </Box>
                 )}
 
-                {/* Directory website (lower priority) */}
-                {profile.website && !isPracticeWebsite(profile.website) && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Language sx={{ color: '#00ffc6' }} />
-                    <Box>
-                      <Typography variant="caption" sx={{ color: '#00ffc6' }}>DIRECTORY LISTING</Typography>
-                      <Typography 
-                        component="a" 
-                        href={profile.website} 
-                        target="_blank"
-                        sx={{ 
-                          color: '#7B42F6',
-                          textDecoration: 'none',
-                          '&:hover': { textDecoration: 'underline' }
-                        }}
-                      >
-                        {profile.website}
-                      </Typography>
+                {/* Directory or unverified website (lower priority) */}
+                {profile.website && (() => {
+                  const analysis = analyzePracticeWebsite(profile.website, undefined, undefined, profile.name);
+                  const isValidVerification = analysis.isPracticeWebsite || 
+                    (analysis.websiteType === 'social' && analysis.confidence > 60);
+                  
+                  if (isValidVerification) return null; // Already shown above
+                  
+                  const typeLabel = analysis.websiteType === 'directory' ? 'DIRECTORY LISTING' :
+                                   analysis.websiteType === 'social' ? 'SOCIAL MEDIA' :
+                                   analysis.websiteType === 'hospital' ? 'HOSPITAL SYSTEM' :
+                                   'ONLINE PRESENCE';
+                  
+                  return (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      <Language sx={{ color: '#00ffc6' }} />
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#00ffc6' }}>{typeLabel}</Typography>
+                        <Typography 
+                          component="a" 
+                          href={profile.website} 
+                          target="_blank"
+                          sx={{ 
+                            color: '#7B42F6',
+                            textDecoration: 'none',
+                            '&:hover': { textDecoration: 'underline' }
+                          }}
+                        >
+                          {profile.website}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                )}
+                  );
+                })()}
 
                 {profile.phone && (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

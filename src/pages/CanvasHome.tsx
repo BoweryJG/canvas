@@ -7,7 +7,10 @@ import ResearchPanel from '../components/ResearchPanel'
 import IntegratedCanvasExperience from '../components/IntegratedCanvasExperience'
 import { analyzeDoctor } from '../lib/intelligentAnalysis'
 import { DoctorAutocomplete } from '../components/DoctorAutocomplete'
+import { ManualDoctorForm } from '../components/ManualDoctorForm'
+import DoctorVerification from '../components/DoctorVerification'
 import type { Doctor } from '../components/DoctorAutocomplete'
+import { IntelligenceGauge } from '../components/IntelligenceGauge'
 import { unifiedCanvasResearch } from '../lib/unifiedCanvasResearch'
 import type { ResearchData } from '../lib/webResearch'
 import { IntelligenceProgress } from '../components/IntelligenceProgress'
@@ -155,6 +158,9 @@ export default function CanvasHome() {
   const [confidenceScore, setConfidenceScore] = useState(50)
   const [showBatchPanel, setShowBatchPanel] = useState(false)
   const [isSelectingDoctor, setIsSelectingDoctor] = useState(false)
+  const [showVerification, setShowVerification] = useState(false)
+  const [pendingVerification, setPendingVerification] = useState<any>(null)
+  const [useManualEntry, setUseManualEntry] = useState(false)
   const [enhancements, setEnhancements] = useState({
     website: '',
     recentPurchases: '',
@@ -172,27 +178,24 @@ export default function CanvasHome() {
     
     setIsSelectingDoctor(true);
     
-    setSelectedDoctor(selectedDoc)
-    setDoctor(selectedDoc.displayName)
-    setLocation(`${selectedDoc.city}, ${selectedDoc.state}`)
-    if (selectedDoc.organizationName) {
-      setPracticeName(selectedDoc.organizationName)
-    }
-    
-    // Show immediate "we know this doctor" feedback
-    setShowEnhancements(true)
-    
-    // Log NPI data for verification
-    console.log('✅ NPI Verified Doctor Selected:', {
-      npi: selectedDoc.npi,
-      name: selectedDoc.displayName,
+    // Instead of auto-proceeding, treat this like manual entry
+    // Convert to the same format and trigger verification
+    const doctorData = {
+      doctorName: `${selectedDoc.firstName} ${selectedDoc.lastName}`,
       specialty: selectedDoc.specialty,
       location: `${selectedDoc.city}, ${selectedDoc.state}`,
-      organization: selectedDoc.organizationName || 'Private Practice'
-    });
+      npi: selectedDoc.npi,
+      practice: selectedDoc.organizationName,
+      phone: selectedDoc.phone,
+      address: selectedDoc.fullAddress,
+      confidence: 100, // NPI verified
+      fromAutocomplete: true
+    };
     
-    // Don't do background research - wait for main scan to avoid duplicate API calls
-    // The main research will find the website and all other info
+    console.log('✅ NPI Doctor Selected, triggering verification:', doctorData);
+    
+    // Trigger the same verification flow as manual entry
+    handleManualDoctorVerified(doctorData);
     
     // Reset the flag after a short delay
     setTimeout(() => setIsSelectingDoctor(false), 500);
@@ -222,6 +225,45 @@ export default function CanvasHome() {
     
     console.log('🚀 Generating intel with NPI-verified profile:', npiProfile);
     handleDoctorConfirmed(npiProfile);
+  }
+
+  // Handle manual doctor entry and verification
+  const handleManualDoctorVerified = (doctorData: any) => {
+    console.log('🔍 Doctor search completed, showing verification:', doctorData);
+    
+    // ALWAYS show verification dialog, regardless of confidence
+    setPendingVerification(doctorData);
+    setShowVerification(true);
+  }
+
+  // Process doctor data after verification
+  const proceedWithDoctorData = (doctorData: any) => {
+    setDoctor(doctorData.doctorName || doctorData.name);
+    setLocation(doctorData.location);
+    setPracticeName(doctorData.practice || '');
+    
+    // Create a pseudo-doctor object for compatibility
+    const pseudoDoctor = {
+      npi: doctorData.npi || '',
+      displayName: doctorData.doctorName || doctorData.name,
+      firstName: doctorData.doctorName?.split(' ')[0] || '',
+      lastName: doctorData.doctorName?.split(' ').slice(-1)[0] || '',
+      specialty: doctorData.specialty,
+      city: doctorData.location?.split(',')[0]?.trim() || '',
+      state: doctorData.location?.split(',')[1]?.trim() || '',
+      organizationName: doctorData.practice,
+      phone: doctorData.phone || '',
+      fullAddress: doctorData.address || '',
+      credential: ''
+    };
+    
+    setSelectedDoctor(pseudoDoctor as Doctor);
+    setShowEnhancements(true);
+    
+    // If we have a verified website, add it to enhancements
+    if (doctorData.website) {
+      setEnhancements(prev => ({ ...prev, website: doctorData.website }));
+    }
   }
 
   const handleDoctorConfirmed = async (profile: any) => {
@@ -404,18 +446,60 @@ export default function CanvasHome() {
         </button>
       </header>
 
+      {/* Doctor Verification Dialog */}
+      {showVerification && pendingVerification && (
+        <div style={{ 
+          position: 'fixed', 
+          top: 0, 
+          left: 0, 
+          right: 0, 
+          bottom: 0, 
+          background: 'rgba(0, 0, 0, 0.8)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <DoctorVerification
+            doctorName={pendingVerification.doctorName || pendingVerification.name}
+            location={pendingVerification.location}
+            specialty={pendingVerification.specialty}
+            npi={pendingVerification.npi}
+            website={pendingVerification.website}
+            practice={pendingVerification.practice}
+            confidence={pendingVerification.confidence}
+            onConfirm={(verifiedProfile) => {
+              setShowVerification(false);
+              proceedWithDoctorData({
+                ...pendingVerification,
+                ...verifiedProfile
+              });
+            }}
+            onReject={() => {
+              setShowVerification(false);
+              setPendingVerification(null);
+              // Clear any selected doctor
+              setSelectedDoctor(null);
+              setDoctor('');
+              setLocation('');
+            }}
+          />
+        </div>
+      )}
+
       {/* Scan Form */}
       <div className="scan-form">
-        <div className="input-group">
-          <div className="input-with-icon">
-            <DoctorTargetIcon className="input-icon" />
-            <DoctorAutocomplete 
-              onSelect={handleDoctorSelect}
-              placeholder="Doctor Name"
-              inputClassName="canvas-input"
-              dropdownClassName="canvas-dropdown"
-            />
-          </div>
+        {/* Manual Doctor Entry with Optional Autocomplete */}
+        <div style={{ marginBottom: '2rem' }}>
+          <ManualDoctorForm 
+            onDoctorVerified={handleManualDoctorVerified}
+            onAutocompleteSelect={handleDoctorSelect}
+          />
+        </div>
+        
+        {/* Product and Additional Fields */}
+        <div className="input-group" style={{ marginTop: '1rem' }}>
           <div className="input-with-icon">
             <ProductScanIcon className="input-icon" />
             <input
@@ -423,16 +507,6 @@ export default function CanvasHome() {
               placeholder="Product Name"
               value={product}
               onChange={(e) => setProduct(e.target.value)}
-              disabled={isScanning || isGeneratingBrief}
-            />
-          </div>
-          <div className="input-with-icon">
-            <LocationTargetIcon className="input-icon" />
-            <input
-              type="text"
-              placeholder="Location (City, State)"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
               disabled={isScanning || isGeneratingBrief}
             />
           </div>
@@ -530,30 +604,16 @@ export default function CanvasHome() {
         </button>
       </div>
 
-      {/* Gauge */}
-      <div className="gauge-container">
-        <div className={`gauge ${(isScanning || isGeneratingBrief) ? 'spinning' : ''} ${(scanResult?.score || 0) >= 80 ? 'high-value' : ''}`}>
-          <div className="gauge-frame">
-            <div 
-              className="gauge-needle" 
-              style={{ 
-                transform: `translate(-50%, -100%) rotate(${-135 + ((scanResult?.score || 0) / 100) * 270}deg)`,
-                transition: isScanning ? 'none' : 'transform 2s cubic-bezier(0.4, 0, 0.2, 1)'
-              }}
-            />
-            <div className="gauge-center" />
-          </div>
-        </div>
-        
-        {!isScanning && scanResult && (
-          <div className="gauge-display">
-            <div className={`score ${scanResult.score >= 80 ? 'high-value' : ''}`}>
-              {scanResult.score}%
-            </div>
-            <div className="label">TARGET ALIGNMENT</div>
-          </div>
-        )}
-      </div>
+      {/* Intelligence Gauge 2.0 */}
+      <IntelligenceGauge
+        score={scanResult?.score || 0}
+        isScanning={isScanning || isGeneratingBrief}
+        scanStage={scanStage}
+        onComplete={() => {
+          // Animation complete callback
+          console.log('🎯 Intelligence scan complete');
+        }}
+      />
 
       {/* Intelligence Progress Display */}
       {isGeneratingBrief && intelligenceSteps.length > 0 && (

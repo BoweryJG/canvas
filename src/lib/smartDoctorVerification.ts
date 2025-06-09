@@ -177,14 +177,21 @@ async function intelligentDoctorSearch(
   if (specialty?.toLowerCase().includes('oral') || specialty?.toLowerCase().includes('dental')) {
     queries.push(`"${doctorName} DDS" ${location || ''} dental practice website`);
     queries.push(`"Dr. ${doctorName}" oral surgery ${location || ''}`);
+    // Add social media searches
+    queries.push(`"${doctorName}" dental Facebook page ${location || ''}`);
+    queries.push(`"${doctorName}" DDS Instagram ${location || ''}`);
   } else if (doctorName.toLowerCase().includes('greg') && doctorName.toLowerCase().includes('white')) {
     // Special handling for Dr. Greg White
     queries.push(`"Gregory White DDS" Buffalo dental practice`);
     queries.push(`"Greg White" oral surgeon Buffalo NY website`);
     queries.push(`Pure Dental Buffalo Gregory White`);
+    queries.push(`"Pure Dental" Buffalo Facebook`);
   } else {
     queries.push(`"Dr. ${doctorName}" ${specialty || ''} practice website ${location || ''}`);
     queries.push(`"${doctorName} MD" clinic ${location || ''}`);
+    // Add generic social media searches
+    queries.push(`"Dr. ${doctorName}" Facebook page ${location || ''}`);
+    queries.push(`"${doctorName}" ${specialty || ''} Instagram`);
   }
 
   // Execute searches
@@ -292,7 +299,7 @@ function classifyResult(
     };
   }
   
-  // Social media (MEDIUM confidence)
+  // Social media (MEDIUM-HIGH confidence for official pages)
   if (url.includes('linkedin.com')) {
     return {
       url: result.url,
@@ -303,11 +310,17 @@ function classifyResult(
   }
   
   if (url.includes('facebook.com') || url.includes('instagram.com')) {
+    // Check if it's an official practice page
+    const isOfficial = result.title?.toLowerCase().includes('dental') ||
+                      result.title?.toLowerCase().includes('practice') ||
+                      result.title?.toLowerCase().includes('clinic') ||
+                      result.title?.toLowerCase().includes(doctorName.toLowerCase());
+    
     return {
       url: result.url,
       type: 'social',
-      confidence: 40,
-      signals: ['social_media']
+      confidence: isOfficial ? 70 : 40, // Higher confidence for official pages
+      signals: isOfficial ? ['official_social_media', 'practice_social'] : ['social_media']
     };
   }
   
