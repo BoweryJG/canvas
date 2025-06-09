@@ -17,6 +17,7 @@
     "@mui/material": "^7.1.1",
     "@mui/system": "^7.1.1",
     "@netlify/functions": "^4.0.0",
+    "@react-pdf/renderer": "^4.3.0",
     "@react-three/drei": "^10.1.2",
     "@react-three/fiber": "^9.1.2",
     "@stripe/stripe-js": "^7.3.1",

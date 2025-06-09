@@ -3,6 +3,9 @@ import { useAuth } from './AuthContext';
 import { supabase } from './supabase';
 // import type { User } from './types';
 
+// Re-export useAuth for convenience
+export { useAuth } from './AuthContext';
+
 /**
  * Hook to get the current user
  */

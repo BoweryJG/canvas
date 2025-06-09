@@ -98,7 +98,7 @@ export async function findDoctorWebsite(
  */
 function buildSmartQueries(
   fullName: string,
-  firstName: string,
+  _firstName: string,
   lastName: string,
   city: string,
   state: string,
@@ -146,7 +146,7 @@ function buildSmartQueries(
 function classifyAndScoreResult(
   result: any,
   fullName: string,
-  firstName: string,
+  _firstName: string,
   lastName: string,
   city: string,
   state: string,

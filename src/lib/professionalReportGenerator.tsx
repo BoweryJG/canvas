@@ -3,7 +3,7 @@
  * Creates visually stunning PDF reports with charts and branding
  */
 
-import { Document, Page, Text, View, StyleSheet, PDFDownloadLink, Image, Font } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 import type { EnhancedScanResult } from './enhancedAI';
 import type { ResearchData } from './webResearch';
 import type { ProductIntelligence } from './productProcedureIntelligence';
@@ -223,7 +223,7 @@ export const McKinseyExecutiveReport = ({
             </View>
             <View style={styles.infoBox}>
               <Text style={styles.infoLabel}>LOCATION</Text>
-              <Text style={styles.infoValue}>{researchData.location || 'Not specified'}</Text>
+              <Text style={styles.infoValue}>{researchData.practiceInfo?.address || 'Not specified'}</Text>
             </View>
             <View style={styles.infoBox}>
               <Text style={styles.infoLabel}>PRACTICE SIZE</Text>

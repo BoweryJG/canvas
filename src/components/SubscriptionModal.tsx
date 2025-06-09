@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Box, Typography, Button, CircularProgress } from '@mui/material';
 import { CheckCircle, Star, TrendingUp } from '@mui/icons-material';
 import { loadStripe } from '@stripe/stripe-js';
-import { SUBSCRIPTION_TIERS } from '../lib/subscriptionTiers';
+import { SUBSCRIPTION_TIERS } from '../auth/subscription.config';
 
 interface SubscriptionModalProps {
   open: boolean;
@@ -162,7 +162,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                   mb: 2,
                   fontWeight: 700 
                 }}>
-                  ${tier.monthlyPrice}
+                  ${tier.price.monthly}
                   <Typography component="span" sx={{ 
                     fontSize: '1rem', 
                     color: 'rgba(255,255,255,0.5)' 

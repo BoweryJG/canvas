@@ -3,7 +3,7 @@
  * Uses Claude and GPT-4 for personalized outreach content
  */
 
-import { callPerplexityAPI } from './apiEndpoints';
+import { callPerplexityResearch } from './apiEndpoints';
 import type { ResearchData } from './webResearch';
 import type { DentalProcedure, AestheticProcedure } from './procedureDatabase';
 
@@ -35,7 +35,7 @@ export async function generatePersonalizedEmail(
   procedure?: DentalProcedure | AestheticProcedure
 ): Promise<{ subject: string; body: string; preheader?: string }> {
   const insights = researchData.enhancedInsights;
-  const website = researchData.sources.find(s => s.type === 'practice')?.url;
+  const website = researchData.sources.find(s => s.type === 'practice_website')?.url || researchData.practiceInfo?.website;
   
   // Build context-rich prompt
   const prompt = `Generate a highly personalized sales email for Dr. ${doctorName} about ${productName}.
@@ -44,7 +44,7 @@ CONTEXT:
 - Doctor: ${doctorName}
 - Specialty: ${insights?.specialty || procedure?.specialty || 'Healthcare Professional'}
 - Practice: ${insights?.practiceName || 'Practice'}
-- Location: ${researchData.location || ''}
+- Location: ${researchData.practiceInfo?.address || ''}
 - Website: ${website || 'Not found'}
 - Product: ${productName}
 - Product Category: ${procedure?.category || 'Healthcare Solution'}
@@ -76,7 +76,7 @@ Preheader: [Your preheader text]
 Body: [Your email body]`;
 
   try {
-    const response = await callPerplexityAPI(prompt, 'gpt-4');
+    const response = await callPerplexityResearch(prompt, 'search');
     
     // Parse the response
     const lines = response.split('\n');
@@ -105,7 +105,7 @@ Body: [Your email body]`;
       return {
         subject: `${productName} can transform your ${insights?.specialty || 'practice'}, Dr. ${doctorName}`,
         body: response || generateFallbackEmail(doctorName, productName, insights),
-        preheader: preheader || `Proven results in ${researchData.location}`
+        preheader: preheader || `Proven results in ${researchData.practiceInfo?.address || 'your area'}`
       };
     }
     
@@ -115,7 +115,7 @@ Body: [Your email body]`;
     return {
       subject: `${productName} can transform your ${insights?.specialty || 'practice'}, Dr. ${doctorName}`,
       body: generateFallbackEmail(doctorName, productName, insights),
-      preheader: `Proven results in ${researchData.location}`
+      preheader: `Proven results in ${researchData.practiceInfo?.address || 'your area'}`
     };
   }
 }
@@ -150,10 +150,10 @@ REQUIREMENTS:
 Also generate a follow-up SMS (160 chars max) for 3 days later.`;
 
   try {
-    const response = await callPerplexityAPI(prompt, 'claude-3-sonnet');
+    const response = await callPerplexityResearch(prompt, 'search');
     
     // Simple parsing
-    const messages = response.split('\n').filter(line => line.trim());
+    const messages = response.split('\n').filter((line: string) => line.trim());
     return {
       message: messages[0] || generateFallbackSMS(doctorName, productName, salesRepName),
       followUp: messages[1]

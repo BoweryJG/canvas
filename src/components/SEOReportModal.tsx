@@ -4,9 +4,7 @@ import {
   analyzePracticeSEO, 
   type SEOAnalysis,
   type SEOIssue,
-  type SEOOpportunity,
-  type LocalCompetitor,
-  type KeywordAnalysis
+  type SEOOpportunity
 } from '../lib/seoAnalysis';
 import { CircularProgress } from '@mui/material';
 

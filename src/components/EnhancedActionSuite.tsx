@@ -535,7 +535,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                 <button 
                   onClick={async () => {
                     // Check subscription
-                    if (!user?.subscription?.hasActiveSubscription) {
+                    if (!user?.subscription || user.subscription.status !== 'active') {
                       setUpgradeFeature('AI-Powered Email Generation');
                       setShowUpgradeModal(true);
                       return;
@@ -554,15 +554,11 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                       );
                       
                       // Create campaign object
-                      const campaign = {
+                      const campaign: EmailCampaign = {
+                        id: `ai-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                         to: contactInfo.email,
                         subject: aiCampaign.email.subject,
-                        body: aiCampaign.email.body,
-                        preheader: aiCampaign.email.preheader,
-                        doctor: scanResult.doctor,
-                        product: scanResult.product,
-                        sender: salesRepInfo.name,
-                        company: salesRepInfo.company
+                        body: aiCampaign.email.body
                       };
                       
                       setMagicLinkCampaign(campaign);
@@ -822,7 +818,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                   </button>
                   <button 
                     onClick={() => setShowSEOReport(true)}
-                    disabled={!researchData?.website}
+                    disabled={!researchData?.practiceInfo?.website}
                     className="report-btn"
                   >
                     🔍 SEO Analysis Report
@@ -1262,13 +1258,13 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       />
       
       {/* SEO Report Modal */}
-      {researchData?.website && (
+      {researchData?.practiceInfo?.website && (
         <SEOReportModal
           open={showSEOReport}
           onClose={() => setShowSEOReport(false)}
-          websiteUrl={researchData.website}
+          websiteUrl={researchData.practiceInfo.website}
           doctorName={scanResult.doctor}
-          location={researchData.location}
+          location={researchData.practiceInfo.address || ''}
           specialty={researchData.enhancedInsights?.specialty}
           userId={user?.id}
         />

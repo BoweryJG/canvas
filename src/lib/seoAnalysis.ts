@@ -255,10 +255,10 @@ async function analyzeTechnicalSEO(url: string): Promise<{
  * Analyze local SEO factors
  */
 async function analyzeLocalSEO(
-  url: string,
+  _url: string,
   doctorName: string,
   location: string,
-  specialty: string,
+  _specialty: string,
   userId?: string
 ): Promise<{
   local: LocalSEO;
@@ -271,12 +271,12 @@ async function analyzeLocalSEO(
   // Search for Google My Business listing
   const gmbQuery = `"${doctorName}" "${location}" site:google.com/maps`;
   const gmbResults = await callBraveSearch(gmbQuery, 3, userId);
-  const hasGMB = gmbResults.web?.results?.some(r => r.url.includes('google.com/maps'));
+  const hasGMB = gmbResults.web?.results?.some((r: any) => r.url.includes('google.com/maps'));
   
   // Search for local directory listings
   const directoryQuery = `"${doctorName}" "${location}" (healthgrades OR vitals OR yelp)`;
   const directoryResults = await callBraveSearch(directoryQuery, 10, userId);
-  const directoryCount = directoryResults.web?.results?.filter(r => 
+  const directoryCount = directoryResults.web?.results?.filter((r: any) => 
     ['healthgrades', 'vitals', 'yelp', 'yellowpages'].some(d => r.url.includes(d))
   ).length || 0;
   
@@ -389,10 +389,10 @@ function analyzeCompetitorStrengths(result: any): string[] {
  * Analyze keyword opportunities
  */
 async function analyzeKeywords(
-  doctorName: string,
+  _doctorName: string,
   location: string,
   specialty: string,
-  userId?: string
+  _userId?: string
 ): Promise<KeywordAnalysis[]> {
   const keywords: KeywordAnalysis[] = [];
   
