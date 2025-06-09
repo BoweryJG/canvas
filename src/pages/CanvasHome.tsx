@@ -155,6 +155,7 @@ export default function CanvasHome() {
   const [sourcesFound, setSourcesFound] = useState(0)
   const [confidenceScore, setConfidenceScore] = useState(50)
   const [showBatchPanel, setShowBatchPanel] = useState(false)
+  const [isSelectingDoctor, setIsSelectingDoctor] = useState(false)
   const [enhancements, setEnhancements] = useState({
     website: '',
     recentPurchases: '',
@@ -164,6 +165,14 @@ export default function CanvasHome() {
   })
 
   const handleDoctorSelect = async (selectedDoc: Doctor) => {
+    // Prevent duplicate selections
+    if (isSelectingDoctor || selectedDoctor?.npi === selectedDoc.npi) {
+      console.log('Preventing duplicate doctor selection');
+      return;
+    }
+    
+    setIsSelectingDoctor(true);
+    
     setSelectedDoctor(selectedDoc)
     setDoctor(selectedDoc.displayName)
     setLocation(`${selectedDoc.city}, ${selectedDoc.state}`)
@@ -183,18 +192,11 @@ export default function CanvasHome() {
       organization: selectedDoc.organizationName || 'Private Practice'
     });
     
-    // Start background research to find website
-    setTimeout(async () => {
-      try {
-        const quickResearch = await conductNPIEnhancedResearch(selectedDoc, 'general');
-        if (quickResearch.practiceInfo?.website) {
-          setEnhancements(prev => ({ ...prev, website: quickResearch.practiceInfo.website || '' }));
-          console.log('Found website in background:', quickResearch.practiceInfo.website);
-        }
-      } catch (error) {
-        console.log('Could not fetch website in background:', error);
-      }
-    }, 100);
+    // Don't do background research - wait for main scan to avoid duplicate API calls
+    // The main research will find the website and all other info
+    
+    // Reset the flag after a short delay
+    setTimeout(() => setIsSelectingDoctor(false), 500);
   }
 
   const handleScan = async () => {
@@ -303,11 +305,7 @@ export default function CanvasHome() {
       // Fallback to instant results if analysis fails
       const fallbackResult = getInstantResults(doctor, product)
       setScanResult(fallbackResult)
-      // Still set basic research data
-      if (selectedDoctor) {
-        const basicResearch = await conductNPIEnhancedResearch(selectedDoctor, product)
-        setResearchData(basicResearch)
-      }
+      // Don't trigger another research call - just use mock data
     } finally {
       setIsGeneratingBrief(false)
       setScanStage('')
