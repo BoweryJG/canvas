@@ -1,12 +1,11 @@
 import { useState } from 'react'
 import { getInstantResults } from '../lib/instantResults'
-import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon, LocationTargetIcon } from '../components/Icons'
+import { TargetSightIcon, ProductScanIcon, TacticalBriefIcon } from '../components/Icons'
 // @ts-ignore
 import EnhancedActionSuite from '../components/EnhancedActionSuite'
 import ResearchPanel from '../components/ResearchPanel'
 import IntegratedCanvasExperience from '../components/IntegratedCanvasExperience'
 import { analyzeDoctor } from '../lib/intelligentAnalysis'
-import { DoctorAutocomplete } from '../components/DoctorAutocomplete'
 import { ManualDoctorForm } from '../components/ManualDoctorForm'
 import DoctorVerification from '../components/DoctorVerification'
 import type { Doctor } from '../components/DoctorAutocomplete'
@@ -140,7 +139,7 @@ function extractKeyInsights(insights: any, research: ResearchData): string[] {
 export default function CanvasHome() {
   const [doctor, setDoctor] = useState('')
   const [product, setProduct] = useState('')
-  const [location, setLocation] = useState('')
+  const [, setLocation] = useState('')
   // @ts-ignore - Will use for enhanced verification
   const [practiceName, setPracticeName] = useState('')
   // @ts-ignore - Will use for NPI data
@@ -160,7 +159,6 @@ export default function CanvasHome() {
   const [isSelectingDoctor, setIsSelectingDoctor] = useState(false)
   const [showVerification, setShowVerification] = useState(false)
   const [pendingVerification, setPendingVerification] = useState<any>(null)
-  const [useManualEntry, setUseManualEntry] = useState(false)
   const [enhancements, setEnhancements] = useState({
     website: '',
     recentPurchases: '',

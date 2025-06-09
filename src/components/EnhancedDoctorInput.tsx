@@ -18,8 +18,7 @@ interface EnhancedDoctorInputProps {
 }
 
 export const EnhancedDoctorInput: React.FC<EnhancedDoctorInputProps> = ({ 
-  onDoctorConfirmed,
-  productName 
+  onDoctorConfirmed
 }) => {
   const [manualEntry, setManualEntry] = useState({
     doctorName: '',
@@ -229,7 +228,7 @@ export const EnhancedDoctorInput: React.FC<EnhancedDoctorInputProps> = ({
         )}
       </button>
 
-      <style jsx>{`
+      <style>{`
         .enhanced-doctor-input {
           width: 100%;
           max-width: 800px;

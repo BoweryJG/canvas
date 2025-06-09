@@ -387,7 +387,7 @@ function analyzeOfficialSocialMedia(url: string, pageTitle?: string, doctorName?
       // Check for doctor name
       const hasDoctorName = doctorName && titleLower.includes(doctorName.toLowerCase().split(' ')[0]);
       
-      return hasPracticeIndicator || hasDoctorName;
+      return !!(hasPracticeIndicator || hasDoctorName);
     }
   }
   
@@ -402,7 +402,7 @@ function analyzeOfficialSocialMedia(url: string, pageTitle?: string, doctorName?
     // Many practices use format: @drsmithdental or @smithdentalcare
     const hasDoctor = urlLower.includes('dr') || (doctorName && urlLower.includes(doctorName.toLowerCase().split(' ')[0]));
     
-    return hasPracticeIndicator || hasDoctor;
+    return !!(hasPracticeIndicator || hasDoctor);
   }
   
   // LinkedIn - check if it's company page vs personal

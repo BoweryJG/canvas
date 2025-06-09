@@ -26,15 +26,8 @@ import {
   Refresh
 } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
-import { verifyDoctor } from '../lib/doctorVerification';
 import { smartVerifyDoctor } from '../lib/smartDoctorVerification';
 import { analyzePracticeWebsite } from '../lib/practiceWebsiteDetector';
-
-// Enhanced helper using our new detector
-const isPracticeWebsite = (website: string, title?: string, description?: string): boolean => {
-  const analysis = analyzePracticeWebsite(website, title, description);
-  return analysis.isPracticeWebsite && analysis.confidence > 60;
-};
 
 interface Props {
   doctorName: string;

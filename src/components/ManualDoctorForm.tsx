@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { DoctorAutocomplete, type Doctor } from './DoctorAutocomplete';
 import { smartVerifyDoctor } from '../lib/smartDoctorVerification';
 
@@ -42,7 +42,7 @@ export const ManualDoctorForm: React.FC<ManualDoctorFormProps> = ({
     } else {
       // Auto-verify if we have all fields
       if (doctor.firstName && doctor.specialty && doctor.city) {
-        handleVerification(true, doctor.npi);
+        handleVerification(doctor.npi);
       }
     }
   };
@@ -53,7 +53,7 @@ export const ManualDoctorForm: React.FC<ManualDoctorFormProps> = ({
   };
 
   // Handle verification - ALWAYS verify, regardless of input method
-  const handleVerification = async (fromAutocomplete = false, npi?: string) => {
+  const handleVerification = async (npi?: string) => {
     if (!isFormComplete()) return;
     
     setIsVerifying(true);
@@ -78,9 +78,7 @@ export const ManualDoctorForm: React.FC<ManualDoctorFormProps> = ({
         website: result.verifiedWebsite,
         practice: result.practiceName,
         confidence: result.confidence || 0,
-        npi: npi,
-        verificationSources: result.sources,
-        suggestedConfirmation: result.suggestedConfirmation
+        npi: npi
       });
       
     } catch (error) {
@@ -160,7 +158,7 @@ export const ManualDoctorForm: React.FC<ManualDoctorFormProps> = ({
 
           <button
             className={`verify-button ${isVerifying ? 'verifying' : ''}`}
-            onClick={() => handleVerification(false)}
+            onClick={() => handleVerification()}
             disabled={!isFormComplete() || isVerifying}
           >
             {isVerifying ? 'VERIFYING...' : 'FIND DOCTOR →'}
@@ -181,7 +179,7 @@ export const ManualDoctorForm: React.FC<ManualDoctorFormProps> = ({
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .manual-doctor-form {
           width: 100%;
           max-width: 600px;
