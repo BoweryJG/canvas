@@ -59,7 +59,7 @@ export default function DoctorVerification({
 
   useEffect(() => {
     // If we already have data from parent, use it
-    if (website || practice || confidence) {
+    if (website || practice || confidence !== undefined) {
       setProfile({
         name: doctorName,
         specialty: specialty,
@@ -210,6 +210,22 @@ export default function DoctorVerification({
     );
   }
 
+  // If profile is still null, show loading or create a temporary profile
+  if (!profile && !loading) {
+    // Create a temporary profile from props
+    const tempProfile = {
+      name: doctorName,
+      specialty: specialty,
+      location: location,
+      website: website,
+      practice: practice,
+      confidence: confidence || 0,
+      npi: npi,
+      additionalInfo: 'Verifying doctor information...'
+    };
+    setProfile(tempProfile);
+  }
+
   return (
     <AnimatePresence mode="wait">
       <motion.div
@@ -236,9 +252,9 @@ export default function DoctorVerification({
                 Is this the right doctor?
               </Typography>
               <Chip 
-                label={`${profile.confidence}% Match`}
+                label={`${profile?.confidence || 0}% Match`}
                 sx={{ 
-                  background: profile.confidence > 80 ? '#00ffc6' : '#ffa726',
+                  background: (profile?.confidence || 0) > 80 ? '#00ffc6' : '#ffa726',
                   color: '#000',
                   fontWeight: 700
                 }}
@@ -254,11 +270,11 @@ export default function DoctorVerification({
               border: '1px solid rgba(255,255,255,0.1)'
             }}>
               <Typography variant="h4" sx={{ color: '#fff', mb: 2, fontWeight: 700 }}>
-                Dr. {profile.name}
+                Dr. {profile?.name || doctorName}
               </Typography>
 
               {/* PRIMARY VERIFICATION - Website or Social Media */}
-              {profile.website && (() => {
+              {profile?.website && (() => {
                 const analysis = analyzePracticeWebsite(profile.website, undefined, undefined, profile.name);
                 const isValidVerification = analysis.isPracticeWebsite || 
                   (analysis.websiteType === 'social' && analysis.confidence > 60);
@@ -316,7 +332,7 @@ export default function DoctorVerification({
 
               {/* Other Information */}
               <Box sx={{ display: 'grid', gap: 2 }}>
-                {profile.specialty && (
+                {profile?.specialty && (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <MedicalServices sx={{ color: '#00ffc6' }} />
                     <Box>
@@ -326,7 +342,7 @@ export default function DoctorVerification({
                   </Box>
                 )}
 
-                {profile.practice && (
+                {profile?.practice && (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Business sx={{ color: '#00ffc6' }} />
                     <Box>
@@ -336,7 +352,7 @@ export default function DoctorVerification({
                   </Box>
                 )}
 
-                {profile.location && (
+                {profile?.location && (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <LocationOn sx={{ color: '#00ffc6' }} />
                     <Box>
@@ -347,7 +363,7 @@ export default function DoctorVerification({
                 )}
 
                 {/* Directory or unverified website (lower priority) */}
-                {profile.website && (() => {
+                {profile?.website && (() => {
                   const analysis = analyzePracticeWebsite(profile.website, undefined, undefined, profile.name);
                   const isValidVerification = analysis.isPracticeWebsite || 
                     (analysis.websiteType === 'social' && analysis.confidence > 60);
@@ -381,7 +397,7 @@ export default function DoctorVerification({
                   );
                 })()}
 
-                {profile.phone && (
+                {profile?.phone && (
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Phone sx={{ color: '#00ffc6' }} />
                     <Box>
@@ -394,7 +410,7 @@ export default function DoctorVerification({
 
               {/* Additional Details */}
               <Collapse in={showDetails}>
-                {profile.additionalInfo && (
+                {profile?.additionalInfo && (
                   <Box sx={{ mt: 3, pt: 3, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
                     <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
                       {profile.additionalInfo}
@@ -405,7 +421,7 @@ export default function DoctorVerification({
             </Box>
 
             {/* Sources */}
-            {profile.sources && profile.sources.length > 0 && (
+            {profile?.sources && profile.sources.length > 0 && (
               <Box sx={{ mb: 3 }}>
                 <Typography variant="caption" sx={{ color: '#00ffc6', mb: 1 }}>
                   VERIFIED FROM {profile.sources.length} SOURCES
