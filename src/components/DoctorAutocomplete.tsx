@@ -130,7 +130,12 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
           }}
           placeholder={placeholder}
           className={`w-full ${inputClassName}`}
-          style={inputClassName === 'canvas-input' ? {} : {
+          style={inputClassName === 'canvas-input' ? {
+            // Ensure consistent dark theme styling
+            backgroundColor: '#1a1a1a',
+            color: 'white',
+            borderColor: '#333'
+          } : {
             backgroundColor: 'white',
             color: 'black',
             borderColor: '#d1d5db'
@@ -149,7 +154,7 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
       </div>
 
       {showDropdown && suggestions.length > 0 && (
-        <div className={`absolute z-50 w-full mt-1 rounded-lg shadow-lg max-h-60 overflow-auto ${dropdownClassName}`}
+        <div className={`absolute w-full mt-1 rounded-lg shadow-lg max-h-60 overflow-auto ${dropdownClassName}`}
              style={dropdownClassName === 'canvas-dropdown' ? { 
                backgroundColor: '#1a1a1a', 
                color: 'white',

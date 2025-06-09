@@ -106,7 +106,7 @@ export const ManualDoctorForm: React.FC<ManualDoctorFormProps> = ({
           <DoctorAutocomplete
             onSelect={handleAutocompleteSelect}
             placeholder="Start typing doctor name for quick search..."
-            inputClassName="autocomplete-input"
+            inputClassName="canvas-input"
             dropdownClassName="canvas-dropdown"
           />
           <button 
@@ -190,14 +190,17 @@ export const ManualDoctorForm: React.FC<ManualDoctorFormProps> = ({
           position: relative;
         }
 
-        .autocomplete-input {
-          width: 100%;
-          padding: 16px 20px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 2px solid rgba(0, 255, 198, 0.3);
-          border-radius: 12px;
-          color: #fff;
-          font-size: 1.1rem;
+        /* Use canvas-input styles from App.css */
+        
+        /* Mobile-specific fixes */
+        @media (max-width: 768px) {
+          .autocomplete-wrapper {
+            padding: 0 10px;
+          }
+          
+          .canvas-input {
+            font-size: 16px !important; /* Prevent zoom on iOS */
+          }
         }
 
         .skip-autocomplete {
