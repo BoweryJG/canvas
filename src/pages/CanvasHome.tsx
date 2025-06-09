@@ -15,6 +15,7 @@ import type { ResearchData } from '../lib/webResearch'
 import { IntelligenceProgress } from '../components/IntelligenceProgress'
 import { MOCK_MODE } from '../lib/mockResearch'
 import PowerPackModal from '../components/PowerPackModal'
+import { generateInstantIntelligence, type InstantIntelligence } from '../lib/instantIntelligence'
 
 interface ScanResult {
   doctor: string;
@@ -166,6 +167,11 @@ export default function CanvasHome() {
     practiceSize: '',
     notes: ''
   })
+  
+  // New states for instant intelligence
+  const [instantIntel, setInstantIntel] = useState<InstantIntelligence | null>(null)
+  const [gaugeProgress, setGaugeProgress] = useState(0)
+  const [showDeepResearch, setShowDeepResearch] = useState(false)
 
   const handleDoctorSelect = async (selectedDoc: Doctor) => {
     // Prevent duplicate selections
@@ -176,8 +182,7 @@ export default function CanvasHome() {
     
     setIsSelectingDoctor(true);
     
-    // Instead of auto-proceeding, treat this like manual entry
-    // Convert to the same format and trigger verification
+    // For NPI-selected doctors, skip verification - they're already verified!
     const doctorData = {
       doctorName: `${selectedDoc.firstName} ${selectedDoc.lastName}`,
       specialty: selectedDoc.specialty,
@@ -190,48 +195,88 @@ export default function CanvasHome() {
       fromAutocomplete: true
     };
     
-    console.log('✅ NPI Doctor Selected, triggering verification:', doctorData);
+    console.log('✅ NPI Doctor Selected, proceeding directly:', doctorData);
     
-    // Trigger the same verification flow as manual entry
-    handleManualDoctorVerified(doctorData);
+    // Skip verification for NPI doctors - go straight to data processing
+    proceedWithDoctorData(doctorData);
     
     // Reset the flag after a short delay
     setTimeout(() => setIsSelectingDoctor(false), 500);
   }
 
   const handleScan = async () => {
-    if (!doctor || !product || !selectedDoctor) return
+    if (!doctor || !product || !selectedDoctor) {
+      console.log('Missing required fields:', { doctor, product, selectedDoctor });
+      return;
+    }
     
-    // Skip verification - NPI is already verified!
-    // Go straight to generating the brief
-    const npiProfile = {
-      name: selectedDoctor.displayName,
-      npi: selectedDoctor.npi,
-      specialty: selectedDoctor.specialty,
-      location: `${selectedDoctor.city}, ${selectedDoctor.state}`,
-      practice: selectedDoctor.organizationName || practiceName || 'Private Practice',
-      phone: selectedDoctor.phone,
-      // Add any enhancements
-      website: enhancements.website,
-      additionalContext: {
-        recentPurchases: enhancements.recentPurchases,
-        painPoints: enhancements.painPoints,
-        practiceSize: enhancements.practiceSize,
-        notes: enhancements.notes
-      }
-    };
+    setIsGeneratingBrief(true);
+    setGaugeProgress(0);
+    setScanStage('Initializing intelligence scan...');
     
-    console.log('🚀 Generating intel with NPI-verified profile:', npiProfile);
-    handleDoctorConfirmed(npiProfile);
+    try {
+      // Generate instant intelligence with progress callbacks
+      const intelligence = await generateInstantIntelligence(
+        selectedDoctor.displayName,
+        selectedDoctor.specialty,
+        `${selectedDoctor.city}, ${selectedDoctor.state}`,
+        product,
+        selectedDoctor.npi,
+        selectedDoctor.organizationName || practiceName,
+        (stage, percentage) => {
+          setScanStage(stage);
+          setGaugeProgress(percentage);
+        }
+      );
+      
+      setInstantIntel(intelligence);
+      
+      // Create scan result from instant intelligence
+      const instantResult: ScanResult = {
+        doctor: selectedDoctor.displayName,
+        product: product,
+        score: intelligence.confidenceScore,
+        doctorProfile: `**${selectedDoctor.displayName}** - ${selectedDoctor.specialty}
+${selectedDoctor.organizationName || 'Private Practice'}
+${selectedDoctor.city}, ${selectedDoctor.state}
+NPI: ${selectedDoctor.npi}`,
+        productIntel: intelligence.tacticalBrief,
+        salesBrief: intelligence.tacticalBrief,
+        insights: intelligence.keyInsights,
+        researchQuality: 'verified',
+        researchSources: 1, // Single fast source
+        factBased: true,
+        confidenceScore: intelligence.confidenceScore
+      };
+      
+      setScanResult(instantResult);
+      setShowDeepResearch(true); // Show option for deep research
+      
+    } catch (error) {
+      console.error('Error generating instant intelligence:', error);
+      // Fallback to instant results
+      const fallbackResult = getInstantResults(doctor, product);
+      setScanResult(fallbackResult);
+    } finally {
+      setIsGeneratingBrief(false);
+      setScanStage('');
+    }
   }
 
   // Handle manual doctor entry and verification
   const handleManualDoctorVerified = (doctorData: any) => {
-    console.log('🔍 Doctor search completed, showing verification:', doctorData);
+    console.log('🔍 Doctor search completed, checking confidence:', doctorData);
     
-    // ALWAYS show verification dialog, regardless of confidence
-    setPendingVerification(doctorData);
-    setShowVerification(true);
+    // Only show verification for low confidence results
+    if (doctorData.confidence < 80) {
+      console.log('⚠️ Low confidence score, showing verification:', doctorData.confidence);
+      setPendingVerification(doctorData);
+      setShowVerification(true);
+    } else {
+      // High confidence - proceed directly
+      console.log('✅ High confidence score, skipping verification:', doctorData.confidence);
+      proceedWithDoctorData(doctorData);
+    }
   }
 
   // Process doctor data after verification
@@ -263,6 +308,35 @@ export default function CanvasHome() {
       setEnhancements(prev => ({ ...prev, website: doctorData.website }));
     }
   }
+
+  // Handle deep research request (premium feature)
+  const handleDeepResearch = async () => {
+    if (!selectedDoctor || !product) return;
+    
+    setShowDeepResearch(false);
+    setInstantIntel(null); // Clear instant intel when doing deep research
+    setIsGeneratingBrief(true);
+    setScanStage('Initiating deep research...');
+    
+    // Call the original deep research function
+    const npiProfile = {
+      name: selectedDoctor.displayName,
+      npi: selectedDoctor.npi,
+      specialty: selectedDoctor.specialty,
+      location: `${selectedDoctor.city}, ${selectedDoctor.state}`,
+      practice: selectedDoctor.organizationName || practiceName || 'Private Practice',
+      phone: selectedDoctor.phone,
+      website: enhancements.website,
+      additionalContext: {
+        recentPurchases: enhancements.recentPurchases,
+        painPoints: enhancements.painPoints,
+        practiceSize: enhancements.practiceSize,
+        notes: enhancements.notes
+      }
+    };
+    
+    handleDoctorConfirmed(npiProfile);
+  };
 
   const handleDoctorConfirmed = async (profile: any) => {
     setIsGeneratingBrief(true)
@@ -489,7 +563,7 @@ export default function CanvasHome() {
       {/* Scan Form */}
       <div className="scan-form">
         {/* Manual Doctor Entry with Optional Autocomplete */}
-        <div style={{ marginBottom: '2rem' }}>
+        <div style={{ marginBottom: '1.5rem' }}>
           <ManualDoctorForm 
             onDoctorVerified={handleManualDoctorVerified}
             onAutocompleteSelect={handleDoctorSelect}
@@ -510,15 +584,54 @@ export default function CanvasHome() {
           </div>
         </div>
         
+        {/* Intelligence Gauge - Moved closer to inputs for mobile */}
+        {(selectedDoctor && product) && (
+          <div style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
+            <IntelligenceGauge
+              score={scanResult?.score || 0}
+              isScanning={isScanning || isGeneratingBrief}
+              scanStage={scanStage}
+              progress={gaugeProgress}
+              onComplete={() => {
+                // Animation complete callback
+                console.log('🎯 Intelligence scan complete');
+              }}
+            />
+          </div>
+        )}
+        
         {/* Instant Knowledge Display - Shows after NPI selection */}
         {selectedDoctor && showEnhancements && (
-          <div className="npi-verified-display">
-            <div className="verified-header">
-              <div className="verified-badge">
+          <div className="npi-verified-display" style={{ 
+            marginTop: '1rem',
+            padding: '1rem',
+            background: 'rgba(0, 255, 198, 0.05)',
+            border: '1px solid rgba(0, 255, 198, 0.2)',
+            borderRadius: '12px'
+          }}>
+            <div className="verified-header" style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '0.75rem',
+              flexWrap: 'wrap',
+              gap: '0.5rem'
+            }}>
+              <div className="verified-badge" style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                color: '#00ffc6',
+                fontSize: '0.875rem',
+                fontWeight: '600'
+              }}>
                 <span className="checkmark">✓</span>
                 <span>NPI VERIFIED</span>
               </div>
-              <div className="npi-number">NPI: {selectedDoctor.npi}</div>
+              <div className="npi-number" style={{
+                fontSize: '0.75rem',
+                color: 'rgba(255, 255, 255, 0.6)'
+              }}>NPI: {selectedDoctor.npi}</div>
             </div>
             
             <div className="doctor-insights">
@@ -557,61 +670,87 @@ export default function CanvasHome() {
               </div>
             </div>
             
-            {/* Optional Enhancements */}
-            <div className="enhancement-section">
-              <p className="enhancement-prompt">
-                <span className="glow">ENHANCE YOUR INTEL</span> - Add any insider knowledge:
-              </p>
-              <div className="enhancement-fields">
+            {/* Optional Enhancements - Simplified for mobile */}
+            <details className="enhancement-section" style={{
+              marginTop: '1rem',
+              padding: '0.75rem',
+              background: 'rgba(123, 66, 246, 0.05)',
+              border: '1px solid rgba(123, 66, 246, 0.2)',
+              borderRadius: '8px',
+              cursor: 'pointer'
+            }}>
+              <summary style={{
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                color: '#7B42F6',
+                listStyle: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <span>➕</span>
+                <span>Add Insider Knowledge (Optional)</span>
+              </summary>
+              <div className="enhancement-fields" style={{
+                marginTop: '0.75rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem'
+              }}>
                 <input
                   type="text"
                   placeholder="Practice website (if known)"
                   value={enhancements.website}
                   onChange={(e) => setEnhancements({...enhancements, website: e.target.value})}
                   className="enhancement-input"
+                  style={{
+                    padding: '0.5rem',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '6px',
+                    fontSize: '0.875rem'
+                  }}
                 />
                 <input
                   type="text"
-                  placeholder="Recent purchases or interests"
+                  placeholder="Recent purchases or pain points"
                   value={enhancements.recentPurchases}
                   onChange={(e) => setEnhancements({...enhancements, recentPurchases: e.target.value})}
                   className="enhancement-input"
-                />
-                <input
-                  type="text"
-                  placeholder="Known pain points or needs"
-                  value={enhancements.painPoints}
-                  onChange={(e) => setEnhancements({...enhancements, painPoints: e.target.value})}
-                  className="enhancement-input"
+                  style={{
+                    padding: '0.5rem',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '6px',
+                    fontSize: '0.875rem'
+                  }}
                 />
               </div>
-            </div>
+            </details>
           </div>
         )}
         
         <button 
           onClick={handleScan}
           disabled={!doctor || !product || !selectedDoctor || isScanning || isGeneratingBrief}
-          className={`scan-btn ${(isScanning || isGeneratingBrief) ? 'scanning' : ''} ${selectedDoctor ? 'ready' : ''}`}
+          className={`scan-btn ${(isScanning || isGeneratingBrief) ? 'scanning' : ''} ${(selectedDoctor && product) ? 'ready' : ''}`}
+          style={{
+            marginTop: '1.5rem',
+            transform: (selectedDoctor && product) ? 'scale(1.05)' : 'scale(1)',
+            transition: 'all 0.3s ease'
+          }}
         >
           {selectedDoctor ? (
-            isGeneratingBrief ? 'ANALYZING...' : isScanning ? 'SCANNING...' : '🎯 GENERATE INTEL'
+            product ? (
+              isGeneratingBrief ? 'ANALYZING...' : isScanning ? 'SCANNING...' : '🎯 GENERATE INTEL'
+            ) : (
+              'ENTER PRODUCT NAME'
+            )
           ) : (
             'SELECT DOCTOR FIRST'
           )}
         </button>
       </div>
-
-      {/* Intelligence Gauge 2.0 */}
-      <IntelligenceGauge
-        score={scanResult?.score || 0}
-        isScanning={isScanning || isGeneratingBrief}
-        scanStage={scanStage}
-        onComplete={() => {
-          // Animation complete callback
-          console.log('🎯 Intelligence scan complete');
-        }}
-      />
 
       {/* Intelligence Progress Display */}
       {isGeneratingBrief && intelligenceSteps.length > 0 && (
@@ -641,8 +780,161 @@ export default function CanvasHome() {
         />
       )}
 
-      {/* Insights */}
-      {scanResult && !isGeneratingBrief && (
+      {/* Instant Results Section */}
+      {scanResult && instantIntel && !isGeneratingBrief && (
+        <div className="instant-results-section" style={{
+          marginTop: '2rem',
+          padding: '1.5rem',
+          background: 'rgba(0, 255, 198, 0.05)',
+          border: '1px solid rgba(0, 255, 198, 0.2)',
+          borderRadius: '16px'
+        }}>
+          {/* Time to generate badge */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '1rem'
+          }}>
+            <div className="instant-badge" style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'rgba(0, 255, 198, 0.1)',
+              padding: '0.5rem 1rem',
+              borderRadius: '20px',
+              fontSize: '0.875rem',
+              color: '#00ffc6'
+            }}>
+              <span>⚡</span>
+              <span>Generated in {(instantIntel.generatedIn / 1000).toFixed(1)}s</span>
+            </div>
+            
+            {/* Deep Research Button */}
+            {showDeepResearch && (
+              <button
+                onClick={handleDeepResearch}
+                className="deep-research-btn"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.75rem 1.5rem',
+                  background: 'linear-gradient(90deg, #7B42F6 0%, #B01EFF 100%)',
+                  border: 'none',
+                  borderRadius: '50px',
+                  color: '#fff',
+                  fontWeight: '600',
+                  fontSize: '0.875rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 4px 15px rgba(123, 66, 246, 0.3)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(123, 66, 246, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(123, 66, 246, 0.3)';
+                }}
+              >
+                <span>🔬</span>
+                <span>Deep Research</span>
+                <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>(Premium)</span>
+              </button>
+            )}
+          </div>
+
+          {/* Key Insights */}
+          <div className="insights-section">
+            <div className="insights-grid">
+              {scanResult.insights.map((insight, index) => (
+                <div key={index} className="insight-card">
+                  <p>{insight}</p>
+                </div>
+              ))}
+            </div>
+            
+            {/* Sales Brief */}
+            <div className="sales-brief">
+              <h3>
+                <TacticalBriefIcon className="inline w-5 h-5 mr-2" />
+                TACTICAL SALES BRIEF
+              </h3>
+              <p>{scanResult.salesBrief}</p>
+            </div>
+
+            {/* Instant Intelligence Templates */}
+            {instantIntel && (
+              <div className="outreach-templates" style={{
+                marginTop: '1.5rem',
+                display: 'grid',
+                gap: '1rem',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))'
+              }}>
+                {/* Email Template */}
+                <div className="template-card" style={{
+                  padding: '1rem',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '12px'
+                }}>
+                  <h4 style={{ fontSize: '0.875rem', marginBottom: '0.5rem', color: '#00ffc6' }}>
+                    📧 Email Template
+                  </h4>
+                  <p style={{ fontSize: '0.75rem', opacity: 0.8, marginBottom: '0.5rem' }}>
+                    Subject: {instantIntel.outreachTemplates.email.subject}
+                  </p>
+                  <p style={{ fontSize: '0.75rem', opacity: 0.7 }}>
+                    {instantIntel.outreachTemplates.email.body.substring(0, 100)}...
+                  </p>
+                </div>
+                
+                {/* SMS Template */}
+                <div className="template-card" style={{
+                  padding: '1rem',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '12px'
+                }}>
+                  <h4 style={{ fontSize: '0.875rem', marginBottom: '0.5rem', color: '#00ffc6' }}>
+                    💬 SMS Template
+                  </h4>
+                  <p style={{ fontSize: '0.75rem', opacity: 0.7 }}>
+                    {instantIntel.outreachTemplates.sms}
+                  </p>
+                </div>
+                
+                {/* LinkedIn Template */}
+                <div className="template-card" style={{
+                  padding: '1rem',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '12px'
+                }}>
+                  <h4 style={{ fontSize: '0.875rem', marginBottom: '0.5rem', color: '#00ffc6' }}>
+                    💼 LinkedIn Template
+                  </h4>
+                  <p style={{ fontSize: '0.75rem', opacity: 0.7 }}>
+                    {instantIntel.outreachTemplates.linkedin}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Action Suite */}
+            <EnhancedActionSuite 
+              scanResult={scanResult as any} 
+              researchData={researchData || undefined}
+              instantIntel={instantIntel}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Deep Research Results (when not instant) */}
+      {scanResult && !instantIntel && !isGeneratingBrief && (
         <div className="insights-section">
           <div className="insights-grid">
             {scanResult.insights.map((insight, index) => (

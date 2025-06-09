@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type EnhancedScanResult } from '../lib/enhancedAI';
 import { type ResearchData } from '../lib/webResearch';
@@ -30,10 +30,12 @@ import { SubscriptionModal } from './SubscriptionModal';
 import { SEOReportModal } from './SEOReportModal';
 import { useAuth } from '../auth/hooks';
 import { findProcedureByName } from '../lib/procedureDatabase';
+import { type InstantIntelligence } from '../lib/instantIntelligence';
 
 interface EnhancedActionSuiteProps {
   scanResult: EnhancedScanResult;
   researchData?: ResearchData;
+  instantIntel?: InstantIntelligence;
 }
 
 interface OutreachState {
@@ -46,7 +48,8 @@ interface OutreachState {
 
 const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({ 
   scanResult, 
-  researchData 
+  researchData,
+  instantIntel 
 }) => {
   const [activeTab, setActiveTab] = useState<'outreach' | 'reports' | 'analytics' | 'crm' | 'batch'>('outreach');
   const [emailState] = useState<OutreachState>({ loading: false, sent: false });
@@ -64,6 +67,20 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
   const [upgradeFeature, setUpgradeFeature] = useState('');
   const [showSEOReport, setShowSEOReport] = useState(false);
   const { user } = useAuth();
+  
+  // Initialize magic link campaign with instant intelligence data if available
+  useEffect(() => {
+    if (instantIntel && !magicLinkCampaign) {
+      // Pre-populate the magic link campaign with instant intelligence data
+      const campaign: EmailCampaign = {
+        id: `instant-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        to: contactInfo.email,
+        subject: instantIntel.outreachTemplates.email.subject,
+        body: instantIntel.outreachTemplates.email.body
+      };
+      setMagicLinkCampaign(campaign);
+    }
+  }, [instantIntel, contactInfo.email]);
   
   
   // Sales rep information
@@ -85,6 +102,23 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
    * Generate personalized SMS
    */
   const handleGenerateSMS = useCallback(async () => {
+    // If instant intelligence is available, use it directly
+    if (instantIntel) {
+      setSmsState({ 
+        loading: false, 
+        sent: false, 
+        content: {
+          type: 'sms',
+          stage: 'first_contact',
+          content: instantIntel.outreachTemplates.sms,
+          personalization: scanResult.doctor,
+          urgencyScore: 8,
+          timestamp: new Date()
+        }
+      });
+      return;
+    }
+    
     if (!researchData) return;
     
     setSmsState({ loading: true, sent: false });
@@ -110,7 +144,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         error: error instanceof Error ? error.message : 'Failed to generate SMS' 
       });
     }
-  }, [scanResult, researchData]);
+  }, [scanResult, researchData, instantIntel]);
 
   /**
    * Send SMS
@@ -149,14 +183,59 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
    * Create multi-touch campaign
    */
   const handleCreateCampaign = useCallback(async () => {
-    if (!researchData) return;
+    if (!researchData && !instantIntel) return;
     
     setCampaignState({ loading: true, sent: false });
     
     try {
+      // If we have instant intelligence, create a simplified campaign using that data
+      if (instantIntel && !researchData) {
+        const simplifiedCampaign: OutreachCampaign = {
+          id: `instant-campaign-${Date.now()}`,
+          type: scanResult.score > 80 ? 'aggressive' : 'professional',
+          doctor: scanResult.doctor,
+          product: scanResult.product,
+          sequence: [
+            {
+              id: 'day-1-email',
+              day: 1,
+              type: 'email',
+              time: '9:00 AM',
+              content: instantIntel.outreachTemplates.email.body,
+              subject: instantIntel.outreachTemplates.email.subject
+            },
+            {
+              id: 'day-3-sms',
+              day: 3,
+              type: 'sms',
+              time: '2:00 PM',
+              content: instantIntel.outreachTemplates.sms
+            },
+            {
+              id: 'day-5-linkedin',
+              day: 5,
+              type: 'linkedin',
+              time: '11:00 AM',
+              content: instantIntel.outreachTemplates.linkedin
+            }
+          ],
+          metrics: {
+            expectedResponseRate: 0.25,
+            optimalSendTimes: ['9:00 AM', '2:00 PM', '11:00 AM']
+          }
+        };
+        
+        setCampaignState({ 
+          loading: false, 
+          sent: false, 
+          campaign: simplifiedCampaign 
+        });
+        return;
+      }
+      
       const campaign = await createCampaignSequence(
         scanResult,
-        researchData,
+        researchData!,
         scanResult.score > 80 ? 'aggressive' : 'professional'
       );
       
@@ -173,7 +252,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         error: error instanceof Error ? error.message : 'Failed to create campaign' 
       });
     }
-  }, [scanResult, researchData]);
+  }, [scanResult, researchData, instantIntel]);
 
   /**
    * Export PDF report
@@ -421,6 +500,55 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
     >
+      {/* Instant Intelligence Indicator */}
+      {instantIntel && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="instant-intel-banner"
+          style={{
+            background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%)',
+            border: '1px solid rgba(0, 255, 136, 0.3)',
+            borderRadius: '12px',
+            padding: '16px 24px',
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ fontSize: '24px' }}>⚡</span>
+            <div>
+              <h4 style={{ 
+                margin: 0, 
+                color: '#00ff88',
+                fontSize: '16px',
+                fontWeight: 600
+              }}>
+                Instant Intelligence Active
+              </h4>
+              <p style={{ 
+                margin: '4px 0 0 0', 
+                fontSize: '14px',
+                color: 'rgba(255, 255, 255, 0.8)'
+              }}>
+                Pre-loaded outreach templates ready to send • Generated in {instantIntel.generatedIn}ms
+              </p>
+            </div>
+          </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px',
+            color: '#00d4ff'
+          }}>
+            <span>Confidence: {instantIntel.confidenceScore}%</span>
+          </div>
+        </motion.div>
+      )}
+      
       {/* Tab Navigation */}
       <div className="action-tabs">
         <button 
@@ -534,6 +662,12 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
               <div className="outreach-actions">
                 <button 
                   onClick={async () => {
+                    // If instant intelligence is available, it's already loaded
+                    if (instantIntel) {
+                      // Campaign is already set via useEffect
+                      return;
+                    }
+                    
                     // Check subscription
                     if (!user?.subscription || user.subscription.status !== 'active') {
                       setUpgradeFeature('AI-Powered Email Generation');
@@ -575,11 +709,30 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                       setMagicLinkCampaign(campaign);
                     }
                   }}
-                  disabled={!researchData}
+                  disabled={!researchData && !instantIntel}
                   className="generate-btn"
+                  style={{ 
+                    display: instantIntel ? 'none' : 'block' // Hide button if instant intel is available
+                  }}
                 >
                   🧠 Generate AI Email
                 </button>
+                
+                {instantIntel && (
+                  <div className="instant-intel-indicator" style={{
+                    padding: '10px 20px',
+                    background: 'rgba(0, 255, 136, 0.1)',
+                    border: '1px solid rgba(0, 255, 136, 0.3)',
+                    borderRadius: '8px',
+                    color: '#00ff88',
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    ⚡ Instant Intelligence Loaded - Ready to Send!
+                  </div>
+                )}
               </div>
 
               {magicLinkCampaign && (
@@ -610,9 +763,9 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                       campaign={{
                         ...magicLinkCampaign,
                         phone: contactInfo.phone,
-                        smsMessage: generateEnhancedSMS(scanResult, researchData),
-                        whatsappMessage: generateEnhancedWhatsApp(scanResult, researchData),
-                        linkedinMessage: generateEnhancedLinkedIn(scanResult, researchData),
+                        smsMessage: instantIntel ? instantIntel.outreachTemplates.sms : generateEnhancedSMS(scanResult, researchData),
+                        whatsappMessage: instantIntel ? instantIntel.outreachTemplates.sms : generateEnhancedWhatsApp(scanResult, researchData),
+                        linkedinMessage: instantIntel ? instantIntel.outreachTemplates.linkedin : generateEnhancedLinkedIn(scanResult, researchData),
                         linkedinUrl: researchData?.linkedinUrl
                       }}
                       doctor={{
@@ -711,11 +864,30 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
               <div className="outreach-actions">
                 <button 
                   onClick={handleGenerateSMS}
-                  disabled={smsState.loading || !researchData}
+                  disabled={smsState.loading || (!researchData && !instantIntel)}
                   className="generate-btn"
+                  style={{ 
+                    display: instantIntel && smsState.content ? 'none' : 'block'
+                  }}
                 >
                   {smsState.loading ? '🔄 Generating...' : '🧠 Generate SMS'}
                 </button>
+                
+                {instantIntel && !smsState.content && (
+                  <div className="instant-intel-indicator" style={{
+                    padding: '10px 20px',
+                    background: 'rgba(0, 255, 136, 0.1)',
+                    border: '1px solid rgba(0, 255, 136, 0.3)',
+                    borderRadius: '8px',
+                    color: '#00ff88',
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    ⚡ Instant SMS Template Ready - Click Generate to Load
+                  </div>
+                )}
                 
                 {smsState.content && (
                   <button 
@@ -759,11 +931,24 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
               <div className="outreach-actions">
                 <button 
                   onClick={handleCreateCampaign}
-                  disabled={campaignState.loading || !researchData}
+                  disabled={campaignState.loading || (!researchData && !instantIntel)}
                   className="generate-btn campaign"
                 >
                   {campaignState.loading ? '🔄 Building...' : '🎯 Build Campaign'}
                 </button>
+                
+                {instantIntel && !researchData && (
+                  <div className="instant-intel-note" style={{
+                    marginTop: '10px',
+                    padding: '8px 12px',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    color: 'rgba(255, 255, 255, 0.7)'
+                  }}>
+                    📌 Using instant intelligence for rapid campaign creation
+                  </div>
+                )}
               </div>
 
               {campaignState.campaign && (

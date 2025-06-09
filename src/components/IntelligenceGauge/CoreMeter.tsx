@@ -5,11 +5,13 @@ interface CoreMeterProps {
   score: number;
   phase: string;
   isHighValue: boolean;
+  progress?: number;
+  scanStage?: string;
 }
 
-const CoreMeter: React.FC<CoreMeterProps> = ({ score, phase, isHighValue }) => {
-  const needleAngle = -135 + (score / 100) * 270;
-  const displayScore = phase === 'idle' || phase === 'complete' || phase === 'locking' ? score : 0;
+const CoreMeter: React.FC<CoreMeterProps> = ({ score, phase, isHighValue, progress = 0, scanStage = '' }) => {
+  const needleAngle = -135 + (progress / 100) * 270;
+  const displayScore = phase === 'idle' || phase === 'complete' || phase === 'locking' ? score : progress;
 
   return (
     <div className="core-meter">
@@ -69,14 +71,11 @@ const CoreMeter: React.FC<CoreMeterProps> = ({ score, phase, isHighValue }) => {
       <motion.div
         className="gauge-needle-container"
         animate={{
-          rotate: phase === 'scanning' || phase === 'analyzing' 
-            ? [needleAngle - 45, needleAngle + 45, needleAngle - 45]
-            : needleAngle
+          rotate: needleAngle
         }}
         transition={{
-          rotate: phase === 'scanning' || phase === 'analyzing'
-            ? { duration: 2, repeat: Infinity, ease: "easeInOut" }
-            : { duration: 1, ease: "easeOut" }
+          duration: 0.5,
+          ease: "easeOut"
         }}
       >
         <div className="gauge-needle">
@@ -105,14 +104,14 @@ const CoreMeter: React.FC<CoreMeterProps> = ({ score, phase, isHighValue }) => {
       <div className="score-display">
         <AnimatePresence mode="wait">
           <motion.div
-            key={displayScore}
+            key={Math.round(displayScore)}
             className="score-value"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.2 }}
             transition={{ duration: 0.3 }}
           >
-            <span className="score-number">{displayScore}</span>
+            <span className="score-number">{Math.round(displayScore)}</span>
             <span className="score-percent">%</span>
           </motion.div>
         </AnimatePresence>
@@ -123,7 +122,7 @@ const CoreMeter: React.FC<CoreMeterProps> = ({ score, phase, isHighValue }) => {
             opacity: phase === 'idle' ? 0.5 : 1
           }}
         >
-          TARGET ALIGNMENT
+          {scanStage && phase !== 'idle' && phase !== 'complete' ? scanStage : 'TARGET ALIGNMENT'}
         </motion.div>
 
         {phase === 'complete' && (

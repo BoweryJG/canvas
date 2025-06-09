@@ -65,11 +65,11 @@ const ProgressRing: React.FC<ProgressRingProps> = ({ phase, progress }) => {
           transform="rotate(-90 200 200)"
           filter="url(#progressGlow)"
           animate={{
-            strokeDashoffset: phase === 'locking' ? strokeDashoffset : circumference,
+            strokeDashoffset: phase !== 'idle' ? strokeDashoffset : circumference,
             opacity: phase === 'idle' ? 0.3 : 1
           }}
           transition={{
-            strokeDashoffset: { duration: 1, ease: "easeOut" },
+            strokeDashoffset: { duration: 0.5, ease: "easeOut" },
             opacity: { duration: 0.3 }
           }}
         />
