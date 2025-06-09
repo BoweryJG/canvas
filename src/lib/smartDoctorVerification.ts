@@ -4,6 +4,7 @@
  */
 
 import { callBraveSearch } from './apiEndpoints';
+import { findDoctorWebsite } from './enhancedDoctorSearch';
 
 export interface VerificationResult {
   confidence: number;
@@ -29,7 +30,8 @@ export async function smartVerifyDoctor(
   location?: string,
   specialty?: string,
   practiceName?: string,
-  userId?: string
+  userId?: string,
+  productName?: string
 ): Promise<VerificationResult> {
   // Clean up doctor name - remove "Dr." prefix if present
   const cleanDoctorName = doctorName.replace(/^Dr\.\s*/i, '').trim();
@@ -65,13 +67,37 @@ export async function smartVerifyDoctor(
     }
   }
 
-  // Strategy 2: Intelligent doctor + location search
-  const searchResults = await intelligentDoctorSearch(
-    cleanDoctorName,
-    location,
-    specialty,
-    userId
-  );
+  // Strategy 2: Use enhanced search if we have city/state
+  let searchResults: { sources: VerificationSource[] };
+  
+  if (location && location.includes(',')) {
+    const [city, state] = location.split(',').map(s => s.trim());
+    const enhancedResults = await findDoctorWebsite(
+      cleanDoctorName,
+      city,
+      state,
+      productName,
+      userId
+    );
+    
+    // Convert enhanced results to verification sources
+    searchResults = {
+      sources: enhancedResults.map(r => ({
+        url: r.url,
+        type: r.type === 'practice' ? 'practice' : r.type === 'social' ? 'social' : 'directory',
+        confidence: r.confidence,
+        signals: r.signals
+      } as VerificationSource))
+    };
+  } else {
+    // Fallback to original search
+    searchResults = await intelligentDoctorSearch(
+      cleanDoctorName,
+      location,
+      specialty,
+      userId
+    );
+  }
   
   // Merge sources and find best match
   result.sources.push(...searchResults.sources);

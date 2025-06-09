@@ -25,6 +25,11 @@ import { MultiChannelMagicLink } from './MultiChannelMagicLink';
 import { generateEmailFromScanResult } from '../lib/emailTemplates';
 import { generateEnhancedSMS, generateEnhancedWhatsApp, generateEnhancedLinkedIn } from '../lib/enhancedEmailTemplates';
 import { type EmailCampaign } from '../lib/magicLinks';
+import { generateMultiChannelCampaign } from '../lib/aiContentGeneration';
+import { SubscriptionModal } from './SubscriptionModal';
+import { SEOReportModal } from './SEOReportModal';
+import { useAuth } from '../auth/hooks';
+import { findProcedureByName } from '../lib/procedureDatabase';
 
 interface EnhancedActionSuiteProps {
   scanResult: EnhancedScanResult;
@@ -56,6 +61,9 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
   const [showBatchAnalysis, setShowBatchAnalysis] = useState(false);
   const [magicLinkCampaign, setMagicLinkCampaign] = useState<EmailCampaign | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState('');
+  const [showSEOReport, setShowSEOReport] = useState(false);
+  const { user } = useAuth();
   
   
   // Sales rep information
@@ -525,22 +533,56 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
               
               <div className="outreach-actions">
                 <button 
-                  onClick={() => {
-                    // Generate email campaign for magic link with enhanced intelligence
-                    const campaign = generateEmailFromScanResult(
-                      scanResult,
-                      salesRepInfo,
-                      'initial',
-                      researchData // Pass research data for enhanced templates
-                    );
-                    // Add recipient email
-                    campaign.to = contactInfo.email;
-                    setMagicLinkCampaign(campaign);
+                  onClick={async () => {
+                    // Check subscription
+                    if (!user?.subscription?.hasActiveSubscription) {
+                      setUpgradeFeature('AI-Powered Email Generation');
+                      setShowUpgradeModal(true);
+                      return;
+                    }
+                    
+                    // Generate using AI
+                    try {
+                      const procedure = await findProcedureByName(scanResult.product);
+                      const aiCampaign = await generateMultiChannelCampaign(
+                        scanResult.doctor,
+                        scanResult.product,
+                        researchData!,
+                        salesRepInfo.name,
+                        salesRepInfo.company,
+                        procedure || undefined
+                      );
+                      
+                      // Create campaign object
+                      const campaign = {
+                        to: contactInfo.email,
+                        subject: aiCampaign.email.subject,
+                        body: aiCampaign.email.body,
+                        preheader: aiCampaign.email.preheader,
+                        doctor: scanResult.doctor,
+                        product: scanResult.product,
+                        sender: salesRepInfo.name,
+                        company: salesRepInfo.company
+                      };
+                      
+                      setMagicLinkCampaign(campaign);
+                    } catch (error) {
+                      console.error('Failed to generate AI email:', error);
+                      // Fallback to template
+                      const campaign = generateEmailFromScanResult(
+                        scanResult,
+                        salesRepInfo,
+                        'initial',
+                        researchData
+                      );
+                      campaign.to = contactInfo.email;
+                      setMagicLinkCampaign(campaign);
+                    }
                   }}
                   disabled={!researchData}
                   className="generate-btn"
                 >
-                  🧠 Generate Email
+                  🧠 Generate AI Email
                 </button>
               </div>
 
@@ -777,6 +819,13 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                     className="report-btn"
                   >
                     {deepReportState.loading ? '🔄 Researching...' : '📊 Deep Research Report (20+ pages)'}
+                  </button>
+                  <button 
+                    onClick={() => setShowSEOReport(true)}
+                    disabled={!researchData?.website}
+                    className="report-btn"
+                  >
+                    🔍 SEO Analysis Report
                   </button>
                 </div>
               </div>
@@ -1203,6 +1252,27 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
+      
+      {/* Subscription Modal */}
+      <SubscriptionModal
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        feature={upgradeFeature}
+        currentPlan={user?.subscription?.tier || 'none'}
+      />
+      
+      {/* SEO Report Modal */}
+      {researchData?.website && (
+        <SEOReportModal
+          open={showSEOReport}
+          onClose={() => setShowSEOReport(false)}
+          websiteUrl={researchData.website}
+          doctorName={scanResult.doctor}
+          location={researchData.location}
+          specialty={researchData.enhancedInsights?.specialty}
+          userId={user?.id}
+        />
+      )}
     </motion.div>
   );
 };
