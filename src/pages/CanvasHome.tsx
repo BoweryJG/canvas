@@ -151,7 +151,7 @@ export default function CanvasHome() {
   const [scanStage, setScanStage] = useState('')
   const [cinematicMode, setCinematicMode] = useState(false)
   const [isGeneratingBrief, setIsGeneratingBrief] = useState(false)
-  const [showEnhancements, setShowEnhancements] = useState(false)
+  const [, setShowEnhancements] = useState(false)
   const [researchData, setResearchData] = useState<ResearchData | null>(null)
   const [intelligenceSteps, setIntelligenceSteps] = useState<any[]>([])
   const [sourcesFound, setSourcesFound] = useState(0)
@@ -584,8 +584,29 @@ NPI: ${selectedDoctor.npi}`,
           </div>
         </div>
         
-        {/* Intelligence Gauge - Moved closer to inputs for mobile */}
-        {(selectedDoctor && product) && (
+        {/* Generate Intel Button - Shows immediately after doctor + product */}
+        {selectedDoctor && product && (
+          <button 
+            onClick={handleScan}
+            disabled={isScanning || isGeneratingBrief}
+            className={`scan-btn ${(isScanning || isGeneratingBrief) ? 'scanning' : ''} ready`}
+            style={{
+              marginTop: '1.5rem',
+              marginBottom: '1.5rem',
+              transform: 'scale(1.05)',
+              transition: 'all 0.3s ease',
+              width: '100%',
+              maxWidth: '400px',
+              margin: '1.5rem auto',
+              display: 'block'
+            }}
+          >
+            {isGeneratingBrief ? 'ANALYZING...' : isScanning ? 'SCANNING...' : '🎯 GENERATE INTEL'}
+          </button>
+        )}
+        
+        {/* Intelligence Gauge - Shows after Generate Intel is clicked */}
+        {(selectedDoctor && product && (isScanning || isGeneratingBrief || scanResult)) && (
           <div style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
             <IntelligenceGauge
               score={scanResult?.score || 0}
@@ -600,156 +621,43 @@ NPI: ${selectedDoctor.npi}`,
           </div>
         )}
         
-        {/* Instant Knowledge Display - Shows after NPI selection */}
-        {selectedDoctor && showEnhancements && (
-          <div className="npi-verified-display" style={{ 
-            marginTop: '1rem',
-            padding: '1rem',
-            background: 'rgba(0, 255, 198, 0.05)',
-            border: '1px solid rgba(0, 255, 198, 0.2)',
-            borderRadius: '12px'
+        {/* Optional Enhancements - Much smaller, only if no scan yet */}
+        {selectedDoctor && product && !scanResult && !isGeneratingBrief && (
+          <details style={{
+            marginTop: '0.5rem',
+            marginBottom: '0.5rem',
+            fontSize: '0.75rem',
+            opacity: 0.7
           }}>
-            <div className="verified-header" style={{
+            <summary style={{
+              cursor: 'pointer',
+              color: '#7B42F6',
+              listStyle: 'none'
+            }}>
+              + Add insider knowledge (optional)
+            </summary>
+            <div style={{
+              marginTop: '0.5rem',
               display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '0.75rem',
-              flexWrap: 'wrap',
               gap: '0.5rem'
             }}>
-              <div className="verified-badge" style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                color: '#00ffc6',
-                fontSize: '0.875rem',
-                fontWeight: '600'
-              }}>
-                <span className="checkmark">✓</span>
-                <span>NPI VERIFIED</span>
-              </div>
-              <div className="npi-number" style={{
-                fontSize: '0.75rem',
-                color: 'rgba(255, 255, 255, 0.6)'
-              }}>NPI: {selectedDoctor.npi}</div>
+              <input
+                type="text"
+                placeholder="Website or notes"
+                value={enhancements.website}
+                onChange={(e) => setEnhancements({...enhancements, website: e.target.value})}
+                style={{
+                  padding: '0.4rem',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '4px',
+                  fontSize: '0.75rem',
+                  flex: 1
+                }}
+              />
             </div>
-            
-            <div className="doctor-insights">
-              <h3>{selectedDoctor.displayName}</h3>
-              <div className="insight-grid">
-                <div className="insight-item">
-                  <span className="label">SPECIALTY</span>
-                  <span className="value">{selectedDoctor.specialty}</span>
-                </div>
-                {selectedDoctor.organizationName && (
-                  <div className="insight-item">
-                    <span className="label">PRACTICE</span>
-                    <span className="value">{selectedDoctor.organizationName}</span>
-                  </div>
-                )}
-                <div className="insight-item">
-                  <span className="label">LOCATION</span>
-                  <span className="value">{selectedDoctor.city}, {selectedDoctor.state}</span>
-                </div>
-              </div>
-              
-              {/* Intelligent insights based on specialty */}
-              <div className="specialty-insights">
-                {selectedDoctor.specialty.toLowerCase().includes('oral') && (
-                  <p className="insight-text">
-                    💡 Oral surgeons typically focus on implants, wisdom teeth, and reconstructive procedures. 
-                    High-value practice with surgical suite requirements.
-                  </p>
-                )}
-                {selectedDoctor.city === 'WILLIAMSVILLE' && (
-                  <p className="insight-text">
-                    📍 Williamsville is an affluent Buffalo suburb. Practices here often cater to 
-                    higher-income patients seeking premium services.
-                  </p>
-                )}
-              </div>
-            </div>
-            
-            {/* Optional Enhancements - Simplified for mobile */}
-            <details className="enhancement-section" style={{
-              marginTop: '1rem',
-              padding: '0.75rem',
-              background: 'rgba(123, 66, 246, 0.05)',
-              border: '1px solid rgba(123, 66, 246, 0.2)',
-              borderRadius: '8px',
-              cursor: 'pointer'
-            }}>
-              <summary style={{
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                color: '#7B42F6',
-                listStyle: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}>
-                <span>➕</span>
-                <span>Add Insider Knowledge (Optional)</span>
-              </summary>
-              <div className="enhancement-fields" style={{
-                marginTop: '0.75rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '0.5rem'
-              }}>
-                <input
-                  type="text"
-                  placeholder="Practice website (if known)"
-                  value={enhancements.website}
-                  onChange={(e) => setEnhancements({...enhancements, website: e.target.value})}
-                  className="enhancement-input"
-                  style={{
-                    padding: '0.5rem',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '6px',
-                    fontSize: '0.875rem'
-                  }}
-                />
-                <input
-                  type="text"
-                  placeholder="Recent purchases or pain points"
-                  value={enhancements.recentPurchases}
-                  onChange={(e) => setEnhancements({...enhancements, recentPurchases: e.target.value})}
-                  className="enhancement-input"
-                  style={{
-                    padding: '0.5rem',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    borderRadius: '6px',
-                    fontSize: '0.875rem'
-                  }}
-                />
-              </div>
-            </details>
-          </div>
+          </details>
         )}
-        
-        <button 
-          onClick={handleScan}
-          disabled={!doctor || !product || !selectedDoctor || isScanning || isGeneratingBrief}
-          className={`scan-btn ${(isScanning || isGeneratingBrief) ? 'scanning' : ''} ${(selectedDoctor && product) ? 'ready' : ''}`}
-          style={{
-            marginTop: '1.5rem',
-            transform: (selectedDoctor && product) ? 'scale(1.05)' : 'scale(1)',
-            transition: 'all 0.3s ease'
-          }}
-        >
-          {selectedDoctor ? (
-            product ? (
-              isGeneratingBrief ? 'ANALYZING...' : isScanning ? 'SCANNING...' : '🎯 GENERATE INTEL'
-            ) : (
-              'ENTER PRODUCT NAME'
-            )
-          ) : (
-            'SELECT DOCTOR FIRST'
-          )}
-        </button>
       </div>
 
       {/* Intelligence Progress Display */}

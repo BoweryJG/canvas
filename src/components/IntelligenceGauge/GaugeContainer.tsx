@@ -5,6 +5,7 @@ import ProgressRing from './ProgressRing';
 import StatusRing from './StatusRing';
 import CoreMeter from './CoreMeter';
 import DataParticles from './DataParticles';
+import DataStreamWindow from './DataStreamWindow';
 import './IntelligenceGauge.css';
 
 interface IntelligenceGaugeProps {
@@ -71,6 +72,13 @@ export const IntelligenceGauge: React.FC<IntelligenceGaugeProps> = ({
           <OuterAuthorityRing phase={phase} />
           <ProgressRing phase={phase} progress={displayProgress} />
           <StatusRing phase={phase} scanStage={scanStage} />
+          
+          {/* Data Stream Window - shows what we're analyzing */}
+          <DataStreamWindow 
+            isActive={phase === 'scanning' || phase === 'analyzing' || phase === 'initializing'}
+            scanStage={scanStage}
+          />
+          
           <CoreMeter 
             score={internalScore} 
             phase={phase}
