@@ -2,11 +2,25 @@
 
 AI-powered sales intelligence platform that provides instant, comprehensive research on healthcare professionals to accelerate B2B medical sales.
 
+## ✨ Latest Updates
+
+### Two-Tier Intelligence System
+- **⚡ Instant Intelligence (15-30s)**: Immediate tactical briefs, key insights, and personalized outreach templates
+- **🔬 Deep Research (2-4 min)**: Comprehensive analysis with website scanning, competitor intelligence, and detailed practice profiling
+
+### Enhanced UI/UX Flow
+- **Streamlined Interface**: Generate Intel button appears immediately after doctor + product entry
+- **Dynamic Intelligence Gauge**: Shows real-time data analysis with binary code, news snippets, and reviews flying inside
+- **Mobile-First Design**: Fixed autocomplete styling and enhanced loading animations for mobile devices
+- **Smart Verification**: NPI-selected doctors skip verification (they're pre-verified!)
+
 ## Features
 
 ### 🎯 Instant Doctor Intelligence
 - **NPI-Verified Search**: Autocomplete search with real-time NPI database verification
-- **3-Second Results**: Get immediate insights while deeper research runs in background
+- **Two-Speed Intelligence**:
+  - Instant (15-30s): Quick tactical briefs and outreach templates
+  - Deep Research (2-4 min): Full website analysis and competitor intelligence
 - **Comprehensive Profiles**: Practice information, reviews, credentials, and business intelligence
 - **AI-Powered Analysis**: Uses Claude Opus 4 and Sequential Thinking for intelligent research
 
@@ -23,10 +37,11 @@ AI-powered sales intelligence platform that provides instant, comprehensive rese
 - **Progressive Enhancement**: Basic results first, then enhanced data
 
 ### 🎨 Modern UI/UX
-- **Curved Navbar Design**: Elegant inward-curved navigation bar
-- **Real-time Progress**: Visual feedback during research with step-by-step updates
+- **Streamlined Flow**: Simplified UI with intelligent button placement
+- **Data Visualization**: Live data streaming window showing analysis in progress
+- **Real-time Progress**: Visual feedback during research with dynamic percentage updates
 - **Confidence Scoring**: Shows research quality and source verification
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
+- **Responsive Design**: Optimized for both desktop and mobile devices
 
 ## Tech Stack
 
