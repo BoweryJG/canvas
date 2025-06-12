@@ -22,11 +22,12 @@ export const helmetConfig = {
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://www.googletagmanager.com", "https://www.google-analytics.com", "https://js.stripe.com"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
-      connectSrc: ["'self'", "https://api.npiregistry.cms.hhs.gov", "https://*.supabase.co", "wss://*.supabase.co", "https://www.google-analytics.com"],
+      connectSrc: ["'self'", "https://api.npiregistry.cms.hhs.gov", "https://*.supabase.co", "wss://*.supabase.co", "https://www.google-analytics.com", "https://api.stripe.com"],
+      frameSrc: ["https://js.stripe.com", "https://hooks.stripe.com"],
       frameAncestors: ["'none'"],
       baseUri: ["'self'"],
       formAction: ["'self'"]
@@ -46,7 +47,7 @@ export const netlifyHeaders = `/*
   X-XSS-Protection: 1; mode=block
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.npiregistry.cms.hhs.gov https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.npiregistry.cms.hhs.gov https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://api.stripe.com; frame-src https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
 
 /service-worker.js
   Cache-Control: no-cache, no-store, must-revalidate

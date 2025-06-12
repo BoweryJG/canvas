@@ -6,11 +6,12 @@
 export const getCSPHeader = (nonce?: string): string => {
   const directives = [
     "default-src 'self'",
-    `script-src 'self' ${nonce ? `'nonce-${nonce}'` : "'unsafe-inline'"} https://www.googletagmanager.com https://www.google-analytics.com`,
+    `script-src 'self' ${nonce ? `'nonce-${nonce}'` : "'unsafe-inline'"} https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https: blob:",
-    "connect-src 'self' https://api.npiregistry.cms.hhs.gov https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com",
+    "connect-src 'self' https://api.npiregistry.cms.hhs.gov https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://api.stripe.com",
+    "frame-src https://js.stripe.com https://hooks.stripe.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
