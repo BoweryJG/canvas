@@ -53,7 +53,7 @@ export const IntelligenceGauge: React.FC<IntelligenceGaugeProps> = ({
   // Trigger haptic feedback on mobile
   const triggerHaptic = (type: 'light' | 'medium' | 'heavy') => {
     // Visual feedback first
-    const container = document.querySelector('.intelligence-gauge-container');
+    const container = document.querySelector('.intelligence-gauge-container') as HTMLElement;
     if (container) {
       container.classList.remove('haptic-light', 'haptic-medium', 'haptic-heavy');
       void container.offsetWidth; // Force reflow
