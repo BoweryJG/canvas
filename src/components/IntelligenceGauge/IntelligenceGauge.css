@@ -1,12 +1,68 @@
 /* Intelligence Gauge Container */
 .intelligence-gauge-container {
   position: relative;
-  width: 400px;
-  height: 400px;
+  width: min(400px, 90vw);
+  height: min(400px, 90vw);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 2rem auto;
+  transition: all var(--animation-gauge) cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile optimized container */
+@media (max-width: 767px) {
+  .intelligence-gauge-container {
+    width: min(320px, 85vw);
+    height: min(320px, 85vw);
+    margin: var(--space-lg) auto;
+  }
+}
+
+/* Full screen mode for mobile scanning */
+.intelligence-gauge-container.full-screen {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(90vw, 90vh);
+  height: min(90vw, 90vh);
+  z-index: var(--z-overlay);
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%);
+  margin: 0;
+}
+
+/* Enhanced scanning state */
+.intelligence-gauge-container.scanning-active {
+  animation: containerPulse 2s ease-in-out infinite;
+}
+
+@keyframes containerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+/* Theme variations */
+.intelligence-gauge-container.theme-developing {
+  --gauge-primary: #6B7280;
+  --gauge-glow: rgba(107, 114, 128, 0.4);
+}
+
+.intelligence-gauge-container.theme-promising {
+  --gauge-primary: #00d4ff;
+  --gauge-glow: rgba(0, 212, 255, 0.4);
+}
+
+.intelligence-gauge-container.theme-high-value {
+  --gauge-primary: #fbbf24;
+  --gauge-glow: rgba(251, 191, 36, 0.5);
+}
+
+.intelligence-gauge-container.theme-critical {
+  --gauge-primary: #00ffc6;
+  --gauge-glow: rgba(0, 255, 198, 0.6);
 }
 
 .intelligence-gauge {
@@ -16,18 +72,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  will-change: transform;
 }
 
-/* Glow Effect */
+/* Glow Effect - theme aware */
 .gauge-glow {
   position: absolute;
   width: 120%;
   height: 120%;
-  background: radial-gradient(circle, rgba(0, 255, 198, 0.2) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--gauge-glow, rgba(0, 255, 198, 0.2)) 0%, transparent 70%);
   filter: blur(40px);
   opacity: 0.6;
   pointer-events: none;
   animation: breathe 4s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Enhanced glow for mobile */
+@media (max-width: 767px) {
+  .gauge-glow {
+    filter: blur(30px);
+  }
 }
 
 .gauge-glow.pulse {
@@ -43,6 +108,58 @@
   0% { transform: scale(1); opacity: 0.6; }
   50% { transform: scale(1.3); opacity: 1; }
   100% { transform: scale(1); opacity: 0.6; }
+}
+
+/* Cinematic animation phases */
+.gauge-layers.phase-initializing {
+  animation: phaseInitialize 1.5s ease-out;
+}
+
+.gauge-layers.phase-scanning {
+  animation: phaseScanning 2s ease-in-out infinite;
+}
+
+.gauge-layers.phase-analyzing {
+  animation: phaseAnalyzing 1s ease-in-out infinite;
+}
+
+.gauge-layers.phase-locking {
+  animation: phaseLocking 0.8s ease-out;
+}
+
+@keyframes phaseInitialize {
+  0% { 
+    opacity: 0;
+    transform: scale(0.8) rotate(180deg);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.1) rotate(90deg);
+  }
+  100% { 
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes phaseScanning {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.02) rotate(1deg); }
+  75% { transform: scale(1.02) rotate(-1deg); }
+}
+
+@keyframes phaseAnalyzing {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.2); }
+}
+
+@keyframes phaseLocking {
+  0% { transform: scale(1); }
+  20% { transform: scale(1.05); }
+  40% { transform: scale(0.95); }
+  60% { transform: scale(1.02); }
+  80% { transform: scale(0.98); }
+  100% { transform: scale(1); }
 }
 
 /* Gauge Layers */
@@ -474,6 +591,274 @@
   
   .status-text {
     font-size: 9px;
+  }
+}
+
+/* Mobile-specific enhancements */
+@media (max-width: 767px) {
+  /* Larger touch targets */
+  .intelligence-gauge-container {
+    min-height: var(--touch-target-min);
+  }
+  
+  /* Adjust text sizes for mobile readability */
+  .authority-text {
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+  
+  .status-text {
+    font-size: 9px;
+  }
+  
+  .scan-stage-text {
+    font-size: 8px;
+  }
+  
+  .score-number {
+    font-size: 32px;
+  }
+  
+  .score-percent {
+    font-size: 16px;
+  }
+  
+  .phase-text {
+    font-size: 10px;
+  }
+  
+  /* Optimize animations for mobile performance */
+  .data-particle,
+  .scan-line,
+  .data-stream {
+    animation-duration: calc(var(--animation-duration, 3s) * 1.2);
+  }
+  
+  /* Reduce particle count on mobile */
+  .data-particle:nth-child(n+6) {
+    display: none;
+  }
+}
+
+/* Landscape mobile adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+  .intelligence-gauge-container {
+    width: min(280px, 80vh);
+    height: min(280px, 80vh);
+    margin: var(--space-sm) auto;
+  }
+  
+  .phase-indicators {
+    bottom: -30px;
+  }
+}
+
+/* Touch interaction states */
+.intelligence-gauge-container:active {
+  transform: scale(0.98);
+}
+
+/* Theme-based color overrides */
+.theme-developing {
+  .authority-text,
+  .status-text,
+  .score-number,
+  .score-status { 
+    color: #6B7280;
+  }
+  
+  .tick,
+  .indicator-dot,
+  .gauge-needle,
+  .pivot-core {
+    background: #6B7280;
+  }
+  
+  .progress-path,
+  .status-ring-path {
+    stroke: #6B7280;
+  }
+}
+
+.theme-promising {
+  .authority-text,
+  .status-text,
+  .score-number,
+  .score-status { 
+    color: #00d4ff;
+  }
+  
+  .tick,
+  .indicator-dot,
+  .gauge-needle,
+  .pivot-core {
+    background: #00d4ff;
+  }
+  
+  .progress-path,
+  .status-ring-path {
+    stroke: #00d4ff;
+  }
+}
+
+.theme-high-value {
+  .authority-text,
+  .status-text,
+  .score-number,
+  .score-status { 
+    color: #fbbf24;
+    text-shadow: 0 0 20px rgba(251, 191, 36, 0.8);
+  }
+  
+  .tick,
+  .indicator-dot,
+  .gauge-needle,
+  .pivot-core {
+    background: #fbbf24;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.8);
+  }
+  
+  .progress-path,
+  .status-ring-path {
+    stroke: #fbbf24;
+  }
+  
+  .data-particle .particle-core {
+    background: #fbbf24;
+  }
+}
+
+.theme-critical {
+  .authority-text,
+  .status-text,
+  .score-number,
+  .score-status { 
+    color: #00ffc6;
+    text-shadow: 0 0 30px rgba(0, 255, 198, 1);
+  }
+  
+  .gauge-glow {
+    opacity: 0.8;
+    animation-duration: 2s;
+  }
+  
+  .data-particle {
+    animation-duration: 1.5s;
+  }
+  
+  .high-value-burst {
+    animation: criticalBurst 0.8s ease-out;
+  }
+}
+
+@keyframes criticalBurst {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
+}
+
+/* Data Stream Window mobile optimization */
+.data-stream-window {
+  font-size: 9px;
+}
+
+@media (max-width: 767px) {
+  .data-stream-window {
+    font-size: 8px;
+    padding: 8px;
+  }
+  
+  .stream-entry {
+    padding: 2px 0;
+  }
+}
+
+/* Haptic feedback visual indicators */
+.haptic-pulse {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--gauge-primary, #00ffc6);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.haptic-light .haptic-pulse {
+  animation: hapticLight 0.3s ease-out;
+}
+
+.haptic-medium .haptic-pulse {
+  animation: hapticMedium 0.5s ease-out;
+}
+
+.haptic-heavy .haptic-pulse {
+  animation: hapticHeavy 0.7s ease-out;
+}
+
+@keyframes hapticLight {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0;
+  }
+}
+
+@keyframes hapticMedium {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes hapticHeavy {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+
+/* Performance optimizations */
+@media (prefers-reduced-motion: reduce) {
+  .intelligence-gauge-container,
+  .gauge-glow,
+  .data-particle,
+  .scan-line,
+  .gauge-layers {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .intelligence-gauge-container {
+    border: 2px solid var(--gauge-primary, #00ffc6);
+  }
+  
+  .score-number,
+  .status-text {
+    font-weight: 900;
   }
 }
 

@@ -460,7 +460,7 @@ NPI: ${selectedDoctor.npi}`,
   }
 
   return (
-    <div className="canvas-app">
+    <div className="canvas-app mobile-container">
       {/* Loading Overlay for Deep Research */}
       {isGeneratingBrief && !instantIntel && (
         <LoadingOverlay
@@ -470,7 +470,7 @@ NPI: ${selectedDoctor.npi}`,
       )}
 
       {/* Header */}
-      <header className="header">
+      <header className="header mobile-stack">
         <div className="header-icon">
           <TargetSightIcon className="w-12 h-12 text-electric-blue" />
         </div>
@@ -575,9 +575,9 @@ NPI: ${selectedDoctor.npi}`,
       )}
 
       {/* Scan Form */}
-      <div className="scan-form">
+      <div className="scan-form mobile-form">
         {/* Manual Doctor Entry with Optional Autocomplete */}
-        <div style={{ marginBottom: '1.5rem' }}>
+        <div className="mobile-stack-lg">
           <ManualDoctorForm 
             onDoctorVerified={handleManualDoctorVerified}
             onAutocompleteSelect={handleDoctorSelect}
@@ -585,11 +585,12 @@ NPI: ${selectedDoctor.npi}`,
         </div>
         
         {/* Product and Additional Fields */}
-        <div className="input-group" style={{ marginTop: '1rem' }}>
+        <div className="mobile-grid">
           <div className="input-with-icon">
             <ProductScanIcon className="input-icon" />
             <input
               type="text"
+              className="mobile-input"
               placeholder="Product Name"
               value={product}
               onChange={(e) => setProduct(sanitizeInput(e.target.value))}
@@ -604,15 +605,15 @@ NPI: ${selectedDoctor.npi}`,
           <button 
             onClick={handleScan}
             disabled={isScanning || isGeneratingBrief}
-            className={`scan-btn ${(isScanning || isGeneratingBrief) ? 'scanning' : ''} ready`}
+            className={`scan-btn mobile-button touch-target ${(isScanning || isGeneratingBrief) ? 'scanning' : ''} ready`}
             style={{
-              marginTop: '1.5rem',
-              marginBottom: '1.5rem',
+              marginTop: 'var(--space-lg)',
+              marginBottom: 'var(--space-lg)',
               transform: 'scale(1.05)',
               transition: 'all 0.3s ease',
               width: '100%',
               maxWidth: '400px',
-              margin: '1.5rem auto',
+              margin: 'var(--space-lg) auto',
               display: 'block'
             }}
           >
@@ -705,9 +706,9 @@ NPI: ${selectedDoctor.npi}`,
 
       {/* Instant Results Section */}
       {scanResult && instantIntel && !isGeneratingBrief && (
-        <div className="instant-results-section" style={{
-          marginTop: '2rem',
-          padding: '1.5rem',
+        <div className="instant-results-section mobile-stack" style={{
+          marginTop: 'var(--space-xl)',
+          padding: 'var(--space-lg)',
           background: 'rgba(0, 255, 198, 0.05)',
           border: '1px solid rgba(0, 255, 198, 0.2)',
           borderRadius: '16px'
@@ -770,8 +771,8 @@ NPI: ${selectedDoctor.npi}`,
           </div>
 
           {/* Key Insights */}
-          <div className="insights-section">
-            <div className="insights-grid">
+          <div className="insights-section mobile-stack">
+            <div className="insights-grid mobile-grid">
               {scanResult.insights.map((insight, index) => (
                 <div key={index} className="insight-card">
                   <p>{insight}</p>

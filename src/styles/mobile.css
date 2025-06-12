@@ -1,0 +1,392 @@
+/* Canvas Mobile-First CSS Framework */
+
+/* CSS Custom Properties for Responsive Design */
+:root {
+  /* Spacing Scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  
+  /* Touch-Friendly Sizes */
+  --touch-target-min: 48px;
+  --button-height: 48px;
+  --input-height: 48px;
+  
+  /* Mobile-First Breakpoints */
+  --mobile-xs: 320px;
+  --mobile-sm: 375px;
+  --mobile-md: 480px;
+  --tablet: 768px;
+  --desktop: 1024px;
+  --desktop-lg: 1440px;
+  
+  /* Safe Area Insets for Notched Phones */
+  --safe-area-top: env(safe-area-inset-top, 0);
+  --safe-area-right: env(safe-area-inset-right, 0);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0);
+  --safe-area-left: env(safe-area-inset-left, 0);
+  
+  /* Z-Index Scale */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-tooltip: 500;
+  
+  /* Animation Durations */
+  --animation-fast: 150ms;
+  --animation-normal: 300ms;
+  --animation-slow: 500ms;
+  --animation-gauge: 2000ms;
+}
+
+/* Global Mobile Resets */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+
+/* Prevent iOS Zoom on Input Focus */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* Mobile-First Base Styles */
+body {
+  padding-top: var(--safe-area-top);
+  padding-bottom: var(--safe-area-bottom);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior: none;
+}
+
+/* Container System */
+.mobile-container {
+  width: 100%;
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
+  padding-left: max(var(--space-md), var(--safe-area-left));
+  padding-right: max(var(--space-md), var(--safe-area-right));
+}
+
+@media (min-width: 768px) {
+  .mobile-container {
+    padding-left: var(--space-xl);
+    padding-right: var(--space-xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .mobile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+/* Touch-Friendly Utilities */
+.touch-target {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Mobile Stack Layout */
+.mobile-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.mobile-stack-sm {
+  gap: var(--space-sm);
+}
+
+.mobile-stack-lg {
+  gap: var(--space-lg);
+}
+
+/* Responsive Grid */
+.mobile-grid {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 480px) {
+  .mobile-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Mobile Forms */
+.mobile-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.mobile-input {
+  width: 100%;
+  min-height: var(--input-height);
+  padding: var(--space-md);
+  font-size: 16px;
+  border-radius: 8px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.mobile-button {
+  min-height: var(--button-height);
+  padding: var(--space-md) var(--space-lg);
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--animation-fast) ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Mobile Navigation */
+.mobile-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #0a0a0a;
+  border-top: 1px solid #333;
+  padding-bottom: var(--safe-area-bottom);
+  z-index: var(--z-sticky);
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-nav {
+    display: flex;
+    justify-content: space-around;
+    padding: var(--space-sm) 0;
+  }
+  
+  .mobile-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm);
+    color: #666;
+    font-size: 12px;
+    transition: color var(--animation-fast) ease;
+  }
+  
+  .mobile-nav-item.active {
+    color: #00ffc6;
+  }
+  
+  .mobile-nav-icon {
+    font-size: 24px;
+  }
+}
+
+/* Swipeable Cards */
+.swipe-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.swipe-container::-webkit-scrollbar {
+  display: none;
+}
+
+.swipe-card {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  width: 85vw;
+  max-width: 320px;
+}
+
+/* Bottom Sheet Pattern */
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #1a1a1a;
+  border-radius: 20px 20px 0 0;
+  padding: var(--space-lg);
+  padding-bottom: calc(var(--space-lg) + var(--safe-area-bottom));
+  transform: translateY(100%);
+  transition: transform var(--animation-normal) ease;
+  z-index: var(--z-modal);
+}
+
+.bottom-sheet.active {
+  transform: translateY(0);
+}
+
+.bottom-sheet-handle {
+  width: 40px;
+  height: 4px;
+  background: #666;
+  border-radius: 2px;
+  margin: 0 auto var(--space-md);
+}
+
+/* Mobile Loading States */
+.mobile-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-mobile 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-mobile {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Landscape Mobile Adjustments */
+@media (max-height: 500px) and (orientation: landscape) {
+  .mobile-container {
+    padding-top: var(--space-sm);
+    padding-bottom: var(--space-sm);
+  }
+  
+  .mobile-button {
+    min-height: 40px;
+  }
+}
+
+/* Touch Ripple Effect */
+.touch-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.touch-ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+.touch-ripple:active::after {
+  width: 200px;
+  height: 200px;
+}
+
+/* Mobile Gauge Container Override */
+@media (max-width: 767px) {
+  .intelligence-gauge-container {
+    width: min(280px, 90vw) !important;
+    height: min(280px, 90vw) !important;
+    margin: var(--space-lg) auto;
+  }
+  
+  .intelligence-gauge-container.scanning-active {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(90vw, 90vh) !important;
+    height: min(90vw, 90vh) !important;
+    z-index: var(--z-overlay);
+  }
+}
+
+/* Mobile Canvas App Overrides */
+@media (max-width: 767px) {
+  .canvas-app {
+    padding: var(--space-md);
+    padding-bottom: calc(80px + var(--safe-area-bottom));
+    min-height: 100vh;
+  }
+  
+  .header h1 {
+    font-size: 2rem;
+  }
+  
+  .scan-form {
+    max-width: 100%;
+  }
+  
+  .input-group {
+    grid-template-columns: 1fr;
+  }
+  
+  .insights-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  
+  .action-bar {
+    position: fixed;
+    bottom: var(--safe-area-bottom);
+    left: 0;
+    right: 0;
+    background: #0a0a0a;
+    border-top: 1px solid #333;
+    padding: var(--space-md);
+    flex-direction: row;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Haptic Feedback Classes */
+.haptic-light {
+  /* Will be triggered via JS */
+}
+
+.haptic-medium {
+  /* Will be triggered via JS */
+}
+
+.haptic-heavy {
+  /* Will be triggered via JS */
+}

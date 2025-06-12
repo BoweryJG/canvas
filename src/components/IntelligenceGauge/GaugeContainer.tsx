@@ -14,6 +14,8 @@ interface IntelligenceGaugeProps {
   scanStage?: string;
   progress?: number; // New prop for real-time progress (0-100)
   onComplete?: () => void;
+  fullScreen?: boolean; // For deep research mode
+  onTap?: () => void; // Mobile interaction
 }
 
 export const IntelligenceGauge: React.FC<IntelligenceGaugeProps> = ({
@@ -21,32 +23,82 @@ export const IntelligenceGauge: React.FC<IntelligenceGaugeProps> = ({
   isScanning,
   scanStage = '',
   progress = 0,
-  onComplete
+  onComplete,
+  fullScreen = false,
+  onTap
 }) => {
   const [phase, setPhase] = useState<'idle' | 'initializing' | 'scanning' | 'analyzing' | 'locking' | 'complete'>('idle');
   const [internalScore, setInternalScore] = useState(0);
   const [displayProgress, setDisplayProgress] = useState(0);
+  const [scoreTheme, setScoreTheme] = useState<'developing' | 'promising' | 'high-value' | 'critical'>('developing');
 
   // Update display progress with smooth animation
   useEffect(() => {
     setDisplayProgress(progress);
   }, [progress]);
 
+  // Determine score theme based on score value
+  useEffect(() => {
+    if (score < 40) {
+      setScoreTheme('developing');
+    } else if (score < 70) {
+      setScoreTheme('promising');
+    } else if (score < 85) {
+      setScoreTheme('high-value');
+    } else {
+      setScoreTheme('critical');
+    }
+  }, [score]);
+
+  // Trigger haptic feedback on mobile
+  const triggerHaptic = (type: 'light' | 'medium' | 'heavy') => {
+    // Visual feedback first
+    const container = document.querySelector('.intelligence-gauge-container');
+    if (container) {
+      container.classList.remove('haptic-light', 'haptic-medium', 'haptic-heavy');
+      void container.offsetWidth; // Force reflow
+      container.classList.add(`haptic-${type}`);
+      setTimeout(() => {
+        container.classList.remove(`haptic-${type}`);
+      }, 1000);
+    }
+    
+    // Physical vibration
+    if ('vibrate' in navigator) {
+      switch (type) {
+        case 'light':
+          navigator.vibrate(10);
+          break;
+        case 'medium':
+          navigator.vibrate(25);
+          break;
+        case 'heavy':
+          navigator.vibrate([50, 50, 50]);
+          break;
+      }
+    }
+  };
+
   useEffect(() => {
     if (isScanning) {
       // Determine phase based on progress
       if (progress < 10) {
         setPhase('initializing');
+        if (progress === 0) triggerHaptic('light');
       } else if (progress < 85) {
         setPhase('scanning');
+        // Haptic feedback every 25%
+        if (progress % 25 === 0) triggerHaptic('light');
       } else if (progress < 95) {
         setPhase('analyzing');
+        triggerHaptic('medium');
       } else if (progress < 100) {
         setPhase('locking');
         setInternalScore(score);
       } else if (progress >= 100) {
         setPhase('complete');
         setInternalScore(score);
+        triggerHaptic('heavy');
         onComplete?.();
       }
     } else {
@@ -57,7 +109,10 @@ export const IntelligenceGauge: React.FC<IntelligenceGaugeProps> = ({
   }, [isScanning, progress, score, onComplete]);
 
   return (
-    <div className="intelligence-gauge-container">
+    <div 
+      className={`intelligence-gauge-container ${isScanning ? 'scanning-active' : ''} ${fullScreen ? 'full-screen' : ''} theme-${scoreTheme}`}
+      onClick={onTap}
+    >
       <motion.div 
         className="intelligence-gauge"
         initial={{ scale: 0.8, opacity: 0 }}
@@ -67,8 +122,11 @@ export const IntelligenceGauge: React.FC<IntelligenceGaugeProps> = ({
         {/* Outer glow effect */}
         <div className={`gauge-glow ${phase === 'locking' ? 'pulse' : ''}`} />
         
+        {/* Haptic feedback indicator */}
+        <div className="haptic-pulse" />
+        
         {/* Main gauge layers */}
-        <div className="gauge-layers">
+        <div className={`gauge-layers phase-${phase}`}>
           <OuterAuthorityRing phase={phase} />
           <ProgressRing phase={phase} progress={displayProgress} />
           <StatusRing phase={phase} scanStage={scanStage} />
