@@ -329,7 +329,8 @@ export async function synthesizeWithSequentialGuidance(
   researchData: any,
   strategy: ResearchStrategy,
   doctor: Doctor,
-  product: string
+  product: string,
+  productIntelligence?: any
 ): Promise<any> {
   // Use Sequential Thinking to identify the most important insights
   const synthesisPlan = await callSequentialThinking({
@@ -338,7 +339,13 @@ Key findings:
 - Website: ${strategy.websiteUrl || 'Not found'}
 - Focus areas covered: ${strategy.focusAreas.join(', ')}
 - Key questions: ${strategy.keyQuestions.join('; ')}
-
+${productIntelligence ? `
+Product Intelligence for ${product}:
+- Market awareness: ${productIntelligence.marketData?.awareness || 'Unknown'}
+- Local adoption: ${productIntelligence.localInsights?.adoptionRate || 'Unknown'}
+- Top competitors: ${productIntelligence.competitiveLandscape?.topCompetitors?.slice(0, 3).join(', ') || 'Unknown'}
+- Key differentiators: ${productIntelligence.competitiveLandscape?.differentiators?.slice(0, 2).join(', ') || 'Unknown'}
+` : ''}
 What are the 3 most important insights for the sales team?`,
     thoughtNumber: 1,
     totalThoughts: 2
@@ -370,7 +377,15 @@ Research Summary:
 - Doctor: ${doctor.displayName}, ${doctor.specialty}
 - Product: ${product}
 - Key findings: ${JSON.stringify(researchData.searchResults?.slice(0, 2) || [], null, 2).substring(0, 500)}...
-
+${productIntelligence ? `
+Product Market Intelligence:
+- Market awareness score: ${productIntelligence.marketData?.awareness}/100
+- Price range in ${doctor.city}: $${productIntelligence.marketData?.pricingRange?.low || 0} - $${productIntelligence.marketData?.pricingRange?.high || 0}
+- Top local competitors: ${productIntelligence.competitiveLandscape?.topCompetitors?.join(', ') || 'Unknown'}
+- Local adoption: ${productIntelligence.localInsights?.adoptionRate || 'Unknown'}
+- Key barriers: ${productIntelligence.localInsights?.barriers?.join(', ') || 'None identified'}
+- Product benefits: ${productIntelligence.messagingStrategy?.keyBenefits?.slice(0, 3).join(', ') || 'Standard benefits'}
+` : ''}
 Return ONLY this JSON structure (no explanations, no markdown, just JSON):
 {
   "practiceProfile": {

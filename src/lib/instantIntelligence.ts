@@ -5,6 +5,7 @@
  */
 
 import { callPerplexityResearch } from './apiEndpoints';
+import { findProcedureByName } from './procedureDatabase';
 
 export interface InstantIntelligence {
   tacticalBrief: string;
@@ -42,6 +43,17 @@ export async function generateInstantIntelligence(
     // Progress: Starting
     onProgress?.('Analyzing practice profile...', 10);
     
+    // Look up procedure information from database
+    const procedureInfo = await findProcedureByName(productName);
+    const procedureContext = procedureInfo ? `
+PROCEDURE/PRODUCT DETAILS:
+- Category: ${procedureInfo.category}
+- Specialty: ${procedureInfo.specialty || specialty}
+- Average Price: $${procedureInfo.average_price || 'Variable'}
+- Related Products: ${procedureInfo.related_products?.join(', ') || 'Various options'}
+- Keywords: ${procedureInfo.keywords?.join(', ') || productName}
+` : '';
+    
     // Build comprehensive prompt for single-shot intelligence
     const intelligencePrompt = `
 You are an expert medical sales intelligence analyst. Generate immediate, actionable sales intelligence.
@@ -54,6 +66,7 @@ ${practiceName ? `- Practice: ${practiceName}` : ''}
 ${npi ? `- NPI: ${npi} (verified)` : ''}
 
 PRODUCT TO SELL: ${productName}
+${procedureContext}
 
 Generate comprehensive sales intelligence including:
 
@@ -68,16 +81,16 @@ Generate comprehensive sales intelligence including:
    - Decision-making factors
    - Budget/purchasing patterns for this specialty
 
-3. PAIN POINTS (specific to ${specialty}):
-   - Current workflow inefficiencies
-   - Common complaints in this specialty
+3. PAIN POINTS (specific to ${specialty} and ${productName}):
+   - Current workflow inefficiencies that ${productName} solves
+   - Common complaints in this specialty related to ${productName}
    - Regulatory/compliance challenges
-   - Technology gaps
+   - Technology gaps ${productName} addresses
 
 4. APPROACH STRATEGY:
-   - Best opening line for ${specialty} doctors
-   - 3 value propositions specific to their practice
-   - Common objections and responses
+   - Best opening line connecting ${productName} to ${specialty} needs
+   - 3 value propositions for ${productName} specific to their practice
+   - Common objections about ${productName} and responses
 
 5. OUTREACH TEMPLATES:
    A. Email (personalized for ${doctorName}):

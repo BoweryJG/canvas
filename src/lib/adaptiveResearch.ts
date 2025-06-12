@@ -11,6 +11,8 @@ import { analyzeInitialResults, synthesizeWithSequentialGuidance } from './seque
 import type { ResearchStrategy } from './sequentialThinkingResearch';
 import { searchCache, cachedApiCall, CacheKeys, websiteCache } from './intelligentCaching';
 import { MOCK_MODE, createMockResearchData } from './mockResearch';
+import { gatherProductIntelligence, type ProductIntelligence } from './productProcedureIntelligence';
+import { findProcedureByName } from './procedureDatabase';
 
 interface AdaptiveProgress {
   updateStep?: (stepId: string, status: 'pending' | 'active' | 'completed' | 'found', result?: string) => void;
@@ -27,6 +29,7 @@ export async function adaptiveResearch(
   progress?: AdaptiveProgress
 ): Promise<ExtendedResearchData> {
   console.log('🧠 ADAPTIVE RESEARCH with Sequential Thinking for:', doctor.displayName);
+  console.log('🎯 Product/Procedure:', product);
   
   // Check if mock mode is enabled
   if (MOCK_MODE) {
@@ -36,6 +39,7 @@ export async function adaptiveResearch(
   
   const sources: ResearchSource[] = [];
   const startTime = Date.now();
+  let productIntelligence: ProductIntelligence | null = null;
   
   try {
     // Step 1: Initial reconnaissance
@@ -137,6 +141,44 @@ export async function adaptiveResearch(
     
     progress?.updateSources?.(sources.length);
     
+    // Step 3.5: Product/Procedure Research (NEW)
+    progress?.updateStage?.('Researching product/procedure intelligence...');
+    progress?.updateStep?.('product', 'active');
+    
+    try {
+      // First check if it's in our procedure database
+      const procedureInfo = await findProcedureByName(product);
+      console.log('📋 Procedure database lookup:', procedureInfo ? 'Found' : 'Not found');
+      
+      // Gather comprehensive product intelligence
+      productIntelligence = await gatherProductIntelligence(
+        product,
+        { city: doctor.city, state: doctor.state },
+        doctor.specialty
+      );
+      
+      // Add product research as a source
+      sources.push({
+        type: 'product_research',
+        title: `${product} Market Intelligence`,
+        url: 'product-research',
+        content: JSON.stringify({
+          procedureInfo,
+          marketData: productIntelligence.marketData,
+          competitiveLandscape: productIntelligence.competitiveLandscape,
+          localInsights: productIntelligence.localInsights
+        }),
+        confidence: 90,
+        lastUpdated: new Date().toISOString()
+      });
+      
+      progress?.updateStep?.('product', 'completed', 
+        `${product} intelligence gathered`);
+    } catch (error) {
+      console.error('Product research failed:', error);
+      progress?.updateStep?.('product', 'completed', 'Using basic product info');
+    }
+    
     // Step 4: Competitor analysis (if needed)
     if (!strategy.skipCompetitorAnalysis) {
       progress?.updateStage?.('Analyzing competition...');
@@ -163,14 +205,16 @@ export async function adaptiveResearch(
       sources,
       searchResults,
       strategy,
-      initialFindings: initialSearch
+      initialFindings: initialSearch,
+      productIntelligence // Add product intelligence to synthesis
     };
     
     const synthesis = await synthesizeWithSequentialGuidance(
       allData,
       strategy,
       doctor,
-      product
+      product,
+      productIntelligence // Pass product intelligence to synthesis
     );
     
     // Calculate confidence with strategy awareness

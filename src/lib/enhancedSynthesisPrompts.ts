@@ -10,7 +10,8 @@ export const ENHANCED_SYNTHESIS_PROMPT = (
   reviewData: any,
   competitors: any[],
   productFit: any,
-  sources: any[]
+  sources: any[],
+  productIntelligence?: any
 ) => `You are an elite medical sales intelligence analyst. Create a COMPREHENSIVE, ACTIONABLE sales brief.
 
 DOCTOR: ${doctor.displayName}, ${doctor.specialty}
@@ -40,7 +41,16 @@ PRODUCT FIT ANALYSIS FOR ${product.toUpperCase()}:
 Fit Score: ${productFit.fitScore}/100
 Identified Opportunities: ${productFit.opportunities?.join(', ') || 'None specifically identified'}
 Potential Barriers: ${productFit.barriers?.join(', ') || 'None identified'}
-
+${productIntelligence ? `
+PRODUCT MARKET INTELLIGENCE:
+- Local Market Awareness: ${productIntelligence.marketData?.awareness || 'Unknown'}/100
+- Price Range in ${doctor.city}: $${productIntelligence.marketData?.pricingRange?.low || 0} - $${productIntelligence.marketData?.pricingRange?.high || 0}
+- Top Competitors: ${productIntelligence.competitiveLandscape?.topCompetitors?.slice(0, 3).join(', ') || 'Unknown'}
+- Local Adoption Rate: ${productIntelligence.localInsights?.adoptionRate || 'Unknown'}
+- Key Benefits: ${productIntelligence.messagingStrategy?.keyBenefits?.slice(0, 3).join('; ') || 'Standard benefits'}
+- Local Barriers: ${productIntelligence.localInsights?.barriers?.slice(0, 3).join('; ') || 'None identified'}
+- Recent Local Cases: ${productIntelligence.localInsights?.recentCases?.length || 0} found
+` : ''}
 TOTAL INTELLIGENCE SOURCES: ${sources.length}
 Source Types: ${[...new Set(sources.map(s => s.type))].join(', ')}
 
@@ -97,9 +107,9 @@ Create a detailed JSON response following this EXACT structure:
       "urgencyTrigger": "What event/timing makes this urgent"
     },
     "messaging": {
-      "opener": "SPECIFIC first sentence that references their practice/situation",
-      "hookStatement": "One sentence that captures the main value prop",
-      "differentiator": "Why ${product} vs what they have/competitors offer"
+      "opener": "SPECIFIC first sentence that references their practice/situation AND connects to ${product}",
+      "hookStatement": "One sentence that captures how ${product} solves their specific pain point",
+      "differentiator": "Why ${product} vs ${productIntelligence?.competitiveLandscape?.topCompetitors?.[0] || 'competitors'}"
     },
     "valueProps": [
       "Specific benefit #1 with metric/outcome",

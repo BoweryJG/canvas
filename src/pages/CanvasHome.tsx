@@ -349,6 +349,7 @@ NPI: ${selectedDoctor.npi}`,
         { id: 'reviews', label: '⭐ What Patients Say', sublabel: 'Checking Google, Healthgrades, Yelp reviews', status: 'pending' },
         { id: 'professional', label: '🎓 Verifying Credentials', sublabel: 'Board certifications, NPI validation', status: 'pending' },
         { id: 'website', label: '🌐 Analyzing Their Tech Stack', sublabel: 'Scanning for CBCT, software, digital tools', status: 'pending' },
+        { id: 'product', label: `📊 Researching ${product} Market`, sublabel: 'Local adoption, pricing, competitors', status: 'pending' },
         { id: 'competition', label: '🏢 Current Vendor Analysis', sublabel: 'Who they buy from now', status: 'pending' },
         { id: 'technology', label: `🎯 ${product} Fit Assessment`, sublabel: 'Finding integration opportunities', status: 'pending' },
         { id: 'synthesis', label: '🧠 Creating Your Sales Arsenal', sublabel: 'Custom brief, talking points, objection handlers', status: 'pending' }

@@ -3,7 +3,7 @@ import { supabase } from '../auth/supabase';
 export interface ResearchSource {
   url: string;
   title: string;
-  type: 'practice_website' | 'medical_directory' | 'review_site' | 'news_article' | 'social_media' | 'hospital_affiliation';
+  type: 'practice_website' | 'medical_directory' | 'review_site' | 'news_article' | 'social_media' | 'hospital_affiliation' | 'product_research';
   content: string;
   confidence: number; // 0-100
   lastUpdated: string;
