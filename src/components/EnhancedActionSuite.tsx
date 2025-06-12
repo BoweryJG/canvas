@@ -362,7 +362,6 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             salesRepInfo.company,
             salesRepInfo.product
           );
-          fileName = `McKinsey-Executive-Brief-${scanResult.doctor.replace(/\s+/g, '-')}.pdf`;
           break;
         case 'initial_outreach':
           pdfBlob = await generateInitialOutreachReport(
@@ -372,7 +371,6 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             salesRepInfo.company,
             salesRepInfo.product
           );
-          fileName = `Initial-Outreach-Brief-${scanResult.doctor.replace(/\s+/g, '-')}.pdf`;
           break;
         case 'follow_up':
           pdfBlob = await generateFollowUpReport(
@@ -382,7 +380,6 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             salesRepInfo.company,
             salesRepInfo.product
           );
-          fileName = `Follow-Up-Strategy-${scanResult.doctor.replace(/\s+/g, '-')}.pdf`;
           break;
         case 'breakthrough':
           pdfBlob = await generateBreakthroughReport(
@@ -392,7 +389,6 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             salesRepInfo.company,
             salesRepInfo.product
           );
-          fileName = `Breakthrough-Strategy-${scanResult.doctor.replace(/\s+/g, '-')}.pdf`;
           break;
         case 'closing':
           pdfBlob = await generateClosingReport(
@@ -402,7 +398,6 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             salesRepInfo.company,
             salesRepInfo.product
           );
-          fileName = `Closing-Strategy-${scanResult.doctor.replace(/\s+/g, '-')}.pdf`;
           break;
       }
       
