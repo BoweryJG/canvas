@@ -12,11 +12,11 @@ import type { ResearchData } from './webResearch';
 
 // Feature flags for controlling which system to use
 const FEATURE_FLAGS = {
-  USE_INSTANT_SCAN: process.env.REACT_APP_USE_INSTANT_SCAN === 'true' || false, // Disabled when using adaptive
-  USE_LEGACY_BASELINE: process.env.REACT_APP_USE_LEGACY === 'true' || false,
-  USE_ADAPTIVE_AI: process.env.REACT_APP_USE_ADAPTIVE === 'true' || true, // NEW: Sequential Thinking
-  ENABLE_SOCIAL_MEDIA: process.env.REACT_APP_ENABLE_SOCIAL === 'true' || true,
-  ENABLE_SEO_REPORT: process.env.REACT_APP_ENABLE_SEO === 'true' || true,
+  USE_INSTANT_SCAN: import.meta.env.VITE_USE_INSTANT_SCAN === 'true' || false, // Disabled when using adaptive
+  USE_LEGACY_BASELINE: import.meta.env.VITE_USE_LEGACY === 'true' || false,
+  USE_ADAPTIVE_AI: import.meta.env.VITE_USE_ADAPTIVE === 'true' || true, // NEW: Sequential Thinking
+  ENABLE_SOCIAL_MEDIA: import.meta.env.VITE_ENABLE_SOCIAL === 'true' || true,
+  ENABLE_SEO_REPORT: import.meta.env.VITE_ENABLE_SEO === 'true' || true,
 };
 
 export type ResearchMode = 'instant' | 'legacy' | 'adaptive' | 'auto';

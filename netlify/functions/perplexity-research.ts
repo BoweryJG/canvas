@@ -32,7 +32,7 @@ export const handler: Handler = async (event, context) => {
     const { 
       query, 
       mode = 'search', // 'search', 'reason', 'deep_research'
-      model = 'llama-3.1-sonar-small-128k-online'
+      model = 'sonar-small-128k-online'
     } = JSON.parse(event.body || '{}');
 
     if (!query) {
@@ -43,14 +43,15 @@ export const handler: Handler = async (event, context) => {
       };
     }
 
-    console.log(`🧠 Perplexity ${mode}: "${query}"`);
+    console.log(`🧠 Perplexity ${mode}: "${query.substring(0, 100)}..."`);
 
     // Select appropriate model based on mode
     let selectedModel = model;
+    console.log(`📋 Using model: ${model}`);
     if (mode === 'reason') {
-      selectedModel = 'llama-3.1-sonar-large-128k-online';
+      selectedModel = 'sonar-large-128k-online';
     } else if (mode === 'deep_research') {
-      selectedModel = 'llama-3.1-sonar-huge-128k-online';
+      selectedModel = 'sonar-large-128k-online'; // huge model might not exist anymore
     }
 
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -109,13 +110,19 @@ export const handler: Handler = async (event, context) => {
 
   } catch (error) {
     console.error('Perplexity function error:', error);
+    
+    // More detailed error response
+    const errorDetails = {
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      type: error?.constructor?.name
+    };
+    
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ 
-        error: 'Internal server error',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      })
+      body: JSON.stringify(errorDetails)
     };
   }
 };

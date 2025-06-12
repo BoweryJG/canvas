@@ -277,19 +277,14 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         branding: 'canvas'
       });
       
-      // Create download link
+      // Open PDF in new tab instead of downloading
       const url = URL.createObjectURL(pdfBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `Canvas-Intelligence-Brief-${scanResult.doctor.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+      window.open(url, '_blank');
       
-      // Trigger download
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Cleanup
-      URL.revokeObjectURL(url);
+      // Cleanup after a delay to ensure the tab has loaded
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 1000);
       
       setPdfState({ loading: false });
       console.log('✅ PDF intelligence brief generated successfully');
@@ -324,19 +319,14 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         format: 'comprehensive'
       });
       
-      // Create download link
+      // Open PDF in new tab instead of downloading
       const url = URL.createObjectURL(pdfBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `Canvas-Deep-Research-${scanResult.doctor.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+      window.open(url, '_blank');
       
-      // Trigger download
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Cleanup
-      URL.revokeObjectURL(url);
+      // Cleanup after a delay to ensure the tab has loaded
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 1000);
       
       setDeepReportState({ loading: false });
       console.log('✅ Deep research report generated successfully');
@@ -417,19 +407,14 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
           break;
       }
       
-      // Create download link
+      // Open PDF in new tab instead of downloading
       const url = URL.createObjectURL(pdfBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${fileName.replace('.pdf', '')}-${new Date().toISOString().split('T')[0]}.pdf`;
+      window.open(url, '_blank');
       
-      // Trigger download
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      // Cleanup
-      URL.revokeObjectURL(url);
+      // Cleanup after a delay to ensure the tab has loaded
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 1000);
       
       setSalesReportState({ loading: false });
       console.log(`✅ ${reportType} sales rep report generated successfully`);

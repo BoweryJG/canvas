@@ -315,12 +315,12 @@ export async function callPerplexityResearch(query: string, mode: 'search' | 're
   } catch (error) {
     console.error('Perplexity API error:', error);
     
-    // Fallback response
+    // Fallback response - return empty to trigger default intelligence
     return {
       choices: [
         {
           message: {
-            content: `Research analysis for: ${query}\n\nThis would contain Perplexity's AI-powered research and reasoning about the query, with citations and sources.`,
+            content: '',
             role: 'assistant'
           }
         }
