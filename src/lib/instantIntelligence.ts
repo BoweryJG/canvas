@@ -117,17 +117,30 @@ Format response as JSON with clear sections.`;
     // Parse the response
     let parsedIntelligence;
     try {
+      // Handle different response types
+      let responseText = '';
+      if (typeof response === 'string') {
+        responseText = response;
+      } else if (response?.choices?.[0]?.message?.content) {
+        responseText = response.choices[0].message.content;
+      } else if (response?.content) {
+        responseText = response.content;
+      } else {
+        console.warn('Unexpected response format:', response);
+        responseText = JSON.stringify(response);
+      }
+      
       // Try to extract JSON from the response
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         parsedIntelligence = JSON.parse(jsonMatch[0]);
       } else {
         // Fallback: parse structured text
-        parsedIntelligence = parseStructuredResponse(response);
+        parsedIntelligence = parseStructuredResponse(responseText);
       }
     } catch (error) {
       console.error('Failed to parse intelligence response:', error);
-      parsedIntelligence = parseStructuredResponse(response);
+      parsedIntelligence = {};
     }
     
     // Progress: Finalizing
@@ -182,17 +195,20 @@ Format response as JSON with clear sections.`;
 }
 
 // Helper function to parse structured text response
-function parseStructuredResponse(response: string): any {
+function parseStructuredResponse(response: string | any): any {
   const result: any = {};
   
+  // Ensure response is a string
+  const responseText = typeof response === 'string' ? response : JSON.stringify(response);
+  
   // Extract tactical brief
-  const briefMatch = response.match(/TACTICAL BRIEF[:\s]*([\s\S]*?)(?=KEY INSIGHTS|PAIN POINTS|$)/i);
+  const briefMatch = responseText.match(/TACTICAL BRIEF[:\s]*([\s\S]*?)(?=KEY INSIGHTS|PAIN POINTS|$)/i);
   if (briefMatch) {
     result.tacticalBrief = briefMatch[1].trim();
   }
   
   // Extract key insights
-  const insightsMatch = response.match(/KEY INSIGHTS[:\s]*([\s\S]*?)(?=PAIN POINTS|APPROACH|$)/i);
+  const insightsMatch = responseText.match(/KEY INSIGHTS[:\s]*([\s\S]*?)(?=PAIN POINTS|APPROACH|$)/i);
   if (insightsMatch) {
     result.keyInsights = insightsMatch[1]
       .split(/[\n•\-]/)
@@ -201,7 +217,7 @@ function parseStructuredResponse(response: string): any {
   }
   
   // Extract pain points
-  const painMatch = response.match(/PAIN POINTS[:\s]*([\s\S]*?)(?=APPROACH|OUTREACH|$)/i);
+  const painMatch = responseText.match(/PAIN POINTS[:\s]*([\s\S]*?)(?=APPROACH|OUTREACH|$)/i);
   if (painMatch) {
     result.painPoints = painMatch[1]
       .split(/[\n•\-]/)
@@ -210,7 +226,7 @@ function parseStructuredResponse(response: string): any {
   }
   
   // Extract approach strategy
-  const approachMatch = response.match(/APPROACH STRATEGY[:\s]*([\s\S]*?)(?=OUTREACH|EMAIL|$)/i);
+  const approachMatch = responseText.match(/APPROACH STRATEGY[:\s]*([\s\S]*?)(?=OUTREACH|EMAIL|$)/i);
   if (approachMatch) {
     const approachText = approachMatch[1];
     result.approachStrategy = {
@@ -225,7 +241,7 @@ function parseStructuredResponse(response: string): any {
   // Extract outreach templates
   result.outreachTemplates = {};
   
-  const emailMatch = response.match(/EMAIL[:\s]*([\s\S]*?)(?=SMS|LINKEDIN|$)/i);
+  const emailMatch = responseText.match(/EMAIL[:\s]*([\s\S]*?)(?=SMS|LINKEDIN|$)/i);
   if (emailMatch) {
     const emailText = emailMatch[1];
     result.outreachTemplates.email = {
@@ -234,12 +250,12 @@ function parseStructuredResponse(response: string): any {
     };
   }
   
-  const smsMatch = response.match(/SMS[:\s]*(.*?)(?=LINKEDIN|$)/i);
+  const smsMatch = responseText.match(/SMS[:\s]*(.*?)(?=LINKEDIN|$)/i);
   if (smsMatch) {
     result.outreachTemplates.sms = smsMatch[1].trim();
   }
   
-  const linkedinMatch = response.match(/LINKEDIN[:\s]*(.*?)$/i);
+  const linkedinMatch = responseText.match(/LINKEDIN[:\s]*(.*?)$/i);
   if (linkedinMatch) {
     result.outreachTemplates.linkedin = linkedinMatch[1].trim();
   }
@@ -250,6 +266,14 @@ function parseStructuredResponse(response: string): any {
 // Default generators for each specialty
 function generateDefaultBrief(doctorName: string, specialty: string, productName: string): string {
   const lastName = doctorName.split(' ').pop();
+  
+  // Specific briefs for known products
+  if (productName.toLowerCase().includes('yomi')) {
+    return `Dr. ${lastName}'s ${specialty} practice is ideal for Yomi robotic-guided implant surgery. ` +
+           `As an oral surgeon, they likely place multiple implants weekly and would benefit from Yomi's precision and efficiency. ` +
+           `Lead with improved patient outcomes and reduced chair time.`;
+  }
+  
   return `Dr. ${lastName}'s ${specialty} practice represents a high-value opportunity for ${productName}. ` +
          `Target their need for efficiency and patient outcomes. ` +
          `Lead with ROI and time savings specific to ${specialty} workflows.`;
@@ -316,6 +340,15 @@ function generateDefaultPainPoints(specialty: string): string[] {
 }
 
 function generateDefaultValueProps(specialty: string, productName: string): string[] {
+  // Yomi-specific value props
+  if (productName.toLowerCase().includes('yomi')) {
+    return [
+      'Yomi provides haptic guidance for precise implant placement, reducing complications by up to 50%',
+      'Real-time 3D navigation eliminates the need for surgical guides, saving $500-1000 per case',
+      'Increased case acceptance with live visualization patients can understand'
+    ];
+  }
+  
   return [
     `${productName} reduces chair time by 30% for ${specialty} procedures`,
     `Seamless integration with existing ${specialty} workflows`,
@@ -334,6 +367,24 @@ function generateDefaultObjections(): Record<string, string> {
 
 function generateDefaultEmail(doctorName: string, specialty: string, productName: string, location: string): any {
   const lastName = doctorName.split(' ').pop();
+  
+  // Yomi-specific email
+  if (productName.toLowerCase().includes('yomi')) {
+    return {
+      subject: `Yomi Robot - Implant Precision in ${location}`,
+      body: `Dr. ${lastName},
+
+I noticed your oral surgery practice in ${location} and wanted to reach out about how Yomi is transforming implant placement for practices like yours.
+
+Yomi's robotic guidance system is helping oral surgeons achieve sub-millimeter accuracy while reducing surgery time by 30%. Several practices in NY have eliminated surgical guides entirely, saving $500-1000 per case.
+
+Would you be interested in seeing how Yomi could enhance your implant cases? I have a 10-minute case study video from a practice similar to yours.
+
+Best regards,
+[Your name]`
+    };
+  }
+  
   return {
     subject: `${productName} for ${location} ${specialty}`,
     body: `Dr. ${lastName},
@@ -351,6 +402,11 @@ Best regards,
 
 function generateDefaultSMS(doctorName: string, productName: string): string {
   const lastName = doctorName.split(' ').pop();
+  
+  if (productName.toLowerCase().includes('yomi')) {
+    return `Hi Dr. ${lastName}, Yomi robot is helping NY oral surgeons place implants 30% faster with haptic guidance. Worth a quick chat? [Your name]`;
+  }
+  
   return `Hi Dr. ${lastName}, I help practices save 5+ hrs/week with ${productName}. Worth a quick chat? [Your name]`;
 }
 
