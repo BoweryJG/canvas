@@ -16,6 +16,8 @@ import { IntelligenceProgress } from '../components/IntelligenceProgress'
 import { MOCK_MODE } from '../lib/mockResearch'
 import PowerPackModal from '../components/PowerPackModal'
 import { generateInstantIntelligence, type InstantIntelligence } from '../lib/instantIntelligence'
+import { LoadingOverlay } from '../components/LoadingStates'
+import { sanitizeInput } from '../utils/errorHandling'
 
 interface ScanResult {
   doctor: string;
@@ -210,6 +212,9 @@ export default function CanvasHome() {
       return;
     }
     
+    // Sanitize inputs before using them
+    const sanitizedProduct = sanitizeInput(product);
+    
     setIsGeneratingBrief(true);
     setGaugeProgress(0);
     setScanStage('Initializing intelligence scan...');
@@ -220,7 +225,7 @@ export default function CanvasHome() {
         selectedDoctor.displayName,
         selectedDoctor.specialty,
         `${selectedDoctor.city}, ${selectedDoctor.state}`,
-        product,
+        sanitizedProduct,
         selectedDoctor.npi,
         selectedDoctor.organizationName || practiceName,
         (stage, percentage) => {
@@ -234,7 +239,7 @@ export default function CanvasHome() {
       // Create scan result from instant intelligence
       const instantResult: ScanResult = {
         doctor: selectedDoctor.displayName,
-        product: product,
+        product: sanitizedProduct,
         score: intelligence.confidenceScore,
         doctorProfile: `**${selectedDoctor.displayName}** - ${selectedDoctor.specialty}
 ${selectedDoctor.organizationName || 'Private Practice'}
@@ -456,6 +461,14 @@ NPI: ${selectedDoctor.npi}`,
 
   return (
     <div className="canvas-app">
+      {/* Loading Overlay for Deep Research */}
+      {isGeneratingBrief && !instantIntel && (
+        <LoadingOverlay
+          message="Conducting Deep Research"
+          submessage={scanStage || "Analyzing multiple sources for comprehensive intelligence..."}
+        />
+      )}
+
       {/* Header */}
       <header className="header">
         <div className="header-icon">
@@ -579,8 +592,9 @@ NPI: ${selectedDoctor.npi}`,
               type="text"
               placeholder="Product Name"
               value={product}
-              onChange={(e) => setProduct(e.target.value)}
+              onChange={(e) => setProduct(sanitizeInput(e.target.value))}
               disabled={isScanning || isGeneratingBrief}
+              maxLength={100}
             />
           </div>
         </div>

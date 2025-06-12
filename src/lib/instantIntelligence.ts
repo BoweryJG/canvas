@@ -6,6 +6,7 @@
 
 import { callPerplexityResearch } from './apiEndpoints';
 import { findProcedureByName } from './procedureDatabase';
+import { withRetry } from '../utils/errorHandling';
 
 export interface InstantIntelligence {
   tacticalBrief: string;
@@ -109,7 +110,21 @@ Format response as JSON with clear sections.`;
     // Progress: Making API call
     onProgress?.('Generating tactical intelligence...', 40);
     
-    const response = await callPerplexityResearch(intelligencePrompt);
+    // Use retry logic for Perplexity API call
+    const response = await withRetry(
+      () => callPerplexityResearch(intelligencePrompt),
+      {
+        maxAttempts: 3,
+        initialDelay: 1000,
+        shouldRetry: (error: any, attempt) => {
+          // Retry on any error except client errors (4xx)
+          if (error?.statusCode && error.statusCode >= 400 && error.statusCode < 500) {
+            return false;
+          }
+          return attempt < 3;
+        }
+      }
+    );
     
     // Progress: Processing response
     onProgress?.('Processing insights...', 70);

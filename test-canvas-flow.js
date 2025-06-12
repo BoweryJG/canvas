@@ -42,7 +42,7 @@ import puppeteer from 'puppeteer';
   
   try {
     console.log('1️⃣ Navigating to Canvas app...');
-    await page.goto('http://localhost:3000', { waitUntil: 'networkidle2' });
+    await page.goto('https://canvas.repspheres.com', { waitUntil: 'networkidle2' });
     
     // Wait for the app to load
     await new Promise(resolve => setTimeout(resolve, 2000)); // Give page time to load

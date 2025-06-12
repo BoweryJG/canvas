@@ -7,23 +7,26 @@ import { TestNPI } from './pages/TestNPI'
 import { TestNPIDebug } from './pages/TestNPIDebug'
 import { TestNPIMinimal } from './pages/TestNPIMinimal'
 import { EnhancedResearchPanelWithRender } from './components/EnhancedResearchPanelWithRender'
+import ErrorBoundary from './components/ErrorBoundary'
 import './App.css'
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <NavBar />
-        <Routes>
-          <Route path="/" element={<CanvasHome />} />
-          <Route path="/research" element={<EnhancedResearchPanelWithRender />} />
-          <Route path="/market-insights" element={<MarketInsights />} />
-          <Route path="/test-npi" element={<TestNPI />} />
-          <Route path="/test-npi-debug" element={<TestNPIDebug />} />
-          <Route path="/test-npi-minimal" element={<TestNPIMinimal />} />
-        </Routes>
-      </AuthProvider>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <AuthProvider>
+          <NavBar />
+          <Routes>
+            <Route path="/" element={<CanvasHome />} />
+            <Route path="/research" element={<EnhancedResearchPanelWithRender />} />
+            <Route path="/market-insights" element={<MarketInsights />} />
+            <Route path="/test-npi" element={<TestNPI />} />
+            <Route path="/test-npi-debug" element={<TestNPIDebug />} />
+            <Route path="/test-npi-minimal" element={<TestNPIMinimal />} />
+          </Routes>
+        </AuthProvider>
+      </Router>
+    </ErrorBoundary>
   )
 }
 

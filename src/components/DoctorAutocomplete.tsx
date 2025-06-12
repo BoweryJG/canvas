@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { debounce } from 'lodash';
 import { getApiEndpoint } from '../config/api';
+import { withRetry, APIError, getUserFriendlyError } from '../utils/errorHandling';
 
 export interface Doctor {
   npi: string;
@@ -23,6 +24,10 @@ interface DoctorAutocompleteProps {
   dropdownClassName?: string;
 }
 
+// Simple in-memory cache for NPI lookups
+const npiCache = new Map<string, { data: Doctor[], timestamp: number }>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({ 
   onSelect, 
   placeholder = "Doctor name...",
@@ -43,6 +48,16 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
         return;
       }
 
+      // Check cache first
+      const cacheKey = searchTerm.toLowerCase();
+      const cached = npiCache.get(cacheKey);
+      if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+        console.log('🗂️ Using cached results for:', searchTerm);
+        setSuggestions(cached.data);
+        setShowDropdown(cached.data.length > 0);
+        return;
+      }
+
       setLoading(true);
       setError(null);
       console.log('🔍 Searching for:', searchTerm);
@@ -50,34 +65,50 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
       try {
         const url = `${getApiEndpoint('npiLookup')}?search=${encodeURIComponent(searchTerm)}`;
         console.log('🌐 Fetching URL:', url);
-        console.log('🔧 API Base URL:', getApiEndpoint('npiLookup'));
         
-        const response = await fetch(url);
-        console.log('📡 Response status:', response.status);
-        console.log('📡 Response ok:', response.ok);
+        // Use retry wrapper for resilient API calls
+        const data = await withRetry(async () => {
+          const response = await fetch(url);
+          console.log('📡 Response status:', response.status);
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Response error:', errorText);
+            throw new APIError(`Failed to search doctors`, response.status, url);
+          }
+          
+          return response.json();
+        }, {
+          maxAttempts: 3,
+          initialDelay: 500,
+          shouldRetry: (error, attempt) => {
+            // Retry on network errors or 5xx errors
+            if (error instanceof APIError) {
+              return error.statusCode ? error.statusCode >= 500 : true;
+            }
+            return attempt < 2; // Allow 2 retries for network errors
+          }
+        });
         
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('❌ Response error:', errorText);
-          throw new Error(`HTTP ${response.status}: ${errorText}`);
-        }
-        
-        const data = await response.json();
         console.log('👥 Found doctors:', data);
         
         // Handle both array format (Netlify) and object format (backend)
         const doctors = Array.isArray(data) ? data : (data.results || []);
         console.log('👥 Number of results:', doctors.length);
         
+        // Cache the results
+        npiCache.set(cacheKey, {
+          data: doctors,
+          timestamp: Date.now()
+        });
+        
         setSuggestions(doctors);
         setShowDropdown(doctors.length > 0);
         console.log('✅ Set suggestions and dropdown visibility');
       } catch (error) {
         console.error('❌ Failed to search doctors:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Failed to search doctors';
-        console.error('❌ Error type:', error instanceof Error ? error.constructor.name : 'Unknown');
-        console.error('❌ Error message:', errorMessage);
-        setError(errorMessage);
+        const userMessage = getUserFriendlyError(error);
+        setError(userMessage);
         setSuggestions([]);
         setShowDropdown(true); // Show error message
       } finally {
