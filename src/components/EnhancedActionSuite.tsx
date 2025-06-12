@@ -352,7 +352,6 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       console.log(`Generating ${reportType} sales rep report...`);
       
       let pdfBlob: Blob;
-      let fileName: string;
       
       switch (reportType) {
         case 'mckinsey_executive':
