@@ -49,7 +49,7 @@ function AppContent() {
   // Initialize API key rotation
   useApiKeys();
   
-  const [showOnboarding, setShowOnboarding] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   
   useEffect(() => {
     // Initialize security features
