@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import NavBar from './components/NavBar'
-import { AuthProvider } from './auth'
+import { AuthProvider, AuthGuard } from './auth'
+import { PublicCanvasDashboard } from './components/PublicCanvasDashboard'
 import MarketInsights from './pages/MarketInsightsSimple'
 import CanvasHome from './pages/CanvasHome'
 import { TestNPI } from './pages/TestNPI'
@@ -90,19 +91,41 @@ function AppContent() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        {showOnboarding && (
-          <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
-        )}
-        <ConnectionStatus />
-        <NavBar />
-        <Routes>
-          <Route path="/" element={<CanvasHome />} />
-          <Route path="/research" element={<EnhancedResearchPanelWithRender />} />
-          <Route path="/market-insights" element={<MarketInsights />} />
-          <Route path="/test-npi" element={<TestNPI />} />
-          <Route path="/test-npi-debug" element={<TestNPIDebug />} />
-          <Route path="/test-npi-minimal" element={<TestNPIMinimal />} />
-        </Routes>
+        <AuthGuard
+          allowPublic={true}
+          publicComponent={
+            <PublicCanvasDashboard 
+              onLoginSuccess={() => window.location.reload()}
+            />
+          }
+          redirectTo={`https://repspheres.com/login?redirect=${encodeURIComponent(window.location.href)}`}
+          fallback={
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              height: '100vh',
+              background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)',
+              color: 'white'
+            }}>
+              Checking authentication...
+            </div>
+          }
+        >
+          {showOnboarding && (
+            <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
+          )}
+          <ConnectionStatus />
+          <NavBar />
+          <Routes>
+            <Route path="/" element={<CanvasHome />} />
+            <Route path="/research" element={<EnhancedResearchPanelWithRender />} />
+            <Route path="/market-insights" element={<MarketInsights />} />
+            <Route path="/test-npi" element={<TestNPI />} />
+            <Route path="/test-npi-debug" element={<TestNPIDebug />} />
+            <Route path="/test-npi-minimal" element={<TestNPIMinimal />} />
+          </Routes>
+        </AuthGuard>
       </AuthProvider>
     </ErrorBoundary>
   );

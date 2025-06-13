@@ -6,6 +6,8 @@ interface AuthGuardProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
   redirectTo?: string;
+  allowPublic?: boolean;
+  publicComponent?: React.ReactNode;
 }
 
 /**
@@ -14,15 +16,20 @@ interface AuthGuardProps {
 export const AuthGuard: React.FC<AuthGuardProps> = ({ 
   children, 
   fallback = <div>Loading...</div>,
-  redirectTo = '/login'
+  redirectTo = '/login',
+  allowPublic = false,
+  publicComponent
 }) => {
-  const { user, loading } = useRequireAuth(redirectTo);
+  const { user, loading } = allowPublic ? useAuth() : useRequireAuth(redirectTo);
   
   if (loading) {
     return <>{fallback}</>;
   }
   
   if (!user) {
+    if (allowPublic && publicComponent) {
+      return <>{publicComponent}</>;
+    }
     return null;
   }
   
