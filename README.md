@@ -105,8 +105,8 @@ AI-powered sales intelligence platform that provides instant, comprehensive rese
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/BoweryJG/canvasheader.git
-cd canvasheader
+git clone https://github.com/BoweryJG/canvas.git
+cd canvas
 ```
 
 2. Install dependencies:
@@ -247,7 +247,7 @@ Key optimizations:
 ### Project Structure
 
 ```
-canvasheader/
+canvas/
 ├── src/
 │   ├── components/      # React components
 │   │   └── Onboarding/ # User onboarding flow

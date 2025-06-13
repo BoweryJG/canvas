@@ -73,7 +73,7 @@ git push origin main
 
 ### 3. Update Frontend
 ```bash
-cd /Users/jasonsmacbookpro2022/Desktop/canvasheader
+cd /Users/jasonsmacbookpro2022/Desktop/canvas
 npm run build
 netlify deploy --prod
 ```
