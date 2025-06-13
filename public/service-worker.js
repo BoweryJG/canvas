@@ -1,9 +1,6 @@
 const CACHE_NAME = 'canvas-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/favicon.ico'
+  '/'
 ];
 
 // Install Service Worker
