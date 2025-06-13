@@ -16,6 +16,21 @@ export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKe
     persistSession: true,
     detectSessionInUrl: true,
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    storageKey: 'repspheres-auth',
+    cookieOptions: {
+      domain: '.repspheres.com',
+      sameSite: 'lax',
+      secure: true,
+      maxAge: 60 * 60 * 24 * 7 // 7 days
+    },
+    ...(typeof window !== 'undefined' && window.location.hostname === 'localhost' && {
+      cookieOptions: {
+        domain: 'localhost',
+        sameSite: 'lax',
+        secure: false,
+        maxAge: 60 * 60 * 24 * 7
+      }
+    })
   },
 });
 
