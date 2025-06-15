@@ -784,9 +784,9 @@ export default function NavBar() {
                       }
                     }}
                   >
-                    {user.user_metadata?.avatar_url ? (
+                    {(user.user_metadata?.avatar_url || user.user_metadata?.picture) ? (
                       <Avatar
-                        src={user.user_metadata.avatar_url}
+                        src={user.user_metadata?.avatar_url || user.user_metadata?.picture}
                         sx={{ width: 32, height: 32 }}
                       />
                     ) : (
