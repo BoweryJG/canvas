@@ -5,6 +5,8 @@ import { AuthProvider, AuthGuard } from './auth'
 import { PublicCanvasDashboard } from './components/PublicCanvasDashboard'
 import MarketInsights from './pages/MarketInsightsSimple'
 import CanvasHome from './pages/CanvasHome'
+import SimpleLogin from './pages/SimpleLogin'
+import AuthCallback from './pages/AuthCallback'
 import { TestNPI } from './pages/TestNPI'
 import { TestNPIDebug } from './pages/TestNPIDebug'
 import { TestNPIMinimal } from './pages/TestNPIMinimal'
@@ -119,6 +121,8 @@ function AppContent() {
           <NavBar />
           <Routes>
             <Route path="/" element={<CanvasHome />} />
+            <Route path="/login" element={<SimpleLogin />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/research" element={<EnhancedResearchPanelWithRender />} />
             <Route path="/market-insights" element={<MarketInsights />} />
             <Route path="/test-npi" element={<TestNPI />} />
