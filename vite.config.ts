@@ -18,7 +18,7 @@ export default defineConfig({
     }
   },
   server: {
-    port: 3002,
+    port: 7002,
     proxy: {
       '/api': {
         target: 'https://osbackend-zl1h.onrender.com',
