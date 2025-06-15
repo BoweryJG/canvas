@@ -1,4 +1,4 @@
-const CACHE_NAME = 'canvas-v1';
+const CACHE_NAME = 'canvas-v2';
 const urlsToCache = [
   '/'
 ];
@@ -26,6 +26,13 @@ self.addEventListener('fetch', event => {
 
         // Clone the request
         const fetchRequest = event.request.clone();
+
+        // Skip caching for external resources
+        if (event.request.url.includes('fonts.googleapis.com') ||
+            event.request.url.includes('fonts.gstatic.com') ||
+            event.request.url.includes('stripe.com')) {
+          return fetch(event.request);
+        }
 
         return fetch(fetchRequest).then(response => {
           // Check if valid response
