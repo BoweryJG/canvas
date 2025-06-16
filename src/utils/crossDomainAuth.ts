@@ -176,7 +176,7 @@ export function broadcastAuthState(session: any) {
   if (!window.postMessage) return;
   
   const domains = window.location.hostname === 'localhost' 
-    ? Object.entries(DEV_PORTS).map(([key, port]) => `http://localhost:${port}`)
+    ? Object.entries(DEV_PORTS).map(([, port]) => `http://localhost:${port}`)
     : Object.values(REPSPHERES_DOMAINS);
   
   domains.forEach(domain => {
