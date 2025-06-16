@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { getStandardAuthConfig } from '../utils/crossDomainAuth';
 
 // Get environment variables with fallbacks for development
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://cbopynuvhcymbumjnvay.supabase.co';
@@ -9,30 +10,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
-// Create a single supabase client for interacting with your database
-export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-    storageKey: 'repspheres-auth',
-    cookieOptions: {
-      domain: '.repspheres.com',
-      sameSite: 'lax',
-      secure: true,
-      maxAge: 60 * 60 * 24 * 7 // 7 days
-    },
-    ...(typeof window !== 'undefined' && window.location.hostname === 'localhost' && {
-      cookieOptions: {
-        domain: 'localhost',
-        sameSite: 'lax',
-        secure: false,
-        maxAge: 60 * 60 * 24 * 7
-      }
-    })
-  },
-});
+// Create a single supabase client with standardized configuration
+export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey, getStandardAuthConfig());
 
 // Helper to get the current app URL for redirects
 export const getAppUrl = () => {
