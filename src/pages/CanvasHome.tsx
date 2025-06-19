@@ -478,8 +478,8 @@ NPI: ${selectedDoctor.npi}`,
         />
       )}
       
-      {/* Loading Overlay for other operations */}
-      {isGeneratingBrief && !instantIntel && !showCinematicScan && (
+      {/* Loading Overlay for other operations - hide when gauge is shown */}
+      {isGeneratingBrief && !instantIntel && !showCinematicScan && !gaugeProgress && (
         <LoadingOverlay
           message="Conducting Deep Research"
           submessage={scanStage || "Analyzing multiple sources for comprehensive intelligence..."}
@@ -639,7 +639,7 @@ NPI: ${selectedDoctor.npi}`,
         )}
         
         {/* Intelligence Gauge - Shows after Generate Intel is clicked */}
-        {(selectedDoctor && product && (isScanning || isGeneratingBrief || scanResult)) && (
+        {(selectedDoctor && product && (isScanning || isGeneratingBrief || scanResult) && !showCinematicScan) && (
           <div style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
             <IntelligenceGauge
               score={scanResult?.score || 0}
