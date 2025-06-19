@@ -8,13 +8,15 @@ import { type Doctor } from '../components/DoctorAutocomplete';
 import { runCanvasResearch, type InstantScanResult, type DeepResearchResult } from './instantCanvasResearch';
 import { baselineResearch } from './baselineUSETHISONLYresearch';
 import { adaptiveResearch } from './adaptiveResearch';
+import { streamlinedResearch } from './streamlinedResearch';
 import type { ResearchData } from './webResearch';
 
 // Feature flags for controlling which system to use
 const FEATURE_FLAGS = {
   USE_INSTANT_SCAN: import.meta.env.VITE_USE_INSTANT_SCAN === 'true' || false, // Disabled when using adaptive
   USE_LEGACY_BASELINE: import.meta.env.VITE_USE_LEGACY === 'true' || false,
-  USE_ADAPTIVE_AI: import.meta.env.VITE_USE_ADAPTIVE === 'true' || true, // NEW: Sequential Thinking
+  USE_ADAPTIVE_AI: import.meta.env.VITE_USE_ADAPTIVE === 'true' || false, // Disabled - too many loops
+  USE_STREAMLINED: import.meta.env.VITE_USE_STREAMLINED === 'true' || true, // NEW: Minimal API calls
   ENABLE_SOCIAL_MEDIA: import.meta.env.VITE_ENABLE_SOCIAL === 'true' || true,
   ENABLE_SEO_REPORT: import.meta.env.VITE_ENABLE_SEO === 'true' || true,
 };
@@ -68,12 +70,29 @@ export async function unifiedCanvasResearch(
   
   try {
     // Determine which mode to use
-    const useAdaptive = mode === 'adaptive' || 
-                        (mode === 'auto' && FEATURE_FLAGS.USE_ADAPTIVE_AI);
-    const useInstantScan = !useAdaptive && (mode === 'instant' || 
+    const useStreamlined = mode === 'streamlined' || 
+                          (mode === 'auto' && FEATURE_FLAGS.USE_STREAMLINED);
+    const useAdaptive = !useStreamlined && (mode === 'adaptive' || 
+                        (mode === 'auto' && FEATURE_FLAGS.USE_ADAPTIVE_AI));
+    const useInstantScan = !useStreamlined && !useAdaptive && (mode === 'instant' || 
                           (mode === 'auto' && FEATURE_FLAGS.USE_INSTANT_SCAN));
     
-    if (useAdaptive) {
+    if (useStreamlined) {
+      console.log('🚀 Using STREAMLINED system (minimal API calls)');
+      
+      // Use the new streamlined research
+      const streamlinedResult = await streamlinedResearch(
+        doctor,
+        product,
+        progress
+      );
+      
+      return {
+        mode: 'adaptive', // Return as adaptive for compatibility
+        adaptive: streamlinedResult
+      };
+      
+    } else if (useAdaptive) {
       console.log('🧠 Using ADAPTIVE AI system with Sequential Thinking');
       
       // Use the new adaptive research with intelligent routing
