@@ -1,4 +1,4 @@
-const CACHE_NAME = 'canvas-v3'; // Increment version to force cache update
+const CACHE_NAME = 'canvas-v4'; // Force service worker to update with new CSP
 const urlsToCache = [
   '/'
 ];
