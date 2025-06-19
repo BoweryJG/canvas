@@ -41,7 +41,7 @@ export async function streamlinedResearch(
     
     // Extract website URL from search results
     let websiteUrl = null;
-    let practiceInfo = {
+    let practiceInfo: any = {
       phone: doctor.phone,
       address: doctor.fullAddress,
       specialty: doctor.specialty
@@ -51,7 +51,7 @@ export async function streamlinedResearch(
       const results = practiceSearch.web.results;
       
       // Find practice website
-      websiteUrl = results.find(r => 
+      websiteUrl = results.find((r: any) => 
         r.url && 
         !r.url.includes('healthgrades') && 
         !r.url.includes('vitals.com') &&
@@ -59,7 +59,7 @@ export async function streamlinedResearch(
       )?.url;
       
       // Extract any additional info from snippets
-      results.forEach(result => {
+      results.forEach((result: any) => {
         if (result.description) {
           // Extract phone if found
           const phoneMatch = result.description.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
@@ -70,7 +70,7 @@ export async function streamlinedResearch(
       });
       
       sources.push({
-        type: 'web_search',
+        type: 'medical_directory',
         title: 'Practice Search',
         url: 'brave.com',
         content: JSON.stringify(results.slice(0, 3)),
@@ -88,7 +88,7 @@ export async function streamlinedResearch(
         const websiteData = await callFirecrawlScrape(websiteUrl);
         if (websiteData?.content) {
           sources.push({
-            type: 'website',
+            type: 'practice_website',
             title: 'Practice Website',
             url: websiteUrl,
             content: websiteData.content.substring(0, 5000), // Limit content size
@@ -118,7 +118,7 @@ export async function streamlinedResearch(
     const procedureInfo = await findProcedureByName(product);
     
     sources.push({
-      type: 'product_info',
+      type: 'product_research',
       title: `${product} Information`,
       url: 'internal-database',
       content: JSON.stringify(procedureInfo || { name: product, category: 'Medical Device' }),
@@ -136,7 +136,6 @@ export async function streamlinedResearch(
     const context = {
       doctor: {
         name: doctor.displayName,
-        specialty: doctor.specialty,
         location: `${doctor.city}, ${doctor.state}`,
         organization: doctor.organizationName,
         npi: doctor.npi,
@@ -146,8 +145,8 @@ export async function streamlinedResearch(
         name: product,
         details: procedureInfo
       },
-      websiteInsights: websiteUrl ? sources.find(s => s.type === 'website')?.content : null,
-      searchResults: sources.find(s => s.type === 'web_search')?.content
+      websiteInsights: websiteUrl ? sources.find(s => s.type === 'practice_website')?.content : null,
+      searchResults: sources.find(s => s.type === 'medical_directory')?.content
     };
     
     // Single comprehensive Claude call
@@ -236,9 +235,7 @@ Return as JSON with all sections filled. Be specific and reference actual detail
   try {
     const response = await callOpenRouter(
       prompt,
-      'anthropic/claude-3.5-sonnet', // Use Sonnet for speed/cost, upgrade to Opus if needed
-      1000,
-      0.1
+      'anthropic/claude-3.5-sonnet' // Use Sonnet for speed/cost, upgrade to Opus if needed
     );
     
     return JSON.parse(response.choices[0].message.content);
@@ -257,15 +254,14 @@ function createFallbackData(
   return {
     doctorName: doctor.displayName,
     practiceInfo: {
+      name: doctor.organizationName || `${doctor.displayName}'s Practice`,
       phone: doctor.phone,
       address: doctor.fullAddress,
-      specialty: doctor.specialty,
-      city: doctor.city,
-      state: doctor.state
+      specialties: [doctor.specialty]
     },
     businessIntel: {
       practiceType: 'Independent Practice',
-      decisionMaker: doctor.displayName
+      specialty: doctor.specialty
     },
     sources,
     confidenceScore: 60,
@@ -274,12 +270,11 @@ function createFallbackData(
     marketPosition: {},
     buyingSignals: [],
     approachStrategy: {
-      opening: `Hi Dr. ${doctor.lastName}, I noticed your ${doctor.specialty} practice in ${doctor.city}...`
+      bestTiming: 'Business hours',
+      preferredChannel: 'Email'
     },
     painPoints: [],
-    salesBrief: {
-      summary: `${product} opportunity for ${doctor.displayName}'s ${doctor.specialty} practice in ${doctor.city}.`
-    },
+    salesBrief: `${product} opportunity for ${doctor.displayName}'s ${doctor.specialty} practice in ${doctor.city}.`,
     totalTime,
     credentials: {},
     reviews: {},

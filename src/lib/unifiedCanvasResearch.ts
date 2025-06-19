@@ -21,7 +21,7 @@ const FEATURE_FLAGS = {
   ENABLE_SEO_REPORT: import.meta.env.VITE_ENABLE_SEO === 'true' || true,
 };
 
-export type ResearchMode = 'instant' | 'legacy' | 'adaptive' | 'auto';
+export type ResearchMode = 'instant' | 'legacy' | 'adaptive' | 'streamlined' | 'auto';
 
 export interface UnifiedResearchOptions {
   mode?: ResearchMode;
