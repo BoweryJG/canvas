@@ -19,6 +19,7 @@ import { useApiKeys } from './hooks/useApiKeys'
 import { SecureStorage, CSRFTokenManager } from './utils/security'
 import { analytics } from './utils/analytics'
 import { OnboardingFlow } from './components/Onboarding/OnboardingFlow'
+import ChatLauncher from './components/agents/ChatLauncher'
 import './App.css'
 import './styles/mobile.css'
 
@@ -129,6 +130,7 @@ function AppContent() {
             <Route path="/test-npi-debug" element={<TestNPIDebug />} />
             <Route path="/test-npi-minimal" element={<TestNPIMinimal />} />
           </Routes>
+          <ChatLauncher />
         </AuthGuard>
       </AuthProvider>
     </ErrorBoundary>
