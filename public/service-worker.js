@@ -1,4 +1,4 @@
-const CACHE_NAME = 'canvas-v2';
+const CACHE_NAME = 'canvas-v3'; // Increment version to force cache update
 const urlsToCache = [
   '/'
 ];
@@ -16,6 +16,14 @@ self.addEventListener('install', event => {
 
 // Cache and return requests
 self.addEventListener('fetch', event => {
+  // Skip service worker for external resources entirely
+  if (event.request.url.includes('fonts.googleapis.com') ||
+      event.request.url.includes('fonts.gstatic.com') ||
+      event.request.url.includes('stripe.com') ||
+      event.request.url.includes('googleusercontent.com')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {
@@ -26,14 +34,6 @@ self.addEventListener('fetch', event => {
 
         // Clone the request
         const fetchRequest = event.request.clone();
-
-        // Skip caching for external resources
-        if (event.request.url.includes('fonts.googleapis.com') ||
-            event.request.url.includes('fonts.gstatic.com') ||
-            event.request.url.includes('stripe.com') ||
-            event.request.url.includes('googleusercontent.com')) {
-          return fetch(event.request);
-        }
 
         return fetch(fetchRequest).then(response => {
           // Check if valid response
