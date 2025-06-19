@@ -30,7 +30,8 @@ self.addEventListener('fetch', event => {
         // Skip caching for external resources
         if (event.request.url.includes('fonts.googleapis.com') ||
             event.request.url.includes('fonts.gstatic.com') ||
-            event.request.url.includes('stripe.com')) {
+            event.request.url.includes('stripe.com') ||
+            event.request.url.includes('googleusercontent.com')) {
           return fetch(event.request);
         }
 

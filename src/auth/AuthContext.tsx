@@ -32,13 +32,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const mapSession = (session: Session | null): AuthSession | null => {
     if (!session) return null;
     
+    // Ensure avatar_url is set from picture if needed
+    const user = session.user as User;
+    if (user.user_metadata?.picture && !user.user_metadata?.avatar_url) {
+      user.user_metadata.avatar_url = user.user_metadata.picture;
+    }
+    
     return {
       access_token: session.access_token,
       refresh_token: session.refresh_token,
       expires_in: session.expires_in || 3600,
       expires_at: session.expires_at,
       token_type: session.token_type,
-      user: session.user as User,
+      user: user,
     };
   };
 
@@ -53,9 +59,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (error) throw error;
         
         if (mounted) {
+          const mappedSession = mapSession(session);
+          const user = mappedSession?.user || null;
+          
           setState({
-            user: session?.user as User | null,
-            session: mapSession(session),
+            user: user,
+            session: mappedSession,
             loading: false,
             error: null,
           });
@@ -78,10 +87,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         if (mounted) {
+          const mappedSession = mapSession(session);
+          const user = mappedSession?.user || null;
+          
           setState(prev => ({
             ...prev,
-            user: session?.user as User | null,
-            session: mapSession(session),
+            user: user,
+            session: mappedSession,
             loading: false,
             error: null,
           }));
