@@ -16,13 +16,14 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ||
 
 console.log('🔧 Using API_BASE_URL:', API_BASE_URL);
 
-// API endpoint paths - ALL on Render backend
+// API endpoint paths
 export const API_ENDPOINTS = {
   braveSearch: `${API_BASE_URL}/api/brave-search`,
   firecrawlScrape: `${API_BASE_URL}/api/firecrawl-scrape`,
   openRouter: `${API_BASE_URL}/api/openrouter`,
   perplexityResearch: `${API_BASE_URL}/api/perplexity-research`,
-  npiLookup: `${API_BASE_URL}/api/npi-lookup`,
+  // NPI lookup should use Netlify function directly to avoid CORS issues
+  npiLookup: '/.netlify/functions/npi-lookup',
   sendMagicLink: `${API_BASE_URL}/api/send-magic-link`,
   apifyActor: `${API_BASE_URL}/api/apify-actor`,
 };
