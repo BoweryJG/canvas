@@ -84,11 +84,11 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             <div className="text-sm text-white prose prose-invert prose-sm max-w-none">
               <ReactMarkdown
                 components={{
-                  code({ node, inline, className, children, ...props }) {
+                  code({ inline, className, children, ...props }: any) {
                     const match = /language-(\w+)/.exec(className || '');
                     return !inline && match ? (
                       <SyntaxHighlighter
-                        style={vscDarkPlus}
+                        style={vscDarkPlus as any}
                         language={match[1]}
                         PreTag="div"
                         className="rounded-lg my-2"

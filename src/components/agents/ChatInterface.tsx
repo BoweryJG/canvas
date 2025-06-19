@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../auth/AuthContext';
 import { io, Socket } from 'socket.io-client';
@@ -7,7 +7,6 @@ import MessageInput from './MessageInput';
 import AgentSelector from './AgentSelector';
 import ConversationList from './ConversationList';
 import ProcedureSelector from './ProcedureSelector';
-import { supabase } from '../../lib/supabase';
 
 interface Message {
   id: string;
@@ -47,8 +46,7 @@ interface ChatInterfaceProps {
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
-  defaultAgentId, 
-  onUnreadChange 
+  defaultAgentId
 }) => {
   const { session } = useAuth();
   const [socket, setSocket] = useState<Socket | null>(null);

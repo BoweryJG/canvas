@@ -1,10 +1,17 @@
 # Canvas Sales Intelligence
 
-AI-powered sales intelligence platform that provides instant, comprehensive research on healthcare professionals to accelerate B2B medical sales.
+AI-powered sales intelligence platform for medical device and pharmaceutical representatives. Canvas combines real-time market data, doctor research, and conversational AI agents to help sales reps close more deals.
 
 ## ✨ Latest Updates
 
-### Production-Ready Features (NEW!)
+### 🤖 Canvas AI Sales Agents (NEW!)
+- **4 Specialized Personalities**: Hunter, Closer, Educator, and Strategist agents with unique approaches
+- **Real-time Chat**: WebSocket-based conversations with streaming AI responses
+- **Procedure Specialization**: Dynamic expertise in 200+ dental and aesthetic procedures
+- **Two-Step Selection**: Choose procedure first (optional), then agent personality
+- **Conversation History**: Save, search, and export all agent interactions
+
+### Production-Ready Features
 - **📱 Mobile-First Design**: Responsive layouts, touch-friendly interfaces, haptic feedback
 - **🔌 Offline Support**: Service worker, resilient API calls, connection monitoring
 - **🔒 Enterprise Security**: CSP headers, CSRF protection, secure storage
@@ -23,6 +30,43 @@ AI-powered sales intelligence platform that provides instant, comprehensive rese
 - **Smart Verification**: NPI-selected doctors skip verification (they're pre-verified!)
 
 ## Features
+
+### 🤖 AI Sales Agents
+Canvas AI Agents are your 24/7 sales companions, each with specialized expertise:
+
+#### Agent Personalities
+1. **Hunter** 🎯 - Lead generation and prospecting specialist
+   - Direct, results-oriented communication
+   - Focuses on identifying opportunities
+   - Expert at qualifying prospects
+
+2. **Closer** 💼 - Deal negotiation and closing expert
+   - Persuasive, confidence-building approach
+   - Handles objections smoothly
+   - Masters the art of the close
+
+3. **Educator** 📚 - Product knowledge and training specialist
+   - Patient, detailed explanations
+   - Clinical evidence focus
+   - Builds trust through expertise
+
+4. **Strategist** 📊 - Territory planning and analytics expert
+   - Data-driven insights
+   - Competitive intelligence
+   - Long-term relationship building
+
+#### Dynamic Procedure Specialization
+- **200+ Procedures**: Agents adapt their knowledge based on your selected procedure
+- **Featured Procedures**: Quick access to top 20 high-value procedures
+- **Smart Search**: Find any procedure across dental and aesthetic categories
+- **Real-time Context**: Agents receive detailed product knowledge, objections, and sales strategies
+
+#### Conversation Features
+- **Real-time Streaming**: See AI responses as they're generated
+- **Conversation History**: Never lose valuable insights
+- **Export Options**: Download conversations as JSON or Markdown
+- **Proactive Insights**: Agents suggest next steps during conversations
+- **WebSocket Architecture**: Instant, reliable communication
 
 ### 🎯 Instant Doctor Intelligence
 - **NPI-Verified Search**: Autocomplete search with real-time NPI database verification
@@ -82,8 +126,10 @@ AI-powered sales intelligence platform that provides instant, comprehensive rese
 - **Frontend**: React 18 + TypeScript + Vite
 - **Styling**: Tailwind CSS + Custom Mobile-First CSS Framework
 - **AI Models**: 
-  - Claude Opus 4 (via OpenRouter)
+  - Claude 3 Opus for AI Agents (via Anthropic API)
+  - Claude Opus 4 (via OpenRouter) for research
   - Sequential Thinking for adaptive research
+- **Real-time Communication**: Socket.io for WebSocket connections
 - **APIs**:
   - NPI Database for doctor verification
   - Brave Search API for web research
@@ -116,7 +162,8 @@ npm install
 
 3. Create a `.env` file in the root directory:
 ```env
-# API Endpoints
+# Backend API
+VITE_BACKEND_URL=https://osbackend-zl1h.onrender.com
 VITE_API_ENDPOINT=your-api-endpoint
 VITE_NPI_LOOKUP_ENDPOINT=your-npi-endpoint
 
@@ -155,7 +202,20 @@ The build output will be in the `dist` directory.
 
 ## Usage
 
-### 1. Single Doctor Lookup
+### 1. AI Sales Agents
+- Click the chat icon in the bottom-right corner
+- Optional: Select a specific procedure to specialize your agent
+- Choose an agent personality (Hunter, Closer, Educator, or Strategist)
+- Start conversing for:
+  - Sales strategy advice
+  - Objection handling scripts
+  - Product knowledge training
+  - Territory planning
+  - Competitive intelligence
+- Access conversation history anytime
+- Export conversations for team sharing
+
+### 2. Single Doctor Lookup
 - Start typing a doctor's name in the search bar
 - Select from NPI-verified results
 - Add product/context information
@@ -163,20 +223,20 @@ The build output will be in the `dist` directory.
   - **Instant Intel**: 15-30 second tactical brief
   - **Deep Research**: 2-4 minute comprehensive analysis
 
-### 2. Batch Processing
+### 3. Batch Processing
 - Complete a single lookup first
 - Click "Scale This x10-2500" button
 - Select your power pack size
 - Upload CSV or manually enter doctor list
 - Process and download results
 
-### 3. Offline Usage
+### 4. Offline Usage
 - Previously searched doctors are cached
 - Forms auto-save as you type
 - View scan history without internet
 - Data syncs when reconnected
 
-### 4. Mobile Experience
+### 5. Mobile Experience
 - Add to home screen for app experience
 - Swipe between research tabs
 - Touch-optimized interface
@@ -250,6 +310,13 @@ Key optimizations:
 canvas/
 ├── src/
 │   ├── components/      # React components
+│   │   ├── agents/     # AI agent components
+│   │   │   ├── ChatInterface.tsx
+│   │   │   ├── ChatLauncher.tsx
+│   │   │   ├── AgentSelector.tsx
+│   │   │   ├── ProcedureSelector.tsx
+│   │   │   ├── MessageBubble.tsx
+│   │   │   └── ConversationList.tsx
 │   │   └── Onboarding/ # User onboarding flow
 │   ├── lib/            # Core business logic
 │   ├── pages/          # Page components
