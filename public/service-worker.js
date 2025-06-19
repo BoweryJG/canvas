@@ -1,4 +1,4 @@
-const CACHE_NAME = 'canvas-v4'; // Force service worker to update with new CSP
+const CACHE_NAME = 'canvas-v5'; // Updated to show cinematic scanner
 const urlsToCache = [
   '/'
 ];

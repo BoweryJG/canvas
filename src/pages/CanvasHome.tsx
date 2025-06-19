@@ -18,6 +18,7 @@ import PowerPackModal from '../components/PowerPackModal'
 import { generateInstantIntelligence, type InstantIntelligence } from '../lib/instantIntelligence'
 import { LoadingOverlay } from '../components/LoadingStates'
 import { sanitizeInput } from '../utils/errorHandling'
+import SimpleCinematicScan from '../components/SimpleCinematicScan'
 
 interface ScanResult {
   doctor: string;
@@ -156,6 +157,7 @@ export default function CanvasHome() {
   const [, setShowEnhancements] = useState(false)
   const [researchData, setResearchData] = useState<ResearchData | null>(null)
   const [intelligenceSteps, setIntelligenceSteps] = useState<any[]>([])
+  const [showCinematicScan, setShowCinematicScan] = useState(false)
   const [sourcesFound, setSourcesFound] = useState(0)
   const [confidenceScore, setConfidenceScore] = useState(50)
   const [showBatchPanel, setShowBatchPanel] = useState(false)
@@ -321,6 +323,7 @@ NPI: ${selectedDoctor.npi}`,
     setShowDeepResearch(false);
     setInstantIntel(null); // Clear instant intel when doing deep research
     setIsGeneratingBrief(true);
+    setShowCinematicScan(true); // Show the beautiful scanner
     setScanStage('Initiating deep research...');
     
     // Call the original deep research function
@@ -345,6 +348,7 @@ NPI: ${selectedDoctor.npi}`,
 
   const handleDoctorConfirmed = async (profile: any) => {
     setIsGeneratingBrief(true)
+    setShowCinematicScan(true) // Show scanner for all deep research
     setScanStage('Gathering comprehensive doctor information...')
     
     try {
@@ -427,6 +431,7 @@ NPI: ${selectedDoctor.npi}`,
       // Don't trigger another research call - just use mock data
     } finally {
       setIsGeneratingBrief(false)
+      setShowCinematicScan(false) // Hide the scanner
       setScanStage('')
     }
   }
@@ -461,8 +466,20 @@ NPI: ${selectedDoctor.npi}`,
 
   return (
     <div className="canvas-app mobile-container">
-      {/* Loading Overlay for Deep Research */}
-      {isGeneratingBrief && !instantIntel && (
+      {/* Cinematic Scanner for Deep Research */}
+      {showCinematicScan && selectedDoctor && (
+        <SimpleCinematicScan
+          doctorName={selectedDoctor.displayName}
+          location={`${selectedDoctor.city}, ${selectedDoctor.state}`}
+          onComplete={() => {
+            // Scanner animation complete - research might still be running
+            console.log('Scanner animation complete');
+          }}
+        />
+      )}
+      
+      {/* Loading Overlay for other operations */}
+      {isGeneratingBrief && !instantIntel && !showCinematicScan && (
         <LoadingOverlay
           message="Conducting Deep Research"
           submessage={scanStage || "Analyzing multiple sources for comprehensive intelligence..."}
