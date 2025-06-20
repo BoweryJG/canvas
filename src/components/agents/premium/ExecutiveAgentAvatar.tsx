@@ -7,11 +7,12 @@ import { glassEffects } from './styles/glass-effects';
 
 const AvatarContainer = styled(motion.div)({
   position: 'relative',
-  width: '280px',
-  height: '400px',
+  width: '220px',
+  height: '320px',
   display: 'flex',
   alignItems: 'flex-end',
   justifyContent: 'center',
+  margin: '0 auto',
 });
 
 const ExecutiveFrame = styled('div')({
@@ -51,14 +52,14 @@ const HolographicGlow = styled('div')({
 const AvatarFigure = styled('div')({
   position: 'absolute',
   bottom: 0,
-  width: '220px',
-  height: '350px',
+  width: '180px',
+  height: '280px',
   background: `linear-gradient(180deg,
     ${premiumTheme.colors.chromeAccent}20 0%,
     ${premiumTheme.colors.executiveNavy} 30%,
     ${premiumTheme.colors.deepBlack} 100%
   )`,
-  borderRadius: '120px 120px 0 0',
+  borderRadius: '90px 90px 0 0',
   overflow: 'hidden',
   
   '&::after': {

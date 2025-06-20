@@ -10,7 +10,9 @@ import PremiumMessageBubble from './PremiumMessageBubble';
 const InterfaceContainer = styled(motion.div)({
   position: 'relative',
   width: '100%',
-  height: '600px',
+  maxWidth: '450px',
+  height: '650px',
+  maxHeight: '85vh',
   ...glassEffects.dark,
   borderRadius: premiumTheme.borderRadius.large,
   border: `1px solid ${premiumTheme.colors.electricCyan}20`,

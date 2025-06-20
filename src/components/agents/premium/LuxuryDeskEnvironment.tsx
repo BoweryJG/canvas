@@ -17,10 +17,12 @@ const EnvironmentContainer = styled(motion.div)({
 
 const DeskSurface = styled(motion.div)({
   position: 'relative',
-  width: '800px',
-  height: '400px',
+  width: '100%',
+  maxWidth: '1000px',
+  height: '500px',
   transformStyle: 'preserve-3d',
-  transform: 'rotateX(10deg)',
+  transform: 'rotateX(5deg) scale(0.9)',
+  margin: '0 auto',
 });
 
 const DeskTop = styled('div')({
@@ -91,10 +93,14 @@ const ChromeEdge = styled('div')({
 
 const LuxuryLamp = styled(motion.div)({
   position: 'absolute',
-  top: '-100px',
-  right: '100px',
-  width: '60px',
-  height: '200px',
+  top: '-80px',
+  right: '80px',
+  width: '50px',
+  height: '160px',
+  
+  '@media (max-width: 768px)': {
+    display: 'none',
+  },
 });
 
 const LampBase = styled('div')({
@@ -137,19 +143,23 @@ const LampShade = styled('div')({
 
 const HolographicDisplay = styled(motion.div)({
   position: 'absolute',
-  top: '-150px',
-  left: '100px',
-  width: '200px',
-  height: '150px',
+  top: '-120px',
+  left: '50px',
+  width: '180px',
+  height: '120px',
   ...glassEffects.premium,
   borderRadius: premiumTheme.borderRadius.medium,
-  padding: '20px',
+  padding: '16px',
   background: `linear-gradient(135deg,
     rgba(0, 255, 198, 0.05) 0%,
     rgba(0, 212, 255, 0.05) 100%
   )`,
   border: `1px solid ${premiumTheme.colors.electricCyan}30`,
   overflow: 'hidden',
+  
+  '@media (max-width: 768px)': {
+    display: 'none',
+  },
   
   '&::before': {
     content: '""',
@@ -185,8 +195,12 @@ const ExecutiveAccessory = styled(motion.div)({
   position: 'absolute',
   bottom: '40px',
   right: '60px',
-  width: '120px',
-  height: '80px',
+  width: '100px',
+  height: '70px',
+  
+  '@media (max-width: 768px)': {
+    display: 'none',
+  },
 });
 
 const WatchDisplay = styled('div')({

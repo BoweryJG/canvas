@@ -18,9 +18,14 @@ document.head.appendChild(styleSheet);
 
 const LauncherContainer = styled('div')({
   position: 'fixed',
-  bottom: '32px',
-  right: '32px',
+  bottom: '24px',
+  right: '24px',
   zIndex: 9999,
+  
+  '@media (max-width: 768px)': {
+    bottom: '16px',
+    right: '16px',
+  },
 });
 
 const MicroOrb = styled(motion.button)({
@@ -109,6 +114,7 @@ const AgentEnvironment = styled(motion.div)({
   justifyContent: 'center',
   zIndex: 9999,
   pointerEvents: 'none',
+  overflow: 'hidden',
   
   '& > *': {
     pointerEvents: 'auto',
@@ -117,13 +123,21 @@ const AgentEnvironment = styled(motion.div)({
 
 const MainStage = styled('div')({
   position: 'relative',
-  width: '90vw',
-  maxWidth: '1400px',
-  height: '80vh',
-  maxHeight: '900px',
+  width: '100%',
+  maxWidth: '1600px',
+  height: '100vh',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  padding: '20px',
+  boxSizing: 'border-box',
+  
+  '@media (max-width: 768px)': {
+    padding: '10px',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    paddingTop: '40px',
+  },
 });
 
 interface AISalesAgentLauncherProps {
@@ -265,7 +279,7 @@ const AISalesAgentLauncher: React.FC<AISalesAgentLauncherProps> = ({
                   isVisible={showEnvironment}
                   style={{
                     position: 'absolute',
-                    top: '10%',
+                    top: '50px',
                     left: '50%',
                     transform: 'translateX(-50%)',
                     zIndex: 1,
@@ -279,10 +293,8 @@ const AISalesAgentLauncher: React.FC<AISalesAgentLauncherProps> = ({
                   onClose={handleClose}
                   style={{
                     position: 'absolute',
-                    bottom: '5%',
-                    right: '5%',
-                    width: '400px',
-                    maxWidth: '90vw',
+                    bottom: '20px',
+                    right: '20px',
                     zIndex: 10,
                   }}
                 />
