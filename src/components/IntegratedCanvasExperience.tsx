@@ -10,7 +10,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bolt, AutoAwesome } from '@mui/icons-material';
 import SimpleCinematicScan from './SimpleCinematicScan';
 import SimpleProgressiveResults from './SimpleProgressiveResults';
-import { DoctorAutocomplete } from './DoctorAutocomplete';
+import { EnhancedNPILookup } from './EnhancedNPILookup';
+import { CanvasMainSearch } from './CanvasMainSearch';
 import { useAuth } from '../auth';
 import { checkUserCredits, deductCredit } from '../lib/creditManager';
 import AuthModal from './AuthModal';
@@ -106,6 +107,7 @@ export default function IntegratedCanvasExperience() {
   const [showCreditAlert, setShowCreditAlert] = useState(false);
   const [creditError, setCreditError] = useState('');
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [useNewInterface] = useState(true); // Default to new interface
   const { user } = useAuth();
   const userTier = user?.subscription?.tier || 'free';
   
@@ -157,7 +159,14 @@ export default function IntegratedCanvasExperience() {
     // Handle upgrade flow
   };
   
-  const renderInputStage = () => (
+  const renderInputStage = () => {
+    // Show the new interface for authenticated users
+    if (useNewInterface && user) {
+      return <CanvasMainSearch />;
+    }
+    
+    // Original interface
+    return (
     <Container maxWidth="md" sx={{ pt: 10 }}>
       <motion.div
         initial={{ opacity: 0, y: 50 }}
@@ -217,15 +226,14 @@ export default function IntegratedCanvasExperience() {
               <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mb: 1 }}>
                 Doctor Name
               </Typography>
-              <DoctorAutocomplete 
+              <EnhancedNPILookup 
                 onSelect={(selectedDoctor) => {
                   setDoctor(`${selectedDoctor.firstName} ${selectedDoctor.lastName}`);
                   if (selectedDoctor.city && selectedDoctor.state) {
                     setLocation(`${selectedDoctor.city}, ${selectedDoctor.state}`);
                   }
                 }}
-                placeholder="Start typing doctor's name..."
-                inputClassName="w-full"
+                placeholder="Start typing doctor's name to discover their practice..."
               />
             </Box>
             
@@ -355,7 +363,8 @@ export default function IntegratedCanvasExperience() {
         </Box>
       </motion.div>
     </Container>
-  );
+    );
+  };
   
   const renderResults = () => (
     <Container maxWidth="lg" sx={{ pt: 4 }}>
