@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Test</title>
+    <style>
+        body { font-family: system-ui; padding: 20px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Simple Test Page</h1>
+    <div id="results"></div>
+    
+    <h2>Testing Root Page</h2>
+    <iframe src="/" width="100%" height="400" style="border: 1px solid #ccc;"></iframe>
+    
+    <script>
+        const results = document.getElementById('results');
+        
+        // Test 1: Can we fetch the root page?
+        fetch('/')
+            .then(response => {
+                results.innerHTML += `<p class="success">✓ Root page returned status: ${response.status}</p>`;
+                return response.text();
+            })
+            .then(html => {
+                // Check for root element
+                if (html.includes('id="root"')) {
+                    results.innerHTML += '<p class="success">✓ Root element found in HTML</p>';
+                } else {
+                    results.innerHTML += '<p class="error">✗ Root element NOT found in HTML</p>';
+                }
+                
+                // Check for script tags
+                const scriptMatches = html.match(/<script[^>]*>/g) || [];
+                results.innerHTML += `<p>Found ${scriptMatches.length} script tags</p>`;
+                
+                // Show first 500 chars of HTML
+                results.innerHTML += '<h3>First 500 chars of HTML:</h3>';
+                results.innerHTML += '<pre>' + html.substring(0, 500).replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>';
+            })
+            .catch(error => {
+                results.innerHTML += `<p class="error">✗ Error fetching root: ${error.message}</p>`;
+            });
+    </script>
+</body>
+</html>
