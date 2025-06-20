@@ -70,12 +70,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           });
         }
       } catch (error: any) {
+        console.error('Auth initialization error:', error);
         if (mounted) {
+          // Don't treat auth errors as fatal - allow public access
           setState({
             user: null,
             session: null,
             loading: false,
-            error: { message: error.message },
+            error: null, // Set to null to allow public access
           });
         }
       }

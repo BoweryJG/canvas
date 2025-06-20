@@ -101,7 +101,7 @@ function AppContent() {
               onLoginSuccess={() => window.location.reload()}
             />
           }
-          redirectTo={`https://repspheres.com/login?redirect=${encodeURIComponent(window.location.href)}`}
+          redirectTo="/login"
           fallback={
             <div style={{ 
               display: 'flex', 

@@ -5,6 +5,9 @@ import App from './App.tsx'
 import { OrbContextProvider } from './components/OrbContextProvider'
 import { AuthProvider } from './auth'
 
+// Debug mode - comment out to use normal app
+// import AppDebug from './AppDebug.tsx'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
