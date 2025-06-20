@@ -395,7 +395,7 @@ export class MockDataProvider {
     return mockMarketIntelligence;
   }
   
-  static getAgentInsights(doctorId?: string): MockInsight[] {
+  static getAgentInsights(_doctorId?: string): MockInsight[] {
     // Could filter insights based on doctor specialty/profile
     return mockAgentInsights;
   }

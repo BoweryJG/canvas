@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   Box,
   Container,
@@ -8,17 +8,14 @@ import {
   Tab,
   Tabs,
   Paper,
-  Grid,
   Card,
   CardContent,
   Chip,
   Avatar,
   LinearProgress,
   Stack,
-  IconButton,
   Alert,
   Fade,
-  Zoom,
   Badge
 } from '@mui/material';
 import {
@@ -30,15 +27,14 @@ import {
   Groups,
   LocalHospital,
   Speed,
-  CloudOff,
   Cloud,
   PlayCircle,
-  Info,
   ArrowForward
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { IntelligenceGauge } from '../components/IntelligenceGauge';
-import { MockDataProvider, MockDoctor } from '../lib/mockDataProvider';
+import { MockDataProvider } from '../lib/mockDataProvider';
+import type { MockDoctor } from '../lib/mockDataProvider';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -230,9 +226,9 @@ export const CanvasHomeDemoMode: React.FC = () => {
         </Box>
 
         {/* Main Content */}
-        <Grid container spacing={4}>
+        <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
           {/* Left Panel - Doctor List */}
-          <Grid item xs={12} md={4}>
+          <Box sx={{ flex: '1 1 300px', minWidth: 300, maxWidth: { md: '33%' } }}>
             <GlassCard elevation={0}>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
@@ -292,16 +288,16 @@ export const CanvasHomeDemoMode: React.FC = () => {
                 </Stack>
               </CardContent>
             </GlassCard>
-          </Grid>
+          </Box>
 
           {/* Right Panel - Research Interface */}
-          <Grid item xs={12} md={8}>
+          <Box sx={{ flex: '2 1 600px', minWidth: 300 }}>
             <GlassCard elevation={0}>
               <CardContent sx={{ p: 0 }}>
                 {/* Tabs */}
                 <Tabs
                   value={activeTab}
-                  onChange={(e, v) => setActiveTab(v)}
+                  onChange={(_, v) => setActiveTab(v)}
                   sx={{
                     borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
                     px: 3
@@ -326,13 +322,13 @@ export const CanvasHomeDemoMode: React.FC = () => {
                         Our agents will analyze practice data, generate insights, and create personalized strategies.
                       </Typography>
                       
-                      <Grid container spacing={3} sx={{ mt: 2 }}>
+                      <Box sx={{ display: 'flex', gap: 3, mt: 2, flexWrap: 'wrap' }}>
                         {[
                           { icon: <Rocket />, title: 'Instant Analysis', desc: '15-30 second intelligence briefs' },
                           { icon: <Psychology />, title: 'AI Agents', desc: '4 specialized sales assistants' },
                           { icon: <TrendingUp />, title: 'Market Intelligence', desc: 'Real-time competitive insights' }
                         ].map((feature, index) => (
-                          <Grid item xs={12} md={4} key={index}>
+                          <Box key={index} sx={{ flex: '1 1 300px' }}>
                             <Paper
                               sx={{
                                 p: 3,
@@ -352,9 +348,9 @@ export const CanvasHomeDemoMode: React.FC = () => {
                                 {feature.desc}
                               </Typography>
                             </Paper>
-                          </Grid>
+                          </Box>
                         ))}
-                      </Grid>
+                      </Box>
                     </Box>
                   </TabPanel>
 
@@ -407,8 +403,8 @@ export const CanvasHomeDemoMode: React.FC = () => {
                                 Intelligence generated successfully! AI agents have analyzed {selectedDoctor.name}'s practice.
                               </Alert>
 
-                              <Grid container spacing={3}>
-                                <Grid item xs={12} md={6}>
+                              <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                                <Box sx={{ flex: 1 }}>
                                   <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>
                                     Practice Overview
                                   </Typography>
@@ -457,9 +453,9 @@ export const CanvasHomeDemoMode: React.FC = () => {
                                       />
                                     </Box>
                                   </Stack>
-                                </Grid>
+                                </Box>
 
-                                <Grid item xs={12} md={6}>
+                                <Box sx={{ flex: 1 }}>
                                   <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>
                                     Key Insights
                                   </Typography>
@@ -473,8 +469,8 @@ export const CanvasHomeDemoMode: React.FC = () => {
                                       </Box>
                                     ))}
                                   </Stack>
-                                </Grid>
-                              </Grid>
+                                </Box>
+                              </Box>
                             </Box>
                           </Fade>
                         )}
@@ -493,9 +489,9 @@ export const CanvasHomeDemoMode: React.FC = () => {
                   <TabPanel value={activeTab} index={2}>
                     {selectedDoctor ? (
                       <Box>
-                        <Grid container spacing={3}>
+                        <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
                           {selectedDoctor.procedures.dental && (
-                            <Grid item xs={12} md={6}>
+                            <Box sx={{ flex: 1 }}>
                               <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>
                                 Dental Procedures
                               </Typography>
@@ -513,10 +509,10 @@ export const CanvasHomeDemoMode: React.FC = () => {
                                   />
                                 ))}
                               </Stack>
-                            </Grid>
+                            </Box>
                           )}
                           {selectedDoctor.procedures.aesthetic && (
-                            <Grid item xs={12} md={6}>
+                            <Box sx={{ flex: 1 }}>
                               <Typography variant="h6" sx={{ color: 'white', mb: 2 }}>
                                 Aesthetic Procedures
                               </Typography>
@@ -534,9 +530,9 @@ export const CanvasHomeDemoMode: React.FC = () => {
                                   />
                                 ))}
                               </Stack>
-                            </Grid>
+                            </Box>
                           )}
-                        </Grid>
+                        </Box>
                       </Box>
                     ) : (
                       <Box sx={{ textAlign: 'center', py: 8 }}>
@@ -554,8 +550,8 @@ export const CanvasHomeDemoMode: React.FC = () => {
                       <Typography variant="h6" sx={{ color: 'white', mb: 3 }}>
                         Market Intelligence
                       </Typography>
-                      <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
+                      <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                        <Box sx={{ flex: 1 }}>
                           <Paper
                             sx={{
                               p: 3,
@@ -575,8 +571,8 @@ export const CanvasHomeDemoMode: React.FC = () => {
                               ))}
                             </Stack>
                           </Paper>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
+                        </Box>
+                        <Box sx={{ flex: 1 }}>
                           <Paper
                             sx={{
                               p: 3,
@@ -600,15 +596,15 @@ export const CanvasHomeDemoMode: React.FC = () => {
                               </Typography>
                             </Stack>
                           </Paper>
-                        </Grid>
-                      </Grid>
+                        </Box>
+                      </Box>
                     </Box>
                   </TabPanel>
                 </Box>
               </CardContent>
             </GlassCard>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         {/* Call to Action */}
         {isDemo && (

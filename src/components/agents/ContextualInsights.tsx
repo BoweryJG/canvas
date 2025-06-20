@@ -7,7 +7,6 @@ import {
   IconButton,
   Collapse,
   Button,
-  Divider,
   LinearProgress,
   Alert,
   Stack
@@ -17,18 +16,17 @@ import {
   KeyboardArrowUp,
   AutoAwesome,
   TrendingUp,
-  Warning,
   CheckCircle,
   Lightbulb,
-  AttachMoney,
   People,
   LocalHospital,
   Speed
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
-import { MockDataProvider, MockInsight, MockDoctor } from '../../lib/mockDataProvider';
+import { MockDataProvider } from '../../lib/mockDataProvider';
+import type { MockInsight, MockDoctor } from '../../lib/mockDataProvider';
 
-const InsightCard = styled(Box)(({ theme, priority }: { theme?: any; priority: string }) => ({
+const InsightCard = styled(Box)(({ priority }: { priority: string }) => ({
   background: priority === 'high' 
     ? 'linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(233, 30, 99, 0.1) 100%)'
     : priority === 'medium'

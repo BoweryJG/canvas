@@ -11,10 +11,8 @@ import {
   Switch,
   FormControlLabel,
   Tooltip,
-  Avatar,
   Badge,
-  Fade,
-  Zoom
+  Fade
 } from '@mui/material';
 import {
   SmartToy as AgentIcon,
@@ -25,21 +23,17 @@ import {
   Psychology as StrategyIcon,
   Analytics as AnalyticsIcon,
   Diversity3 as RelationshipIcon,
-  TipsAndUpdates as InsightIcon,
   PlayCircle as DemoIcon,
-  CloudSync as LiveIcon,
-  KeyboardArrowUp,
-  KeyboardArrowDown
+  CloudSync as LiveIcon
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { useAuth } from '../../auth/AuthContext';
 import AgentAvatar from './AgentAvatar';
 import ContextualInsights from './ContextualInsights';
 import StrategyBuilder from './StrategyBuilder';
-import { MockDataProvider } from '../../lib/mockDataProvider';
 
 // Glassmorphism styled components
-const GlassContainer = styled(Paper)(({ theme }) => ({
+const GlassContainer = styled(Paper)(() => ({
   background: 'rgba(255, 255, 255, 0.1)',
   backdropFilter: 'blur(20px)',
   WebkitBackdropFilter: 'blur(20px)',
@@ -60,7 +54,7 @@ const GlassContainer = styled(Paper)(({ theme }) => ({
   }
 }));
 
-const FloatingButton = styled(IconButton)(({ theme }) => ({
+const FloatingButton = styled(IconButton)(() => ({
   background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
   color: 'white',
   width: 64,
@@ -74,7 +68,7 @@ const FloatingButton = styled(IconButton)(({ theme }) => ({
   transition: 'all 0.3s ease'
 }));
 
-const StyledTab = styled(Tab)(({ theme }) => ({
+const StyledTab = styled(Tab)(() => ({
   color: 'rgba(255, 255, 255, 0.7)',
   '&.Mui-selected': {
     color: '#fff',
@@ -313,14 +307,14 @@ export const EnhancedAgentSystem: React.FC<EnhancedAgentSystemProps> = ({
                   {/* Agent Tabs */}
                   <Tabs
                     value={activeAgent}
-                    onChange={(e, v) => setActiveAgent(v)}
+                    onChange={(_, v) => setActiveAgent(v)}
                     sx={{
                       borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
                       minHeight: 48
                     }}
                     variant="fullWidth"
                   >
-                    {agents.map((agent, index) => (
+                    {agents.map((agent) => (
                       <StyledTab
                         key={agent.id}
                         icon={<agent.icon sx={{ fontSize: 20 }} />}
@@ -393,7 +387,7 @@ export const EnhancedAgentSystem: React.FC<EnhancedAgentSystemProps> = ({
         )}
       </AnimatePresence>
 
-      <style jsx global>{`
+      <style>{`
         @keyframes pulse {
           0% {
             box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7);

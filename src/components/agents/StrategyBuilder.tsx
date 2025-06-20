@@ -24,11 +24,11 @@ import {
   Download,
   Send,
   CheckCircle,
-  Edit,
   Psychology
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
-import { MockDataProvider, MockDoctor } from '../../lib/mockDataProvider';
+import { MockDataProvider } from '../../lib/mockDataProvider';
+import type { MockDoctor } from '../../lib/mockDataProvider';
 
 const StrategySection = styled(Paper)({
   background: 'rgba(255, 255, 255, 0.05)',
