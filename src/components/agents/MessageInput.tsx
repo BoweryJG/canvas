@@ -4,9 +4,10 @@ import { motion } from 'framer-motion';
 interface MessageInputProps {
   onSendMessage: (content: string, metadata?: any) => void;
   disabled?: boolean;
+  placeholder?: string;
 }
 
-const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, disabled }) => {
+const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, disabled, placeholder = "Type your message..." }) => {
   const [message, setMessage] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -79,7 +80,7 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, disabled }) 
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
             disabled={disabled}
-            placeholder="Type your message..."
+            placeholder={placeholder}
             rows={1}
             className="w-full px-4 py-3 pr-12 bg-white/5 border border-[#00ffc6]/20 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#00ffc6]/40 transition-all resize-none disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ minHeight: '48px', maxHeight: '120px' }}

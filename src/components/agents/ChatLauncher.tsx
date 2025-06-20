@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../auth/AuthContext';
 import ChatInterface from './ChatInterface';
+import DemoChatInterface from './DemoChatInterface';
 
 interface ChatLauncherProps {
   defaultAgentId?: string;
@@ -12,6 +13,9 @@ const ChatLauncher: React.FC<ChatLauncherProps> = ({ defaultAgentId }) => {
   const [hasUnread, setHasUnread] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const { session } = useAuth();
+
+  // Enable demo mode when not authenticated
+  const isDemoMode = !session;
 
   // Pulsing glow animation
   const pulseAnimation = {
@@ -24,7 +28,7 @@ const ChatLauncher: React.FC<ChatLauncherProps> = ({ defaultAgentId }) => {
     }
   };
 
-  if (!session) return null;
+  // Always show chat launcher (demo mode or authenticated)
 
   return (
     <>
@@ -117,7 +121,9 @@ const ChatLauncher: React.FC<ChatLauncherProps> = ({ defaultAgentId }) => {
                   </div>
                   <div>
                     <h3 className="text-white font-semibold">Canvas Agent</h3>
-                    <p className="text-xs text-gray-400">Your AI Sales Assistant</p>
+                    <p className="text-xs text-gray-400">
+                      {isDemoMode ? 'Demo Mode - Sign in for full access' : 'Your AI Sales Assistant'}
+                    </p>
                   </div>
                 </div>
                 
@@ -164,10 +170,18 @@ const ChatLauncher: React.FC<ChatLauncherProps> = ({ defaultAgentId }) => {
               {/* Chat content */}
               {!isMinimized && (
                 <div className="flex-1 overflow-hidden">
-                  <ChatInterface 
-                    defaultAgentId={defaultAgentId}
-                    onUnreadChange={setHasUnread}
-                  />
+                  {isDemoMode ? (
+                    <DemoChatInterface 
+                      onRequestAuth={() => {
+                        window.location.href = '/login';
+                      }}
+                    />
+                  ) : (
+                    <ChatInterface 
+                      defaultAgentId={defaultAgentId}
+                      onUnreadChange={setHasUnread}
+                    />
+                  )}
                 </div>
               )}
             </div>
