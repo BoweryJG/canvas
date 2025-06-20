@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { styled } from '@mui/material/styles';
 import premiumTheme from './styles/premium-theme';
 import { agentEntranceAnimation, avatarIdleAnimation } from './styles/animations';
-import { glassEffects, holographicEffects, glowEffects } from './styles/glass-effects';
+import { glassEffects } from './styles/glass-effects';
 
 const AvatarContainer = styled(motion.div)({
   position: 'relative',
@@ -244,7 +244,7 @@ const ExecutiveAgentAvatar: React.FC<ExecutiveAgentAvatarProps> = ({
 }) => {
   const [agentName, setAgentName] = useState('Executive AI');
   const [agentTitle, setAgentTitle] = useState('Strategic Sales Advisor');
-  const [isOnline, setIsOnline] = useState(true);
+  const [isOnline] = useState(true);
   
   // Map agent IDs to executive names and titles
   useEffect(() => {

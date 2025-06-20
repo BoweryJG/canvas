@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { styled } from '@mui/material/styles';
 import premiumTheme from './styles/premium-theme';
-import { luxuryFadeIn, documentSlideAnimation } from './styles/animations';
-import { glassEffects, premiumButton, combineEffects } from './styles/glass-effects';
+import { documentSlideAnimation } from './styles/animations';
+import { glassEffects, premiumButton } from './styles/glass-effects';
 import VoiceWaveform from './VoiceWaveform';
 import PremiumMessageBubble from './PremiumMessageBubble';
 

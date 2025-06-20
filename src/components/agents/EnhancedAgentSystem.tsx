@@ -31,7 +31,7 @@ import { useAuth } from '../../auth/AuthContext';
 import AgentAvatar from './AgentAvatar';
 import ContextualInsights from './ContextualInsights';
 import StrategyBuilder from './StrategyBuilder';
-import { getDentalProcedures, getAestheticProcedures, findProcedureByName } from '../../lib/procedureDatabase';
+import { getDentalProcedures, getAestheticProcedures } from '../../lib/procedureDatabase';
 import type { DentalProcedure, AestheticProcedure } from '../../lib/procedureDatabase';
 import { searchDoctorsByName, identifyDoctorFromContext, type NPIDoctor } from '../../lib/npiLookup';
 
@@ -181,10 +181,10 @@ export const EnhancedAgentSystem: React.FC<EnhancedAgentSystemProps> = ({
   const [expandedSection, setExpandedSection] = useState<string | null>('insights');
   const [dentalProcedures, setDentalProcedures] = useState<DentalProcedure[]>([]);
   const [aestheticProcedures, setAestheticProcedures] = useState<AestheticProcedure[]>([]);
-  const [proceduresLoaded, setProceduresLoaded] = useState(false);
+  const [, setProceduresLoaded] = useState(false);
   const [currentNPIDoctor, setCurrentNPIDoctor] = useState<NPIDoctor | null>(null);
-  const [doctorSearchResults, setDoctorSearchResults] = useState<NPIDoctor[]>([]);
-  const [isSearchingDoctor, setIsSearchingDoctor] = useState(false);
+  const [, setDoctorSearchResults] = useState<NPIDoctor[]>([]);
+  const [, setIsSearchingDoctor] = useState(false);
   
   const containerRef = useRef<HTMLDivElement>(null);
 

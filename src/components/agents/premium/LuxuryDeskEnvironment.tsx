@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { styled } from '@mui/material/styles';
 import premiumTheme from './styles/premium-theme';
 import { deskMaterializeAnimation } from './styles/animations';
-import { glassEffects, metallicEffects, depthEffects } from './styles/glass-effects';
+import { glassEffects, metallicEffects } from './styles/glass-effects';
 
 const EnvironmentContainer = styled(motion.div)({
   position: 'relative',

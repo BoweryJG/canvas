@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { styled } from '@mui/material/styles';
 import premiumTheme from './styles/premium-theme';
 import { displayAnimation, messageFlowAnimation, holographicFlicker } from './styles/animations';
-import { glassEffects, holographicEffects } from './styles/glass-effects';
+import { glassEffects } from './styles/glass-effects';
 
 const DisplayContainer = styled(motion.div)({
   position: 'relative',
@@ -192,7 +192,7 @@ const DigitalDisplayBoard: React.FC<DigitalDisplayBoardProps> = ({
     conversion: 87,
     satisfaction: 95,
   });
-  const [isLive, setIsLive] = useState(true);
+  const [isLive] = useState(true);
   
   // Simulate real-time dialogue
   useEffect(() => {
