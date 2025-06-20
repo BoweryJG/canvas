@@ -19,9 +19,10 @@ import { useApiKeys } from './hooks/useApiKeys'
 import { SecureStorage, CSRFTokenManager } from './utils/security'
 import { analytics } from './utils/analytics'
 import { OnboardingFlow } from './components/Onboarding/OnboardingFlow'
-// import ChatLauncher from './components/agents/ChatLauncher'
+import ChatLauncher from './components/agents/ChatLauncher'
+import { EnhancedAgentSystem } from './components/agents/EnhancedAgentSystem'
 // import ChatLauncher from './components/agents/SimpleChatLauncher'
-import ChatLauncher from './components/agents/DebugChat'
+// import ChatLauncher from './components/agents/DebugChat'
 import './App.css'
 import './styles/mobile.css'
 
@@ -67,7 +68,7 @@ function AppContent() {
     initSecurity();
     
     // Register service worker
-    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+    if ('serviceWorker' in navigator && import.meta.env.PROD) {
       navigator.serviceWorker.register('/service-worker.js')
         .then(registration => {
           console.log('Service Worker registered:', registration);
@@ -132,7 +133,8 @@ function AppContent() {
             <Route path="/test-npi-debug" element={<TestNPIDebug />} />
             <Route path="/test-npi-minimal" element={<TestNPIMinimal />} />
           </Routes>
-          <ChatLauncher />
+          {/* <ChatLauncher /> */}
+          <EnhancedAgentSystem />
         </AuthGuard>
       </AuthProvider>
     </ErrorBoundary>

@@ -3,10 +3,12 @@ import { apiKeyManager } from '../utils/apiKeyManager';
 
 // Environment variable names for different providers
 const API_KEY_ENV_VARS = {
-  openai: ['REACT_APP_OPENAI_API_KEY', 'REACT_APP_OPENAI_API_KEY_2', 'REACT_APP_OPENAI_API_KEY_3'],
-  perplexity: ['REACT_APP_PERPLEXITY_API_KEY', 'REACT_APP_PERPLEXITY_API_KEY_2'],
-  google: ['REACT_APP_GOOGLE_API_KEY', 'REACT_APP_GOOGLE_API_KEY_2'],
-  supabase: ['REACT_APP_SUPABASE_ANON_KEY']
+  openai: ['VITE_OPENAI_API_KEY', 'VITE_OPENAI_API_KEY_2', 'VITE_OPENAI_API_KEY_3'],
+  perplexity: ['VITE_PERPLEXITY_API_KEY', 'VITE_PERPLEXITY_API_KEY_2'],
+  google: ['VITE_GOOGLE_API_KEY', 'VITE_GOOGLE_API_KEY_2'],
+  supabase: ['VITE_SUPABASE_ANON_KEY'],
+  openrouter: ['VITE_OPENROUTER_API_KEY'],
+  firecrawl: ['VITE_FIRECRAWL_API_KEY']
 };
 
 export function useApiKeys() {
@@ -14,7 +16,7 @@ export function useApiKeys() {
     // Register API keys from environment variables
     Object.entries(API_KEY_ENV_VARS).forEach(([provider, envVars]) => {
       const keys = envVars
-        .map(envVar => process.env[envVar])
+        .map(envVar => import.meta.env[envVar])
         .filter(Boolean) as string[];
       
       if (keys.length > 0) {
