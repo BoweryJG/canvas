@@ -12,7 +12,15 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Create a single supabase client with standardized configuration
-export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey, getStandardAuthConfig());
+export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
+  ...getStandardAuthConfig(),
+  auth: {
+    ...getStandardAuthConfig().auth,
+    detectSessionInUrl: true,
+    persistSession: true,
+    autoRefreshToken: true
+  }
+});
 
 // Helper to get the current app URL for redirects
 export const getAppUrl = () => {

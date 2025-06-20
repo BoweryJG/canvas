@@ -54,7 +54,45 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const initializeAuth = async () => {
       try {
+        // First, check if we have an invalid refresh token
+        const existingToken = localStorage.getItem('repspheres-auth') || 
+                           localStorage.getItem('supabase.auth.token') ||
+                           localStorage.getItem('sb-cbopynuvhcymbumjnvay-auth-token');
+        
+        if (existingToken) {
+          try {
+            const parsed = JSON.parse(existingToken);
+            // If token is expired or invalid, clear it
+            if (parsed.expires_at && new Date(parsed.expires_at * 1000) < new Date()) {
+              localStorage.removeItem('repspheres-auth');
+              localStorage.removeItem('supabase.auth.token');
+              localStorage.removeItem('sb-cbopynuvhcymbumjnvay-auth-token');
+            }
+          } catch {
+            // Invalid JSON, clear it
+            localStorage.removeItem('repspheres-auth');
+            localStorage.removeItem('supabase.auth.token');
+            localStorage.removeItem('sb-cbopynuvhcymbumjnvay-auth-token');
+          }
+        }
+        
         const { data: { session }, error } = await supabase.auth.getSession();
+        
+        // If we get a refresh token error, clear auth and continue as public
+        if (error && error.message?.includes('Refresh Token')) {
+          console.log('Invalid refresh token, clearing auth data');
+          await supabase.auth.signOut();
+          
+          if (mounted) {
+            setState({
+              user: null,
+              session: null,
+              loading: false,
+              error: null,
+            });
+          }
+          return;
+        }
         
         if (error) throw error;
         
