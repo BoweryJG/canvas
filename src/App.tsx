@@ -67,7 +67,9 @@ function AppContent() {
     
     initSecurity();
     
-    // Register service worker
+    // Temporarily disable service worker to avoid caching issues
+    // TODO: Re-enable after fixing cache invalidation
+    /*
     if ('serviceWorker' in navigator && import.meta.env.PROD) {
       navigator.serviceWorker.register('/service-worker.js')
         .then(registration => {
@@ -76,6 +78,17 @@ function AppContent() {
         .catch(error => {
           console.error('Service Worker registration failed:', error);
         });
+    }
+    */
+    
+    // Unregister any existing service workers
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(registration => {
+          registration.unregister();
+          console.log('Unregistered service worker:', registration);
+        });
+      });
     }
 
     // Preload critical data on app start
