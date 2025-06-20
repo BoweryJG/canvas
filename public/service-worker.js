@@ -1,4 +1,4 @@
-const CACHE_NAME = 'canvas-v5'; // Updated to show cinematic scanner
+const CACHE_NAME = 'canvas-v6'; // Force cache bust
 const urlsToCache = [
   '/'
 ];
