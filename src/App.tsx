@@ -21,6 +21,7 @@ import { analytics } from './utils/analytics'
 import { OnboardingFlow } from './components/Onboarding/OnboardingFlow'
 // import ChatLauncher from './components/agents/ChatLauncher'
 import { EnhancedAgentSystem } from './components/agents/EnhancedAgentSystem'
+import AISalesAgentLauncher from './components/agents/premium/AISalesAgentLauncher'
 // import ChatLauncher from './components/agents/SimpleChatLauncher'
 // import ChatLauncher from './components/agents/DebugChat'
 import './App.css'
@@ -148,6 +149,7 @@ function AppContent() {
           </Routes>
           {/* <ChatLauncher /> */}
           <EnhancedAgentSystem />
+          <AISalesAgentLauncher />
         </AuthGuard>
       </AuthProvider>
     </ErrorBoundary>

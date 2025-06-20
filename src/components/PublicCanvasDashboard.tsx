@@ -25,22 +25,28 @@ const sampleFeatures = [
 
 const salesAgents = [
   { 
-    icon: '🤖', 
-    title: 'Sales Assistant', 
-    desc: 'Get instant answers about your accounts and strategies',
-    capabilities: ['Account insights', 'Call preparation', 'Quick research'] 
+    icon: '🎯', 
+    title: 'Hunter', 
+    desc: 'Lead generation specialist for medical & aesthetic practices',
+    capabilities: ['Prospect identification', 'Territory mapping', 'Opportunity scoring', 'Procedure-specific targeting'] 
   },
   { 
-    icon: '🧠', 
-    title: 'Strategy Builder', 
-    desc: 'Create data-driven sales strategies and messaging',
-    capabilities: ['Territory planning', 'Account mapping', 'Value propositions'] 
+    icon: '💼', 
+    title: 'Closer', 
+    desc: 'Deal closing expert with procedure knowledge',
+    capabilities: ['Objection handling', 'Contract negotiation', 'ROI calculations', 'Procedure pricing strategies'] 
   },
   { 
-    icon: '💡', 
-    title: 'Contextual Insights', 
-    desc: 'Real-time intelligence while you work',
-    capabilities: ['Live suggestions', 'Competitive analysis', 'Objection handling'] 
+    icon: '📚', 
+    title: 'Educator', 
+    desc: 'Product & procedure knowledge specialist',
+    capabilities: ['Feature explanations', 'Clinical benefits', 'Procedure workflows', 'Compliance guidance'] 
+  },
+  { 
+    icon: '📊', 
+    title: 'Strategist', 
+    desc: 'Strategic planning with market insights',
+    capabilities: ['Market analysis', 'Competitive positioning', 'Growth planning', 'Procedure trend analysis'] 
   }
 ];
 

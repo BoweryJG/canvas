@@ -29,6 +29,8 @@ import {
 import { styled } from '@mui/material/styles';
 import { MockDataProvider } from '../../lib/mockDataProvider';
 import type { MockDoctor } from '../../lib/mockDataProvider';
+import type { DentalProcedure, AestheticProcedure } from '../../lib/procedureDatabase';
+import type { NPIDoctor } from '../../lib/npiLookup';
 
 const StrategySection = styled(Paper)({
   background: 'rgba(255, 255, 255, 0.05)',
@@ -62,10 +64,13 @@ interface StrategyBuilderProps {
     doctorId?: string;
     searchQuery?: string;
     researchData?: any;
+    npiDoctor?: NPIDoctor | null;
   };
   isDemo: boolean;
   expanded: boolean;
   onToggle: () => void;
+  dentalProcedures?: DentalProcedure[];
+  aestheticProcedures?: AestheticProcedure[];
 }
 
 const StrategyBuilder: React.FC<StrategyBuilderProps> = ({
@@ -73,7 +78,9 @@ const StrategyBuilder: React.FC<StrategyBuilderProps> = ({
   context,
   isDemo,
   expanded,
-  onToggle
+  onToggle,
+  dentalProcedures = [],
+  aestheticProcedures = []
 }) => {
   const [activeStep, setActiveStep] = useState(0);
   const [strategy, setStrategy] = useState({
@@ -118,22 +125,29 @@ const StrategyBuilder: React.FC<StrategyBuilderProps> = ({
 
     switch (agent.id) {
       case 'strategist':
-        approach = `Position as strategic growth partner for ${doctor.practiceInfo.name}`;
+        const practiceNameStrat = context.npiDoctor?.organizationName || doctor.practiceInfo.name;
+        approach = `Position as strategic growth partner for ${practiceNameStrat}`;
         keyPoints = [
           `Leverage ${doctor.marketIntelligence.growthTrend} growth trend`,
           `Address ${doctor.marketIntelligence.competitorCount} competitor landscape`,
-          `Focus on ${doctor.marketIntelligence.opportunities[0]}`
-        ];
+          `Focus on ${doctor.marketIntelligence.opportunities[0]}`,
+          !isDemo && dentalProcedures && aestheticProcedures ? 
+            `Target ${dentalProcedures.length + aestheticProcedures.length} procedure opportunities` : null,
+          context.npiDoctor ? `NPI Verified: ${context.npiDoctor.npi}` : null
+        ].filter(Boolean) as string[];
         cta = 'Schedule a strategic growth consultation';
         break;
 
       case 'specialist':
         approach = `Technical excellence partnership for advanced procedures`;
+        const totalProcedures = !isDemo && dentalProcedures && aestheticProcedures ?
+          dentalProcedures.length + aestheticProcedures.length : 0;
         keyPoints = [
           `Support ${doctor.procedures.dental?.length || 0} dental procedures`,
           doctor.procedures.aesthetic ? 'Expand aesthetic service line' : 'Introduce aesthetic services',
-          'Provide clinical education and support'
-        ];
+          'Provide clinical education and support',
+          totalProcedures > 0 ? `Access ${totalProcedures} procedure protocols` : null
+        ].filter(Boolean) as string[];
         cta = 'Book a clinical innovation session';
         break;
 
@@ -155,6 +169,45 @@ const StrategyBuilder: React.FC<StrategyBuilderProps> = ({
           'Track ROI and performance metrics'
         ];
         cta = 'Request your free practice analysis';
+        break;
+        
+      case 'hunter':
+        approach = `Lead generation strategy for high-value prospects`;
+        const matchingProcedures = !isDemo && dentalProcedures ?
+          dentalProcedures.filter(p => doctor.procedures?.dental?.includes(p.name)).length : 0;
+        keyPoints = [
+          `Target practices with ${doctor.metrics.patientVolume}`,
+          `Focus on ${doctor.marketIntelligence.growthTrend} growth practices`,
+          `Identify decision makers in ${doctor.practiceInfo.city}, ${doctor.practiceInfo.state}`,
+          matchingProcedures > 0 ? `${matchingProcedures} procedure matches found` : null
+        ].filter(Boolean) as string[];
+        cta = 'Start prospecting campaign';
+        break;
+        
+      case 'closer':
+        approach = `Close the deal with ROI-focused positioning`;
+        const avgPrice = !isDemo && aestheticProcedures && aestheticProcedures.length > 0 ?
+          Math.round(aestheticProcedures.reduce((sum, p) => sum + (p.average_price || 0), 0) / aestheticProcedures.length) : 0;
+        keyPoints = [
+          `Emphasize ${doctor.aiScore}/100 practice compatibility`,
+          `Address budget for ${doctor.metrics.patientVolume} practice`,
+          `Present financing options for immediate start`,
+          avgPrice > 0 ? `Show ROI with $${avgPrice.toLocaleString()} avg procedure value` : null
+        ].filter(Boolean) as string[];
+        cta = 'Send contract proposal';
+        break;
+        
+      case 'educator':
+        approach = `Educational approach to build trust and expertise`;
+        const uniqueCategories = !isDemo && dentalProcedures && aestheticProcedures ?
+          [...new Set([...dentalProcedures, ...aestheticProcedures].map(p => p.category))].length : 0;
+        keyPoints = [
+          `Share best practices for ${doctor.specialty}`,
+          `Provide clinical evidence and case studies`,
+          `Offer training for ${doctor.metrics.yearsInPractice < 10 ? 'newer' : 'established'} practice`,
+          uniqueCategories > 0 ? `Cover ${uniqueCategories} procedure categories` : null
+        ].filter(Boolean) as string[];
+        cta = 'Schedule educational webinar';
         break;
     }
 
@@ -418,7 +471,7 @@ const StrategyBuilder: React.FC<StrategyBuilderProps> = ({
                 <Paper square elevation={0} sx={{ p: 3, background: 'transparent' }}>
                   <Typography sx={{ color: 'white', mb: 2 }}>
                     Strategy completed! Ready to engage with {
-                      MockDataProvider.getDoctor(context.doctorId)?.name
+                      context.npiDoctor?.displayName || MockDataProvider.getDoctor(context.doctorId)?.name
                     }.
                   </Typography>
                   <Button onClick={handleReset} sx={{ color: 'white' }}>

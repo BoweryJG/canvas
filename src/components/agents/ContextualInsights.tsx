@@ -25,6 +25,8 @@ import {
 import { styled } from '@mui/material/styles';
 import { MockDataProvider } from '../../lib/mockDataProvider';
 import type { MockInsight, MockDoctor } from '../../lib/mockDataProvider';
+import type { DentalProcedure, AestheticProcedure } from '../../lib/procedureDatabase';
+import type { NPIDoctor } from '../../lib/npiLookup';
 
 const InsightCard = styled(Box)(({ priority }: { priority: string }) => ({
   background: priority === 'high' 
@@ -66,11 +68,14 @@ interface ContextualInsightsProps {
     doctorId?: string;
     searchQuery?: string;
     researchData?: any;
+    npiDoctor?: NPIDoctor | null;
   };
   isDemo: boolean;
   expanded: boolean;
   onToggle: () => void;
   onApplyInsight?: (insight: any) => void;
+  dentalProcedures?: DentalProcedure[];
+  aestheticProcedures?: AestheticProcedure[];
 }
 
 const ContextualInsights: React.FC<ContextualInsightsProps> = ({
@@ -79,7 +84,9 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
   isDemo,
   expanded,
   onToggle,
-  onApplyInsight
+  onApplyInsight,
+  dentalProcedures = [],
+  aestheticProcedures = []
 }) => {
   const [insights, setInsights] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -106,8 +113,18 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
       const agentInsights = generateAgentSpecificInsights(agent, doctor, mockInsights);
       setInsights(agentInsights);
     } else {
-      // TODO: Implement live API calls
-      setInsights([]);
+      // Generate insights with real procedure data
+      if (dentalProcedures || aestheticProcedures) {
+        const doctor = context.doctorId ? 
+          MockDataProvider.getDoctor(context.doctorId) : 
+          MockDataProvider.getDoctors()[0];
+        
+        const mockInsights = MockDataProvider.getAgentInsights(context.doctorId);
+        const agentInsights = generateAgentSpecificInsights(agent, doctor, mockInsights);
+        setInsights(agentInsights);
+      } else {
+        setInsights([]);
+      }
     }
     
     setLoading(false);
@@ -123,22 +140,24 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
     switch (agent.id) {
       case 'strategist':
         if (doctor) {
+          const npiVerified = context.npiDoctor ? '✓ NPI Verified' : '';
           insights.push({
             id: 'strat-1',
             type: 'opportunity',
             icon: TrendingUp,
             priority: doctor.aiScore > 85 ? 'high' : 'medium',
-            title: `${doctor.name} - Strategic Opportunity`,
+            title: `${context.npiDoctor?.displayName || doctor.name} - Strategic Opportunity`,
             description: `AI Score: ${doctor.aiScore}/100. ${
               doctor.marketIntelligence.growthTrend === 'growing' 
                 ? 'Practice showing strong growth indicators.' 
                 : 'Stable practice with expansion potential.'
-            }`,
+            } ${npiVerified}`,
             actions: [
               'Schedule strategic consultation',
               'Prepare growth proposal',
-              'Analyze competitor landscape'
-            ]
+              'Analyze competitor landscape',
+              context.npiDoctor ? `Contact: ${context.npiDoctor.phone || 'See NPI registry'}` : null
+            ].filter(Boolean)
           });
         }
         
@@ -219,6 +238,87 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
               'Benchmark against market',
               'Project growth scenarios'
             ]
+          });
+        }
+        break;
+        
+      case 'hunter':
+        if (doctor) {
+          const procedureMatch = !isDemo && dentalProcedures && aestheticProcedures ?
+            `${dentalProcedures.filter(p => doctor.procedures?.dental?.includes(p.name)).length} matching procedures identified.` :
+            '';
+          
+          const npiInfo = context.npiDoctor ? 
+            `NPI: ${context.npiDoctor.npi} • ${context.npiDoctor.specialty}` : '';
+            
+          insights.push({
+            id: 'hunt-1',
+            type: 'opportunity',
+            icon: TrendingUp,
+            priority: doctor.aiScore > 85 ? 'high' : 'medium',
+            title: `${context.npiDoctor?.displayName || doctor.name} - Lead Generation Opportunity`,
+            description: `AI Score: ${doctor.aiScore}/100. ${
+              doctor.marketIntelligence.growthTrend === 'growing' 
+                ? 'Practice showing strong growth indicators.' 
+                : 'Stable practice with expansion potential.'
+            } ${procedureMatch} ${npiInfo}`,
+            actions: [
+              'Identify decision makers',
+              'Map territory opportunities',
+              'Score lead quality',
+              !isDemo ? 'Target procedure-specific opportunities' : null,
+              context.npiDoctor ? `Verified NPI: ${context.npiDoctor.npi}` : null
+            ].filter(Boolean)
+          });
+        }
+        break;
+        
+      case 'closer':
+        if (doctor) {
+          const avgProcedurePrice = !isDemo && aestheticProcedures && aestheticProcedures.length > 0 ?
+            Math.round(aestheticProcedures.reduce((sum, p) => sum + (p.average_price || 0), 0) / aestheticProcedures.length) :
+            0;
+            
+          insights.push({
+            id: 'close-1',
+            type: 'deal',
+            icon: CheckCircle,
+            priority: 'high',
+            title: 'Deal Closing Strategy',
+            description: `${doctor.name} - Ready for closing conversation. Practice volume supports investment. ${
+              avgProcedurePrice > 0 ? `Average procedure value: $${avgProcedurePrice.toLocaleString()}.` : ''
+            }`,
+            actions: [
+              'Prepare ROI calculations',
+              'Address final objections',
+              'Present contract terms',
+              !isDemo && avgProcedurePrice > 0 ? 'Show procedure-based revenue potential' : null
+            ].filter(Boolean)
+          });
+        }
+        break;
+        
+      case 'educator':
+        if (doctor) {
+          const procedureTypes = !isDemo && dentalProcedures && aestheticProcedures ? 
+            [...new Set([...dentalProcedures, ...aestheticProcedures].map(p => p.category))].length :
+            0;
+            
+          insights.push({
+            id: 'edu-1',
+            type: 'education',
+            icon: Lightbulb,
+            priority: 'medium',
+            title: 'Educational Opportunity',
+            description: `${doctor.name} - Focus on product knowledge and clinical benefits. ${
+              procedureTypes > 0 ? `${procedureTypes} procedure categories available for training.` : ''
+            }`,
+            actions: [
+              'Prepare product demonstrations',
+              'Share clinical case studies',
+              'Offer training sessions',
+              !isDemo && procedureTypes > 0 ? 'Create procedure-specific materials' : null
+            ].filter(Boolean)
           });
         }
         break;

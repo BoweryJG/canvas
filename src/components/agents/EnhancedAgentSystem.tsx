@@ -31,6 +31,9 @@ import { useAuth } from '../../auth/AuthContext';
 import AgentAvatar from './AgentAvatar';
 import ContextualInsights from './ContextualInsights';
 import StrategyBuilder from './StrategyBuilder';
+import { getDentalProcedures, getAestheticProcedures, findProcedureByName } from '../../lib/procedureDatabase';
+import type { DentalProcedure, AestheticProcedure } from '../../lib/procedureDatabase';
+import { searchDoctorsByName, identifyDoctorFromContext, type NPIDoctor } from '../../lib/npiLookup';
 
 // Glassmorphism styled components
 const GlassContainer = styled(Paper)(() => ({
@@ -91,10 +94,37 @@ interface Agent {
 
 const agents: Agent[] = [
   {
+    id: 'hunter',
+    name: 'Hunter',
+    role: 'Lead Generation Specialist',
+    avatar: '🎯',
+    specialty: ['Lead Identification', 'Prospect Research', 'Opportunity Mapping'],
+    icon: AgentIcon,
+    color: '#ff6b6b'
+  },
+  {
+    id: 'closer',
+    name: 'Closer',
+    role: 'Deal Closing Expert',
+    avatar: '💼',
+    specialty: ['Negotiation', 'Objection Handling', 'Contract Finalization'],
+    icon: AgentIcon,
+    color: '#4ecdc4'
+  },
+  {
+    id: 'educator',
+    name: 'Educator',
+    role: 'Product Knowledge Expert',
+    avatar: '📚',
+    specialty: ['Product Training', 'Feature Explanation', 'ROI Demonstration'],
+    icon: AgentIcon,
+    color: '#45b7d1'
+  },
+  {
     id: 'strategist',
-    name: 'Strategic Advisor',
-    role: 'Market Positioning Expert',
-    avatar: 'S',
+    name: 'Strategist',
+    role: 'Strategic Planning Expert',
+    avatar: '📊',
     specialty: ['Market Analysis', 'Competitive Intelligence', 'Growth Strategy'],
     icon: StrategyIcon,
     color: '#667eea'
@@ -149,8 +179,67 @@ export const EnhancedAgentSystem: React.FC<EnhancedAgentSystemProps> = ({
   const [isDemo, setIsDemo] = useState(true);
   const [hasNewInsights, setHasNewInsights] = useState(true);
   const [expandedSection, setExpandedSection] = useState<string | null>('insights');
+  const [dentalProcedures, setDentalProcedures] = useState<DentalProcedure[]>([]);
+  const [aestheticProcedures, setAestheticProcedures] = useState<AestheticProcedure[]>([]);
+  const [proceduresLoaded, setProceduresLoaded] = useState(false);
+  const [currentNPIDoctor, setCurrentNPIDoctor] = useState<NPIDoctor | null>(null);
+  const [doctorSearchResults, setDoctorSearchResults] = useState<NPIDoctor[]>([]);
+  const [isSearchingDoctor, setIsSearchingDoctor] = useState(false);
   
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Load procedures when component mounts or when switching to live mode
+  useEffect(() => {
+    const loadProcedures = async () => {
+      if (!isDemo && session) {
+        try {
+          const [dental, aesthetic] = await Promise.all([
+            getDentalProcedures(),
+            getAestheticProcedures()
+          ]);
+          setDentalProcedures(dental);
+          setAestheticProcedures(aesthetic);
+          setProceduresLoaded(true);
+          console.log(`Loaded ${dental.length} dental and ${aesthetic.length} aesthetic procedures`);
+        } catch (error) {
+          console.error('Failed to load procedures:', error);
+        }
+      }
+    };
+    
+    loadProcedures();
+  }, [isDemo, session]);
+
+  // Detect doctor from context
+  useEffect(() => {
+    const detectDoctor = async () => {
+      if (!isDemo && currentContext.doctorId) {
+        // If we have a doctorId from context, try to look it up
+        setIsSearchingDoctor(true);
+        try {
+          // First check if doctorId is an NPI number
+          if (/^\d{10}$/.test(currentContext.doctorId)) {
+            const doctors = await searchDoctorsByName(currentContext.doctorId);
+            if (doctors.length > 0) {
+              setCurrentNPIDoctor(doctors[0]);
+            }
+          } else if (currentContext.searchQuery) {
+            // Try to extract doctor name from search query
+            const doctor = await identifyDoctorFromContext(currentContext.searchQuery);
+            if (doctor) {
+              setCurrentNPIDoctor(doctor);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to detect doctor:', error);
+        } finally {
+          setIsSearchingDoctor(false);
+        }
+      }
+    };
+
+    detectDoctor();
+  }, [currentContext, isDemo]);
 
   // Simulate new insights based on context changes
   useEffect(() => {
@@ -353,28 +442,62 @@ export const EnhancedAgentSystem: React.FC<EnhancedAgentSystemProps> = ({
                           />
                         </Box>
 
+                        {/* NPI Doctor Display */}
+                        {currentNPIDoctor && (
+                          <Box sx={{ 
+                            mb: 2, 
+                            p: 2, 
+                            background: 'rgba(102, 126, 234, 0.1)',
+                            border: '1px solid rgba(102, 126, 234, 0.3)',
+                            borderRadius: 2
+                          }}>
+                            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
+                              CURRENTLY DISCUSSING:
+                            </Typography>
+                            <Typography variant="subtitle2" sx={{ color: 'white', fontWeight: 600 }}>
+                              {currentNPIDoctor.displayName}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+                              {currentNPIDoctor.specialty} • {currentNPIDoctor.city}, {currentNPIDoctor.state}
+                            </Typography>
+                            <Typography variant="caption" sx={{ display: 'block', color: 'rgba(255, 255, 255, 0.6)', mt: 0.5 }}>
+                              NPI: {currentNPIDoctor.npi}
+                            </Typography>
+                          </Box>
+                        )}
+
                         {/* Contextual Insights */}
                         <ContextualInsights
                           agent={currentAgent}
-                          context={currentContext}
+                          context={{
+                            ...currentContext,
+                            npiDoctor: currentNPIDoctor
+                          }}
                           isDemo={isDemo}
                           expanded={expandedSection === 'insights'}
                           onToggle={() => setExpandedSection(
                             expandedSection === 'insights' ? null : 'insights'
                           )}
                           onApplyInsight={onInsightApplied}
+                          dentalProcedures={dentalProcedures}
+                          aestheticProcedures={aestheticProcedures}
                         />
 
                         {/* Strategy Builder */}
                         <Box sx={{ mt: 2 }}>
                           <StrategyBuilder
                             agent={currentAgent}
-                            context={currentContext}
+                            context={{
+                              ...currentContext,
+                              npiDoctor: currentNPIDoctor
+                            }}
                             isDemo={isDemo}
                             expanded={expandedSection === 'strategy'}
                             onToggle={() => setExpandedSection(
                               expandedSection === 'strategy' ? null : 'strategy'
                             )}
+                            dentalProcedures={dentalProcedures}
+                            aestheticProcedures={aestheticProcedures}
                           />
                         </Box>
                       </Box>
