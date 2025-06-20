@@ -213,7 +213,6 @@ export const EnhancedAgentSystem: React.FC<EnhancedAgentSystemProps> = ({
     const detectDoctor = async () => {
       if (!isDemo && currentContext.doctorId) {
         // If we have a doctorId from context, try to look it up
-        setIsSearchingDoctor(true);
         try {
           // First check if doctorId is an NPI number
           if (/^\d{10}$/.test(currentContext.doctorId)) {
@@ -230,8 +229,6 @@ export const EnhancedAgentSystem: React.FC<EnhancedAgentSystemProps> = ({
           }
         } catch (error) {
           console.error('Failed to detect doctor:', error);
-        } finally {
-          setIsSearchingDoctor(false);
         }
       }
     };
