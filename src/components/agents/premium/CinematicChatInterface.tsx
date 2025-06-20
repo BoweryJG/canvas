@@ -7,7 +7,7 @@ import { documentSlideAnimation } from './styles/animations';
 import { glassEffects, premiumButton } from './styles/glass-effects';
 import VoiceWaveform from './VoiceWaveform';
 import PremiumMessageBubble from './PremiumMessageBubble';
-import { EnhancedNPILookup, NPIDoctor } from '../../EnhancedNPILookup';
+import { EnhancedNPILookup, type NPIDoctor } from '../../EnhancedNPILookup';
 import { getApiEndpoint } from '../../../config/api';
 
 const InterfaceContainer = styled(motion.div)({
@@ -410,16 +410,7 @@ const CinematicChatInterface: React.FC<CinematicChatInterfaceProps> = ({
     setIsLoading(true);
     
     try {
-      // Prepare context with doctor info if available
-      const context = selectedDoctor ? {
-        doctor: {
-          name: selectedDoctor.displayName,
-          npi: selectedDoctor.npi,
-          specialty: selectedDoctor.specialty,
-          location: `${selectedDoctor.city}, ${selectedDoctor.state}`,
-          organization: selectedDoctor.organizationName
-        }
-      } : {};
+      // Prepare doctor info if available
       
       // Build conversation history
       const conversationHistory = messages
@@ -666,12 +657,12 @@ Response:`;
           {/* NPI Lookup Modal */}
           <AnimatePresence>
             {showNPILookup && (
-              <NPILookupWrapper
-                as={motion.div}
+              <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
               >
+                <NPILookupWrapper>
                 <CloseButton 
                   onClick={() => setShowNPILookup(false)}
                   style={{ position: 'absolute', top: '16px', right: '16px' }}
@@ -713,7 +704,8 @@ Response:`;
                 }}>
                   Tip: Search includes Buffalo suburbs like Williamsville, Amherst, and Clarence
                 </p>
-              </NPILookupWrapper>
+                </NPILookupWrapper>
+              </motion.div>
             )}
           </AnimatePresence>
         </>
