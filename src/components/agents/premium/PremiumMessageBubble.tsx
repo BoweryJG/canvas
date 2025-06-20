@@ -42,13 +42,20 @@ const AvatarWrapper = styled('div')<{ isUser: boolean }>(({ isUser }) => ({
   },
 }));
 
-const MessageBubble = styled('div')<{ isUser: boolean }>(({ isUser }) => ({
+const MessageBubble = styled('div')<{ isUser: boolean; isSystem?: boolean }>(({ isUser, isSystem }) => ({
   maxWidth: '70%',
-  padding: '16px 20px',
-  borderRadius: isUser 
+  padding: isSystem ? '12px 16px' : '16px 20px',
+  borderRadius: isSystem 
+    ? '12px'
+    : isUser 
     ? '20px 20px 4px 20px'
     : '20px 20px 20px 4px',
-  background: isUser
+  background: isSystem
+    ? `linear-gradient(135deg, 
+        rgba(123, 66, 246, 0.1) 0%, 
+        rgba(0, 255, 198, 0.05) 100%
+      )`
+    : isUser
     ? `linear-gradient(135deg, 
         ${premiumTheme.colors.executiveNavy} 0%, 
         ${premiumTheme.colors.richBlack} 100%
@@ -56,11 +63,15 @@ const MessageBubble = styled('div')<{ isUser: boolean }>(({ isUser }) => ({
     : glassEffects.premium.background,
   backdropFilter: 'blur(20px)',
   WebkitBackdropFilter: 'blur(20px)',
-  border: `1px solid ${isUser 
+  border: `1px solid ${isSystem
+    ? premiumTheme.colors.electricCyan + '20'
+    : isUser 
     ? premiumTheme.colors.luxuryGold + '30'
     : premiumTheme.colors.electricCyan + '30'
   }`,
-  boxShadow: isUser
+  boxShadow: isSystem
+    ? `0 4px 16px rgba(0, 255, 198, 0.05)`
+    : isUser
     ? `0 8px 24px rgba(212, 175, 55, 0.1)`
     : `0 8px 24px rgba(0, 255, 198, 0.1)`,
   position: 'relative',
@@ -168,10 +179,14 @@ const MessageWrapper = styled('div')({
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: string;
   isStreaming?: boolean;
+  metadata?: {
+    doctorNPI?: string;
+    doctorName?: string;
+  };
 }
 
 interface PremiumMessageBubbleProps {
@@ -184,7 +199,8 @@ const PremiumMessageBubble: React.FC<PremiumMessageBubbleProps> = ({
   agentName,
 }) => {
   const isUser = message.role === 'user';
-  const initial = isUser ? 'Y' : agentName.charAt(0);
+  const isSystem = message.role === 'system';
+  const initial = isUser ? 'Y' : isSystem ? '🔍' : agentName.charAt(0);
   
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -194,6 +210,32 @@ const PremiumMessageBubble: React.FC<PremiumMessageBubbleProps> = ({
       hour12: true 
     });
   };
+  
+  // System messages are centered without avatar
+  if (isSystem) {
+    return (
+      <motion.div
+        variants={luxuryFadeIn}
+        initial="hidden"
+        animate="visible"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          width: '100%',
+          margin: '8px 0',
+        }}
+      >
+        <MessageBubble isUser={false} isSystem={true}>
+          <MessageContent isUser={false}>
+            {message.content}
+          </MessageContent>
+          <MessageTime isUser={false}>
+            {formatTime(message.timestamp)}
+          </MessageTime>
+        </MessageBubble>
+      </motion.div>
+    );
+  }
   
   return (
     <MessageContainer
@@ -207,7 +249,7 @@ const PremiumMessageBubble: React.FC<PremiumMessageBubbleProps> = ({
       </AvatarWrapper>
       
       <MessageWrapper>
-        <MessageBubble isUser={isUser}>
+        <MessageBubble isUser={isUser} isSystem={false}>
           <MessageContent isUser={isUser}>
             {message.isStreaming ? (
               <motion.span animate={typingAnimation.animate}>
