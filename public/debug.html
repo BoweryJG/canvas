@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas Debug</title>
+    <style>
+        body {
+            font-family: system-ui;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        pre {
+            background: #333;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+    </style>
+</head>
+<body>
+    <h1>Canvas Debug Information</h1>
+    
+    <h2>Environment Check</h2>
+    <div id="env-check"></div>
+    
+    <h2>Console Output</h2>
+    <pre id="console-output"></pre>
+    
+    <h2>Network Check</h2>
+    <div id="network-check"></div>
+    
+    <script>
+        // Capture console output
+        const output = document.getElementById('console-output');
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        console.log = function(...args) {
+            output.innerHTML += '<span class="success">[LOG]</span> ' + args.join(' ') + '\n';
+            originalLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            output.innerHTML += '<span class="error">[ERROR]</span> ' + args.join(' ') + '\n';
+            originalError.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            output.innerHTML += '<span class="warning">[WARN]</span> ' + args.join(' ') + '\n';
+            originalWarn.apply(console, args);
+        };
+        
+        // Check environment
+        const envCheck = document.getElementById('env-check');
+        envCheck.innerHTML = `
+            <p>Location: ${window.location.href}</p>
+            <p>Origin: ${window.location.origin}</p>
+            <p>Protocol: ${window.location.protocol}</p>
+            <p>Host: ${window.location.host}</p>
+            <p>User Agent: ${navigator.userAgent}</p>
+        `;
+        
+        // Try to load the main app bundle
+        const networkCheck = document.getElementById('network-check');
+        
+        console.log('Starting debug checks...');
+        
+        // Check if we can access the main bundle
+        fetch('/assets/index-DQoeGoLw.js', { method: 'HEAD' })
+            .then(response => {
+                if (response.ok) {
+                    networkCheck.innerHTML += '<p class="success">✓ Main JS bundle accessible</p>';
+                } else {
+                    networkCheck.innerHTML += '<p class="error">✗ Main JS bundle not found (404)</p>';
+                }
+            })
+            .catch(error => {
+                networkCheck.innerHTML += '<p class="error">✗ Network error loading JS bundle: ' + error.message + '</p>';
+            });
+            
+        // Check if we can access CSS
+        fetch('/assets/index-DeadYJVY.css', { method: 'HEAD' })
+            .then(response => {
+                if (response.ok) {
+                    networkCheck.innerHTML += '<p class="success">✓ CSS bundle accessible</p>';
+                } else {
+                    networkCheck.innerHTML += '<p class="error">✗ CSS bundle not found (404)</p>';
+                }
+            })
+            .catch(error => {
+                networkCheck.innerHTML += '<p class="error">✗ Network error loading CSS: ' + error.message + '</p>';
+            });
+            
+        // Check root element
+        setTimeout(() => {
+            const root = document.getElementById('root');
+            if (root) {
+                networkCheck.innerHTML += '<p class="success">✓ Root element exists</p>';
+                networkCheck.innerHTML += '<p>Root innerHTML length: ' + root.innerHTML.length + '</p>';
+            } else {
+                networkCheck.innerHTML += '<p class="error">✗ Root element not found</p>';
+            }
+        }, 100);
+    </script>
+</body>
+</html>
