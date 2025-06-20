@@ -59,14 +59,35 @@ class InitErrorBoundary extends React.Component<
   }
 }
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <InitErrorBoundary>
-      <AuthProvider>
-        <OrbContextProvider>
-          <App />
-        </OrbContextProvider>
-      </AuthProvider>
-    </InitErrorBoundary>
-  </StrictMode>,
-)
+// Add initialization logging
+console.log('[Canvas] Starting app initialization...');
+
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  console.error('[Canvas] Root element not found!');
+  document.body.innerHTML = '<div style="color: red; padding: 20px;">Error: Root element not found</div>';
+} else {
+  console.log('[Canvas] Root element found, creating React root...');
+  
+  try {
+    const root = createRoot(rootElement);
+    console.log('[Canvas] React root created, rendering app...');
+    
+    root.render(
+      <StrictMode>
+        <InitErrorBoundary>
+          <AuthProvider>
+            <OrbContextProvider>
+              <App />
+            </OrbContextProvider>
+          </AuthProvider>
+        </InitErrorBoundary>
+      </StrictMode>,
+    );
+    
+    console.log('[Canvas] App render initiated');
+  } catch (error) {
+    console.error('[Canvas] Failed to initialize app:', error);
+    rootElement.innerHTML = `<div style="color: red; padding: 20px;">Failed to initialize: ${error}</div>`;
+  }
+}

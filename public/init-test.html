@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Init Test</title>
+</head>
+<body>
+    <h1>Canvas Init Test</h1>
+    <div id="log"></div>
+    
+    <script>
+        const log = (msg) => {
+            const el = document.getElementById('log');
+            el.innerHTML += `<div>${new Date().toISOString()}: ${msg}</div>`;
+            console.log(msg);
+        };
+        
+        log('Page loaded');
+        
+        // Check for service workers
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(regs => {
+                log(`Found ${regs.length} service workers`);
+                regs.forEach(reg => {
+                    log(`Service worker: ${reg.scope}`);
+                });
+            });
+        }
+        
+        // Check localStorage
+        log('Checking localStorage...');
+        const keys = Object.keys(localStorage);
+        keys.forEach(key => {
+            if (key.includes('auth') || key.includes('supabase')) {
+                log(`Found: ${key} = ${localStorage.getItem(key)?.substring(0, 50)}...`);
+            }
+        });
+        
+        // Try to load the main app
+        log('Attempting to load main app...');
+        
+        fetch('/').then(res => {
+            log(`Main page status: ${res.status}`);
+            return res.text();
+        }).then(html => {
+            log(`Main page HTML length: ${html.length}`);
+            
+            // Extract script src
+            const match = html.match(/src="(\/assets\/index-[^"]+\.js)"/);
+            if (match) {
+                log(`Found script: ${match[1]}`);
+                
+                // Try to load the script
+                fetch(match[1]).then(res => {
+                    log(`Script status: ${res.status}`);
+                    if (res.status === 404) {
+                        log('ERROR: JavaScript file not found!');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -7,7 +7,24 @@
     <title>CANVAS - AI Sales Intelligence</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Loading state while React initializes -->
+      <div style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+        color: white;
+        font-family: system-ui, -apple-system, sans-serif;
+      ">
+        <div style="text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+          <h1 style="margin: 0 0 0.5rem 0; font-size: 2rem;">CANVAS</h1>
+          <p style="margin: 0; opacity: 0.7;">Loading AI Sales Intelligence...</p>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
