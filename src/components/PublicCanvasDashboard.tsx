@@ -23,6 +23,27 @@ const sampleFeatures = [
   { icon: '📊', title: 'AI-Powered Analysis', desc: 'Claude Opus 4 & Sequential Thinking' }
 ];
 
+const salesAgents = [
+  { 
+    icon: '🤖', 
+    title: 'Sales Assistant', 
+    desc: 'Get instant answers about your accounts and strategies',
+    capabilities: ['Account insights', 'Call preparation', 'Quick research'] 
+  },
+  { 
+    icon: '🧠', 
+    title: 'Strategy Builder', 
+    desc: 'Create data-driven sales strategies and messaging',
+    capabilities: ['Territory planning', 'Account mapping', 'Value propositions'] 
+  },
+  { 
+    icon: '💡', 
+    title: 'Contextual Insights', 
+    desc: 'Real-time intelligence while you work',
+    capabilities: ['Live suggestions', 'Competitive analysis', 'Objection handling'] 
+  }
+];
+
 export const PublicCanvasDashboard: React.FC<PublicCanvasDashboardProps> = ({
   onLoginSuccess
 }) => {
@@ -150,6 +171,86 @@ export const PublicCanvasDashboard: React.FC<PublicCanvasDashboardProps> = ({
             <p style={{ margin: 0, opacity: 0.7, fontSize: '0.85rem' }}>{feature.desc}</p>
           </div>
         ))}
+      </div>
+
+      {/* AI Sales Agents Preview */}
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(123, 66, 246, 0.05) 0%, rgba(0, 255, 198, 0.05) 100%)',
+        border: '1px solid rgba(123, 66, 246, 0.2)',
+        borderRadius: '16px',
+        margin: '2rem 1rem',
+        padding: '1.5rem'
+      }}>
+        <h3 style={{ textAlign: 'center', marginBottom: '1.5rem', color: '#00ffc6' }}>
+          🤖 AI Sales Agents
+        </h3>
+        <p style={{ textAlign: 'center', opacity: 0.8, marginBottom: '2rem', fontSize: '0.9rem' }}>
+          Your intelligent sales companions - always ready to assist
+        </p>
+        
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: '1rem'
+        }}>
+          {salesAgents.map((agent, index) => (
+            <div key={index} style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              borderRadius: '12px',
+              padding: '1.5rem',
+              transition: 'all 0.3s ease',
+              cursor: 'pointer'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+              e.currentTarget.style.borderColor = 'rgba(0, 255, 198, 0.3)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+            onClick={handleLoginClick}
+            >
+              <div style={{ fontSize: '2.5rem', marginBottom: '1rem', textAlign: 'center' }}>
+                {agent.icon}
+              </div>
+              <h4 style={{ margin: '0 0 0.5rem 0', color: '#00ffc6', textAlign: 'center' }}>
+                {agent.title}
+              </h4>
+              <p style={{ margin: '0 0 1rem 0', opacity: 0.8, fontSize: '0.85rem', textAlign: 'center' }}>
+                {agent.desc}
+              </p>
+              <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '1rem' }}>
+                <p style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '0.5rem' }}>
+                  Capabilities:
+                </p>
+                <ul style={{ margin: 0, paddingLeft: '1.5rem', fontSize: '0.8rem', opacity: 0.8 }}>
+                  {agent.capabilities.map((cap, capIndex) => (
+                    <li key={capIndex} style={{ marginBottom: '0.25rem' }}>{cap}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div style={{
+          marginTop: '2rem',
+          padding: '1rem',
+          background: 'rgba(123, 66, 246, 0.1)',
+          borderRadius: '8px',
+          textAlign: 'center'
+        }}>
+          <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', opacity: 0.9 }}>
+            🔒 <strong>Sign in to chat with AI Sales Agents</strong>
+          </p>
+          <p style={{ margin: 0, fontSize: '0.8rem', opacity: 0.7 }}>
+            Get personalized advice, real-time insights, and strategic guidance
+          </p>
+        </div>
       </div>
 
       {/* Interactive Preview Form */}
