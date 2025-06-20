@@ -183,8 +183,6 @@ export const EnhancedAgentSystem: React.FC<EnhancedAgentSystemProps> = ({
   const [aestheticProcedures, setAestheticProcedures] = useState<AestheticProcedure[]>([]);
   const [, setProceduresLoaded] = useState(false);
   const [currentNPIDoctor, setCurrentNPIDoctor] = useState<NPIDoctor | null>(null);
-  const [, setDoctorSearchResults] = useState<NPIDoctor[]>([]);
-  const [, setIsSearchingDoctor] = useState(false);
   
   const containerRef = useRef<HTMLDivElement>(null);
 
