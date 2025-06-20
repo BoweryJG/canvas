@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Debug</title>
+</head>
+<body>
+    <h1>Auth Debug</h1>
+    <div id="status">Checking auth...</div>
+    
+    <script type="module">
+        // Check localStorage for auth tokens
+        const authKeys = [
+            'supabase.auth.token',
+            'repspheres-auth', 
+            'sb-cbopynuvhcymbumjnvay-auth-token',
+            'sb-auth-token'
+        ];
+        
+        console.log('Checking auth storage...');
+        authKeys.forEach(key => {
+            const value = localStorage.getItem(key);
+            if (value) {
+                console.log(`Found ${key}:`, value.substring(0, 50) + '...');
+            }
+        });
+        
+        // Import the React app to check auth state
+        document.getElementById('status').innerHTML = 'Auth keys checked. See console for details.';
+    </script>
+</body>
+</html>
