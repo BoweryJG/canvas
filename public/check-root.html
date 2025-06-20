@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Root Element Check</title>
+</head>
+<body>
+    <h1>Checking Root Element</h1>
+    <script>
+        // Check what's in the actual index page
+        fetch('/')
+            .then(response => response.text())
+            .then(html => {
+                document.write('<h2>Index HTML Content:</h2>');
+                document.write('<pre>' + html.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>');
+                
+                // Check if root div exists in the HTML
+                if (html.includes('id="root"')) {
+                    document.write('<p style="color: green">✓ Root element found in HTML</p>');
+                } else {
+                    document.write('<p style="color: red">✗ Root element NOT found in HTML</p>');
+                }
+            })
+            .catch(error => {
+                document.write('<p style="color: red">Error fetching index: ' + error.message + '</p>');
+            });
+    </script>
+</body>
+</html>
