@@ -6,6 +6,7 @@ import MobileHunterNarrator from '../components/mobile-demo/MobileHunterNarrator
 import MobileDemoSequence from '../components/mobile-demo/MobileDemoSequence';
 import MobileSearchInterface from '../components/mobile-demo/MobileSearchInterface';
 import DemoControls from '../components/mobile-demo/DemoControls';
+import DemoInvitation from '../components/mobile-demo/DemoInvitation';
 
 // Mobile-first styled components
 const DemoContainer = styled(Box)({
@@ -77,6 +78,7 @@ const SkipButton = styled(Typography)({
 
 // Demo stages
 export type DemoStage = 
+  | 'invitation'
   | 'intro'
   | 'user-story'
   | 'search-demo'
@@ -96,16 +98,18 @@ const MobileCinematicDemo: React.FC<MobileCinematicDemoProps> = ({
   onComplete,
   onSkip,
 }) => {
-  const [currentStage, setCurrentStage] = useState<DemoStage>('intro');
+  const [currentStage, setCurrentStage] = useState<DemoStage>('invitation');
   const [isPlaying, setIsPlaying] = useState(true);
   const [progress, setProgress] = useState(0);
   const [showControls, setShowControls] = useState(false);
   const [isInteractive, setIsInteractive] = useState(false);
+  const [showInvitation, setShowInvitation] = useState(true);
   const progressInterval = useRef<NodeJS.Timeout | null>(null);
   const stageTimeouts = useRef<NodeJS.Timeout[]>([]);
 
   // Demo timing configuration (in seconds)
   const stageDurations: Record<DemoStage, number> = {
+    'invitation': 0, // Manually controlled
     'intro': 3,
     'user-story': 5,
     'search-demo': 7,
@@ -118,6 +122,7 @@ const MobileCinematicDemo: React.FC<MobileCinematicDemoProps> = ({
   };
 
   const stages: DemoStage[] = [
+    'invitation',
     'intro',
     'user-story',
     'search-demo',
@@ -131,7 +136,7 @@ const MobileCinematicDemo: React.FC<MobileCinematicDemoProps> = ({
 
   // Calculate total demo duration
   const totalDuration = Object.entries(stageDurations)
-    .filter(([stage]) => stage !== 'interactive')
+    .filter(([stage]) => stage !== 'interactive' && stage !== 'invitation')
     .reduce((sum, [, duration]) => sum + duration, 0);
 
   // Clear all timeouts
@@ -166,13 +171,19 @@ const MobileCinematicDemo: React.FC<MobileCinematicDemoProps> = ({
     onSkip?.();
   }, [clearTimeouts, onSkip]);
 
+  // Handle invitation completion
+  const handleInvitationComplete = useCallback(() => {
+    setShowInvitation(false);
+    setCurrentStage('intro');
+  }, []);
+
   // Setup demo progression
   useEffect(() => {
-    if (!isPlaying || currentStage === 'interactive') return;
+    if (!isPlaying || currentStage === 'interactive' || currentStage === 'invitation') return;
 
     // Calculate accumulated time up to current stage
     let accumulatedTime = 0;
-    for (let i = 0; i < stages.indexOf(currentStage); i++) {
+    for (let i = 1; i < stages.indexOf(currentStage); i++) { // Start from 1 to skip invitation
       accumulatedTime += stageDurations[stages[i] as DemoStage];
     }
 
@@ -228,70 +239,77 @@ const MobileCinematicDemo: React.FC<MobileCinematicDemoProps> = ({
 
   return (
     <DemoContainer>
-      {/* Progress bar */}
-      {!isInteractive && (
-        <ProgressBar variant="determinate" value={progress} />
-      )}
+      {/* Show invitation first */}
+      {showInvitation ? (
+        <DemoInvitation onComplete={handleInvitationComplete} />
+      ) : (
+        <>
+          {/* Progress bar */}
+          {!isInteractive && (
+            <ProgressBar variant="determinate" value={progress} />
+          )}
 
-      {/* Skip button */}
-      {!isInteractive && (
-        <SkipButton onClick={skipToInteractive}>
-          Skip to Canvas →
-        </SkipButton>
-      )}
+          {/* Skip button */}
+          {!isInteractive && (
+            <SkipButton onClick={skipToInteractive}>
+              Skip to Canvas →
+            </SkipButton>
+          )}
 
-      {/* Main content area */}
-      <ContentArea>
-        <AnimatePresence mode="wait">
-          {!isInteractive ? (
-            <MobileDemoSequence
-              currentStage={currentStage}
+          {/* Main content area */}
+          <ContentArea>
+            <AnimatePresence mode="wait">
+              {!isInteractive ? (
+                <MobileDemoSequence
+                  currentStage={currentStage}
+                  isPlaying={isPlaying}
+                  prefersReducedMotion={prefersReducedMotion}
+                />
+              ) : (
+                <MobileSearchInterface
+                  onSearch={(query) => {
+                    console.log('Search initiated:', query);
+                    onComplete?.();
+                  }}
+                />
+              )}
+            </AnimatePresence>
+
+            {/* The Hunter narrator */}
+            {!isInteractive && (
+              <MobileHunterNarrator
+                currentStage={currentStage}
+                isVisible={['intro', 'user-story', 'success'].includes(currentStage)}
+              />
+            )}
+          </ContentArea>
+
+          {/* Demo controls */}
+          {!isInteractive && showControls && (
+            <DemoControls
               isPlaying={isPlaying}
-              prefersReducedMotion={prefersReducedMotion}
-            />
-          ) : (
-            <MobileSearchInterface
-              onSearch={(query) => {
-                console.log('Search initiated:', query);
-                onComplete?.();
-              }}
+              onPlayPause={togglePlayPause}
+              onSkip={skipToInteractive}
+              progress={progress}
             />
           )}
-        </AnimatePresence>
 
-        {/* The Hunter narrator */}
-        {!isInteractive && (
-          <MobileHunterNarrator
-            currentStage={currentStage}
-            isVisible={['intro', 'user-story', 'success'].includes(currentStage)}
-          />
-        )}
-      </ContentArea>
-
-      {/* Demo controls */}
-      {!isInteractive && showControls && (
-        <DemoControls
-          isPlaying={isPlaying}
-          onPlayPause={togglePlayPause}
-          onSkip={skipToInteractive}
-          progress={progress}
-        />
-      )}
-
-      {/* Touch to show controls */}
-      {!isInteractive && (
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: '100px',
-            background: 'linear-gradient(to top, rgba(0,0,0,0.3), transparent)',
-            cursor: 'pointer',
-          }}
-          onClick={() => setShowControls(!showControls)}
-        />
+          {/* Touch to show controls */}
+          {!isInteractive && (
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: '100px',
+                background: 'linear-gradient(to top, rgba(0,0,0,0.3), transparent)',
+                cursor: 'pointer',
+              }}
+              onClick={() => setShowControls(!showControls)}
+            />
+          )}
+        </>
       )}
     </DemoContainer>
   );
