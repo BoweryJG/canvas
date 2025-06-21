@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import NavBar from './components/NavBar'
 import { AuthProvider, AuthGuard } from './auth'
 import MarketInsights from './pages/MarketInsightsSimple'
@@ -57,8 +57,17 @@ function AppContent() {
   useApiKeys();
   
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const navigate = useNavigate();
   
   useEffect(() => {
+    // Check if we have OAuth callback tokens in URL
+    if (window.location.hash && window.location.hash.includes('access_token')) {
+      console.log('App - OAuth callback detected, redirecting to auth callback handler');
+      // Preserve the hash when navigating
+      navigate('/auth/callback' + window.location.hash);
+      return;
+    }
+    
     // Initialize security features
     const initSecurity = async () => {
       await SecureStorage.init();

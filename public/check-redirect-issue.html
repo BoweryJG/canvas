@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CHECK REDIRECT ISSUE</title>
+</head>
+<body style="background: #000; color: #0f0; font-family: monospace; padding: 40px;">
+    <h1>REDIRECT URL ISSUE</h1>
+    
+    <div style="background: #f00; color: #fff; padding: 20px; margin: 20px 0;">
+        <h2>THE PROBLEM:</h2>
+        <p>When you cleaned up the Supabase redirect URLs, you might have removed the one that handles the OAuth callback!</p>
+    </div>
+    
+    <div style="background: #111; padding: 20px; border: 1px solid #0f0;">
+        <h2>URLs that NEED to be in your Supabase Auth settings:</h2>
+        <ul style="font-size: 18px; line-height: 2;">
+            <li><strong>http://localhost:7002/*</strong> (for local development)</li>
+            <li><strong>http://localhost:7002/</strong> (for the root redirect)</li>
+            <li><strong>http://localhost:7002/auth/callback</strong> (for the callback)</li>
+            <li><strong>https://canvas.repspheres.com/*</strong> (for production)</li>
+            <li><strong>https://canvas.repspheres.com/</strong> (for production root)</li>
+            <li><strong>https://canvas.repspheres.com/auth/callback</strong> (for production callback)</li>
+        </ul>
+    </div>
+    
+    <div style="background: #030; color: #0f0; padding: 20px; margin: 20px 0;">
+        <h2>TO FIX:</h2>
+        <ol style="font-size: 18px; line-height: 2;">
+            <li>Go to your Supabase dashboard</li>
+            <li>Go to Authentication → URL Configuration</li>
+            <li>Add these URLs to "Redirect URLs":</li>
+            <li style="color: #ff0;">http://localhost:7002/*</li>
+            <li style="color: #ff0;">http://localhost:7002/</li>
+            <li>Save the changes</li>
+            <li>Try logging in again</li>
+        </ol>
+    </div>
+    
+    <div style="margin-top: 40px;">
+        <p>The wildcard URL (http://localhost:7002/*) is important because Supabase might redirect to the root (/) with the auth token in the hash.</p>
+        <p>Current URL: <span id="url"></span></p>
+    </div>
+    
+    <script>
+        document.getElementById('url').textContent = window.location.href;
+        
+        if (window.location.hash && window.location.hash.includes('access_token')) {
+            document.body.style.background = '#030';
+            const div = document.createElement('div');
+            div.style.cssText = 'background: #0f0; color: #000; padding: 20px; margin: 20px 0; font-size: 24px;';
+            div.innerHTML = '✅ AUTH TOKEN DETECTED IN URL! The OAuth is working, but Supabase is redirecting to the wrong URL!';
+            document.body.insertBefore(div, document.body.firstChild);
+        }
+    </script>
+</body>
+</html>

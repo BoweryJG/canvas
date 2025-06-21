@@ -74,13 +74,17 @@ const SimpleLogin: React.FC = () => {
   };
 
   const handleProviderAuth = async (provider: 'google' | 'facebook') => {
+    console.log(`SimpleLogin - handleProviderAuth called with provider: ${provider}`);
     setLoading(true);
     setError(null);
     
     try {
+      console.log('SimpleLogin - calling signInWithProvider...');
       await signInWithProvider(provider);
-      navigate('/');
+      console.log('SimpleLogin - signInWithProvider completed, should redirect to OAuth provider');
+      // OAuth redirect happens here, so navigate won't be called
     } catch (err: any) {
+      console.error('SimpleLogin - OAuth error:', err);
       setError(err.message || 'Authentication failed');
     } finally {
       setLoading(false);

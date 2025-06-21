@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Auth Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>OAuth Test</h1>
+    <button id="google">Test Google Login</button>
+    <button id="facebook">Test Facebook Login</button>
+    <pre id="output"></pre>
+    
+    <script>
+        const supabaseUrl = 'https://cbopynuvhcymbumjnvay.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNib3B5bnV2aGN5bWJ1bWpudmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5OTUxNzMsImV4cCI6MjA1OTU3MTE3M30.UZElMkoHugIt984RtYWyfrRuv2rB67opQdCrFVPCfzU';
+        const { createClient } = supabase;
+        const client = createClient(supabaseUrl, supabaseKey);
+        
+        const output = document.getElementById('output');
+        
+        document.getElementById('google').onclick = async () => {
+            output.textContent = 'Testing Google login...\n';
+            try {
+                const { data, error } = await client.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + '/auth/callback'
+                    }
+                });
+                
+                if (error) {
+                    output.textContent += 'Error: ' + JSON.stringify(error, null, 2);
+                } else {
+                    output.textContent += 'Success: ' + JSON.stringify(data, null, 2);
+                }
+            } catch (e) {
+                output.textContent += 'Exception: ' + e.message;
+            }
+        };
+        
+        document.getElementById('facebook').onclick = async () => {
+            output.textContent = 'Testing Facebook login...\n';
+            try {
+                const { data, error } = await client.auth.signInWithOAuth({
+                    provider: 'facebook',
+                    options: {
+                        redirectTo: window.location.origin + '/auth/callback'
+                    }
+                });
+                
+                if (error) {
+                    output.textContent += 'Error: ' + JSON.stringify(error, null, 2);
+                } else {
+                    output.textContent += 'Success: ' + JSON.stringify(data, null, 2);
+                }
+            } catch (e) {
+                output.textContent += 'Exception: ' + e.message;
+            }
+        };
+        
+        // Check current session
+        client.auth.getSession().then(({ data, error }) => {
+            output.textContent += '\n\nCurrent session:\n';
+            if (error) {
+                output.textContent += 'Error: ' + JSON.stringify(error, null, 2);
+            } else {
+                output.textContent += JSON.stringify(data, null, 2);
+            }
+        });
+    </script>
+</body>
+</html>

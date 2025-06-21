@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Profile Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body style="font-family: Arial; padding: 40px;">
+    <h1>Profile Data Check</h1>
+    <div id="output" style="background: #f0f0f0; padding: 20px; border-radius: 8px;"></div>
+    
+    <script>
+        const { createClient } = supabase;
+        const client = createClient(
+            'https://cbopynuvhcymbumjnvay.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNib3B5bnV2aGN5bWJ1bWpudmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5OTUxNzMsImV4cCI6MjA1OTU3MTE3M30.UZElMkoHugIt984RtYWyfrRuv2rB67opQdCrFVPCfzU'
+        );
+        
+        async function checkProfile() {
+            const output = document.getElementById('output');
+            const { data: { user } } = await client.auth.getUser();
+            
+            if (user) {
+                output.innerHTML = `
+                    <h2>✅ Logged in as: ${user.email}</h2>
+                    <h3>User Metadata:</h3>
+                    <pre>${JSON.stringify(user.user_metadata, null, 2)}</pre>
+                    
+                    <h3>Profile Pictures Found:</h3>
+                `;
+                
+                // Check different possible fields for avatar
+                const possibleAvatarFields = [
+                    user.user_metadata?.avatar_url,
+                    user.user_metadata?.picture,
+                    user.user_metadata?.photo_url,
+                    user.user_metadata?.profile_image_url
+                ];
+                
+                possibleAvatarFields.forEach((url, index) => {
+                    if (url) {
+                        output.innerHTML += `
+                            <div style="margin: 10px 0;">
+                                <p>Field ${index}: ${url}</p>
+                                <img src="${url}" style="width: 100px; height: 100px; border-radius: 50%; border: 2px solid #ccc;" 
+                                     onerror="this.style.border='2px solid red'; this.nextElementSibling.style.display='block';" />
+                                <p style="color: red; display: none;">Failed to load image</p>
+                            </div>
+                        `;
+                    }
+                });
+                
+                if (!user.user_metadata?.avatar_url && user.user_metadata?.picture) {
+                    output.innerHTML += '<p style="color: orange;">⚠️ Picture exists but avatar_url is missing. This might be the issue!</p>';
+                }
+            } else {
+                output.innerHTML = '<h2>❌ Not logged in</h2>';
+            }
+        }
+        
+        checkProfile();
+    </script>
+</body>
+</html>

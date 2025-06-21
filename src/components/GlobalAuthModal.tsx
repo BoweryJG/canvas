@@ -44,6 +44,11 @@ const GlobalAuthModal: React.FC<GlobalAuthModalProps> = ({ open, onClose, onSucc
   const [isLoading, setIsLoading] = useState(false);
   const { signInWithProvider } = useAuth();
   const theme = useTheme();
+  
+  // Debug logging
+  React.useEffect(() => {
+    console.log('GlobalAuthModal - open state:', open);
+  }, [open]);
 
   const handleProviderSignIn = async (provider: 'google' | 'facebook') => {
     try {

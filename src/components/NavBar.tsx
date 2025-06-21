@@ -487,10 +487,14 @@ export default function NavBar() {
                   background: 'rgba(255,255,255,0.08)',
                 }
               }}>
-                {user.user_metadata?.avatar_url ? (
+                {(user.user_metadata?.avatar_url || user.user_metadata?.picture) ? (
                   <Avatar 
-                    src={user.user_metadata.avatar_url} 
+                    src={user.user_metadata?.avatar_url || user.user_metadata?.picture} 
                     sx={{ width: 40, height: 40, mr: 1.5 }}
+                    imgProps={{
+                      referrerPolicy: 'no-referrer',
+                      crossOrigin: 'anonymous'
+                    }}
                   />
                 ) : (
                   <Avatar sx={{ width: 40, height: 40, mr: 1.5, bgcolor: '#7B42F6' }}>
@@ -788,6 +792,10 @@ export default function NavBar() {
                       <Avatar
                         src={user.user_metadata?.avatar_url || user.user_metadata?.picture}
                         sx={{ width: 32, height: 32 }}
+                        imgProps={{
+                          referrerPolicy: 'no-referrer',
+                          crossOrigin: 'anonymous'
+                        }}
                       />
                     ) : (
                       <PersonIcon sx={{ color: '#fff' }} />

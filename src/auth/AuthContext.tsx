@@ -54,10 +54,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const initializeAuth = async () => {
       try {
+        console.log('AuthContext - Initializing auth...');
+        
+        // Check for OAuth tokens in URL first
+        if (window.location.hash && window.location.hash.includes('access_token')) {
+          console.log('AuthContext - OAuth tokens detected in URL, processing...');
+          // Give Supabase time to process the tokens
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
         // First, check if we have an invalid refresh token
-        const existingToken = localStorage.getItem('repspheres-auth') || 
-                           localStorage.getItem('supabase.auth.token') ||
-                           localStorage.getItem('sb-cbopynuvhcymbumjnvay-auth-token');
+        const existingToken = localStorage.getItem('sb-cbopynuvhcymbumjnvay-auth-token') || 
+                           localStorage.getItem('repspheres-auth') || 
+                           localStorage.getItem('supabase.auth.token');
         
         if (existingToken) {
           try {
@@ -151,13 +160,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     provider: AuthProviderType, 
     options?: SignInOptions
   ) => {
+    console.log(`AuthContext - signInWithProvider called with provider: ${provider}`);
     setState(prev => ({ ...prev, loading: true, error: null }));
     
     try {
       // Use local domain for OAuth redirect
       const redirectUrl = `${window.location.origin}/auth/callback`;
+      console.log(`AuthContext - using redirect URL: ${redirectUrl}`);
       
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: provider as any,
         options: {
           redirectTo: options?.redirectTo || redirectUrl,
@@ -166,8 +177,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         },
       });
       
-      if (error) throw error;
+      console.log('AuthContext - OAuth response:', { data, error });
+      
+      if (error) {
+        console.error('AuthContext - OAuth error:', error);
+        throw error;
+      }
+      
+      // OAuth should redirect browser to provider
+      console.log('AuthContext - OAuth initiated, browser should redirect');
     } catch (error: any) {
+      console.error('AuthContext - signInWithProvider error:', error);
       setState(prev => ({ 
         ...prev, 
         loading: false, 

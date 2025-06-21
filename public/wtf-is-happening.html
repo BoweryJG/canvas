@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WTF IS HAPPENING</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body style="background: #000; color: #0f0; font-family: monospace; padding: 20px; font-size: 16px;">
+    <h1 style="color: #f00;">WTF IS HAPPENING WITH AUTH</h1>
+    
+    <div id="status" style="background: #111; padding: 20px; border: 2px solid #0f0; margin: 20px 0;"></div>
+    
+    <button onclick="tryLogin()" style="background: #f00; color: #fff; padding: 20px; font-size: 20px; cursor: pointer; border: none;">
+        TRY LOGIN AGAIN
+    </button>
+    
+    <button onclick="forceSession()" style="background: #ff0; color: #000; padding: 20px; font-size: 20px; cursor: pointer; border: none; margin-left: 20px;">
+        FORCE SESSION FROM URL
+    </button>
+    
+    <script>
+        const { createClient } = supabase;
+        const client = createClient(
+            'https://cbopynuvhcymbumjnvay.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNib3B5bnV2aGN5bWJ1bWpudmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5OTUxNzMsImV4cCI6MjA1OTU3MTE3M30.UZElMkoHugIt984RtYWyfrRuv2rB67opQdCrFVPCfzU'
+        );
+        
+        const status = document.getElementById('status');
+        
+        async function checkEverything() {
+            status.innerHTML = '<h2>CHECKING EVERYTHING...</h2>';
+            
+            // 1. Check URL
+            status.innerHTML += '<h3>1. URL CHECK:</h3>';
+            status.innerHTML += `Current URL: ${window.location.href}<br>`;
+            status.innerHTML += `Hash: ${window.location.hash || 'NONE'}<br>`;
+            
+            if (window.location.hash && window.location.hash.includes('access_token')) {
+                status.innerHTML += '<span style="color: #0f0;">✅ TOKEN IN URL!</span><br>';
+                
+                // Parse the token
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                const accessToken = hashParams.get('access_token');
+                if (accessToken) {
+                    status.innerHTML += `Token: ${accessToken.substring(0, 50)}...<br>`;
+                }
+            } else {
+                status.innerHTML += '<span style="color: #f00;">❌ NO TOKEN IN URL</span><br>';
+            }
+            
+            // 2. Check Session
+            status.innerHTML += '<h3>2. SESSION CHECK:</h3>';
+            const { data: { session }, error } = await client.auth.getSession();
+            
+            if (error) {
+                status.innerHTML += `<span style="color: #f00;">ERROR: ${error.message}</span><br>`;
+            } else if (session) {
+                status.innerHTML += '<span style="color: #0f0;">✅ SESSION EXISTS!</span><br>';
+                status.innerHTML += `User: ${session.user.email}<br>`;
+                status.innerHTML += `Provider: ${session.user.app_metadata.provider}<br>`;
+            } else {
+                status.innerHTML += '<span style="color: #f00;">❌ NO SESSION</span><br>';
+            }
+            
+            // 3. Check LocalStorage
+            status.innerHTML += '<h3>3. LOCALSTORAGE CHECK:</h3>';
+            let foundAuth = false;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && (key.includes('auth') || key.includes('supabase') || key.includes('sb-'))) {
+                    status.innerHTML += `Found: ${key}<br>`;
+                    foundAuth = true;
+                }
+            }
+            if (!foundAuth) {
+                status.innerHTML += '<span style="color: #f00;">NO AUTH DATA IN LOCALSTORAGE</span><br>';
+            }
+            
+            // 4. Try to get user
+            status.innerHTML += '<h3>4. GET USER:</h3>';
+            const { data: { user } } = await client.auth.getUser();
+            if (user) {
+                status.innerHTML += `<span style="color: #0f0;">✅ USER: ${user.email}</span><br>`;
+            } else {
+                status.innerHTML += '<span style="color: #f00;">❌ NO USER</span><br>';
+            }
+        }
+        
+        async function tryLogin() {
+            const { data, error } = await client.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin + '/'
+                }
+            });
+            
+            if (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        async function forceSession() {
+            if (window.location.hash && window.location.hash.includes('access_token')) {
+                status.innerHTML += '<br><br><span style="color: #ff0;">FORCING SESSION FROM URL TOKEN...</span><br>';
+                
+                // Let Supabase process it
+                const { error } = await client.auth.getSession();
+                if (error) {
+                    status.innerHTML += `Error: ${error.message}<br>`;
+                } else {
+                    // Check again
+                    setTimeout(() => checkEverything(), 1000);
+                }
+            } else {
+                alert('No token in URL!');
+            }
+        }
+        
+        // Initial check
+        checkEverything();
+        
+        // Listen for auth changes
+        client.auth.onAuthStateChange((event, session) => {
+            status.innerHTML += `<br><span style="color: #ff0;">AUTH EVENT: ${event}</span><br>`;
+            if (session) {
+                status.innerHTML += `<span style="color: #0f0;">LOGGED IN: ${session.user.email}</span><br>`;
+            }
+            checkEverything();
+        });
+    </script>
+</body>
+</html>

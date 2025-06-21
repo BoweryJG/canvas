@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OAuth Window Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>OAuth Window Test</h1>
+    <button onclick="testGooglePopup()">Test Google (Popup)</button>
+    <button onclick="testGoogleRedirect()">Test Google (Redirect)</button>
+    <pre id="output"></pre>
+    
+    <script>
+        const { createClient } = supabase;
+        const client = createClient(
+            'https://cbopynuvhcymbumjnvay.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNib3B5bnV2aGN5bWJ1bWpudmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5OTUxNzMsImV4cCI6MjA1OTU3MTE3M30.UZElMkoHugIt984RtYWyfrRuv2rB67opQdCrFVPCfzU'
+        );
+        
+        const output = document.getElementById('output');
+        
+        async function testGooglePopup() {
+            output.textContent = 'Testing Google OAuth with popup...\n';
+            
+            try {
+                const { data, error } = await client.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + '/auth/callback',
+                        skipBrowserRedirect: false,
+                        queryParams: {
+                            access_type: 'offline',
+                            prompt: 'consent'
+                        }
+                    }
+                });
+                
+                if (error) {
+                    output.textContent += 'Error: ' + JSON.stringify(error, null, 2);
+                } else {
+                    output.textContent += 'OAuth URL generated: ' + data.url + '\n';
+                    output.textContent += 'Attempting to open in new window...\n';
+                    
+                    // Try to open manually
+                    const authWindow = window.open(data.url, '_blank');
+                    if (!authWindow) {
+                        output.textContent += 'POPUP BLOCKED! Please allow popups for this site.\n';
+                    } else {
+                        output.textContent += 'Popup opened successfully!\n';
+                    }
+                }
+            } catch (e) {
+                output.textContent += 'Exception: ' + e.message + '\n';
+                output.textContent += 'Stack: ' + e.stack;
+            }
+        }
+        
+        async function testGoogleRedirect() {
+            output.textContent = 'Testing Google OAuth with redirect...\n';
+            
+            try {
+                const { data, error } = await client.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + '/auth/callback'
+                    }
+                });
+                
+                if (error) {
+                    output.textContent += 'Error: ' + JSON.stringify(error, null, 2);
+                } else {
+                    output.textContent += 'Success! Redirecting to: ' + data.url + '\n';
+                    // Should auto-redirect, but if not:
+                    setTimeout(() => {
+                        output.textContent += 'Auto-redirect may have been blocked. Trying manual redirect...\n';
+                        window.location.href = data.url;
+                    }, 2000);
+                }
+            } catch (e) {
+                output.textContent += 'Exception: ' + e.message;
+            }
+        }
+    </script>
+</body>
+</html>

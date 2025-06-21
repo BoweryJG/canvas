@@ -4,6 +4,7 @@ export const useAuthModal = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const openAuthModal = useCallback(() => {
+    console.log('useAuthModal - openAuthModal called');
     setIsAuthModalOpen(true);
   }, []);
 

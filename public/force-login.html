@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FORCE LOGIN</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body style="background: #000; color: #0f0; font-family: monospace; padding: 40px;">
+    <h1>FORCE LOGIN TO CANVAS</h1>
+    
+    <button onclick="forceGoogleLogin()" style="
+        background: #f00;
+        color: #fff;
+        border: none;
+        padding: 20px 40px;
+        font-size: 24px;
+        cursor: pointer;
+        margin: 20px 0;
+    ">🚀 FORCE GOOGLE LOGIN NOW</button>
+    
+    <button onclick="clearEverything()" style="
+        background: #ff0;
+        color: #000;
+        border: none;
+        padding: 20px 40px;
+        font-size: 24px;
+        cursor: pointer;
+        margin: 20px 0;
+    ">🧹 CLEAR ALL & TRY AGAIN</button>
+    
+    <pre id="output" style="background: #111; padding: 20px; border: 1px solid #0f0; margin-top: 20px;"></pre>
+    
+    <script>
+        const { createClient } = supabase;
+        const client = createClient(
+            'https://cbopynuvhcymbumjnvay.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNib3B5bnV2aGN5bWJ1bWpudmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5OTUxNzMsImV4cCI6MjA1OTU3MTE3M30.UZElMkoHugIt984RtYWyfrRuv2rB67opQdCrFVPCfzU',
+            {
+                auth: {
+                    autoRefreshToken: true,
+                    persistSession: true,
+                    detectSessionInUrl: true,
+                    storage: window.localStorage,
+                    flowType: 'implicit'
+                }
+            }
+        );
+        
+        const output = document.getElementById('output');
+        
+        function log(msg) {
+            output.textContent += msg + '\n';
+            console.log(msg);
+        }
+        
+        async function forceGoogleLogin() {
+            log('FORCING GOOGLE LOGIN...');
+            
+            try {
+                const { data, error } = await client.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + '/auth/callback'
+                    }
+                });
+                
+                if (error) {
+                    log('ERROR: ' + error.message);
+                } else {
+                    log('SUCCESS! Redirecting to Google...');
+                    log('If nothing happens, your browser is blocking the redirect.');
+                    log('Auth URL: ' + data.url);
+                    
+                    // Force redirect
+                    window.location.href = data.url;
+                }
+            } catch (e) {
+                log('EXCEPTION: ' + e.message);
+            }
+        }
+        
+        async function clearEverything() {
+            log('CLEARING EVERYTHING...');
+            
+            // Clear all storage
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Clear cookies
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            // Sign out
+            await client.auth.signOut();
+            
+            log('CLEARED! Now trying login...');
+            
+            setTimeout(() => forceGoogleLogin(), 1000);
+        }
+        
+        // Check current status
+        async function checkStatus() {
+            const { data: { session } } = await client.auth.getSession();
+            if (session) {
+                log('CURRENT SESSION: ' + session.user.email);
+            } else {
+                log('NO SESSION - Click a button above to login');
+            }
+        }
+        
+        checkStatus();
+    </script>
+</body>
+</html>

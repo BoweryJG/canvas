@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OAuth Debug Tool - Canvas</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #0ff;
+        }
+        h1, h2 { color: #0ff; }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #333;
+            color: #0ff;
+            border: 1px solid #0ff;
+        }
+        button:hover {
+            background: #0ff;
+            color: #000;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #0ff;
+            background: rgba(0, 255, 198, 0.05);
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-left: 3px solid #0ff;
+            font-size: 14px;
+        }
+        .error { border-left-color: #ff0040; color: #ff0040; }
+        .success { border-left-color: #40ff00; color: #40ff00; }
+        .warning { border-left-color: #ffff00; color: #ffff00; }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: #000;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 OAuth Debug Tool - Canvas</h1>
+    
+    <div class="section">
+        <h2>Environment Check</h2>
+        <div id="env-check"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Supabase Configuration</h2>
+        <div id="supabase-config"></div>
+    </div>
+    
+    <div class="section">
+        <h2>OAuth Tests</h2>
+        <button onclick="testGoogleOAuth()">Test Google OAuth</button>
+        <button onclick="testFacebookOAuth()">Test Facebook OAuth</button>
+        <button onclick="testGitHubOAuth()">Test GitHub OAuth</button>
+        <button onclick="clearLocalStorage()">Clear Auth Storage</button>
+    </div>
+    
+    <div class="section">
+        <h2>Console Output</h2>
+        <div id="console-output"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Browser Console Errors</h2>
+        <div id="browser-errors"></div>
+    </div>
+
+    <script>
+        // Supabase configuration
+        const supabaseUrl = 'https://cbopynuvhcymbumjnvay.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNib3B5bnV2aGN5bWJ1bWpudmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5OTUxNzMsImV4cCI6MjA1OTU3MTE3M30.UZElMkoHugIt984RtYWyfrRuv2rB67opQdCrFVPCfzU';
+        const { createClient } = supabase;
+        const client = createClient(supabaseUrl, supabaseKey, {
+            auth: {
+                autoRefreshToken: true,
+                persistSession: true,
+                detectSessionInUrl: true,
+                storageKey: 'repspheres-auth',
+                flowType: 'pkce'
+            }
+        });
+        
+        // Capture console errors
+        const browserErrors = [];
+        window.addEventListener('error', (e) => {
+            browserErrors.push({
+                message: e.message,
+                filename: e.filename,
+                line: e.lineno,
+                col: e.colno,
+                error: e.error
+            });
+            displayBrowserErrors();
+        });
+        
+        window.addEventListener('unhandledrejection', (e) => {
+            browserErrors.push({
+                message: 'Unhandled Promise Rejection',
+                reason: e.reason
+            });
+            displayBrowserErrors();
+        });
+        
+        function log(message, type = 'info') {
+            const output = document.getElementById('console-output');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            output.insertBefore(entry, output.firstChild);
+            console.log(`[${type.toUpperCase()}]`, message);
+        }
+        
+        function displayBrowserErrors() {
+            const container = document.getElementById('browser-errors');
+            container.innerHTML = browserErrors.map(err => 
+                `<div class="log-entry error">
+                    <strong>${err.message}</strong>
+                    ${err.filename ? `<br>File: ${err.filename}:${err.line}:${err.col}` : ''}
+                    ${err.reason ? `<br>Reason: ${JSON.stringify(err.reason)}` : ''}
+                </div>`
+            ).join('');
+        }
+        
+        // Environment check
+        async function checkEnvironment() {
+            const envCheck = document.getElementById('env-check');
+            const checks = [];
+            
+            // Check current URL
+            checks.push(`<div class="log-entry">Current URL: <strong>${window.location.href}</strong></div>`);
+            checks.push(`<div class="log-entry">Origin: <strong>${window.location.origin}</strong></div>`);
+            checks.push(`<div class="log-entry">Redirect URL: <strong>${window.location.origin}/auth/callback</strong></div>`);
+            
+            // Check localStorage
+            const authKeys = ['repspheres-auth', 'supabase.auth.token', 'sb-cbopynuvhcymbumjnvay-auth-token'];
+            authKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                checks.push(`<div class="log-entry ${value ? 'success' : 'warning'}">
+                    localStorage['${key}']: ${value ? 'Present' : 'Not found'}
+                </div>`);
+            });
+            
+            // Check URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            
+            if (urlParams.toString() || hashParams.toString()) {
+                checks.push(`<div class="log-entry warning">URL Params: ${urlParams.toString()}</div>`);
+                checks.push(`<div class="log-entry warning">Hash Params: ${hashParams.toString()}</div>`);
+            }
+            
+            envCheck.innerHTML = checks.join('');
+        }
+        
+        // Supabase configuration check
+        async function checkSupabaseConfig() {
+            const configCheck = document.getElementById('supabase-config');
+            const checks = [];
+            
+            // Check Supabase URL
+            checks.push(`<div class="log-entry">Supabase URL: <strong>${supabaseUrl}</strong></div>`);
+            checks.push(`<div class="log-entry">Anon Key: <strong>${supabaseKey.substring(0, 20)}...</strong></div>`);
+            
+            // Check current session
+            try {
+                const { data, error } = await client.auth.getSession();
+                if (error) {
+                    checks.push(`<div class="log-entry error">Session Error: ${error.message}</div>`);
+                } else if (data.session) {
+                    checks.push(`<div class="log-entry success">Active Session: ${data.session.user.email}</div>`);
+                    checks.push(`<div class="log-entry">Provider: ${data.session.user.app_metadata.provider}</div>`);
+                } else {
+                    checks.push(`<div class="log-entry warning">No active session</div>`);
+                }
+            } catch (e) {
+                checks.push(`<div class="log-entry error">Session Check Failed: ${e.message}</div>`);
+            }
+            
+            // Check auth state listener
+            client.auth.onAuthStateChange((event, session) => {
+                log(`Auth State Change: ${event}`, event === 'SIGNED_IN' ? 'success' : 'warning');
+                if (session) {
+                    log(`User: ${session.user.email}`, 'success');
+                }
+            });
+            
+            configCheck.innerHTML = checks.join('');
+        }
+        
+        // OAuth test functions
+        async function testGoogleOAuth() {
+            log('Testing Google OAuth...', 'info');
+            
+            try {
+                const redirectTo = `${window.location.origin}/auth/callback`;
+                log(`Redirect URL: ${redirectTo}`, 'info');
+                
+                const { data, error } = await client.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: redirectTo,
+                        queryParams: {
+                            access_type: 'offline',
+                            prompt: 'consent'
+                        }
+                    }
+                });
+                
+                if (error) {
+                    log(`Google OAuth Error: ${JSON.stringify(error, null, 2)}`, 'error');
+                } else {
+                    log('Google OAuth initiated successfully', 'success');
+                    log(`Provider URL: ${data?.url}`, 'info');
+                }
+            } catch (e) {
+                log(`Google OAuth Exception: ${e.message}`, 'error');
+                console.error(e);
+            }
+        }
+        
+        async function testFacebookOAuth() {
+            log('Testing Facebook OAuth...', 'info');
+            
+            try {
+                const redirectTo = `${window.location.origin}/auth/callback`;
+                log(`Redirect URL: ${redirectTo}`, 'info');
+                
+                const { data, error } = await client.auth.signInWithOAuth({
+                    provider: 'facebook',
+                    options: {
+                        redirectTo: redirectTo,
+                        scopes: 'email'
+                    }
+                });
+                
+                if (error) {
+                    log(`Facebook OAuth Error: ${JSON.stringify(error, null, 2)}`, 'error');
+                } else {
+                    log('Facebook OAuth initiated successfully', 'success');
+                    log(`Provider URL: ${data?.url}`, 'info');
+                }
+            } catch (e) {
+                log(`Facebook OAuth Exception: ${e.message}`, 'error');
+                console.error(e);
+            }
+        }
+        
+        async function testGitHubOAuth() {
+            log('Testing GitHub OAuth...', 'info');
+            
+            try {
+                const redirectTo = `${window.location.origin}/auth/callback`;
+                log(`Redirect URL: ${redirectTo}`, 'info');
+                
+                const { data, error } = await client.auth.signInWithOAuth({
+                    provider: 'github',
+                    options: {
+                        redirectTo: redirectTo
+                    }
+                });
+                
+                if (error) {
+                    log(`GitHub OAuth Error: ${JSON.stringify(error, null, 2)}`, 'error');
+                } else {
+                    log('GitHub OAuth initiated successfully', 'success');
+                    log(`Provider URL: ${data?.url}`, 'info');
+                }
+            } catch (e) {
+                log(`GitHub OAuth Exception: ${e.message}`, 'error');
+                console.error(e);
+            }
+        }
+        
+        function clearLocalStorage() {
+            const authKeys = ['repspheres-auth', 'supabase.auth.token', 'sb-cbopynuvhcymbumjnvay-auth-token'];
+            authKeys.forEach(key => {
+                localStorage.removeItem(key);
+                sessionStorage.removeItem(key);
+            });
+            log('Cleared all auth storage', 'success');
+            setTimeout(() => {
+                checkEnvironment();
+            }, 100);
+        }
+        
+        // Run initial checks
+        checkEnvironment();
+        checkSupabaseConfig();
+        
+        // Log initial page load
+        log('OAuth Debug Tool loaded', 'success');
+        log('Open browser DevTools console for additional debugging information', 'info');
+        
+        // Check for OAuth callback parameters
+        if (window.location.pathname.includes('/auth/callback')) {
+            log('OAuth callback detected!', 'warning');
+            
+            // Extract tokens from URL
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            if (hashParams.get('access_token')) {
+                log('Access token found in hash', 'success');
+            }
+            if (urlParams.get('code')) {
+                log('Authorization code found in URL', 'success');
+            }
+            if (urlParams.get('error')) {
+                log(`OAuth Error: ${urlParams.get('error')} - ${urlParams.get('error_description')}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>

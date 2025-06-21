@@ -1,6 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { getStandardAuthConfig } from '../utils/crossDomainAuth';
 
 // Get environment variables with fallbacks for development
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://cbopynuvhcymbumjnvay.supabase.co';
@@ -11,14 +10,15 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Missing Supabase environment variables - using defaults');
 }
 
-// Create a single supabase client with standardized configuration
+// Create a single supabase client with simplified configuration
 export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
-  ...getStandardAuthConfig(),
   auth: {
-    ...getStandardAuthConfig().auth,
-    detectSessionInUrl: true,
+    autoRefreshToken: true,
     persistSession: true,
-    autoRefreshToken: true
+    detectSessionInUrl: true,
+    storage: window.localStorage,
+    storageKey: 'sb-cbopynuvhcymbumjnvay-auth-token', // Use the exact key that's working
+    flowType: 'implicit' as const // Use implicit flow for better OAuth handling
   }
 });
 
@@ -26,13 +26,8 @@ export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseAnonKe
 export const getAppUrl = () => {
   if (typeof window === 'undefined') return '';
   
-  // In production, use the actual domain
-  if (window.location.hostname !== 'localhost') {
-    return window.location.origin;
-  }
-  
-  // In development, use localhost
-  return 'http://localhost:3000';
+  // Always use the current window origin to get the correct port
+  return window.location.origin;
 };
 
 // Get redirect URL for OAuth

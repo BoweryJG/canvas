@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Session Persistence Check</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body style="background: #000; color: #0f0; font-family: monospace; padding: 40px;">
+    <h1>SESSION PERSISTENCE CHECK</h1>
+    
+    <div id="output" style="background: #111; padding: 20px; border: 2px solid #0f0;"></div>
+    
+    <button onclick="location.reload()" style="background: #f00; color: #fff; padding: 15px; margin: 20px 0; font-size: 18px; cursor: pointer;">
+        RELOAD PAGE
+    </button>
+    
+    <script>
+        const { createClient } = supabase;
+        const client = createClient(
+            'https://cbopynuvhcymbumjnvay.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNib3B5bnV2aGN5bWJ1bWpudmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5OTUxNzMsImV4cCI6MjA1OTU3MTE3M30.UZElMkoHugIt984RtYWyfrRuv2rB67opQdCrFVPCfzU',
+            {
+                auth: {
+                    persistSession: true,
+                    autoRefreshToken: true,
+                    detectSessionInUrl: true,
+                    storage: window.localStorage
+                }
+            }
+        );
+        
+        const output = document.getElementById('output');
+        
+        async function checkSession() {
+            output.innerHTML = '<h2>CHECKING SESSION PERSISTENCE...</h2>';
+            
+            // 1. Check localStorage keys
+            output.innerHTML += '<h3>1. LOCALSTORAGE KEYS:</h3>';
+            const authKeys = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && (key.includes('auth') || key.includes('supabase') || key.includes('sb-'))) {
+                    authKeys.push(key);
+                    output.innerHTML += `Found: ${key}<br>`;
+                    
+                    // Try to parse and show expiry
+                    try {
+                        const value = localStorage.getItem(key);
+                        if (value && value.includes('expires_at')) {
+                            const parsed = JSON.parse(value);
+                            if (parsed.expires_at) {
+                                const expiresAt = new Date(parsed.expires_at * 1000);
+                                const now = new Date();
+                                if (expiresAt < now) {
+                                    output.innerHTML += `<span style="color: #f00;">⚠️ TOKEN EXPIRED at ${expiresAt.toLocaleString()}</span><br>`;
+                                } else {
+                                    output.innerHTML += `<span style="color: #0f0;">✅ Valid until ${expiresAt.toLocaleString()}</span><br>`;
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // Ignore parse errors
+                    }
+                }
+            }
+            
+            if (authKeys.length === 0) {
+                output.innerHTML += '<span style="color: #f00;">❌ NO AUTH DATA IN LOCALSTORAGE!</span><br>';
+            }
+            
+            // 2. Check session
+            output.innerHTML += '<h3>2. SESSION CHECK:</h3>';
+            const { data: { session }, error } = await client.auth.getSession();
+            
+            if (error) {
+                output.innerHTML += `<span style="color: #f00;">ERROR: ${error.message}</span><br>`;
+            } else if (session) {
+                output.innerHTML += '<span style="color: #0f0;">✅ SESSION EXISTS!</span><br>';
+                output.innerHTML += `User: ${session.user.email}<br>`;
+                output.innerHTML += `Expires: ${new Date(session.expires_at * 1000).toLocaleString()}<br>`;
+            } else {
+                output.innerHTML += '<span style="color: #f00;">❌ NO SESSION!</span><br>';
+            }
+            
+            // 3. Check user
+            output.innerHTML += '<h3>3. USER CHECK:</h3>';
+            const { data: { user }, error: userError } = await client.auth.getUser();
+            
+            if (userError) {
+                output.innerHTML += `<span style="color: #f00;">USER ERROR: ${userError.message}</span><br>`;
+            } else if (user) {
+                output.innerHTML += `<span style="color: #0f0;">✅ USER: ${user.email}</span><br>`;
+            } else {
+                output.innerHTML += '<span style="color: #f00;">❌ NO USER!</span><br>';
+            }
+            
+            // 4. Try to refresh session
+            output.innerHTML += '<h3>4. REFRESH ATTEMPT:</h3>';
+            const { data: refreshData, error: refreshError } = await client.auth.refreshSession();
+            
+            if (refreshError) {
+                output.innerHTML += `<span style="color: #f00;">REFRESH ERROR: ${refreshError.message}</span><br>`;
+            } else if (refreshData.session) {
+                output.innerHTML += '<span style="color: #0f0;">✅ SESSION REFRESHED!</span><br>';
+            } else {
+                output.innerHTML += '<span style="color: #f00;">❌ NO SESSION TO REFRESH!</span><br>';
+            }
+        }
+        
+        checkSession();
+        
+        // Listen for auth changes
+        client.auth.onAuthStateChange((event, session) => {
+            output.innerHTML += `<br><span style="color: #ff0;">🔔 AUTH EVENT: ${event}</span><br>`;
+            if (session) {
+                output.innerHTML += `<span style="color: #0f0;">Session active: ${session.user.email}</span><br>`;
+            }
+        });
+    </script>
+</body>
+</html>

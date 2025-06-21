@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OAuth Configuration Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .google { background: #4285f4; color: white; }
+        .facebook { background: #1877f2; color: white; }
+        .status { 
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background: #f0f0f0;
+        }
+        .success { background: #d4edda; }
+        .error { background: #f8d7da; }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>OAuth Configuration Test - Canvas</h1>
+    
+    <div class="status">
+        <h3>Current URL: <span id="current-url"></span></h3>
+        <h3>Redirect URL: <span id="redirect-url"></span></h3>
+    </div>
+    
+    <button class="google" id="google">Login with Google</button>
+    <button class="facebook" id="facebook">Login with Facebook</button>
+    
+    <div id="output"></div>
+    
+    <script>
+        const supabaseUrl = 'https://cbopynuvhcymbumjnvay.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNib3B5bnV2aGN5bWJ1bWpudmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5OTUxNzMsImV4cCI6MjA1OTU3MTE3M30.UZElMkoHugIt984RtYWyfrRuv2rB67opQdCrFVPCfzU';
+        const { createClient } = supabase;
+        const client = createClient(supabaseUrl, supabaseKey);
+        
+        const output = document.getElementById('output');
+        const currentUrlEl = document.getElementById('current-url');
+        const redirectUrlEl = document.getElementById('redirect-url');
+        
+        // Display URLs
+        currentUrlEl.textContent = window.location.origin;
+        redirectUrlEl.textContent = window.location.origin + '/auth/callback';
+        
+        function log(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            output.appendChild(div);
+        }
+        
+        document.getElementById('google').onclick = async () => {
+            log('Testing Google OAuth...');
+            try {
+                const { data, error } = await client.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + '/auth/callback',
+                        queryParams: {
+                            access_type: 'offline',
+                            prompt: 'consent'
+                        }
+                    }
+                });
+                
+                if (error) {
+                    log(`Error: ${JSON.stringify(error, null, 2)}`, 'error');
+                } else {
+                    log('Redirecting to Google...', 'success');
+                }
+            } catch (e) {
+                log(`Exception: ${e.message}`, 'error');
+            }
+        };
+        
+        document.getElementById('facebook').onclick = async () => {
+            log('Testing Facebook OAuth...');
+            try {
+                const { data, error } = await client.auth.signInWithOAuth({
+                    provider: 'facebook',
+                    options: {
+                        redirectTo: window.location.origin + '/auth/callback',
+                        scopes: 'email'
+                    }
+                });
+                
+                if (error) {
+                    log(`Error: ${JSON.stringify(error, null, 2)}`, 'error');
+                } else {
+                    log('Redirecting to Facebook...', 'success');
+                }
+            } catch (e) {
+                log(`Exception: ${e.message}`, 'error');
+            }
+        };
+        
+        // Check current session
+        client.auth.getSession().then(({ data, error }) => {
+            if (error) {
+                log('No active session', 'info');
+            } else if (data.session) {
+                log(`Active session found: ${data.session.user.email}`, 'success');
+            } else {
+                log('No session data', 'info');
+            }
+        });
+        
+        // Listen for auth state changes
+        client.auth.onAuthStateChange((event, session) => {
+            log(`Auth event: ${event}`, 'info');
+            if (session) {
+                log(`User logged in: ${session.user.email}`, 'success');
+            }
+        });
+    </script>
+</body>
+</html>

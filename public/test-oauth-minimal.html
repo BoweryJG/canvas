@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minimal OAuth Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Minimal OAuth Test</h1>
+    <button onclick="testGoogle()">Test Google Login</button>
+    <pre id="output"></pre>
+    
+    <script>
+        const { createClient } = supabase;
+        const client = createClient(
+            'https://cbopynuvhcymbumjnvay.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNib3B5bnV2aGN5bWJ1bWpudmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5OTUxNzMsImV4cCI6MjA1OTU3MTE3M30.UZElMkoHugIt984RtYWyfrRuv2rB67opQdCrFVPCfzU'
+        );
+        
+        async function testGoogle() {
+            const output = document.getElementById('output');
+            output.textContent = 'Attempting Google OAuth...\n';
+            
+            try {
+                const { data, error } = await client.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + '/auth/callback'
+                    }
+                });
+                
+                if (error) {
+                    output.textContent += 'Error: ' + JSON.stringify(error, null, 2);
+                } else {
+                    output.textContent += 'Success! Data: ' + JSON.stringify(data, null, 2);
+                    output.textContent += '\n\nIf you are not redirected, check your popup blocker.';
+                }
+            } catch (e) {
+                output.textContent += 'Exception: ' + e.message;
+            }
+        }
+    </script>
+</body>
+</html>
