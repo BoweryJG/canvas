@@ -7,13 +7,16 @@ import {
   Notifications, 
   CheckCircle, 
   TrendingUp,
-  Schedule,
   AutoAwesome,
   SwipeUp,
   Message,
-  Business,
   PlayArrow,
-  Pause
+  Pause,
+  Event,
+  Groups,
+  Scanner,
+  Email,
+  QueryBuilder
 } from '@mui/icons-material';
 
 // Styled components
@@ -69,13 +72,6 @@ const NotificationBadge = styled(motion.div)({
   marginBottom: '20px',
 });
 
-const AutoActionList = styled(Box)({
-  background: 'rgba(0, 0, 0, 0.3)',
-  borderRadius: '12px',
-  padding: '16px',
-  marginTop: '20px',
-});
-
 const ActionItem = styled(motion.div)({
   display: 'flex',
   alignItems: 'center',
@@ -84,14 +80,6 @@ const ActionItem = styled(motion.div)({
   color: 'rgba(255, 255, 255, 0.8)',
 });
 
-const StatusBox = styled(Box)({
-  background: 'rgba(255, 255, 255, 0.05)',
-  border: '1px solid rgba(255, 255, 255, 0.1)',
-  borderRadius: '12px',
-  padding: '16px',
-  marginTop: 'auto',
-  textAlign: 'center',
-});
 
 const PhoneMockup = styled(Box)({
   width: '100%',
@@ -103,27 +91,6 @@ const PhoneMockup = styled(Box)({
   boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
 });
 
-const MessageBubble = styled(motion.div)<{ sender: 'crm' | 'user' | 'doctor' }>(({ sender }) => ({
-  background: sender === 'crm' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 
-              sender === 'doctor' ? '#e3f2fd' : '#dcf8c6',
-  color: sender === 'crm' ? 'white' : '#333',
-  padding: '12px 16px',
-  borderRadius: '16px',
-  marginBottom: '12px',
-  maxWidth: sender === 'user' ? '70%' : '85%',
-  alignSelf: sender === 'user' ? 'flex-end' : 'flex-start',
-  fontSize: '14px',
-  lineHeight: 1.5,
-}));
-
-const TextConversation = styled(Box)({
-  background: '#fff',
-  borderRadius: '16px',
-  padding: '16px',
-  minHeight: '300px',
-  display: 'flex',
-  flexDirection: 'column',
-});
 
 const MetricCard = styled(motion.div)({
   background: 'rgba(255, 255, 255, 0.05)',
@@ -149,6 +116,31 @@ const Dot = styled(motion.div)<{ active: boolean }>(({ active }) => ({
   background: active ? '#00ffc6' : 'rgba(255, 255, 255, 0.2)',
   transition: 'all 0.3s ease',
 }));
+
+const CalendarView = styled(Box)({
+  background: 'rgba(255, 255, 255, 0.05)',
+  borderRadius: '12px',
+  padding: '16px',
+  border: '1px solid rgba(255, 255, 255, 0.1)',
+});
+
+const MeetingSlot = styled(motion.div)({
+  background: 'rgba(123, 66, 246, 0.2)',
+  border: '1px solid rgba(123, 66, 246, 0.4)',
+  borderRadius: '8px',
+  padding: '8px 12px',
+  marginBottom: '8px',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+});
+
+const SplitScreen = styled(Box)({
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: '16px',
+  width: '100%',
+});
 
 const CTAButton = styled(motion.button)({
   width: '90%',
@@ -200,9 +192,11 @@ const DemoInvitation: React.FC<DemoInvitationProps> = ({ onComplete }) => {
   const [isPaused, setIsPaused] = useState(false);
   
   const cards = [
+    'busy-day',
+    'crm-working',
     'discovery',
-    'followup',
-    'conversation',
+    'smart-followup',
+    'perfect-timing',
     'scale'
   ];
 
@@ -241,159 +235,515 @@ const DemoInvitation: React.FC<DemoInvitationProps> = ({ onComplete }) => {
 
   const renderCard = () => {
     switch (cards[currentCard]) {
-      case 'discovery':
-        return (
-          <Card>
-            <NotificationBadge
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: 'spring', damping: 15 }}
-            >
-              <Notifications sx={{ color: '#00ffc6', fontSize: 20 }} />
-              <Typography sx={{ color: '#00ffc6', fontWeight: 600 }}>
-                New Business Alert
-              </Typography>
-            </NotificationBadge>
-            
-            <Box sx={{ mb: 3 }}>
-              <Typography variant="h5" sx={{ color: '#fff', fontWeight: 700, mb: 1 }}>
-                Dr. James Wilson, DDS
-              </Typography>
-              <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', mb: 0.5 }}>
-                Oral & Maxillofacial Surgery
-              </Typography>
-              <Typography sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '14px' }}>
-                Buffalo, NY • Filed: March 18, 2024
-              </Typography>
-            </Box>
-            
-            <AutoActionList>
-              <Typography sx={{ color: '#00ffc6', fontSize: '14px', mb: 2, fontWeight: 600 }}>
-                ✨ Auto-Actions Completed:
-              </Typography>
-              <ActionItem
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-              >
-                <CheckCircle sx={{ color: '#4caf50', fontSize: 20 }} />
-                <Typography sx={{ fontSize: '14px' }}>Contact created in CRM</Typography>
-              </ActionItem>
-              <ActionItem
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5 }}
-              >
-                <CheckCircle sx={{ color: '#4caf50', fontSize: 20 }} />
-                <Typography sx={{ fontSize: '14px' }}>Welcome email sent</Typography>
-              </ActionItem>
-              <ActionItem
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.7 }}
-              >
-                <CheckCircle sx={{ color: '#4caf50', fontSize: 20 }} />
-                <Typography sx={{ fontSize: '14px' }}>Added to pipeline</Typography>
-              </ActionItem>
-            </AutoActionList>
-            
-            <StatusBox>
-              <Typography sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '14px', mb: 1 }}>
-                Sarah's Status:
-              </Typography>
-              <Typography sx={{ color: '#fff', fontSize: '16px' }}>
-                "In meeting with Dr. Martinez"
-              </Typography>
-            </StatusBox>
-            
-            <Typography sx={{ 
-              color: 'rgba(255, 255, 255, 0.5)', 
-              fontSize: '20px',
-              textAlign: 'center',
-              mt: 3,
-              fontWeight: 300,
-              fontStyle: 'italic'
-            }}>
-              While Sarah was closing other deals...
-            </Typography>
-          </Card>
-        );
-        
-      case 'followup':
+      case 'busy-day':
         return (
           <Card>
             <Typography sx={{ 
               color: '#fff', 
-              fontSize: '18px', 
-              fontWeight: 600,
+              fontSize: '24px', 
+              fontWeight: 700,
               mb: 3,
               textAlign: 'center'
             }}>
-              Day 5: Your CRM Never Forgets
+              Sarah's Busy Tuesday
             </Typography>
+            
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+              <Box sx={{ 
+                width: 60, 
+                height: 60, 
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fff',
+                fontSize: '24px',
+                fontWeight: 600
+              }}>
+                S
+              </Box>
+              <Box>
+                <Typography sx={{ color: '#fff', fontSize: '18px', fontWeight: 600 }}>
+                  Sarah Thompson
+                </Typography>
+                <Typography sx={{ color: 'rgba(255, 255, 255, 0.7)', fontSize: '14px' }}>
+                  Top Medical Device Rep • Q3 Leader
+                </Typography>
+              </Box>
+            </Box>
+            
+            <CalendarView>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <Event sx={{ color: '#00ffc6', fontSize: 20 }} />
+                <Typography sx={{ color: '#00ffc6', fontWeight: 600 }}>
+                  Today's Schedule
+                </Typography>
+              </Box>
+              
+              {[
+                { time: '9:00 AM', title: 'Dr. Martinez - Closing', client: 'Valley Hospital' },
+                { time: '11:30 AM', title: 'Lunch Demo', client: 'Riverside Clinic' },
+                { time: '2:00 PM', title: 'Product Training', client: '6 Surgeons' },
+                { time: '4:00 PM', title: 'Contract Review', client: 'Dr. Chen' },
+              ].map((meeting, index) => (
+                <MeetingSlot
+                  key={meeting.time}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <QueryBuilder sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 16 }} />
+                  <Typography sx={{ color: '#fff', fontSize: '12px', minWidth: '60px' }}>
+                    {meeting.time}
+                  </Typography>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography sx={{ color: '#fff', fontSize: '13px', fontWeight: 500 }}>
+                      {meeting.title}
+                    </Typography>
+                    <Typography sx={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '11px' }}>
+                      {meeting.client}
+                    </Typography>
+                  </Box>
+                </MeetingSlot>
+              ))}
+            </CalendarView>
+            
+            <Typography sx={{ 
+              color: 'rgba(255, 255, 255, 0.6)', 
+              fontSize: '14px',
+              textAlign: 'center',
+              mt: 3,
+              fontStyle: 'italic'
+            }}>
+              Another packed day closing deals...
+            </Typography>
+          </Card>
+        );
+
+      case 'crm-working':
+        return (
+          <Card>
+            <Typography sx={{ 
+              color: '#fff', 
+              fontSize: '22px', 
+              fontWeight: 700,
+              mb: 3,
+              textAlign: 'center'
+            }}>
+              Meanwhile, Your CRM Never Sleeps
+            </Typography>
+            
+            <SplitScreen>
+              <Box sx={{ 
+                opacity: 0.4,
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '12px',
+                p: 2,
+                background: 'rgba(0, 0, 0, 0.3)'
+              }}>
+                <Groups sx={{ color: '#667eea', fontSize: 32, mb: 1 }} />
+                <Typography sx={{ color: '#fff', fontSize: '14px', fontWeight: 600 }}>
+                  Sarah in Meeting
+                </Typography>
+                <Typography sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '12px' }}>
+                  Closing deals...
+                </Typography>
+              </Box>
+              
+              <Box sx={{ 
+                border: '1px solid rgba(0, 255, 198, 0.3)',
+                borderRadius: '12px',
+                p: 2,
+                background: 'rgba(0, 255, 198, 0.05)'
+              }}>
+                <Scanner sx={{ color: '#00ffc6', fontSize: 32, mb: 1 }} />
+                <Typography sx={{ color: '#fff', fontSize: '14px', fontWeight: 600 }}>
+                  Canvas Active
+                </Typography>
+                <Typography sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '12px' }}>
+                  Monitoring...
+                </Typography>
+              </Box>
+            </SplitScreen>
+            
+            <Box sx={{ mt: 3 }}>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                <Typography sx={{ color: '#00ffc6', fontSize: '14px', mb: 2, textAlign: 'center' }}>
+                  Canvas AI Activity Log
+                </Typography>
+                {[
+                  '✓ Scanning 10,000+ new business filings',
+                  '✓ Analyzing territory opportunities',
+                  '✓ Monitoring competitor movements',
+                  '✓ Tracking client engagement signals'
+                ].map((activity, index) => (
+                  <motion.div
+                    key={activity}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7 + index * 0.2 }}
+                  >
+                    <Typography sx={{ 
+                      color: 'rgba(255, 255, 255, 0.8)', 
+                      fontSize: '13px',
+                      mb: 1
+                    }}>
+                      {activity}
+                    </Typography>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </Box>
+            
+            <Typography sx={{ 
+              color: 'rgba(255, 255, 255, 0.6)', 
+              fontSize: '14px',
+              textAlign: 'center',
+              mt: 3,
+              fontStyle: 'italic'
+            }}>
+              Your 24/7 sales intelligence partner
+            </Typography>
+          </Card>
+        );
+
+      case 'discovery':
+        return (
+          <Card>
+            <Typography sx={{ 
+              color: '#fff', 
+              fontSize: '22px', 
+              fontWeight: 700,
+              mb: 3,
+              textAlign: 'center'
+            }}>
+              Opportunity Discovered
+            </Typography>
+            
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 2,
+              mb: 3
+            }}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: 'spring', damping: 15 }}
+              >
+                <QueryBuilder sx={{ color: '#00ffc6', fontSize: 24 }} />
+              </motion.div>
+              <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px' }}>
+                3:47 PM - Tuesday, March 19
+              </Typography>
+            </Box>
+            
+            <NotificationBadge
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', damping: 15, delay: 0.3 }}
+            >
+              <Notifications sx={{ color: '#00ffc6', fontSize: 20 }} />
+              <Typography sx={{ color: '#00ffc6', fontWeight: 600 }}>
+                New Practice in Territory
+              </Typography>
+            </NotificationBadge>
+            
+            <Box sx={{ 
+              background: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: '12px',
+              p: 2,
+              mb: 3
+            }}>
+              <Typography variant="h6" sx={{ color: '#fff', fontWeight: 700, mb: 1 }}>
+                Dr. James Wilson, DDS
+              </Typography>
+              <Typography sx={{ color: '#00ffc6', mb: 0.5, fontSize: '14px' }}>
+                Oral & Maxillofacial Surgery
+              </Typography>
+              <Typography sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '13px' }}>
+                📍 Buffalo, NY 14221 • New Business Filing
+              </Typography>
+            </Box>
+            
+            <Typography sx={{ color: '#00ffc6', fontSize: '14px', mb: 2, fontWeight: 600 }}>
+              Canvas Takes Immediate Action:
+            </Typography>
+            
+            {[
+              { icon: <Scanner />, text: 'Profile analyzed & enriched' },
+              { icon: <CheckCircle />, text: 'Contact created in CRM' },
+              { icon: <Email />, text: 'Welcome email sent' },
+              { icon: <TrendingUp />, text: 'Added to active pipeline' }
+            ].map((action, index) => (
+              <ActionItem
+                key={action.text}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 + index * 0.1 }}
+              >
+                {React.cloneElement(action.icon, { 
+                  sx: { color: '#4caf50', fontSize: 20 } 
+                })}
+                <Typography sx={{ fontSize: '14px' }}>{action.text}</Typography>
+              </ActionItem>
+            ))}
+            
+            <Typography sx={{ 
+              color: 'rgba(255, 255, 255, 0.6)', 
+              fontSize: '14px',
+              textAlign: 'center',
+              mt: 3,
+              fontStyle: 'italic'
+            }}>
+              No action needed from Sarah yet...
+            </Typography>
+          </Card>
+        );
+        
+      case 'smart-followup':
+        return (
+          <Card>
+            <Typography sx={{ 
+              color: '#fff', 
+              fontSize: '22px', 
+              fontWeight: 700,
+              mb: 3,
+              textAlign: 'center'
+            }}>
+              Smart Follow-Up
+            </Typography>
+            
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              gap: 2,
+              mb: 3
+            }}>
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '12px' }}>
+                  Day 1
+                </Typography>
+                <Email sx={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: 28 }} />
+              </Box>
+              <Typography sx={{ color: 'rgba(255, 255, 255, 0.4)' }}>→</Typography>
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '12px' }}>
+                  Day 5
+                </Typography>
+                <QueryBuilder sx={{ color: '#ffc107', fontSize: 28 }} />
+              </Box>
+            </Box>
+            
+            <Box sx={{ 
+              background: 'rgba(255, 193, 7, 0.1)',
+              border: '1px solid rgba(255, 193, 7, 0.3)',
+              borderRadius: '12px',
+              p: 2,
+              mb: 3
+            }}>
+              <Typography sx={{ color: '#ffc107', fontWeight: 600, mb: 1 }}>
+                Canvas Analysis
+              </Typography>
+              <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px' }}>
+                • Email not opened after 5 days
+              </Typography>
+              <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px' }}>
+                • Competitor (BTL) active in area
+              </Typography>
+              <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px' }}>
+                • High-value prospect profile
+              </Typography>
+            </Box>
+            
+            <Box sx={{ 
+              background: 'rgba(0, 255, 198, 0.05)',
+              border: '1px solid rgba(0, 255, 198, 0.3)',
+              borderRadius: '12px',
+              p: 2,
+              mb: 2
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <AutoAwesome sx={{ color: '#00ffc6', fontSize: 20 }} />
+                <Typography sx={{ color: '#00ffc6', fontWeight: 600 }}>
+                  Smart Recommendation
+                </Typography>
+              </Box>
+              <Typography sx={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '14px', mb: 2 }}>
+                Try a text message - oral surgeons have 73% higher text response rates
+              </Typography>
+              
+              <Box sx={{ 
+                background: 'rgba(255, 255, 255, 0.05)', 
+                borderRadius: '8px', 
+                p: 1.5 
+              }}>
+                <Typography sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: '11px', mb: 0.5 }}>
+                  Suggested message:
+                </Typography>
+                <Typography sx={{ color: '#fff', fontSize: '13px', lineHeight: 1.5 }}>
+                  "Hi Dr. Wilson, Congrats on the new practice! I noticed you specialize in oral surgery. 
+                  Our new implant system has shown 23% faster osseointegration. Worth a quick chat?"
+                </Typography>
+              </Box>
+            </Box>
+            
+            <Typography sx={{ 
+              color: 'rgba(255, 255, 255, 0.6)', 
+              fontSize: '14px',
+              textAlign: 'center',
+              mt: 3,
+              fontStyle: 'italic'
+            }}>
+              Canvas knows when and how to reach out...
+            </Typography>
+          </Card>
+        );
+        
+      case 'perfect-timing':
+        return (
+          <Card>
+            <Typography sx={{ 
+              color: '#fff', 
+              fontSize: '22px', 
+              fontWeight: 700,
+              mb: 3,
+              textAlign: 'center'
+            }}>
+              Perfect Timing
+            </Typography>
+            
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 1,
+              mb: 3,
+              justifyContent: 'center'
+            }}>
+              <QueryBuilder sx={{ color: 'rgba(255, 255, 255, 0.6)', fontSize: 20 }} />
+              <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px' }}>
+                Tuesday, 12:30 PM - Lunch Break
+              </Typography>
+            </Box>
             
             <PhoneMockup>
               <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 1, 
-                mb: 2,
-                color: '#333'
-              }}>
-                <AutoAwesome sx={{ fontSize: 20, color: '#667eea' }} />
-                <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                  RepSpheres CRM
-                </Typography>
-                <Typography sx={{ fontSize: '12px', color: '#666', ml: 'auto' }}>
-                  now
-                </Typography>
-              </Box>
-              
-              <MessageBubble sender="crm">
-                <Typography sx={{ fontWeight: 600, mb: 1 }}>
-                  Follow-up Opportunity! 🎯
-                </Typography>
-                <Typography>
-                  Dr. Wilson hasn't responded to the email sent 5 days ago.
-                </Typography>
-                <Typography sx={{ mt: 1 }}>
-                  Try this text message?
-                </Typography>
-              </MessageBubble>
-              
-              <Box sx={{ 
-                background: '#f0f0f0', 
-                borderRadius: '12px', 
+                background: '#f5f5f5',
+                borderRadius: '16px',
                 p: 2,
-                mb: 2 
+                mb: 2
               }}>
-                <Typography sx={{ color: '#666', fontSize: '12px', mb: 1 }}>
-                  Pre-written message:
-                </Typography>
-                <Typography sx={{ color: '#333', fontSize: '14px', lineHeight: 1.6 }}>
-                  "Hi Dr. Wilson, Congrats on the new practice! I noticed you specialize in oral surgery. 
-                  Our new implant system has shown 23% faster osseointegration in clinical trials. 
-                  Worth a quick chat?"
-                </Typography>
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: 1, 
+                  mb: 2
+                }}>
+                  <AutoAwesome sx={{ fontSize: 20, color: '#667eea' }} />
+                  <Typography sx={{ color: '#333', fontWeight: 600, fontSize: '14px' }}>
+                    Canvas CRM
+                  </Typography>
+                  <Typography sx={{ color: '#666', fontSize: '12px', ml: 'auto' }}>
+                    now
+                  </Typography>
+                </Box>
+                
+                <Box sx={{ 
+                  background: '#fff',
+                  borderRadius: '12px',
+                  p: 2,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                }}>
+                  <Typography sx={{ color: '#333', fontWeight: 600, mb: 1 }}>
+                    Ready to reach out? 🎯
+                  </Typography>
+                  <Typography sx={{ color: '#666', fontSize: '14px', mb: 2 }}>
+                    Dr. Wilson hasn't opened the email. Try this text?
+                  </Typography>
+                  
+                  <Box sx={{ 
+                    background: '#f0f4f8',
+                    borderRadius: '8px',
+                    p: 1.5,
+                    mb: 2
+                  }}>
+                    <Typography sx={{ color: '#333', fontSize: '13px' }}>
+                      "Hi Dr. Wilson, Congrats on the new practice!..."
+                    </Typography>
+                  </Box>
+                  
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <motion.button
+                      style={{
+                        flex: 1,
+                        padding: '10px',
+                        background: 'linear-gradient(135deg, #00ffc6 0%, #7B42F6 100%)',
+                        border: 'none',
+                        borderRadius: '8px',
+                        color: '#1a1a2e',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Send Text
+                    </motion.button>
+                    <button style={{
+                      padding: '10px 20px',
+                      background: '#e0e0e0',
+                      border: 'none',
+                      borderRadius: '8px',
+                      color: '#666'
+                    }}>
+                      Skip
+                    </button>
+                  </Box>
+                </Box>
               </Box>
               
-              <motion.button
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: 'linear-gradient(135deg, #00ffc6 0%, #7B42F6 100%)',
-                  border: 'none',
-                  borderRadius: '12px',
-                  color: '#1a1a2e',
-                  fontWeight: 700,
-                  fontSize: '16px',
-                  cursor: 'pointer'
-                }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.5 }}
               >
-                SEND TEXT →
-              </motion.button>
+                <Typography sx={{ 
+                  color: '#333', 
+                  fontSize: '12px', 
+                  textAlign: 'center',
+                  mb: 1
+                }}>
+                  2 minutes later...
+                </Typography>
+                
+                <Box sx={{ 
+                  background: '#dcf8c6',
+                  borderRadius: '12px',
+                  p: 2,
+                  position: 'relative'
+                }}>
+                  <Typography sx={{ color: '#333', fontSize: '13px', fontWeight: 600, mb: 0.5 }}>
+                    Dr. Wilson:
+                  </Typography>
+                  <Typography sx={{ color: '#333', fontSize: '13px' }}>
+                    "OMG perfect timing! Was just about to meet with BTL. 
+                    Can we meet Tuesday? This is exactly what I need!"
+                  </Typography>
+                  <CheckCircle sx={{ 
+                    position: 'absolute',
+                    bottom: 8,
+                    right: 8,
+                    fontSize: 16, 
+                    color: '#4caf50' 
+                  }} />
+                </Box>
+              </motion.div>
             </PhoneMockup>
             
             <Typography sx={{ 
@@ -403,116 +753,8 @@ const DemoInvitation: React.FC<DemoInvitationProps> = ({ onComplete }) => {
               mt: 3,
               fontStyle: 'italic'
             }}>
-              Sarah taps send during her lunch break...
+              Right message, right time, right channel
             </Typography>
-          </Card>
-        );
-        
-      case 'conversation':
-        return (
-          <Card>
-            <Typography sx={{ 
-              color: '#fff', 
-              fontSize: '18px', 
-              fontWeight: 600,
-              mb: 3,
-              textAlign: 'center'
-            }}>
-              2 Minutes Later: Perfect Timing
-            </Typography>
-            
-            <PhoneMockup>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 1, 
-                mb: 2,
-                color: '#333',
-                borderBottom: '1px solid #e0e0e0',
-                pb: 2
-              }}>
-                <Message sx={{ fontSize: 20, color: '#4caf50' }} />
-                <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                  Text Messages
-                </Typography>
-              </Box>
-              
-              <TextConversation>
-                <Typography sx={{ 
-                  color: '#666', 
-                  fontSize: '12px', 
-                  textAlign: 'center',
-                  mb: 2
-                }}>
-                  Today 2:31 PM
-                </Typography>
-                
-                <MessageBubble 
-                  sender="doctor"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  OMG I was literally about to meet with the BTL rep. So glad you texted! 
-                  Their system doesn't have those integration speeds.
-                </MessageBubble>
-                
-                <MessageBubble 
-                  sender="doctor"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  Can we meet Tuesday? This is exactly what I've been looking for!
-                </MessageBubble>
-                
-                <MessageBubble 
-                  sender="user"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8 }}
-                >
-                  Perfect! Tuesday 2:30 PM?
-                </MessageBubble>
-                
-                <MessageBubble 
-                  sender="doctor"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.1 }}
-                >
-                  See you then! 👍
-                </MessageBubble>
-                
-                <Typography sx={{ 
-                  color: '#666', 
-                  fontSize: '12px', 
-                  textAlign: 'center',
-                  mt: 'auto',
-                  pt: 2
-                }}>
-                  <CheckCircle sx={{ fontSize: 16, color: '#4caf50', verticalAlign: 'middle' }} />
-                  {' '}Read
-                </Typography>
-              </TextConversation>
-            </PhoneMockup>
-            
-            <Box sx={{ 
-              mt: 3, 
-              p: 2, 
-              background: 'rgba(76, 175, 80, 0.1)',
-              borderRadius: '12px',
-              border: '1px solid rgba(76, 175, 80, 0.3)'
-            }}>
-              <Typography sx={{ 
-                color: '#4caf50', 
-                fontSize: '16px',
-                fontWeight: 600,
-                textAlign: 'center'
-              }}>
-                Meeting Booked: $125K Opportunity
-              </Typography>
-            </Box>
           </Card>
         );
         
@@ -521,12 +763,21 @@ const DemoInvitation: React.FC<DemoInvitationProps> = ({ onComplete }) => {
           <Card>
             <Typography sx={{ 
               color: '#fff', 
-              fontSize: '20px', 
+              fontSize: '22px', 
               fontWeight: 700,
-              mb: 4,
+              mb: 2,
               textAlign: 'center'
             }}>
-              This Happens Every Day, Automatically
+              This Happens Every Day
+            </Typography>
+            
+            <Typography sx={{ 
+              color: 'rgba(255, 255, 255, 0.8)', 
+              fontSize: '14px',
+              mb: 3,
+              textAlign: 'center'
+            }}>
+              While your reps focus on selling
             </Typography>
             
             <Box>
@@ -540,10 +791,10 @@ const DemoInvitation: React.FC<DemoInvitationProps> = ({ onComplete }) => {
                     847
                   </Typography>
                   <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px' }}>
-                    New Practices Found
+                    New Opportunities Found
                   </Typography>
                 </Box>
-                <Business sx={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: 40 }} />
+                <Scanner sx={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: 40 }} />
               </MetricCard>
               
               <MetricCard
@@ -553,13 +804,13 @@ const DemoInvitation: React.FC<DemoInvitationProps> = ({ onComplete }) => {
               >
                 <Box>
                   <Typography sx={{ color: '#7B42F6', fontSize: '28px', fontWeight: 700 }}>
-                    623
+                    3.2x
                   </Typography>
                   <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px' }}>
-                    Follow-ups Sent
+                    Response Rate Increase
                   </Typography>
                 </Box>
-                <Schedule sx={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: 40 }} />
+                <Message sx={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: 40 }} />
               </MetricCard>
               
               <MetricCard
@@ -575,7 +826,7 @@ const DemoInvitation: React.FC<DemoInvitationProps> = ({ onComplete }) => {
                     Meetings Booked
                   </Typography>
                 </Box>
-                <CheckCircle sx={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: 40 }} />
+                <Groups sx={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: 40 }} />
               </MetricCard>
               
               <MetricCard
@@ -588,7 +839,7 @@ const DemoInvitation: React.FC<DemoInvitationProps> = ({ onComplete }) => {
                     $4.7M
                   </Typography>
                   <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px' }}>
-                    Pipeline Value
+                    Pipeline Generated
                   </Typography>
                 </Box>
                 <TrendingUp sx={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: 40 }} />
@@ -596,17 +847,18 @@ const DemoInvitation: React.FC<DemoInvitationProps> = ({ onComplete }) => {
             </Box>
             
             <Box sx={{ 
-              mt: 4, 
+              mt: 3, 
               p: 2, 
-              background: 'rgba(255, 255, 255, 0.05)',
+              background: 'linear-gradient(135deg, rgba(0, 255, 198, 0.1) 0%, rgba(123, 66, 246, 0.1) 100%)',
               borderRadius: '12px',
+              border: '1px solid rgba(0, 255, 198, 0.2)',
               textAlign: 'center'
             }}>
-              <Typography sx={{ color: '#00ffc6', fontSize: '24px', fontWeight: 700 }}>
-                0 Leads Missed
+              <Typography sx={{ color: '#00ffc6', fontSize: '20px', fontWeight: 700 }}>
+                Zero Opportunities Missed
               </Typography>
-              <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '14px' }}>
-                Your CRM works while you sleep, eat, and close other deals
+              <Typography sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '13px' }}>
+                Canvas works 24/7 so your reps can focus on what they do best
               </Typography>
             </Box>
           </Card>
@@ -693,7 +945,7 @@ const DemoInvitation: React.FC<DemoInvitationProps> = ({ onComplete }) => {
             onClick={onComplete}
           >
             <Typography sx={{ fontSize: '16px', fontWeight: 600 }}>
-              Watch Sarah's CRM Close a $125K Deal
+              See How Canvas Works
             </Typography>
             <SwipeUp />
           </CTAButton>
