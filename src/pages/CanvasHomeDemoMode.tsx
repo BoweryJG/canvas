@@ -17,7 +17,7 @@ import {
   Alert,
   Fade,
   Badge,
-  Grid2 as Grid
+  Grid
 } from '@mui/material';
 import {
   AutoAwesome,
@@ -37,7 +37,6 @@ import {
   Explore
 } from '@mui/icons-material';
 import { styled, keyframes } from '@mui/material/styles';
-import type { ReactElement } from 'react';
 import { IntelligenceGauge } from '../components/IntelligenceGauge';
 import { MockDataProvider } from '../lib/mockDataProvider';
 import type { MockDoctor } from '../lib/mockDataProvider';
