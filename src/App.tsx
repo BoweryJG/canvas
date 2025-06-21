@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import NavBar from './components/NavBar'
 import { AuthProvider, AuthGuard } from './auth'
-import { PublicCanvasDashboard } from './components/PublicCanvasDashboard'
 import MarketInsights from './pages/MarketInsightsSimple'
 import CanvasHome from './pages/CanvasHome'
 import SimpleLogin from './pages/SimpleLogin'
@@ -111,46 +110,32 @@ function AppContent() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <AuthGuard
-          allowPublic={true}
-          publicComponent={
-            <PublicCanvasDashboard 
-              onLoginSuccess={() => window.location.reload()}
-            />
-          }
-          redirectTo="/login"
-          fallback={
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
-              height: '100vh',
-              background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)',
-              color: 'white'
-            }}>
-              Checking authentication...
-            </div>
-          }
-        >
-          {showOnboarding && (
-            <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
-          )}
-          <ConnectionStatus />
-          <NavBar />
-          <Routes>
-            <Route path="/" element={<CanvasHome />} />
-            <Route path="/login" element={<SimpleLogin />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/research" element={<EnhancedResearchPanelWithRender />} />
-            <Route path="/market-insights" element={<MarketInsights />} />
-            <Route path="/test-npi" element={<TestNPI />} />
-            <Route path="/test-npi-debug" element={<TestNPIDebug />} />
-            <Route path="/test-npi-minimal" element={<TestNPIMinimal />} />
-          </Routes>
-          {/* <ChatLauncher /> */}
-          <EnhancedAgentSystem />
-          <AISalesAgentLauncher />
-        </AuthGuard>
+        {showOnboarding && (
+          <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
+        )}
+        <ConnectionStatus />
+        <NavBar />
+        <Routes>
+          <Route path="/" element={<CanvasHome />} />
+          <Route path="/login" element={<SimpleLogin />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/research" element={
+            <AuthGuard redirectTo="/login">
+              <EnhancedResearchPanelWithRender />
+            </AuthGuard>
+          } />
+          <Route path="/market-insights" element={
+            <AuthGuard redirectTo="/login">
+              <MarketInsights />
+            </AuthGuard>
+          } />
+          <Route path="/test-npi" element={<TestNPI />} />
+          <Route path="/test-npi-debug" element={<TestNPIDebug />} />
+          <Route path="/test-npi-minimal" element={<TestNPIMinimal />} />
+        </Routes>
+        {/* <ChatLauncher /> */}
+        <EnhancedAgentSystem />
+        <AISalesAgentLauncher />
       </AuthProvider>
     </ErrorBoundary>
   );
