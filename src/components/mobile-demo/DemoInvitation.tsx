@@ -11,7 +11,9 @@ import {
   AutoAwesome,
   SwipeUp,
   Message,
-  Business
+  Business,
+  PlayArrow,
+  Pause
 } from '@mui/icons-material';
 
 // Styled components
@@ -25,6 +27,7 @@ const InvitationContainer = styled(Box)({
   overflow: 'hidden',
   display: 'flex',
   flexDirection: 'column',
+  paddingBottom: 'env(safe-area-inset-bottom)', // Handle iPhone notch/home bar
 });
 
 const CardContainer = styled(motion.div)({
@@ -39,7 +42,7 @@ const CardContainer = styled(motion.div)({
 const Card = styled(Box)({
   width: '90%',
   maxWidth: '400px',
-  minHeight: '70vh',
+  maxHeight: '65vh',
   background: 'rgba(26, 26, 46, 0.95)',
   backdropFilter: 'blur(20px)',
   borderRadius: '24px',
@@ -48,8 +51,10 @@ const Card = styled(Box)({
   display: 'flex',
   flexDirection: 'column',
   boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)',
+  overflowY: 'auto',
   '@media (min-width: 768px)': {
     padding: '40px 32px',
+    maxHeight: '70vh',
   },
 });
 
@@ -134,7 +139,7 @@ const ProgressDots = styled(Box)({
   display: 'flex',
   gap: '8px',
   justifyContent: 'center',
-  padding: '24px',
+  padding: '16px',
 });
 
 const Dot = styled(motion.div)<{ active: boolean }>(({ active }) => ({
@@ -148,7 +153,7 @@ const Dot = styled(motion.div)<{ active: boolean }>(({ active }) => ({
 const CTAButton = styled(motion.button)({
   width: '90%',
   maxWidth: '400px',
-  margin: '0 auto',
+  margin: '0 auto 20px',
   background: 'linear-gradient(135deg, #00ffc6 0%, #7B42F6 100%)',
   border: 'none',
   borderRadius: '16px',
@@ -166,6 +171,25 @@ const CTAButton = styled(motion.button)({
   overflow: 'hidden',
 });
 
+const SkipButton = styled(Typography)({
+  position: 'absolute',
+  top: '20px',
+  right: '20px',
+  color: 'rgba(255, 255, 255, 0.6)',
+  fontSize: '14px',
+  cursor: 'pointer',
+  padding: '8px 16px',
+  borderRadius: '20px',
+  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  backdropFilter: 'blur(10px)',
+  transition: 'all 0.3s ease',
+  zIndex: 10,
+  '&:hover': {
+    color: '#00ffc6',
+    backgroundColor: 'rgba(0, 255, 198, 0.1)',
+  },
+});
+
 interface DemoInvitationProps {
   onComplete: () => void;
 }
@@ -173,6 +197,7 @@ interface DemoInvitationProps {
 const DemoInvitation: React.FC<DemoInvitationProps> = ({ onComplete }) => {
   const [currentCard, setCurrentCard] = useState(0);
   const [autoPlayTimer, setAutoPlayTimer] = useState<NodeJS.Timeout | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
   
   const cards = [
     'discovery',
@@ -183,6 +208,8 @@ const DemoInvitation: React.FC<DemoInvitationProps> = ({ onComplete }) => {
 
   // Auto-advance cards
   useEffect(() => {
+    if (isPaused) return;
+    
     const timer = setTimeout(() => {
       if (currentCard < cards.length - 1) {
         setCurrentCard(currentCard + 1);
@@ -194,7 +221,7 @@ const DemoInvitation: React.FC<DemoInvitationProps> = ({ onComplete }) => {
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [currentCard, cards.length]);
+  }, [currentCard, cards.length, isPaused]);
 
   const handleSwipe = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (info.offset.y < -50) {
@@ -592,6 +619,11 @@ const DemoInvitation: React.FC<DemoInvitationProps> = ({ onComplete }) => {
 
   return (
     <InvitationContainer>
+      {/* Skip button */}
+      <SkipButton onClick={onComplete}>
+        Skip to Demo →
+      </SkipButton>
+      
       <AnimatePresence mode="wait">
         <CardContainer
           key={currentCard}
@@ -608,18 +640,52 @@ const DemoInvitation: React.FC<DemoInvitationProps> = ({ onComplete }) => {
         </CardContainer>
       </AnimatePresence>
       
-      <ProgressDots>
-        {cards.map((_, index) => (
-          <Dot key={index} active={index === currentCard} />
-        ))}
-      </ProgressDots>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'center' }}>
+        <motion.button
+          style={{
+            background: 'rgba(255, 255, 255, 0.1)',
+            border: 'none',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            color: '#00ffc6',
+          }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setIsPaused(!isPaused)}
+        >
+          {isPaused ? <PlayArrow /> : <Pause />}
+        </motion.button>
+        
+        <ProgressDots>
+          {cards.map((_, index) => (
+            <Dot 
+              key={index} 
+              active={index === currentCard}
+              onClick={() => {
+                setCurrentCard(index);
+                if (autoPlayTimer) clearTimeout(autoPlayTimer);
+              }}
+              style={{ cursor: 'pointer' }}
+            />
+          ))}
+        </ProgressDots>
+      </Box>
       
       {currentCard === cards.length - 1 && (
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1, duration: 0.5 }}
-          style={{ padding: '0 20px 20px' }}
+          style={{ 
+            padding: '0 20px', 
+            marginBottom: '20px',
+            position: 'relative',
+            zIndex: 5
+          }}
         >
           <CTAButton
             whileHover={{ scale: 1.02 }}
