@@ -84,7 +84,7 @@ const HeroSection = styled(Box)({
     `,
     pointerEvents: 'none'
   }
-}));
+});
 
 const AnimatedBackground = styled(Box)({
   position: 'absolute',
@@ -147,7 +147,7 @@ const GlassCard = styled(Card)({
     filter: 'blur(10px)',
     zIndex: -1
   }
-}));
+});
 
 const AgentCard = styled(motion.div)({
   background: 'rgba(255, 255, 255, 0.03)',
@@ -177,7 +177,7 @@ const AgentCard = styled(motion.div)({
       opacity: 1
     }
   }
-}));
+});
 
 const FloatingParticle = styled(motion.div)<{ size: number; color: string }>(({ size, color }) => ({
   position: 'absolute',
@@ -234,7 +234,7 @@ const MetricCard = styled(Paper)({
   '&:hover::before': {
     transform: 'scaleX(1)'
   }
-}));
+});
 
 const PulsingDot = styled(Box)<{ color: string }>(({ color }) => ({
   width: 12,
