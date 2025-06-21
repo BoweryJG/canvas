@@ -479,7 +479,7 @@ export const CanvasHomeDemoMode: React.FC = () => {
                 { label: 'Hours Saved', value: metrics.timesSaved, suffix: 'hrs', icon: Speed },
                 { label: 'Accuracy Rate', value: metrics.accuracy, suffix: '%', icon: EmojiEvents }
               ].map((metric, index) => (
-                <Grid item xs={6} md={3} key={index}>
+                <Grid size={{ xs: 6, md: 3 }} key={index}>
                   <MetricCard elevation={0}>
                     <metric.icon sx={{ fontSize: 40, color: '#667eea', mb: 2 }} />
                     <Typography variant="h3" sx={{ fontWeight: 700, color: '#fff', mb: 1 }}>
@@ -562,7 +562,7 @@ export const CanvasHomeDemoMode: React.FC = () => {
 
           <Grid container spacing={3}>
             {agents.map((agent, index) => (
-              <Grid item xs={12} sm={6} md={3} key={agent.id}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }} key={agent.id}>
                 <motion.div
                   initial={{ opacity: 0, y: 50 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -797,7 +797,7 @@ export const CanvasHomeDemoMode: React.FC = () => {
                             desc: 'Complete practice insights' 
                           }
                         ].map((feature, index) => (
-                          <Grid item xs={12} md={4} key={index}>
+                          <Grid size={{ xs: 12, md: 4 }} key={index}>
                             <motion.div
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
@@ -883,7 +883,7 @@ export const CanvasHomeDemoMode: React.FC = () => {
                               </Alert>
 
                               <Grid container spacing={3}>
-                                <Grid item xs={12} md={6}>
+                                <Grid size={{ xs: 12, md: 6 }}>
                                   <Paper sx={{ 
                                     p: 3, 
                                     background: 'rgba(255, 255, 255, 0.02)',
@@ -934,7 +934,7 @@ export const CanvasHomeDemoMode: React.FC = () => {
                                   </Paper>
                                 </Grid>
 
-                                <Grid item xs={12} md={6}>
+                                <Grid size={{ xs: 12, md: 6 }}>
                                   <Paper sx={{ 
                                     p: 3, 
                                     background: 'rgba(255, 255, 255, 0.02)',
@@ -1091,7 +1091,7 @@ export const CanvasHomeDemoMode: React.FC = () => {
                       </Typography>
                       
                       <Grid container spacing={3}>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                           <Paper sx={{
                             p: 3,
                             background: 'rgba(255, 255, 255, 0.02)',
@@ -1153,7 +1153,7 @@ export const CanvasHomeDemoMode: React.FC = () => {
                           </Paper>
                         </Grid>
                         
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                           <Paper sx={{
                             p: 3,
                             background: 'rgba(255, 255, 255, 0.02)',
