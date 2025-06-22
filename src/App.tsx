@@ -131,16 +131,8 @@ function AppContent() {
           <Route path="/" element={<CanvasHome />} />
           <Route path="/login" element={<SimpleLogin />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/research" element={
-            <AuthGuard redirectTo="/login">
-              <EnhancedResearchPanelWithRender />
-            </AuthGuard>
-          } />
-          <Route path="/market-insights" element={
-            <AuthGuard redirectTo="/login">
-              <MarketInsights />
-            </AuthGuard>
-          } />
+          <Route path="/research" element={<EnhancedResearchPanelWithRender />} />
+          <Route path="/market-insights" element={<MarketInsights />} />
           <Route path="/test-npi" element={<TestNPI />} />
           <Route path="/test-npi-debug" element={<TestNPIDebug />} />
           <Route path="/test-npi-minimal" element={<TestNPIMinimal />} />

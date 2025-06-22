@@ -125,13 +125,14 @@ export default function IntegratedCanvasExperience() {
   const handleLaunchScan = async () => {
     if (!doctor || !product) return;
     
-    // Check if user is authenticated first
+    // Allow non-authenticated users to try the scan
     if (!user) {
-      setShowAuthModal(true);
+      // For demo purposes, allow the scan without credits
+      setStage('scanning');
       return;
     }
     
-    // Check credits before scanning
+    // For authenticated users, check credits
     const creditCheck = await checkUserCredits(user.id);
     setCreditsRemaining(creditCheck.creditsRemaining);
     
@@ -160,8 +161,8 @@ export default function IntegratedCanvasExperience() {
   };
   
   const renderInputStage = () => {
-    // Show the new interface for authenticated users
-    if (useNewInterface && user) {
+    // Show the new interface for everyone (authenticated or not)
+    if (useNewInterface) {
       return <CanvasMainSearch />;
     }
     

@@ -3,8 +3,11 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Box, Typography, Card, CardContent, LinearProgress } from '@mui/material';
+import { Box, Typography, Card, CardContent, LinearProgress, Button, Chip } from '@mui/material';
 import { motion } from 'framer-motion';
+import { Lock, AutoAwesome, TrendingUp } from '@mui/icons-material';
+import { useAuth } from '../auth/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   doctorName: string;
@@ -13,6 +16,9 @@ interface Props {
 }
 
 export default function SimpleProgressiveResults({ doctorName, userTier, onUpgradeClick }: Props) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const [sections, setSections] = useState([
     { id: 'basic', title: 'Basic Profile', progress: 0, complete: false },
     { id: 'practice', title: 'Practice Details', progress: 0, complete: false },
@@ -114,7 +120,61 @@ export default function SimpleProgressiveResults({ doctorName, userTier, onUpgra
         </motion.div>
       ))}
       
-      {userTier === 'free' && (
+      {/* Sign up prompt for non-authenticated users */}
+      {!user && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 4 }}
+        >
+          <Card sx={{ 
+            mt: 3,
+            background: 'linear-gradient(135deg, rgba(0,255,198,0.1) 0%, rgba(123,66,246,0.1) 100%)',
+            border: '1px solid rgba(0,255,198,0.3)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            <CardContent sx={{ p: 4, textAlign: 'center' }}>
+              <AutoAwesome sx={{ fontSize: 48, color: '#00ffc6', mb: 2 }} />
+              <Typography variant="h5" sx={{ color: '#fff', mb: 2, fontWeight: 700 }}>
+                Unlock Full Canvas Intelligence
+              </Typography>
+              <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.7)', mb: 3 }}>
+                Sign up to save your research, access deeper insights, and leverage AI-powered sales strategies
+              </Typography>
+              
+              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mb: 3 }}>
+                <Chip icon={<TrendingUp />} label="Unlimited Scans" sx={{ color: '#00ffc6' }} />
+                <Chip icon={<Lock />} label="Save Research" sx={{ color: '#00ffc6' }} />
+                <Chip icon={<AutoAwesome />} label="AI Agents" sx={{ color: '#00ffc6' }} />
+              </Box>
+              
+              <Button
+                variant="contained"
+                size="large"
+                onClick={() => navigate('/login')}
+                sx={{
+                  background: 'linear-gradient(90deg, #00ffc6 0%, #7B42F6 100%)',
+                  color: '#fff',
+                  fontWeight: 700,
+                  px: 4,
+                  py: 1.5,
+                  borderRadius: 50,
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 10px 30px rgba(0,255,198,0.3)'
+                  }
+                }}
+              >
+                Get Started Free
+              </Button>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+      
+      {/* Upgrade prompt for free tier users */}
+      {user && userTier === 'free' && (
         <Card sx={{ 
           mt: 3,
           background: 'linear-gradient(90deg, #FFD700 0%, #FF6B6B 100%)',
