@@ -30,12 +30,8 @@ const AuthTest: React.FC = () => {
     setTestResult('Starting Google OAuth...');
     
     try {
-      const { data, error } = await signInWithProvider('google');
-      if (error) {
-        setTestResult(`Error: ${error.message}`);
-      } else {
-        setTestResult('OAuth initiated successfully! Check if a new window opened.');
-      }
+      await signInWithProvider('google');
+      setTestResult('OAuth initiated successfully! Check if a new window opened.');
     } catch (err: any) {
       setTestResult(`Exception: ${err.message}`);
     }
@@ -48,12 +44,8 @@ const AuthTest: React.FC = () => {
     setTestResult('Starting GitHub OAuth...');
     
     try {
-      const { data, error } = await signInWithProvider('github');
-      if (error) {
-        setTestResult(`Error: ${error.message}`);
-      } else {
-        setTestResult('OAuth initiated successfully! Check if a new window opened.');
-      }
+      await signInWithProvider('github');
+      setTestResult('OAuth initiated successfully! Check if a new window opened.');
     } catch (err: any) {
       setTestResult(`Exception: ${err.message}`);
     }
