@@ -20,7 +20,8 @@ import { SecureStorage, CSRFTokenManager } from './utils/security'
 import { analytics } from './utils/analytics'
 import { OnboardingFlow } from './components/Onboarding/OnboardingFlow'
 // import ChatLauncher from './components/agents/ChatLauncher'
-import { EnhancedAgentSystem } from './components/agents/EnhancedAgentSystem'
+// import { EnhancedAgentSystem } from './components/agents/EnhancedAgentSystem'
+import { CanvasAIPro } from './components/agents/CanvasAIPro'
 // import AISalesAgentLauncher from './components/agents/premium/AISalesAgentLauncher'
 // import ChatLauncher from './components/agents/SimpleChatLauncher'
 // import ChatLauncher from './components/agents/DebugChat'
@@ -145,7 +146,8 @@ function AppContent() {
           <Route path="/force-auth" element={<ForceAuth />} />
         </Routes>
         {/* <ChatLauncher /> */}
-        <EnhancedAgentSystem />
+        {/* <EnhancedAgentSystem /> */}
+        <CanvasAIPro />
         {/* <AISalesAgentLauncher /> */}
       </AuthProvider>
     </ErrorBoundary>
