@@ -9,6 +9,7 @@ import AuthCallback from './pages/AuthCallback'
 import { TestNPI } from './pages/TestNPI'
 import { TestNPIDebug } from './pages/TestNPIDebug'
 import { TestNPIMinimal } from './pages/TestNPIMinimal'
+import ForceAuth from './pages/ForceAuth'
 import { EnhancedResearchPanelWithRender } from './components/EnhancedResearchPanelWithRender'
 import ErrorBoundary from './components/ErrorBoundary'
 import { ConnectionStatus } from './components/ConnectionStatus'
@@ -141,6 +142,7 @@ function AppContent() {
           <Route path="/test-npi" element={<TestNPI />} />
           <Route path="/test-npi-debug" element={<TestNPIDebug />} />
           <Route path="/test-npi-minimal" element={<TestNPIMinimal />} />
+          <Route path="/force-auth" element={<ForceAuth />} />
         </Routes>
         {/* <ChatLauncher /> */}
         <EnhancedAgentSystem />

@@ -1,0 +1,20 @@
+SUPABASE REDIRECT URLs NEEDED:
+
+FOR LOCAL DEVELOPMENT:
+http://localhost:7002/*
+http://localhost:7002/
+http://localhost:7002/auth/callback
+http://localhost:3000/*
+http://localhost:3000/
+http://localhost:3000/auth/callback
+
+FOR PRODUCTION:
+https://canvas.repspheres.com/*
+https://canvas.repspheres.com/
+https://canvas.repspheres.com/auth/callback
+
+ALSO ADD (for testing):
+http://localhost:7002/simple-auth-test.html
+http://localhost:7002/wtf-is-happening.html
+
+IMPORTANT: The wildcard URLs (with /*) are CRITICAL because Supabase sometimes redirects to the root URL with the token in the hash.

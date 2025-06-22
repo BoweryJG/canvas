@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CHECK NAVBAR AUTH</title>
+</head>
+<body style="background: #000; color: #0f0; font-family: monospace; padding: 40px;">
+    <h1>CHECKING WHY NAVBAR ISN'T SHOWING YOU'RE LOGGED IN</h1>
+    
+    <button onclick="checkAuth()" style="background: #0f0; color: #000; padding: 20px; font-size: 20px;">
+        CHECK AUTH STATE
+    </button>
+    
+    <pre id="output" style="background: #111; padding: 20px; margin-top: 20px; border: 1px solid #0f0;"></pre>
+    
+    <script type="module">
+        window.checkAuth = async function() {
+            const output = document.getElementById('output');
+            output.textContent = 'Checking auth state...\n\n';
+            
+            try {
+                // Import the auth context
+                const { supabase } = await import('/src/auth/supabase.ts');
+                
+                // Get session
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                if (session) {
+                    output.textContent += '✅ SUPABASE HAS SESSION: ' + session.user.email + '\n';
+                    output.textContent += 'User ID: ' + session.user.id + '\n';
+                    output.textContent += 'Expires: ' + new Date(session.expires_at * 1000).toLocaleString() + '\n\n';
+                    
+                    // Check localStorage
+                    output.textContent += 'LOCALSTORAGE KEYS:\n';
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key && key.includes('auth')) {
+                            output.textContent += key + '\n';
+                        }
+                    }
+                    
+                    output.textContent += '\n\nTHE AUTH IS WORKING!\n';
+                    output.textContent += 'The issue is the React NavBar component is not updating.\n';
+                    output.textContent += 'Try refreshing the page (F5) to force React to re-render.';
+                } else {
+                    output.textContent += '❌ NO SESSION FOUND\n';
+                }
+            } catch (e) {
+                output.textContent += 'ERROR: ' + e.message;
+            }
+        }
+    </script>
+</body>
+</html>

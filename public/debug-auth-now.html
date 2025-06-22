@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DEBUG AUTH NOW</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body style="background: #000; color: #0f0; font-family: monospace; padding: 40px;">
+    <h1>DEBUGGING WHY AUTH ISN'T WORKING</h1>
+    
+    <button onclick="testDirectAuth()" style="background: #f00; color: #fff; padding: 20px; font-size: 20px;">
+        TEST DIRECT AUTH
+    </button>
+    
+    <button onclick="testAppAuth()" style="background: #ff0; color: #000; padding: 20px; font-size: 20px; margin-left: 20px;">
+        TEST APP AUTH
+    </button>
+    
+    <pre id="output" style="background: #111; padding: 20px; margin-top: 20px; border: 1px solid #0f0;"></pre>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(msg) {
+            output.textContent += msg + '\n';
+            console.log(msg);
+        }
+        
+        // Test with direct Supabase client
+        async function testDirectAuth() {
+            log('=== TESTING DIRECT SUPABASE CLIENT ===');
+            
+            const directClient = supabase.createClient(
+                'https://cbopynuvhcymbumjnvay.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNib3B5bnV2aGN5bWJ1bWpudmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5OTUxNzMsImV4cCI6MjA1OTU3MTE3M30.UZElMkoHugIt984RtYWyfrRuv2rB67opQdCrFVPCfzU'
+            );
+            
+            const { data: { session } } = await directClient.auth.getSession();
+            if (session) {
+                log('✅ Direct client HAS session: ' + session.user.email);
+            } else {
+                log('❌ Direct client NO session');
+            }
+        }
+        
+        // Test with app's import
+        async function testAppAuth() {
+            log('\n=== TESTING APP IMPORT ===');
+            
+            try {
+                // Import the app's supabase client
+                const module = await import('/src/auth/supabase.ts');
+                const appClient = module.supabase;
+                
+                log('✅ Imported app client');
+                
+                const { data: { session } } = await appClient.auth.getSession();
+                if (session) {
+                    log('✅ App client HAS session: ' + session.user.email);
+                } else {
+                    log('❌ App client NO session');
+                }
+                
+                // Check what storage key it's using
+                log('\nChecking localStorage keys:');
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && (key.includes('auth') || key.includes('supabase') || key.includes('sb-'))) {
+                        log('Found key: ' + key);
+                    }
+                }
+                
+            } catch (e) {
+                log('ERROR importing app client: ' + e.message);
+            }
+        }
+        
+        // Run both tests
+        testDirectAuth();
+    </script>
+</body>
+</html>
