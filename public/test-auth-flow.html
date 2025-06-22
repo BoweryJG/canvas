@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas Auth Flow Test</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #e0e0e0;
+    }
+    .container {
+      background: #2a2a2a;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    h1 {
+      color: #00ffc6;
+      margin-bottom: 10px;
+    }
+    .status {
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+    }
+    .info { background: #2a4a5a; border: 1px solid #3a5a6a; }
+    .success { background: #2a5a3a; border: 1px solid #3a6a4a; }
+    .error { background: #5a2a2a; border: 1px solid #6a3a3a; }
+    .warning { background: #5a4a2a; border: 1px solid #6a5a3a; }
+    button {
+      background: #00ffc6;
+      color: #000;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 5px;
+      transition: all 0.2s;
+    }
+    button:hover {
+      background: #00e0b0;
+      transform: translateY(-1px);
+    }
+    button:disabled {
+      background: #555;
+      color: #999;
+      cursor: not-allowed;
+    }
+    .logs {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 15px;
+      margin: 20px 0;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .log-entry {
+      margin: 5px 0;
+      padding: 5px;
+      border-left: 3px solid #444;
+    }
+    .log-entry.error { border-left-color: #ff6b6b; }
+    .log-entry.success { border-left-color: #00ffc6; }
+    .log-entry.info { border-left-color: #4dabf7; }
+    .url-display {
+      background: #1a1a1a;
+      padding: 10px;
+      border-radius: 4px;
+      word-break: break-all;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 Canvas Authentication Flow Test</h1>
+    <p>Test the Supabase OAuth authentication flow with detailed logging</p>
+
+    <div class="status info" id="current-url">
+      <strong>Current URL:</strong>
+      <div class="url-display" id="url-display"></div>
+    </div>
+
+    <div class="status info" id="config-status">
+      <strong>Configuration:</strong>
+      <div id="config-details"></div>
+    </div>
+
+    <div class="status warning" id="auth-status">
+      <strong>Authentication Status:</strong> Checking...
+    </div>
+
+    <div style="margin: 30px 0;">
+      <h3>Test OAuth Providers:</h3>
+      <button onclick="testAuth('google')" id="google-btn">Sign in with Google</button>
+      <button onclick="testAuth('github')" id="github-btn">Sign in with GitHub</button>
+      <button onclick="clearAuth()" id="clear-btn">Clear Auth & Reload</button>
+    </div>
+
+    <div class="logs">
+      <h3>📋 Debug Logs:</h3>
+      <div id="log-container"></div>
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const SUPABASE_URL = 'https://cbopynuvhcymbumjnvay.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNib3B5bnV2aGN5bWJ1bWpudmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5OTUxNzMsImV4cCI6MjA1OTU3MTE3M30.UZElMkoHugIt984RtYWyfrRuv2rB67opQdCrFVPCfzU';
+    
+    // Initialize Supabase client
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        storage: window.localStorage,
+        storageKey: 'sb-cbopynuvhcymbumjnvay-auth-token',
+        flowType: 'implicit'
+      }
+    });
+
+    // Logging function
+    function log(message, type = 'info') {
+      const container = document.getElementById('log-container');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      const timestamp = new Date().toLocaleTimeString();
+      entry.textContent = `[${timestamp}] ${message}`;
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+      console.log(`[${type.toUpperCase()}] ${message}`);
+    }
+
+    // Display current URL
+    function updateUrlDisplay() {
+      const urlDisplay = document.getElementById('url-display');
+      urlDisplay.textContent = window.location.href;
+      
+      if (window.location.hash) {
+        log(`Hash detected: ${window.location.hash.substring(0, 50)}...`, 'info');
+      }
+    }
+
+    // Display configuration
+    function showConfig() {
+      const configDiv = document.getElementById('config-details');
+      configDiv.innerHTML = `
+        <div>Supabase URL: ${SUPABASE_URL}</div>
+        <div>Storage Key: sb-cbopynuvhcymbumjnvay-auth-token</div>
+        <div>Flow Type: implicit</div>
+        <div>Current Origin: ${window.location.origin}</div>
+        <div>Expected Redirect: ${window.location.origin}/auth/callback</div>
+      `;
+    }
+
+    // Check authentication status
+    async function checkAuthStatus() {
+      try {
+        log('Checking authentication status...', 'info');
+        
+        // Check for OAuth response in URL
+        if (window.location.hash && window.location.hash.includes('access_token')) {
+          log('OAuth tokens detected in URL!', 'success');
+          log('Waiting for Supabase to process tokens...', 'info');
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+        
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          log(`Auth error: ${error.message}`, 'error');
+          updateAuthStatus('Error: ' + error.message, 'error');
+          return;
+        }
+        
+        if (session) {
+          log('Session found!', 'success');
+          log(`User: ${session.user.email}`, 'success');
+          log(`Provider: ${session.user.app_metadata.provider}`, 'info');
+          updateAuthStatus(`Authenticated as ${session.user.email}`, 'success');
+        } else {
+          log('No active session', 'info');
+          updateAuthStatus('Not authenticated', 'warning');
+        }
+      } catch (err) {
+        log(`Exception: ${err.message}`, 'error');
+        updateAuthStatus('Error checking auth', 'error');
+      }
+    }
+
+    // Update auth status display
+    function updateAuthStatus(message, type) {
+      const statusDiv = document.getElementById('auth-status');
+      statusDiv.className = `status ${type}`;
+      statusDiv.innerHTML = `<strong>Authentication Status:</strong> ${message}`;
+    }
+
+    // Test authentication
+    async function testAuth(provider) {
+      try {
+        log(`Starting ${provider} authentication...`, 'info');
+        
+        const redirectUrl = `${window.location.origin}/auth/callback`;
+        log(`Using redirect URL: ${redirectUrl}`, 'info');
+        
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: provider,
+          options: {
+            redirectTo: redirectUrl
+          }
+        });
+        
+        if (error) {
+          log(`OAuth error: ${error.message}`, 'error');
+          return;
+        }
+        
+        log(`OAuth initiated successfully!`, 'success');
+        log('Browser should redirect to provider...', 'info');
+      } catch (err) {
+        log(`Exception: ${err.message}`, 'error');
+      }
+    }
+
+    // Clear authentication
+    async function clearAuth() {
+      try {
+        log('Clearing authentication...', 'info');
+        
+        // Clear all possible storage keys
+        const keysToRemove = [
+          'sb-cbopynuvhcymbumjnvay-auth-token',
+          'supabase.auth.token',
+          'repspheres-auth'
+        ];
+        
+        keysToRemove.forEach(key => {
+          if (localStorage.getItem(key)) {
+            localStorage.removeItem(key);
+            log(`Removed ${key}`, 'info');
+          }
+        });
+        
+        await supabase.auth.signOut();
+        log('Signed out successfully', 'success');
+        
+        setTimeout(() => {
+          window.location.href = window.location.pathname;
+        }, 1000);
+      } catch (err) {
+        log(`Error clearing auth: ${err.message}`, 'error');
+      }
+    }
+
+    // Listen for auth state changes
+    supabase.auth.onAuthStateChange((event, session) => {
+      log(`Auth state changed: ${event}`, 'info');
+      if (session) {
+        log(`Session active for: ${session.user.email}`, 'success');
+      }
+      checkAuthStatus();
+    });
+
+    // Initialize on load
+    window.addEventListener('load', () => {
+      updateUrlDisplay();
+      showConfig();
+      checkAuthStatus();
+      
+      // Check localStorage
+      const storageKey = 'sb-cbopynuvhcymbumjnvay-auth-token';
+      const storedAuth = localStorage.getItem(storageKey);
+      if (storedAuth) {
+        try {
+          const parsed = JSON.parse(storedAuth);
+          log(`Found stored auth token (expires: ${new Date(parsed.expires_at * 1000).toLocaleString()})`, 'info');
+        } catch {
+          log('Found stored auth but couldn\'t parse', 'warning');
+        }
+      } else {
+        log('No stored auth token found', 'info');
+      }
+    });
+
+    // Update URL display on hash change
+    window.addEventListener('hashchange', updateUrlDisplay);
+  </script>
+</body>
+</html>
