@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Canvas Auth Diagnostic</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #0a0a0a;
+      color: #e0e0e0;
+    }
+    .container {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 20px;
+      border: 1px solid #333;
+    }
+    h1 { color: #00ffc6; }
+    h2 { color: #00e0b0; margin-top: 30px; }
+    .diagnostic {
+      background: #2a2a2a;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 14px;
+    }
+    .success { border-left: 4px solid #00ffc6; }
+    .error { border-left: 4px solid #ff6b6b; }
+    .warning { border-left: 4px solid #ffd43b; }
+    .info { border-left: 4px solid #4dabf7; }
+    button {
+      background: #00ffc6;
+      color: #000;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover { background: #00e0b0; }
+    .url-box {
+      background: #0a0a0a;
+      padding: 10px;
+      border-radius: 4px;
+      word-break: break-all;
+      margin: 5px 0;
+      border: 1px solid #333;
+    }
+    pre {
+      background: #0a0a0a;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      border: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 Canvas Authentication Diagnostic</h1>
+    <p>This tool will help identify exactly why authentication isn't working</p>
+  </div>
+
+  <div class="container">
+    <h2>1. Environment Check</h2>
+    <div id="env-check"></div>
+  </div>
+
+  <div class="container">
+    <h2>2. Current State</h2>
+    <div id="current-state"></div>
+  </div>
+
+  <div class="container">
+    <h2>3. Storage Check</h2>
+    <div id="storage-check"></div>
+  </div>
+
+  <div class="container">
+    <h2>4. Test Authentication</h2>
+    <button onclick="testGoogleAuth()">Test Google Login</button>
+    <button onclick="testGitHubAuth()">Test GitHub Login</button>
+    <button onclick="clearEverything()">Clear Everything & Reload</button>
+    <div id="auth-result"></div>
+  </div>
+
+  <div class="container">
+    <h2>5. Required Supabase URLs</h2>
+    <div id="required-urls"></div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://cbopynuvhcymbumjnvay.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNib3B5bnV2aGN5bWJ1bWpudmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5OTUxNzMsImV4cCI6MjA1OTU3MTE3M30.UZElMkoHugIt984RtYWyfrRuv2rB67opQdCrFVPCfzU';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        storage: window.localStorage,
+        storageKey: 'sb-cbopynuvhcymbumjnvay-auth-token',
+        flowType: 'implicit'
+      }
+    });
+
+    // Check environment
+    function checkEnvironment() {
+      const envDiv = document.getElementById('env-check');
+      
+      // Current URL
+      envDiv.innerHTML += `
+        <div class="diagnostic info">
+          <strong>Current URL:</strong>
+          <div class="url-box">${window.location.href}</div>
+        </div>
+      `;
+      
+      // Origin
+      envDiv.innerHTML += `
+        <div class="diagnostic info">
+          <strong>Origin:</strong> ${window.location.origin}
+        </div>
+      `;
+      
+      // Expected redirect URL
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+      envDiv.innerHTML += `
+        <div class="diagnostic info">
+          <strong>Expected Redirect URL:</strong>
+          <div class="url-box">${redirectUrl}</div>
+        </div>
+      `;
+      
+      // Hash check
+      if (window.location.hash) {
+        envDiv.innerHTML += `
+          <div class="diagnostic warning">
+            <strong>Hash Detected:</strong> ${window.location.hash.substring(0, 50)}...
+          </div>
+        `;
+      }
+    }
+
+    // Check current auth state
+    async function checkCurrentState() {
+      const stateDiv = document.getElementById('current-state');
+      
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          stateDiv.innerHTML = `
+            <div class="diagnostic error">
+              <strong>Auth Error:</strong> ${error.message}
+            </div>
+          `;
+          return;
+        }
+        
+        if (session) {
+          stateDiv.innerHTML = `
+            <div class="diagnostic success">
+              <strong>Authenticated!</strong><br>
+              User: ${session.user.email}<br>
+              Provider: ${session.user.app_metadata.provider}<br>
+              ID: ${session.user.id}
+            </div>
+          `;
+        } else {
+          stateDiv.innerHTML = `
+            <div class="diagnostic warning">
+              <strong>Not Authenticated</strong><br>
+              No active session found
+            </div>
+          `;
+        }
+      } catch (err) {
+        stateDiv.innerHTML = `
+          <div class="diagnostic error">
+            <strong>Exception:</strong> ${err.message}
+          </div>
+        `;
+      }
+    }
+
+    // Check storage
+    function checkStorage() {
+      const storageDiv = document.getElementById('storage-check');
+      
+      // Check all possible storage keys
+      const storageKeys = [
+        'sb-cbopynuvhcymbumjnvay-auth-token',
+        'supabase.auth.token',
+        'repspheres-auth'
+      ];
+      
+      let foundAny = false;
+      
+      storageKeys.forEach(key => {
+        const value = localStorage.getItem(key);
+        if (value) {
+          foundAny = true;
+          try {
+            const parsed = JSON.parse(value);
+            const expiresAt = new Date(parsed.expires_at * 1000);
+            const isExpired = expiresAt < new Date();
+            
+            storageDiv.innerHTML += `
+              <div class="diagnostic ${isExpired ? 'error' : 'success'}">
+                <strong>Found: ${key}</strong><br>
+                Expires: ${expiresAt.toLocaleString()}<br>
+                Status: ${isExpired ? 'EXPIRED' : 'Valid'}
+              </div>
+            `;
+          } catch {
+            storageDiv.innerHTML += `
+              <div class="diagnostic error">
+                <strong>Found: ${key}</strong><br>
+                Status: Invalid JSON
+              </div>
+            `;
+          }
+        }
+      });
+      
+      if (!foundAny) {
+        storageDiv.innerHTML = `
+          <div class="diagnostic info">
+            No auth tokens found in localStorage
+          </div>
+        `;
+      }
+      
+      // Check cookies
+      if (document.cookie) {
+        storageDiv.innerHTML += `
+          <div class="diagnostic info">
+            <strong>Cookies:</strong><br>
+            ${document.cookie.split(';').map(c => c.trim()).join('<br>')}
+          </div>
+        `;
+      }
+    }
+
+    // Test authentication
+    async function testAuth(provider) {
+      const resultDiv = document.getElementById('auth-result');
+      resultDiv.innerHTML = `
+        <div class="diagnostic info">
+          Starting ${provider} authentication...
+        </div>
+      `;
+      
+      try {
+        const redirectUrl = `${window.location.origin}/auth/callback`;
+        
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: provider,
+          options: {
+            redirectTo: redirectUrl
+          }
+        });
+        
+        if (error) {
+          resultDiv.innerHTML = `
+            <div class="diagnostic error">
+              <strong>OAuth Error:</strong> ${error.message}
+            </div>
+          `;
+          return;
+        }
+        
+        resultDiv.innerHTML += `
+          <div class="diagnostic success">
+            OAuth initiated! Browser should redirect to ${provider}...
+          </div>
+        `;
+      } catch (err) {
+        resultDiv.innerHTML = `
+          <div class="diagnostic error">
+            <strong>Exception:</strong> ${err.message}
+          </div>
+        `;
+      }
+    }
+
+    function testGoogleAuth() {
+      testAuth('google');
+    }
+
+    function testGitHubAuth() {
+      testAuth('github');
+    }
+
+    // Clear everything
+    async function clearEverything() {
+      // Clear all storage
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Clear cookies
+      document.cookie.split(";").forEach(c => {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+      
+      // Sign out from Supabase
+      await supabase.auth.signOut();
+      
+      // Reload clean
+      setTimeout(() => {
+        window.location.href = window.location.pathname;
+      }, 500);
+    }
+
+    // Show required URLs
+    function showRequiredUrls() {
+      const urlsDiv = document.getElementById('required-urls');
+      const currentOrigin = window.location.origin;
+      
+      urlsDiv.innerHTML = `
+        <div class="diagnostic info">
+          <strong>Add these to Supabase Dashboard:</strong>
+          <div class="url-box">
+            ${currentOrigin}/*<br>
+            ${currentOrigin}/<br>
+            ${currentOrigin}/auth/callback
+          </div>
+          <br>
+          <strong>Dashboard Link:</strong>
+          <div class="url-box">
+            <a href="https://app.supabase.com/project/cbopynuvhcymbumjnvay/auth/url-configuration" target="_blank" style="color: #00ffc6;">
+              Open Supabase Auth Settings
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
+    // Listen for auth state changes
+    supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state changed:', event);
+      checkCurrentState();
+    });
+
+    // Run all checks on load
+    window.addEventListener('load', () => {
+      checkEnvironment();
+      checkCurrentState();
+      checkStorage();
+      showRequiredUrls();
+    });
+  </script>
+</body>
+</html>
