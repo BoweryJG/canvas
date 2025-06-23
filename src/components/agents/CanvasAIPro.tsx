@@ -330,7 +330,7 @@ export const CanvasAIPro: React.FC = () => {
               zIndex: 1300
             }}
           >
-            <Tooltip title="Canvas AI Pro" placement="left">
+            <Tooltip title="Alexis - AI Assistant" placement="left">
               <IconButton
                 onClick={() => setIsOpen(true)}
                 sx={{
@@ -408,7 +408,7 @@ export const CanvasAIPro: React.FC = () => {
                   </Avatar>
                   <Box>
                     <Typography variant="h6" sx={{ color: 'white', fontWeight: 700 }}>
-                      Canvas AI Pro
+                      Alexis
                     </Typography>
                     <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
                       Your intelligent sales companion
@@ -519,7 +519,7 @@ export const CanvasAIPro: React.FC = () => {
                   <Fade in timeout={1000}>
                     <Box sx={{ textAlign: 'center', py: 4 }}>
                       <Typography variant="h5" sx={{ color: 'white', mb: 2 }}>
-                        Welcome to Canvas AI Pro
+                        Welcome to Alexis
                       </Typography>
                       <Typography sx={{ color: 'rgba(255,255,255,0.6)', mb: 3 }}>
                         I can help you analyze doctors, identify opportunities, and create winning strategies.

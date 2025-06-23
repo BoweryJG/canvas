@@ -1,55 +1,86 @@
 /**
- * SIMPLE CINEMATIC SCAN - WORKS NOW, NO LOOPS
+ * REPSPHERES INTELLIGENCE SCAN - POWERED BY STUNNING GAUGE
  */
 
 import { useState, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import { simpleFastScan } from '../lib/simpleFastScan';
+import { IntelligenceGauge } from './IntelligenceGauge';
 
 interface Props {
   doctorName: string;
   location?: string;
-  onComplete?: () => void;
+  onComplete?: (results: any) => void;
 }
 
 export default function SimpleCinematicScan({ doctorName, location, onComplete }: Props) {
-  // const [stage, setStage] = useState<'scanning' | 'results'>('scanning');
-  const [scanData, setScanData] = useState<any>(null);
   const [progress, setProgress] = useState(0);
+  const [scanStage, setScanStage] = useState('Initializing...');
+  const [intelligenceScore, setIntelligenceScore] = useState(0);
+  const [isScanning, setIsScanning] = useState(true);
   
   useEffect(() => {
     let mounted = true;
     
     async function runScan() {
-      const results = await simpleFastScan(doctorName, location);
+      // Phase 1: Initialize (0-10%)
+      setScanStage('NPI Database Access');
+      setProgress(5);
+      
+      // Start the actual scan
+      const scanPromise = simpleFastScan(doctorName, location);
+      
+      // Phase 2: NPI Lookup (10-25%)
+      setTimeout(() => {
+        if (!mounted) return;
+        setScanStage('Verifying Practice Information');
+        setProgress(20);
+      }, 800);
+      
+      // Phase 3: Practice Verification (25-50%)
+      setTimeout(() => {
+        if (!mounted) return;
+        setScanStage('Analyzing Digital Footprint');
+        setProgress(40);
+      }, 1600);
+      
+      // Phase 4: Social Analysis (50-75%)
+      setTimeout(() => {
+        if (!mounted) return;
+        setScanStage('Gathering Intelligence Data');
+        setProgress(65);
+      }, 2400);
+      
+      // Phase 5: Intelligence Synthesis (75-90%)
+      setTimeout(() => {
+        if (!mounted) return;
+        setScanStage('Calculating Intelligence Score');
+        setProgress(85);
+      }, 3200);
+      
+      // Get actual results
+      const results = await scanPromise;
       
       if (!mounted) return;
       
-      // Show instant results
-      setScanData(results.instant);
-      setProgress(25);
-      
-      // Show basic after 2 seconds
+      // Phase 6: Finalizing (90-100%)
       setTimeout(() => {
         if (!mounted) return;
-        setScanData(results.basic || results.instant);
-        setProgress(60);
-      }, 2000);
-      
-      // Show enhanced after 4 seconds
-      setTimeout(() => {
-        if (!mounted) return;
-        setScanData(results.enhanced || results.basic || results.instant);
+        
+        // Calculate intelligence score based on confidence
+        const score = results.enhanced?.confidence || results.basic?.confidence || 60;
+        setIntelligenceScore(score);
+        setScanStage('Intelligence Report Ready');
         setProgress(100);
-        // setStage('results');
+        
+        // Complete after showing 100%
+        setTimeout(() => {
+          if (!mounted) return;
+          setIsScanning(false);
+          onComplete?.(results);
+        }, 1000);
       }, 4000);
-      
-      // Complete after 6 seconds
-      setTimeout(() => {
-        if (!mounted) return;
-        onComplete?.();
-      }, 6000);
     }
     
     runScan();
@@ -71,64 +102,78 @@ export default function SimpleCinematicScan({ doctorName, location, onComplete }
       color: '#fff',
       zIndex: 9999
     }}>
-      {/* Scanning Animation */}
+      {/* RepSpheres Branding */}
       <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
         style={{ marginBottom: 40 }}
       >
-        <Box sx={{
-          width: 120,
-          height: 120,
-          border: '3px solid #00ffc6',
-          borderRadius: '50%',
-          borderTopColor: 'transparent',
-          borderRightColor: 'transparent'
-        }} />
+        <Typography 
+          variant="h3" 
+          sx={{ 
+            fontWeight: 800,
+            background: 'linear-gradient(90deg, #00ffc6 0%, #7B42F6 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            textAlign: 'center',
+            mb: 1
+          }}
+        >
+          REPSPHERES
+        </Typography>
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            color: 'rgba(255,255,255,0.7)',
+            textAlign: 'center',
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase'
+          }}
+        >
+          Intelligence Scan
+        </Typography>
       </motion.div>
       
-      {/* Status Text */}
-      <Typography variant="h4" sx={{ mb: 2 }}>
-        {scanData?.summary || 'Initializing...'}
-      </Typography>
+      {/* Intelligence Gauge */}
+      <IntelligenceGauge
+        score={intelligenceScore}
+        isScanning={isScanning}
+        scanStage={scanStage}
+        progress={progress}
+        onComplete={() => {}}
+        fullScreen={true}
+      />
       
-      {/* Progress Bar */}
-      <Box sx={{
-        width: 400,
-        height: 6,
-        background: 'rgba(255,255,255,0.1)',
-        borderRadius: 3,
-        overflow: 'hidden',
-        mb: 4
-      }}>
-        <motion.div
-          style={{
-            height: '100%',
-            background: 'linear-gradient(90deg, #00ffc6 0%, #7B42F6 100%)',
-            width: '0%'
+      {/* Doctor Info */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        style={{ marginTop: 40 }}
+      >
+        <Typography 
+          variant="h5" 
+          sx={{ 
+            textAlign: 'center',
+            color: 'rgba(255,255,255,0.9)',
+            mb: 1
           }}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.5 }}
-        />
-      </Box>
-      
-      {/* Key Points */}
-      {scanData?.keyPoints && (
-        <Box sx={{ textAlign: 'center' }}>
-          {scanData.keyPoints.map((point: string, i: number) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.2 }}
-            >
-              <Typography variant="body1" sx={{ mb: 1 }}>
-                {point}
-              </Typography>
-            </motion.div>
-          ))}
-        </Box>
-      )}
+        >
+          Dr. {doctorName}
+        </Typography>
+        {location && (
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              textAlign: 'center',
+              color: 'rgba(255,255,255,0.6)'
+            }}
+          >
+            {location}
+          </Typography>
+        )}
+      </motion.div>
     </Box>
   );
 }

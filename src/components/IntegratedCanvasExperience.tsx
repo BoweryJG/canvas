@@ -108,6 +108,7 @@ export default function IntegratedCanvasExperience() {
   const [creditError, setCreditError] = useState('');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [useNewInterface] = useState(true); // Default to new interface
+  const [scanResults, setScanResults] = useState<any>(null); // Store scan results
   const { user } = useAuth();
   const userTier = user?.subscription?.tier || 'free';
   
@@ -391,6 +392,7 @@ export default function IntegratedCanvasExperience() {
           doctorName={doctor}
           userTier={userTier}
           onUpgradeClick={handleUpgrade}
+          scanData={scanResults}
         />
       </motion.div>
     </Container>
@@ -405,7 +407,10 @@ export default function IntegratedCanvasExperience() {
           <SimpleCinematicScan
             doctorName={doctor}
             location={location}
-            onComplete={() => setStage('results')}
+            onComplete={(results) => {
+              setScanResults(results);
+              setStage('results');
+            }}
           />
         )}
         {stage === 'results' && renderResults()}

@@ -13,9 +13,10 @@ interface Props {
   doctorName: string;
   userTier: string;
   onUpgradeClick: () => void;
+  scanData?: any; // Real scan results
 }
 
-export default function SimpleProgressiveResults({ doctorName, userTier, onUpgradeClick }: Props) {
+export default function SimpleProgressiveResults({ doctorName, userTier, onUpgradeClick, scanData }: Props) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [sections, setSections] = useState([
@@ -43,29 +44,67 @@ export default function SimpleProgressiveResults({ doctorName, userTier, onUpgra
     ));
   };
   
-  const mockData = {
-    basic: {
-      name: `Dr. ${doctorName}`,
-      specialty: 'General Dentistry',
-      experience: '15 years',
-      rating: '4.8/5'
-    },
-    practice: {
-      name: 'Premier Dental Care',
-      location: 'New York, NY',
-      size: 'Medium Practice',
-      technology: 'Modern EMR'
-    },
-    reviews: {
-      total: '127 reviews',
-      sentiment: 'Very Positive',
-      highlights: 'Gentle, Professional, Efficient'
-    },
-    outreach: {
-      channel: 'Email preferred',
-      timing: 'Tuesday 10-11 AM',
-      approach: 'Technology benefits focus'
+  // Use real scan data if available, otherwise fall back to mock
+  const getRealData = () => {
+    if (!scanData) {
+      // Return mock data if no scan data
+      return {
+        basic: {
+          name: `Dr. ${doctorName}`,
+          specialty: 'General Dentistry',
+          experience: '15 years',
+          rating: '4.8/5'
+        },
+        practice: {
+          name: 'Premier Dental Care',
+          location: 'New York, NY',
+          size: 'Medium Practice',
+          technology: 'Modern EMR'
+        },
+        reviews: {
+          total: '127 reviews',
+          sentiment: 'Very Positive',
+          highlights: 'Gentle, Professional, Efficient'
+        },
+        outreach: {
+          channel: 'Email preferred',
+          timing: 'Tuesday 10-11 AM',
+          approach: 'Technology benefits focus'
+        }
+      };
     }
+    
+    // Use real scan data
+    const latest = scanData.enhanced || scanData.basic || scanData.instant;
+    const verification = latest?.verification;
+    
+    return {
+      basic: {
+        name: `Dr. ${doctorName}`,
+        'confidence': `${latest?.confidence || 0}% Match`,
+        'source': latest?.source ? 'Verified' : 'Unverified',
+        'scan stage': latest?.stage || 'Complete'
+      },
+      practice: verification ? {
+        'practice name': verification.practiceName || 'Unknown',
+        'website': verification.verifiedWebsite || 'Not found',
+        'verification': verification.verificationMethod || 'unverified',
+        'confidence': `${verification.confidence}%`
+      } : {
+        'status': 'Searching...',
+        'website': latest?.source || 'Not found',
+        'confidence': `${latest?.confidence || 0}%`
+      },
+      reviews: {
+        'summary': latest?.summary || 'No data',
+        'key points': (latest?.keyPoints || []).slice(0, 3).join(' • ') || 'None'
+      },
+      outreach: {
+        'recommendation': latest?.confidence > 70 ? 'Ready for outreach' : 'Needs verification',
+        'confidence score': `${latest?.confidence || 0}/100`,
+        'best approach': verification?.suggestedConfirmation || 'Email introduction'
+      }
+    };
   };
   
   return (
@@ -102,7 +141,7 @@ export default function SimpleProgressiveResults({ doctorName, userTier, onUpgra
                 />
               ) : (
                 <Box sx={{ color: '#fff' }}>
-                  {Object.entries(mockData[section.id as keyof typeof mockData] || {}).map(([key, value]) => (
+                  {Object.entries(getRealData()[section.id as keyof ReturnType<typeof getRealData>] || {}).map(([key, value]) => (
                     <Box key={key} sx={{ mb: 1 }}>
                       <Typography variant="caption" sx={{ color: '#00ffc6', textTransform: 'uppercase' }}>
                         {key}
