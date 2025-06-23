@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import NavBar from './components/NavBar'
-import { AuthProvider, AuthGuard } from './auth'
+import { AuthProvider } from './auth'
 import MarketInsights from './pages/MarketInsightsSimple'
 import CanvasHome from './pages/CanvasHome'
 import SimpleLogin from './pages/SimpleLogin'

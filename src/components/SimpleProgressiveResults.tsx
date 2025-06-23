@@ -18,7 +18,6 @@ interface Props {
 export default function SimpleProgressiveResults({ doctorName, userTier, onUpgradeClick }: Props) {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const [sections, setSections] = useState([
     { id: 'basic', title: 'Basic Profile', progress: 0, complete: false },
     { id: 'practice', title: 'Practice Details', progress: 0, complete: false },
