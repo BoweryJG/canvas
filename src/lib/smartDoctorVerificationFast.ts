@@ -30,7 +30,7 @@ export async function fastVerifyDoctor(
   specialty?: string,
   practiceName?: string,
   userId?: string,
-  productName?: string
+  _productName?: string
 ): Promise<VerificationResult> {
   // Clean up doctor name
   const cleanDoctorName = doctorName.replace(/^Dr\.\s*/i, '').trim();
