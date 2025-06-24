@@ -3,7 +3,7 @@
  */
 
 import { callBraveSearch } from './apiEndpoints';
-import { smartVerifyDoctor } from './smartDoctorVerification';
+import { smartVerifyDoctor } from './smartDoctorVerificationFast';
 
 export async function simpleFastScan(
   doctorName: string, 
