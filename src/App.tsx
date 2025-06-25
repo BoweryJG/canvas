@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
-import KineticNavBar from './components/KineticNavBar'
+import RepSpheresNavBar from './components/RepSpheresNavBar'
 import { AuthProvider } from './auth'
 import MarketInsights from './pages/MarketInsightsSimple'
 import CanvasHome from './pages/CanvasHome'
@@ -127,7 +127,7 @@ function AppContent() {
           <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
         )}
         <ConnectionStatus />
-        <KineticNavBar />
+        <RepSpheresNavBar />
         <Routes>
           <Route path="/" element={<CanvasHome />} />
           <Route path="/login" element={<SimpleLogin />} />
