@@ -3,6 +3,8 @@
  * Detects doctor mentions in text and fetches their NPI information
  */
 
+import { getApiEndpoint } from '../config/api';
+
 export interface DoctorMention {
   fullName: string;
   firstName: string;
@@ -109,7 +111,7 @@ export async function lookupDoctorNPI(
       search: `${firstName} ${lastName}${state ? ' ' + state : ''}`
     });
     
-    const response = await fetch(`/api/npi-lookup?${params}`);
+    const response = await fetch(`${getApiEndpoint('npiLookup')}?${params}`);
     
     if (!response.ok) {
       throw new Error('NPI lookup failed');

@@ -1,3 +1,34 @@
+:root {
+  --bg-dark: #0a0a0a;
+  --bg-darker: #050505;
+  --panel-dark: #1a1a1a;
+  --panel-darker: #141414;
+  --purple-primary: #9f58fa;
+  --purple-dark: #7e22ce;
+  --purple-light: #a855f7;
+  --blue-accent: #4B96DC;
+  --blue-light: #60a5fa;
+  --green-accent: #4bd48e;
+  --green-neon: #00ff88;
+  --pink-accent: #f53969;
+  --orange-accent: #ff6b35;
+  --cyan-accent: #00d4ff;
+  --yellow-accent: #ffd93d;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-hover: rgba(255, 255, 255, 0.08);
+  --gem-impossible: #ff00ff;
+  --gem-shift: #00ffff;
+  --gem-deep: #ff00aa;
+  --metal-light: #e8e8e8;
+  --metal-mid: #999;
+  --metal-dark: #555;
+  --metal-shadow: #222;
+}
+
 /* Animated Starfield Background */
 .starfield {
     position: fixed;

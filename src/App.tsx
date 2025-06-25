@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
-import NavBar from './components/NavBar'
+import KineticNavBar from './components/KineticNavBar'
 import { AuthProvider } from './auth'
 import MarketInsights from './pages/MarketInsightsSimple'
 import CanvasHome from './pages/CanvasHome'
@@ -11,6 +11,7 @@ import { TestNPIDebug } from './pages/TestNPIDebug'
 import { TestNPIMinimal } from './pages/TestNPIMinimal'
 import ForceAuth from './pages/ForceAuth'
 import AuthTest from './pages/AuthTest'
+import TestAuthModals from './pages/TestAuthModals'
 import { EnhancedResearchPanelWithRender } from './components/EnhancedResearchPanelWithRender'
 import ErrorBoundary from './components/ErrorBoundary'
 import { ConnectionStatus } from './components/ConnectionStatus'
@@ -126,7 +127,7 @@ function AppContent() {
           <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
         )}
         <ConnectionStatus />
-        <NavBar />
+        <KineticNavBar />
         <Routes>
           <Route path="/" element={<CanvasHome />} />
           <Route path="/login" element={<SimpleLogin />} />
@@ -138,6 +139,7 @@ function AppContent() {
           <Route path="/test-npi-minimal" element={<TestNPIMinimal />} />
           <Route path="/force-auth" element={<ForceAuth />} />
           <Route path="/auth-test" element={<AuthTest />} />
+          <Route path="/test-auth-modals" element={<TestAuthModals />} />
         </Routes>
         {/* <ChatLauncher /> */}
         {/* <EnhancedAgentSystem /> */}

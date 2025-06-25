@@ -3,6 +3,8 @@
  * Provides real-time doctor identification via NPI Registry
  */
 
+import { getApiEndpoint } from '../config/api';
+
 export interface NPIDoctor {
   npi: string;
   displayName: string;
@@ -26,7 +28,7 @@ export async function searchDoctorsByName(searchTerm: string): Promise<NPIDoctor
   }
 
   try {
-    const response = await fetch(`/api/npi-lookup?search=${encodeURIComponent(searchTerm)}`);
+    const response = await fetch(`${getApiEndpoint('npiLookup')}?search=${encodeURIComponent(searchTerm)}`);
     
     if (!response.ok) {
       throw new Error('Failed to search NPI registry');
@@ -49,7 +51,7 @@ export async function getDoctorByNPI(npi: string): Promise<NPIDoctor | null> {
   }
 
   try {
-    const response = await fetch(`/api/npi-lookup?npi=${encodeURIComponent(npi)}`);
+    const response = await fetch(`${getApiEndpoint('npiLookup')}?npi=${encodeURIComponent(npi)}`);
     
     if (!response.ok) {
       throw new Error('Failed to fetch doctor by NPI');

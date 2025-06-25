@@ -1,12 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import './LoginModal.css';
+import { useAuth } from '../auth';
+import { useNavigate } from 'react-router-dom';
 
-const LoginModal = ({ isOpen, onClose, onGoogleAuth, onFacebookAuth, onEmailAuth }) => {
+interface LoginModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+}
+
+const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const modalRef = useRef(null);
-  const modalOverlayRef = useRef(null);
+  const [showSuccess] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+  const modalOverlayRef = useRef<HTMLDivElement>(null);
+  const { signInWithProvider } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -43,42 +53,59 @@ const LoginModal = ({ isOpen, onClose, onGoogleAuth, onFacebookAuth, onEmailAuth
     });
 
     // Hover effects for social buttons
-    const socialBtns = modalRef.current.querySelectorAll('.social-btn');
-    socialBtns.forEach(btn => {
-      btn.addEventListener('mouseenter', (e) => {
+    const socialBtns = modalRef.current?.querySelectorAll('.social-btn');
+    socialBtns?.forEach(btn => {
+      const handleEnter = (e: Event) => {
         gsap.to(e.target, {
           duration: 0.3,
           y: -2,
           ease: "power2.out"
         });
-      });
+      };
 
-      btn.addEventListener('mouseleave', (e) => {
+      const handleLeave = (e: Event) => {
         gsap.to(e.target, {
           duration: 0.3,
           y: 0,
           ease: "power2.out"
         });
-      });
+      };
+
+      btn.addEventListener('mouseenter', handleEnter);
+      btn.addEventListener('mouseleave', handleLeave);
+
+      // Cleanup
+      return () => {
+        btn.removeEventListener('mouseenter', handleEnter);
+        btn.removeEventListener('mouseleave', handleLeave);
+      };
     });
 
     // Screw rotation on hover
-    const screws = modalRef.current.querySelectorAll('.screw');
-    screws.forEach((screw) => {
-      screw.addEventListener('mouseenter', () => {
+    const screws = modalRef.current?.querySelectorAll('.screw');
+    screws?.forEach((screw) => {
+      const handleEnter = () => {
         gsap.to(screw, {
           duration: 0.4,
           rotation: "+=360",
           ease: "power2.inOut"
         });
-      });
+      };
+
+      screw.addEventListener('mouseenter', handleEnter);
+
+      return () => {
+        screw.removeEventListener('mouseenter', handleEnter);
+      };
     });
 
     // 3D tilt effect on modal
     const modal = modalRef.current;
+    if (!modal) return;
+    
     let modalRect = modal.getBoundingClientRect();
 
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: MouseEvent) => {
       const x = e.clientX - modalRect.left - modalRect.width / 2;
       const y = e.clientY - modalRect.top - modalRect.height / 2;
       const rotateX = (y / modalRect.height) * 5;
@@ -120,14 +147,14 @@ const LoginModal = ({ isOpen, onClose, onGoogleAuth, onFacebookAuth, onEmailAuth
 
   // Keyboard navigation
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
         handleClose();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   const handleClose = () => {
     gsap.to(modalRef.current, {
@@ -144,39 +171,31 @@ const LoginModal = ({ isOpen, onClose, onGoogleAuth, onFacebookAuth, onEmailAuth
   const handleGoogleAuth = async () => {
     setIsLoading(true);
     
-    // Simulate authentication delay
-    setTimeout(() => {
+    try {
+      await signInWithProvider('google');
+      // OAuth will redirect, so we don't need to do anything here
+    } catch (error) {
+      console.error('Google auth error:', error);
       setIsLoading(false);
-      setShowSuccess(true);
-      setTimeout(() => {
-        setShowSuccess(false);
-        onGoogleAuth();
-      }, 800);
-    }, 1500);
+    }
   };
 
   const handleFacebookAuth = async () => {
     setIsLoading(true);
     
-    // Simulate authentication delay
-    setTimeout(() => {
+    try {
+      await signInWithProvider('facebook');
+      // OAuth will redirect, so we don't need to do anything here
+    } catch (error) {
+      console.error('Facebook auth error:', error);
       setIsLoading(false);
-      setShowSuccess(true);
-      setTimeout(() => {
-        setShowSuccess(false);
-        onFacebookAuth();
-      }, 800);
-    }, 1500);
+    }
   };
 
   const handleEmailAuth = () => {
-    setIsLoading(true);
-    
-    // Simulate loading
-    setTimeout(() => {
-      setIsLoading(false);
-      onEmailAuth();
-    }, 500);
+    // Navigate to simple login page for email/password
+    navigate('/login');
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -201,10 +220,10 @@ const LoginModal = ({ isOpen, onClose, onGoogleAuth, onFacebookAuth, onEmailAuth
           </div>
 
           {/* 4-Point Luxury Screws */}
-          <div className="screw screw-tl" style={{'--screw-index': 0}}></div>
-          <div className="screw screw-tr" style={{'--screw-index': 1}}></div>
-          <div className="screw screw-bl" style={{'--screw-index': 2}}></div>
-          <div className="screw screw-br" style={{'--screw-index': 3}}></div>
+          <div className="screw screw-tl" style={{'--screw-index': 0} as React.CSSProperties}></div>
+          <div className="screw screw-tr" style={{'--screw-index': 1} as React.CSSProperties}></div>
+          <div className="screw screw-bl" style={{'--screw-index': 2} as React.CSSProperties}></div>
+          <div className="screw screw-br" style={{'--screw-index': 3} as React.CSSProperties}></div>
 
           {/* Close Button */}
           <button className="close-btn" aria-label="Close" onClick={handleClose}></button>
@@ -252,7 +271,7 @@ const LoginModal = ({ isOpen, onClose, onGoogleAuth, onFacebookAuth, onEmailAuth
           {/* Social Auth Section */}
           <div className="auth-section">
             {/* Google Sign In */}
-            <button className="social-btn google" onClick={handleGoogleAuth}>
+            <button className="social-btn google" onClick={handleGoogleAuth} disabled={isLoading}>
               <span className="social-icon">
                 <svg width="20" height="20" viewBox="0 0 48 48">
                   <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
@@ -265,7 +284,7 @@ const LoginModal = ({ isOpen, onClose, onGoogleAuth, onFacebookAuth, onEmailAuth
             </button>
 
             {/* Facebook Sign In */}
-            <button className="social-btn facebook" onClick={handleFacebookAuth}>
+            <button className="social-btn facebook" onClick={handleFacebookAuth} disabled={isLoading}>
               <span className="social-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>

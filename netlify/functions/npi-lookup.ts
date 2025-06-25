@@ -14,8 +14,10 @@ export const handler: Handler = async (event, context) => {
 
   try {
     const search = event.queryStringParameters?.search || '';
+    console.log(`[NPI Lookup] Search query: "${search}"`);
     
     if (search.length < 3) {
+      console.log('[NPI Lookup] Query too short, returning empty array');
       return {
         statusCode: 200,
         headers,
@@ -92,16 +94,34 @@ export const handler: Handler = async (event, context) => {
       ...(state && { state: state }),
       ...taxonomyParams
     });
+    
+    console.log(`[NPI Lookup] API params:`, params.toString());
+    console.log(`[NPI Lookup] firstName: "${firstName}", lastName: "${lastName}", state: "${state}"`);
 
+    // Add timeout to prevent hanging requests
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+    
     const npiResponse = await fetch(
-      `https://npiregistry.cms.hhs.gov/api/?${params}`
+      `https://npiregistry.cms.hhs.gov/api/?${params}`,
+      { 
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (compatible; CanvasApp/1.0)'
+        }
+      }
     );
+    
+    clearTimeout(timeoutId);
 
     if (!npiResponse.ok) {
-      throw new Error('NPI API error');
+      console.error(`[NPI Lookup] API error: ${npiResponse.status} ${npiResponse.statusText}`);
+      throw new Error(`NPI API error: ${npiResponse.status}`);
     }
 
     const data = await npiResponse.json();
+    console.log(`[NPI Lookup] API returned ${data.result_count || 0} results`);
     
     // Define priority specialties for dental/aesthetic focus
     const prioritySpecialties = [
@@ -224,12 +244,26 @@ export const handler: Handler = async (event, context) => {
       body: JSON.stringify(doctors)
     };
 
-  } catch (error) {
-    console.error('NPI lookup error:', error);
+  } catch (error: any) {
+    console.error('[NPI Lookup] Error:', error.message || error);
+    console.error('[NPI Lookup] Stack:', error.stack);
+    
+    // Handle timeout specifically
+    if (error.name === 'AbortError') {
+      return {
+        statusCode: 504,
+        headers,
+        body: JSON.stringify({ error: 'NPI API request timed out after 8 seconds' })
+      };
+    }
+    
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Failed to search NPI registry' })
+      body: JSON.stringify({ 
+        error: 'Failed to search NPI registry',
+        details: error.message || 'Unknown error'
+      })
     };
   }
 };
