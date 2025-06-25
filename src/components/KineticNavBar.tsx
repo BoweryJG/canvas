@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { navigationStyles } from './KineticStyles';
 
 const KineticNavBar = () => {
-  const navRef = useRef(null);
-  const logoRef = useRef(null);
+  const navRef = useRef<HTMLElement>(null);
+  const logoRef = useRef<HTMLAnchorElement>(null);
   const [systemMessage, setSystemMessage] = useState('⏱ AI SYNC 97%');
 
   // Update theme colors based on scroll position
@@ -61,7 +61,7 @@ const KineticNavBar = () => {
     // 3D Tilt Effect on Logo
     const logo = logoRef.current;
     if (logo) {
-      const handleMouseMove = (e) => {
+      const handleMouseMove = (e: MouseEvent) => {
         const rect = logo.getBoundingClientRect();
         const x = e.clientX - rect.left - rect.width / 2;
         const y = e.clientY - rect.top - rect.height / 2;
