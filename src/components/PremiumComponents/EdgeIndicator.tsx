@@ -8,7 +8,7 @@ interface EdgeIndicatorProps {
   animate?: boolean;
 }
 
-const Indicator = styled(Box)<{ 
+const Indicator = styled('div')<{ 
   position: string; 
   color?: string;
   animate?: boolean;

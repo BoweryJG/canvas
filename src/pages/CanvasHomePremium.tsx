@@ -110,11 +110,6 @@ const CanvasHomePremium: React.FC = () => {
     setStage('results');
   };
   
-  const _handleNewScan = () => {
-    setScanData(null);
-    setScanResults(null);
-    setStage('input');
-  };
   
   return (
     <>
