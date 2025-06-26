@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from
 import RepSpheresNavBar from './components/RepSpheresNavBar'
 import { AuthProvider } from './auth'
 import MarketInsights from './pages/MarketInsightsSimple'
-import CanvasHome from './pages/CanvasHome'
+import CanvasHomePremium from './pages/CanvasHomePremium'
 import SimpleLogin from './pages/SimpleLogin'
 import AuthCallback from './pages/AuthCallback'
 import { TestNPI } from './pages/TestNPI'
@@ -129,7 +129,7 @@ function AppContent() {
         <ConnectionStatus />
         <RepSpheresNavBar />
         <Routes>
-          <Route path="/" element={<CanvasHome />} />
+          <Route path="/" element={<CanvasHomePremium />} />
           <Route path="/login" element={<SimpleLogin />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/research" element={<EnhancedResearchPanelWithRender />} />
