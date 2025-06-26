@@ -128,7 +128,7 @@ const Indicator = styled(Box)<{
   `}
 `;
 
-const GlowEffect = styled(Box)<{ position: string }>`
+const GlowEffect = styled(Box)<{ glowPosition: string }>`
   position: absolute;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -138,14 +138,25 @@ const GlowEffect = styled(Box)<{ position: string }>`
   }
   
   ${props => {
-    switch(props.position) {
+    switch(props.glowPosition) {
       case 'left':
+        return `
+          top: 0;
+          bottom: 0;
+          width: 12px;
+          left: -6px;
+          background: radial-gradient(
+            ellipse at center,
+            rgba(0, 255, 255, 0.3),
+            transparent
+          );
+        `;
       case 'right':
         return `
           top: 0;
           bottom: 0;
           width: 12px;
-          ${props.position}: -6px;
+          right: -6px;
           background: radial-gradient(
             ellipse at center,
             rgba(0, 255, 255, 0.3),
@@ -153,12 +164,23 @@ const GlowEffect = styled(Box)<{ position: string }>`
           );
         `;
       case 'top':
+        return `
+          left: 0;
+          right: 0;
+          height: 12px;
+          top: -6px;
+          background: radial-gradient(
+            ellipse at center,
+            rgba(0, 255, 255, 0.3),
+            transparent
+          );
+        `;
       case 'bottom':
         return `
           left: 0;
           right: 0;
           height: 12px;
-          ${props.position}: -6px;
+          bottom: -6px;
           background: radial-gradient(
             ellipse at center,
             rgba(0, 255, 255, 0.3),
@@ -176,7 +198,7 @@ const EdgeIndicator: React.FC<EdgeIndicatorProps> = ({
 }) => {
   return (
     <Indicator position={position} color={color} animate={animate}>
-      <GlowEffect position={position} />
+      <GlowEffect glowPosition={position} />
     </Indicator>
   );
 };

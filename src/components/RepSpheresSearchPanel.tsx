@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, TextField, Button, Chip, Fade } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, TextField, Button, Chip } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   AutoAwesome, 
-  Search, 
   BusinessCenter,
   LocalHospital,
   LocationOn
@@ -257,7 +256,7 @@ const RepSpheresSearchPanel: React.FC<Props> = ({
       if (doctorName.length > 2) {
         setIsSearching(true);
         try {
-          const results = await searchDoctorsByName(doctorName, location);
+          const results = await searchDoctorsByName(doctorName);
           if (results.length > 0) {
             setSelectedDoctor(results[0]);
             setShowNPIResult(true);
@@ -405,7 +404,7 @@ const RepSpheresSearchPanel: React.FC<Props> = ({
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                   <Box>
                     <Typography variant="h6" sx={{ color: '#00ffc6', mb: 0.5 }}>
-                      {selectedDoctor.name}
+                      {selectedDoctor.displayName}
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
                       {selectedDoctor.specialty}

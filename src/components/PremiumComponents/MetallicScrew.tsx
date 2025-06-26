@@ -9,7 +9,7 @@ interface MetallicScrewProps {
 }
 
 const ScrewWrapper = styled(Box)<{ 
-  position: string; 
+  screwPosition: string; 
   size: number;
   angle: number;
 }>`
@@ -33,7 +33,7 @@ const ScrewWrapper = styled(Box)<{
   z-index: 10;
   
   ${props => {
-    switch(props.position) {
+    switch(props.screwPosition) {
       case 'top-left':
         return `top: 10px; left: 10px;`;
       case 'top-right':
@@ -150,7 +150,7 @@ const MetallicScrew: React.FC<MetallicScrewProps> = ({
   const screwAngle = angle ?? Math.random() * 45 - 22.5;
   
   return (
-    <ScrewWrapper position={position} size={size} angle={screwAngle}>
+    <ScrewWrapper screwPosition={position} size={size} angle={screwAngle}>
       <Screw angle={screwAngle}>
         <ScrewJewel />
       </Screw>

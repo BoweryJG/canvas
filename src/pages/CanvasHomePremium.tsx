@@ -138,11 +138,10 @@ const CanvasHomePremium: React.FC = () => {
         
         {stage === 'results' && scanResults && scanData && (
           <SimpleProgressiveResults
-            doctor={scanData.doctorName}
-            product={scanData.product}
-            location={scanData.location}
-            scanResults={scanResults}
-            onNewScan={handleNewScan}
+            doctorName={scanData.doctorName}
+            userTier={user?.subscription?.tier || 'free'}
+            onUpgradeClick={() => console.log('Upgrade clicked')}
+            scanData={scanResults}
           />
         )}
       </MainContainer>

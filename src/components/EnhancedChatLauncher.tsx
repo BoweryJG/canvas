@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Box, IconButton, Typography, Fade, Collapse } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, IconButton, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -220,7 +220,7 @@ const agents = [
 
 const EnhancedChatLauncher: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
+  const [, setSelectedAgent] = useState<string | null>(null);
   const [showPulse, setShowPulse] = useState(true);
   
   useEffect(() => {
