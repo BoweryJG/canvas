@@ -2,34 +2,85 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const ConnectionStatus: React.FC = () => {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isOnline, setIsOnline] = useState(true); // Default to online
   const [showStatus, setShowStatus] = useState(false);
 
+  // More reliable connectivity check
+  const checkConnectivity = async () => {
+    try {
+      // Check if we can reach the development server
+      const response = await fetch(window.location.origin + '/favicon.ico', {
+        method: 'HEAD',
+        cache: 'no-cache',
+        timeout: 5000
+      });
+      return response.ok;
+    } catch {
+      try {
+        // Fallback: check if we can reach a reliable external resource
+        const response = await fetch('https://www.google.com/favicon.ico', {
+          method: 'HEAD',
+          cache: 'no-cache',
+          mode: 'no-cors',
+          timeout: 5000
+        });
+        return true; // If no error thrown, we have connectivity
+      } catch {
+        return false;
+      }
+    }
+  };
+
   useEffect(() => {
-    const handleOnline = () => {
-      setIsOnline(true);
-      setShowStatus(true);
-      setTimeout(() => setShowStatus(false), 3000);
+    const handleOnline = async () => {
+      const actuallyOnline = await checkConnectivity();
+      if (actuallyOnline) {
+        setIsOnline(true);
+        setShowStatus(true);
+        setTimeout(() => setShowStatus(false), 3000);
+      }
     };
 
-    const handleOffline = () => {
-      setIsOnline(false);
-      setShowStatus(true);
+    const handleOffline = async () => {
+      const actuallyOnline = await checkConnectivity();
+      if (!actuallyOnline) {
+        setIsOnline(false);
+        setShowStatus(true);
+      }
     };
+
+    // Initial connectivity check
+    const initialCheck = async () => {
+      const online = await checkConnectivity();
+      setIsOnline(online);
+      if (!online) {
+        setShowStatus(true);
+      }
+    };
+
+    initialCheck();
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // Check initial status
-    if (!navigator.onLine) {
-      setShowStatus(true);
-    }
+    // Periodic connectivity check every 30 seconds
+    const interval = setInterval(async () => {
+      const online = await checkConnectivity();
+      if (online !== isOnline) {
+        setIsOnline(online);
+        setShowStatus(true);
+        if (online) {
+          setTimeout(() => setShowStatus(false), 3000);
+        }
+      }
+    }, 30000);
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      clearInterval(interval);
     };
-  }, []);
+  }, [isOnline]);
 
   return (
     <AnimatePresence>
