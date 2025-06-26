@@ -128,7 +128,7 @@ const Indicator = styled(Box)<{
   `}
 `;
 
-const GlowEffect = styled(Box)<{ glowPosition: string }>`
+const GlowEffect = styled('div')<{ glowPosition: string }>`
   position: absolute;
   opacity: 0;
   transition: opacity 0.3s ease;
