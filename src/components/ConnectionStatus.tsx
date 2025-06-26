@@ -9,22 +9,40 @@ export const ConnectionStatus: React.FC = () => {
   const checkConnectivity = async () => {
     try {
       // Check if we can reach the development server
-      const response = await fetch(window.location.origin + '/favicon.ico', {
-        method: 'HEAD',
-        cache: 'no-cache',
-        timeout: 5000
-      });
-      return response.ok;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      try {
+        const response = await fetch(window.location.origin + '/favicon.ico', {
+          method: 'HEAD',
+          cache: 'no-cache',
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        return response.ok;
+      } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+      }
     } catch {
       try {
         // Fallback: check if we can reach a reliable external resource
-        const response = await fetch('https://www.google.com/favicon.ico', {
-          method: 'HEAD',
-          cache: 'no-cache',
-          mode: 'no-cors',
-          timeout: 5000
-        });
-        return true; // If no error thrown, we have connectivity
+        const fallbackController = new AbortController();
+        const fallbackTimeoutId = setTimeout(() => fallbackController.abort(), 5000);
+        
+        try {
+          await fetch('https://www.google.com/favicon.ico', {
+            method: 'HEAD',
+            cache: 'no-cache',
+            mode: 'no-cors',
+            signal: fallbackController.signal
+          });
+          clearTimeout(fallbackTimeoutId);
+          return true; // If no error thrown, we have connectivity
+        } catch (error) {
+          clearTimeout(fallbackTimeoutId);
+          throw error;
+        }
       } catch {
         return false;
       }
