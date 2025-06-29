@@ -170,9 +170,9 @@ const RepSpheresNavBar = () => {
                     </linearGradient>
                     <radialGradient id="jewelGradient" cx="50%" cy="50%" r="50%">
                       <stop offset="0%" stopColor="#fff" stopOpacity="1" />
-                      <stop offset="30%" stopColor="#ff00ff" stopOpacity="1" />
-                      <stop offset="60%" stopColor="#00ffff" stopOpacity="1" />
-                      <stop offset="100%" stopColor="#ff00aa" stopOpacity="0.9" />
+                      <stop offset="30%" stopColor="#00D4FF" stopOpacity="1" />
+                      <stop offset="60%" stopColor="#00FFE1" stopOpacity="1" />
+                      <stop offset="100%" stopColor="#00FFC6" stopOpacity="0.9" />
                     </radialGradient>
                     <filter id="glowTrail">
                       <feGaussianBlur in="SourceGraphic" stdDeviation="0.6" result="blur" />

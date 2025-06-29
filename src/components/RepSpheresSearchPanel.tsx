@@ -39,11 +39,11 @@ const HeroTitle = styled(motion.h1)`
   font-weight: 900;
   margin: 0 0 1rem 0;
   background: linear-gradient(
-    135deg, 
-    #ffffff 0%, 
-    rgba(255, 0, 255, 1) 25%,
-    rgba(0, 255, 255, 1) 50%,
-    rgba(255, 0, 170, 1) 75%,
+    135deg,
+    #ffffff 0%,
+    rgba(0, 212, 255, 1) 25%,
+    rgba(0, 255, 225, 1) 50%,
+    rgba(0, 255, 198, 1) 75%,
     #ffffff 100%
   );
   background-size: 200% 200%;
@@ -84,7 +84,7 @@ const JewelIcon = styled(motion.div)`
   svg {
     width: 100%;
     height: 100%;
-    filter: drop-shadow(0 0 20px rgba(255, 0, 255, 0.5));
+    filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.5));
   }
 `;
 
@@ -192,7 +192,7 @@ const LaunchButton = styled(Button)`
     width: 100%;
     height: 100%;
     border: 2px solid;
-    border-color: transparent #ff00ff transparent #00ffff;
+    border-color: transparent #00D4FF transparent #00FFE1;
     border-radius: 50px;
     transform: translate(-50%, -50%) scale(1.1);
     opacity: 0;
@@ -305,9 +305,9 @@ const RepSpheresSearchPanel: React.FC<Props> = ({
             <defs>
               <radialGradient id="jewelGradient" cx="50%" cy="50%" r="50%">
                 <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
-                <stop offset="30%" stopColor="#ff00ff" stopOpacity="1" />
-                <stop offset="60%" stopColor="#00ffff" stopOpacity="1" />
-                <stop offset="100%" stopColor="#ff00aa" stopOpacity="0.9" />
+                <stop offset="30%" stopColor="#00D4FF" stopOpacity="1" />
+                <stop offset="60%" stopColor="#00FFE1" stopOpacity="1" />
+                <stop offset="100%" stopColor="#00FFC6" stopOpacity="0.9" />
               </radialGradient>
             </defs>
             <polygon 
