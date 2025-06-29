@@ -1,0 +1,1 @@
+export { IntelligenceInterface } from './InterfaceContainer';

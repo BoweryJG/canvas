@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import { simpleFastScan } from '../lib/simpleFastScan';
-import { IntelligenceGauge } from './IntelligenceGauge';
+import { IntelligenceInterface } from './IntelligenceInterface';
 
 interface Props {
   doctorName: string;
@@ -194,36 +194,38 @@ export default function SimpleCinematicScan({ doctorName, location, onComplete }
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        style={{ marginBottom: 40 }}
+        style={{ marginBottom: 30 }}
       >
-        <Typography 
-          variant="h3" 
-          sx={{ 
+        <Typography
+          variant="h3"
+          sx={{
             fontWeight: 800,
-            background: 'linear-gradient(90deg, #00ffc6 0%, #7B42F6 100%)',
+            background: 'linear-gradient(90deg, #00D4FF 0%, #00FFC6 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             textAlign: 'center',
-            mb: 1
+            mb: 1,
+            fontFamily: "'Orbitron', 'Exo 2', 'Rajdhani', monospace"
           }}
         >
           REPSPHERES
         </Typography>
-        <Typography 
-          variant="h6" 
-          sx={{ 
+        <Typography
+          variant="h6"
+          sx={{
             color: 'rgba(255,255,255,0.7)',
             textAlign: 'center',
             letterSpacing: '0.2em',
-            textTransform: 'uppercase'
+            textTransform: 'uppercase',
+            fontFamily: "'Orbitron', 'Exo 2', 'Rajdhani', monospace"
           }}
         >
           Intelligence Scan
         </Typography>
       </motion.div>
       
-      {/* Intelligence Gauge */}
-      <IntelligenceGauge
+      {/* Intelligence Interface */}
+      <IntelligenceInterface
         score={intelligenceScore}
         isScanning={isScanning}
         scanStage={scanStage}
@@ -237,24 +239,26 @@ export default function SimpleCinematicScan({ doctorName, location, onComplete }
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        style={{ marginTop: 40 }}
+        style={{ marginTop: 30 }}
       >
-        <Typography 
-          variant="h5" 
-          sx={{ 
+        <Typography
+          variant="h5"
+          sx={{
             textAlign: 'center',
             color: 'rgba(255,255,255,0.9)',
-            mb: 1
+            mb: 1,
+            fontFamily: "'Orbitron', 'Exo 2', 'Rajdhani', monospace"
           }}
         >
           Dr. {doctorName}
         </Typography>
         {location && (
-          <Typography 
-            variant="body1" 
-            sx={{ 
+          <Typography
+            variant="body1"
+            sx={{
               textAlign: 'center',
-              color: 'rgba(255,255,255,0.6)'
+              color: 'rgba(255,255,255,0.6)',
+              fontFamily: "'Orbitron', 'Exo 2', 'Rajdhani', monospace"
             }}
           >
             {location}
