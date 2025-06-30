@@ -29,24 +29,30 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
     gsap.registerPlugin();
 
     // Modal entrance animation with stagger
-    gsap.from(modalRef.current, {
-      duration: 0.8,
-      scale: 0.8,
-      rotationX: 10,
-      rotationY: 10,
-      opacity: 0,
-      ease: "elastic.out(1, 0.5)",
-      delay: 0.1
-    });
+    if (modalRef.current) {
+      gsap.from(modalRef.current, {
+        duration: 0.8,
+        scale: 0.8,
+        rotationX: 10,
+        rotationY: 10,
+        opacity: 0,
+        ease: "elastic.out(1, 0.5)",
+        delay: 0.1
+      });
+    }
 
-    gsap.from(".screw", {
-      duration: 0.6,
-      scale: 0,
-      rotation: -180,
-      stagger: 0.1,
-      ease: "back.out(1.7)",
-      delay: 0.5
-    });
+    // Only animate screws if they exist
+    const screwElements = document.querySelectorAll(".screw");
+    if (screwElements.length > 0) {
+      gsap.from(screwElements, {
+        duration: 0.6,
+        scale: 0,
+        rotation: -180,
+        stagger: 0.1,
+        ease: "back.out(1.7)",
+        delay: 0.5
+      });
+    }
 
     gsap.from(".power-node", {
       duration: 0.4,

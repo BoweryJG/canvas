@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth';
 import LoginModal from './LoginModal';
 import LogoutModal from './LogoutModal';
+import SignUpModal from './SignUpModal';
 import './RepSpheresNavBar.css';
 
 const RepSpheresNavBar = () => {
@@ -11,6 +12,7 @@ const RepSpheresNavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
+  const [signUpModalOpen, setSignUpModalOpen] = useState(false);
   const { user } = useAuth();
   const location = useLocation();
 
@@ -107,13 +109,17 @@ const RepSpheresNavBar = () => {
     return location.pathname === href;
   };
 
-  const handleGetStarted = () => {
-    if (user) {
-      // Already logged in, maybe redirect to dashboard
-      window.location.href = '/';
-    } else {
-      setLoginModalOpen(true);
-    }
+  const handleLogin = () => {
+    setLoginModalOpen(true);
+  };
+
+  const handleSignUp = () => {
+    setSignUpModalOpen(true);
+  };
+
+  const handleDashboard = () => {
+    // Already logged in, redirect to dashboard
+    window.location.href = '/';
   };
 
   const handleMoreClick = () => {
@@ -242,9 +248,20 @@ const RepSpheresNavBar = () => {
 
             {/* Right Actions */}
             <div className="nav-actions">
-              <button className="nav-cta" onClick={handleGetStarted}>
-                {user ? 'Dashboard' : 'Get Started'}
-              </button>
+              {user ? (
+                <button className="nav-cta" onClick={handleDashboard}>
+                  Dashboard
+                </button>
+              ) : (
+                <>
+                  <button className="nav-cta" onClick={handleLogin}>
+                    Login
+                  </button>
+                  <button className="nav-cta" onClick={handleSignUp}>
+                    Sign Up
+                  </button>
+                </>
+              )}
               <button className="nav-more" aria-label="More options" onClick={handleMoreClick}>
                 <div className="nav-more-icon">
                   <span className="nav-more-dot"></span>
@@ -258,16 +275,24 @@ const RepSpheresNavBar = () => {
       </div>
 
       {/* Auth Modals */}
-      <LoginModal 
-        isOpen={loginModalOpen} 
+      <LoginModal
+        isOpen={loginModalOpen}
         onClose={() => setLoginModalOpen(false)}
         onSuccess={() => {
           setLoginModalOpen(false);
           window.location.reload();
         }}
       />
-      <LogoutModal 
-        isOpen={logoutModalOpen} 
+      <SignUpModal
+        isOpen={signUpModalOpen}
+        onClose={() => setSignUpModalOpen(false)}
+        onSuccess={() => {
+          setSignUpModalOpen(false);
+          window.location.reload();
+        }}
+      />
+      <LogoutModal
+        isOpen={logoutModalOpen}
         onClose={() => setLogoutModalOpen(false)}
         onSuccess={() => {
           setLogoutModalOpen(false);
