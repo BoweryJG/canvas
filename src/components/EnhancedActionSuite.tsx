@@ -384,8 +384,16 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
     try {
       console.log('Generating comprehensive 20+ page deep research report...');
       
-      // Create fallback research data if not available
-      const fallbackResearchData = researchData || {
+      // DEBUG: Log available data sources
+      console.log('🔍 DEBUGGING DATA SOURCES:');
+      console.log('scanResult:', scanResult);
+      console.log('researchData:', researchData);
+      console.log('instantIntel:', instantIntel);
+      console.log('scanResult.specialty:', scanResult.specialty);
+      console.log('scanResult.location:', scanResult.location);
+      
+      // If we have real data, use it intelligently instead of fallback
+      const intelligentResearchData = researchData || {
         doctorName: scanResult.doctor || 'Healthcare Professional',
         practiceInfo: {
           name: `${scanResult.doctor || 'Healthcare Professional'} Medical Practice`,
@@ -426,7 +434,9 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         completedAt: new Date().toISOString()
       };
       
-      const pdfBlob = await generateDeepResearchReport(scanResult, fallbackResearchData, {
+      console.log('📊 FINAL DATA BEING SENT TO REPORT:', intelligentResearchData);
+      
+      const pdfBlob = await generateDeepResearchReport(scanResult, intelligentResearchData, {
         includeMarketAnalysis: true,
         includeCompetitorProfiles: true,
         includeIndustryTrends: true,
@@ -499,8 +509,15 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
     try {
       console.log(`Generating ${reportType} sales rep report...`);
       
-      // Create fallback research data if not available
-      const fallbackResearchData = researchData || {
+      // DEBUG: Log available data sources for sales report
+      console.log('🔍 DEBUGGING SALES REPORT DATA SOURCES:');
+      console.log('scanResult:', scanResult);
+      console.log('researchData:', researchData);
+      console.log('instantIntel:', instantIntel);
+      console.log('salesRepInfo:', salesRepInfo);
+      
+      // Create intelligent research data instead of generic fallback
+      const intelligentSalesResearchData = researchData || {
         doctorName: scanResult.doctor || 'Healthcare Professional',
         practiceInfo: {
           name: `${scanResult.doctor || 'Healthcare Professional'} Medical Practice`,
@@ -552,45 +569,50 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       
       switch (reportType) {
         case 'mckinsey_executive':
+          console.log('📊 SENDING TO MCKINSEY REPORT:', intelligentSalesResearchData);
           pdfBlob = await generateMcKinseyExecutiveReport(
             scanResult,
-            fallbackResearchData,
+            intelligentSalesResearchData,
             safeSalesRepInfo.name,
             safeSalesRepInfo.company,
             safeSalesRepInfo.product
           );
           break;
         case 'initial_outreach':
+          console.log('📊 SENDING TO INITIAL OUTREACH REPORT:', intelligentSalesResearchData);
           pdfBlob = await generateInitialOutreachReport(
             scanResult,
-            fallbackResearchData,
+            intelligentSalesResearchData,
             safeSalesRepInfo.name,
             safeSalesRepInfo.company,
             safeSalesRepInfo.product
           );
           break;
         case 'follow_up':
+          console.log('📊 SENDING TO FOLLOW UP REPORT:', intelligentSalesResearchData);
           pdfBlob = await generateFollowUpReport(
             scanResult,
-            fallbackResearchData,
+            intelligentSalesResearchData,
             safeSalesRepInfo.name,
             safeSalesRepInfo.company,
             safeSalesRepInfo.product
           );
           break;
         case 'breakthrough':
+          console.log('📊 SENDING TO BREAKTHROUGH REPORT:', intelligentSalesResearchData);
           pdfBlob = await generateBreakthroughReport(
             scanResult,
-            fallbackResearchData,
+            intelligentSalesResearchData,
             safeSalesRepInfo.name,
             safeSalesRepInfo.company,
             safeSalesRepInfo.product
           );
           break;
         case 'closing':
+          console.log('📊 SENDING TO CLOSING REPORT:', intelligentSalesResearchData);
           pdfBlob = await generateClosingReport(
             scanResult,
-            fallbackResearchData,
+            intelligentSalesResearchData,
             safeSalesRepInfo.name,
             safeSalesRepInfo.company,
             safeSalesRepInfo.product
