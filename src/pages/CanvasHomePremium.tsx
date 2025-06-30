@@ -6,7 +6,7 @@ import SimpleCinematicScan from '../components/SimpleCinematicScan';
 import DoctorConfirmationPanel from '../components/DoctorConfirmationPanel';
 import EnhancedActionSuite from '../components/EnhancedActionSuite';
 import EnhancedChatLauncher from '../components/EnhancedChatLauncher';
-import { useAuth } from '../auth';
+import { useAuth } from '../auth/AuthContext';
 import { checkUserCredits } from '../lib/creditManager';
 
 // Premium gradient background with RepSpheres styling
