@@ -120,16 +120,22 @@ function AppContent() {
     };
   }, []);
 
+  console.log('App: About to render main app content');
+  
   return (
     <ErrorBoundary>
       <AuthProvider>
-        {showOnboarding && (
+        {/* DEBUG: Temporarily disable onboarding */}
+        {false && showOnboarding && (
           <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
         )}
         <ConnectionStatus />
         <RepSpheresNavBar />
         <Routes>
-          <Route path="/" element={<CanvasHomePremium />} />
+          <Route path="/" element={(() => {
+            console.log('DEBUG: Route "/" is being rendered');
+            return <CanvasHomePremium />;
+          })()} />
           <Route path="/login" element={<SimpleLogin />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/research" element={<EnhancedResearchPanelWithRender />} />
@@ -143,7 +149,8 @@ function AppContent() {
         </Routes>
         {/* <ChatLauncher /> */}
         {/* <EnhancedAgentSystem /> */}
-        <CanvasAIPro />
+        {/* DEBUG: Temporarily disable CanvasAIPro */}
+        {/* <CanvasAIPro /> */}
         {/* <AISalesAgentLauncher /> */}
       </AuthProvider>
     </ErrorBoundary>

@@ -60,13 +60,18 @@ const MainContainer = styled(Box)`
 `;
 
 const CanvasHomePremium: React.FC = () => {
+  console.log('CanvasHomePremium: Component starting to render');
+  
   const [stage, setStage] = useState<'input' | 'scanning-basic' | 'confirmation' | 'scanning-deep' | 'campaigns'>('input');
   const [scanData, setScanData] = useState<any>(null);
   const [basicScanResults, setBasicScanResults] = useState<any>(null);
   const [deepScanResults, setDeepScanResults] = useState<any>(null);
   const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
   const [creditError] = useState('');
+  
+  console.log('CanvasHomePremium: About to call useAuth');
   const { user } = useAuth();
+  console.log('CanvasHomePremium: useAuth called successfully, user:', user);
   
   useEffect(() => {
     const loadCredits = async () => {
@@ -106,6 +111,9 @@ const CanvasHomePremium: React.FC = () => {
     setStage('campaigns');
   };
   
+  
+  console.log('CanvasHomePremium: About to render, stage:', stage);
+  console.log('CanvasHomePremium: creditsRemaining:', creditsRemaining);
   
   return (
     <>
