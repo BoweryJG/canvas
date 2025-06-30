@@ -403,7 +403,7 @@ export const EnhancedAgentSystem: React.FC<EnhancedAgentSystemProps> = ({
                         key={agent.id}
                         icon={<agent.icon sx={{ fontSize: 20 }} />}
                         iconPosition="start"
-                        label={agent.name.split(' ')[0]}
+                        label={agent?.name ? agent.name.split(' ')[0] : 'Agent'}
                       />
                     ))}
                   </Tabs>

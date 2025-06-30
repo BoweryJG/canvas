@@ -107,7 +107,7 @@ const AgentSelector: React.FC<AgentSelectorProps> = ({
         onClick={() => setShowDropdown(!showDropdown)}
         className="flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg transition-colors w-full"
       >
-        {selectedAgent ? (
+        {selectedAgent && selectedAgent.name ? (
           <>
             <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${getAgentColor(selectedAgent.name)} p-0.5`}>
               <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-lg">
@@ -117,9 +117,11 @@ const AgentSelector: React.FC<AgentSelectorProps> = ({
             <div className="text-left flex-1">
               <div className="text-white font-medium">{selectedAgent.name}</div>
               <div className="text-xs text-gray-400">
-                {selectedProcedure 
+                {selectedProcedure && selectedProcedure.name
                   ? `Specialized in ${selectedProcedure.name}`
-                  : selectedAgent.specialty.slice(0, 2).join(', ')
+                  : selectedAgent.specialty && selectedAgent.specialty.length > 0
+                    ? selectedAgent.specialty.slice(0, 2).join(', ')
+                    : 'General Agent'
                 }
               </div>
             </div>
@@ -145,38 +147,45 @@ const AgentSelector: React.FC<AgentSelectorProps> = ({
               <div className="text-xs text-gray-400 px-3 py-2 font-medium">AVAILABLE AGENTS</div>
               
               {agents.map((agent) => (
-                <button
-                  key={agent.id}
-                  onClick={() => {
-                    onSelectAgent(agent);
-                    setShowDropdown(false);
-                  }}
-                  className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
-                    selectedAgent?.id === agent.id 
-                      ? 'bg-gradient-to-r from-[#00ffc6]/20 to-[#00d4ff]/20 border border-[#00ffc6]/40' 
-                      : 'hover:bg-white/5'
-                  }`}
-                >
-                  <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAgentColor(agent.name)} p-0.5`}>
-                    <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-xl">
-                      {getAgentIcon(agent.name)}
+                agent && agent.name ? (
+                  <button
+                    key={agent.id}
+                    onClick={() => {
+                      onSelectAgent(agent);
+                      setShowDropdown(false);
+                    }}
+                    className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
+                      selectedAgent?.id === agent.id
+                        ? 'bg-gradient-to-r from-[#00ffc6]/20 to-[#00d4ff]/20 border border-[#00ffc6]/40'
+                        : 'hover:bg-white/5'
+                    }`}
+                  >
+                    <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${getAgentColor(agent.name)} p-0.5`}>
+                      <div className="w-full h-full rounded-full bg-black flex items-center justify-center text-xl">
+                        {getAgentIcon(agent.name)}
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex-1 text-left">
-                    <div className="text-white font-medium">{agent.name}</div>
-                    <div className="text-xs text-gray-400">{agent.specialty.join(', ')}</div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {agent.personality.approach} • {agent.personality.tone}
+                    
+                    <div className="flex-1 text-left">
+                      <div className="text-white font-medium">{agent.name}</div>
+                      <div className="text-xs text-gray-400">
+                        {agent.specialty && agent.specialty.length > 0 ? agent.specialty.join(', ') : 'General Agent'}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {agent.personality && agent.personality.approach && agent.personality.tone
+                          ? `${agent.personality.approach} • ${agent.personality.tone}`
+                          : 'Professional Assistant'
+                        }
+                      </div>
                     </div>
-                  </div>
 
-                  {selectedAgent?.id === agent.id && (
-                    <svg className="w-5 h-5 text-[#00ffc6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  )}
-                </button>
+                    {selectedAgent?.id === agent.id && (
+                      <svg className="w-5 h-5 text-[#00ffc6]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+                ) : null
               ))}
             </div>
 

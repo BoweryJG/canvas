@@ -250,9 +250,11 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
         ? `${BACKEND_URL}/api/canvas/conversations/with-procedure`
         : `${BACKEND_URL}/api/canvas/conversations`;
 
-      const title = selectedProcedure
+      const title = selectedProcedure && selectedProcedure.name && selectedAgent?.name
         ? `${selectedProcedure.name} with ${selectedAgent.name}`
-        : `Chat with ${selectedAgent.name}`;
+        : selectedAgent?.name
+          ? `Chat with ${selectedAgent.name}`
+          : 'Chat with Agent';
 
       const body = selectedProcedure
         ? {

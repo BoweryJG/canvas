@@ -379,7 +379,7 @@ export const CanvasMainSearch: React.FC = () => {
                     </IconWrapper>
 
                     <Typography variant="h6" sx={{ color: '#fff', mb: 1, fontWeight: 600 }}>
-                      {agent.name}
+                      {agent?.name || 'Unknown Agent'}
                     </Typography>
 
                     <Typography 

@@ -346,10 +346,27 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
   const handleGenerateSalesReport = useCallback(async (reportType: 'mckinsey_executive' | 'initial_outreach' | 'follow_up' | 'breakthrough' | 'closing') => {
     if (!researchData) return;
     
+    // Add null safety checks for salesRepInfo
+    if (!salesRepInfo || !salesRepInfo.name) {
+      console.error('Sales rep information is not properly initialized');
+      setSalesReportState({
+        loading: false,
+        error: 'Sales rep information is missing. Please refresh the page and try again.'
+      });
+      return;
+    }
+    
     setSalesReportState({ loading: true, type: reportType });
     
     try {
       console.log(`Generating ${reportType} sales rep report...`);
+      
+      // Ensure all salesRepInfo properties exist with fallbacks
+      const safeSalesRepInfo = {
+        name: salesRepInfo.name || 'Sales Representative',
+        company: salesRepInfo.company || 'Your Company',
+        product: salesRepInfo.product || 'Your Product'
+      };
       
       let pdfBlob: Blob;
       
@@ -358,45 +375,45 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
           pdfBlob = await generateMcKinseyExecutiveReport(
             scanResult,
             researchData,
-            salesRepInfo.name,
-            salesRepInfo.company,
-            salesRepInfo.product
+            safeSalesRepInfo.name,
+            safeSalesRepInfo.company,
+            safeSalesRepInfo.product
           );
           break;
         case 'initial_outreach':
           pdfBlob = await generateInitialOutreachReport(
             scanResult,
             researchData,
-            salesRepInfo.name,
-            salesRepInfo.company,
-            salesRepInfo.product
+            safeSalesRepInfo.name,
+            safeSalesRepInfo.company,
+            safeSalesRepInfo.product
           );
           break;
         case 'follow_up':
           pdfBlob = await generateFollowUpReport(
             scanResult,
             researchData,
-            salesRepInfo.name,
-            salesRepInfo.company,
-            salesRepInfo.product
+            safeSalesRepInfo.name,
+            safeSalesRepInfo.company,
+            safeSalesRepInfo.product
           );
           break;
         case 'breakthrough':
           pdfBlob = await generateBreakthroughReport(
             scanResult,
             researchData,
-            salesRepInfo.name,
-            salesRepInfo.company,
-            salesRepInfo.product
+            safeSalesRepInfo.name,
+            safeSalesRepInfo.company,
+            safeSalesRepInfo.product
           );
           break;
         case 'closing':
           pdfBlob = await generateClosingReport(
             scanResult,
             researchData,
-            salesRepInfo.name,
-            salesRepInfo.company,
-            salesRepInfo.product
+            safeSalesRepInfo.name,
+            safeSalesRepInfo.company,
+            safeSalesRepInfo.product
           );
           break;
       }

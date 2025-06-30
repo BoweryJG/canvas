@@ -314,7 +314,7 @@ const EnhancedChatLauncher: React.FC = () => {
                   </AgentIcon>
                   
                   <Typography variant="subtitle1" sx={{ color: '#fff', fontWeight: 600, mb: 0.5 }}>
-                    {agent.name}
+                    {agent?.name || 'Unknown Agent'}
                   </Typography>
                   
                   <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem' }}>

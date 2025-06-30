@@ -88,10 +88,14 @@ const DemoChatInterface: React.FC<DemoChatInterfaceProps> = ({ onRequestAuth }) 
 
   // Add welcome message on mount
   useEffect(() => {
+    if (!selectedAgent || !selectedAgent.name) {
+      return;
+    }
+    
     const welcomeMessage: Message = {
       id: 'welcome',
       role: 'assistant',
-      content: `Hi! I'm ${selectedAgent.name}, your AI sales assistant. I specialize in ${selectedAgent.specialty.join(' and ')}. How can I help you today?\n\n*Note: This is a demo mode. Sign in for full access to real-time data and personalized insights.*`,
+      content: `Hi! I'm ${selectedAgent.name}, your AI sales assistant. I specialize in ${selectedAgent.specialty && selectedAgent.specialty.length > 0 ? selectedAgent.specialty.join(' and ') : 'helping you with sales'}. How can I help you today?\n\n*Note: This is a demo mode. Sign in for full access to real-time data and personalized insights.*`,
       timestamp: new Date().toISOString()
     };
     setMessages([welcomeMessage]);
@@ -198,13 +202,15 @@ const DemoChatInterface: React.FC<DemoChatInterfaceProps> = ({ onRequestAuth }) 
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#00ffc6] to-[#00d4ff] p-0.5">
                   <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
                     <span className="text-xs font-bold text-[#00ffc6]">
-                      {agent.name.split(' ').map(n => n[0]).join('')}
+                      {agent.name ? agent.name.split(' ').map(n => n[0]).join('') : 'AG'}
                     </span>
                   </div>
                 </div>
                 <div className="text-left">
-                  <div className="text-sm font-medium text-white">{agent.name}</div>
-                  <div className="text-xs text-gray-400">{agent.specialty[0]}</div>
+                  <div className="text-sm font-medium text-white">{agent.name || 'Unknown Agent'}</div>
+                  <div className="text-xs text-gray-400">
+                    {agent.specialty && agent.specialty.length > 0 ? agent.specialty[0] : 'General'}
+                  </div>
                 </div>
               </div>
             </button>
@@ -218,7 +224,7 @@ const DemoChatInterface: React.FC<DemoChatInterfaceProps> = ({ onRequestAuth }) 
           <MessageBubble
             key={message.id}
             message={message}
-            agentName={selectedAgent.name}
+            agentName={selectedAgent?.name || 'Agent'}
           />
         ))}
         
@@ -231,7 +237,7 @@ const DemoChatInterface: React.FC<DemoChatInterfaceProps> = ({ onRequestAuth }) 
               timestamp: new Date().toISOString(),
               isStreaming: true
             }}
-            agentName={selectedAgent.name}
+            agentName={selectedAgent?.name || 'Agent'}
           />
         )}
         
@@ -242,7 +248,7 @@ const DemoChatInterface: React.FC<DemoChatInterfaceProps> = ({ onRequestAuth }) 
               <div className="w-2 h-2 bg-[#00ffc6] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
               <div className="w-2 h-2 bg-[#00ffc6] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
             </div>
-            <span className="text-sm">{selectedAgent.name} is typing...</span>
+            <span className="text-sm">{selectedAgent?.name || 'Agent'} is typing...</span>
           </div>
         )}
         
