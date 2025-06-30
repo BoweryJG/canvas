@@ -4,6 +4,8 @@
  */
 
 import { callBraveSearch } from './apiEndpoints';
+import { findPracticeWebsite, scrapePracticeWebsite } from './puppeteerWebScraper';
+import { createPracticeIntelligence } from './practiceIntelligence';
 
 export interface VerificationResult {
   confidence: number;
