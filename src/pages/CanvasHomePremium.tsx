@@ -121,13 +121,17 @@ const CanvasHomePremium: React.FC = () => {
   
   
   const handleDeepScanComplete = (results: any) => {
+    console.log('handleDeepScanComplete called with results:', results);
     setDeepScanResults(results);
     setStage('campaigns');
+    console.log('handleDeepScanComplete: Set stage to campaigns');
   };
   
   
   console.log('CanvasHomePremium: About to render, stage:', stage);
   console.log('CanvasHomePremium: creditsRemaining:', creditsRemaining);
+  console.log('CanvasHomePremium: deepScanResults:', deepScanResults);
+  console.log('CanvasHomePremium: scanData:', scanData);
   
   return (
     <>
@@ -172,6 +176,28 @@ const CanvasHomePremium: React.FC = () => {
               instantIntel={deepScanResults.instantIntel}
             />
           </Box>
+        )}
+        
+        {/* DEBUG: Show when campaigns stage but missing data */}
+        {stage === 'campaigns' && (!deepScanResults || !scanData) && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'blue',
+            color: 'white',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '18px',
+            zIndex: 9999,
+            padding: '20px'
+          }}>
+            <div>DEBUG: Campaigns stage but missing data!</div>
+            <div>deepScanResults: {deepScanResults ? 'EXISTS' : 'NULL'}</div>
+            <div>scanData: {scanData ? 'EXISTS' : 'NULL'}</div>
+            <div>stage: {stage}</div>
+          </div>
         )}
       </MainContainer>
       
