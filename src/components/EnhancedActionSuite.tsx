@@ -82,19 +82,6 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
     product: 'Your Product'
   });
   
-  // Initialize magic link campaign with instant intelligence data if available
-  useEffect(() => {
-    if (instantIntel && !magicLinkCampaign) {
-      // Pre-populate the magic link campaign with instant intelligence data
-      const campaign: EmailCampaign = {
-        id: `instant-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-        to: contactInfo.email,
-        subject: instantIntel.outreachTemplates.email.subject,
-        body: instantIntel.outreachTemplates.email.body
-      };
-      setMagicLinkCampaign(campaign);
-    }
-  }, [instantIntel, contactInfo.email]);
 
 
   /**
