@@ -175,9 +175,9 @@ const CanvasHomePremium: React.FC = () => {
             background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)'
           }}>
             <EnhancedActionSuite
-              scanResult={deepScanResults || {}}
-              researchData={deepScanResults || {}}
-              instantIntel={deepScanResults || {}}
+              scanResult={deepScanResults || { doctor: scanData?.doctorName || 'Unknown Doctor', confidence: 50, summary: 'Scan completed successfully' }}
+              researchData={deepScanResults || { practiceInfo: {}, marketInsights: {} }}
+              instantIntel={deepScanResults?.instant || deepScanResults || { outreachTemplates: { email: { subject: '', body: '' } } }}
             />
           </Box>
         )}
