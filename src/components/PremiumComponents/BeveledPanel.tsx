@@ -9,7 +9,9 @@ interface BeveledPanelProps {
   className?: string;
 }
 
-const StyledBeveledPanel = styled(Paper)<{ accentColor?: string }>`
+const StyledBeveledPanel = styled(Paper, {
+  shouldForwardProp: (prop) => prop !== 'accentColor',
+})<{ accentColor?: string }>`
   position: relative;
   background: 
     linear-gradient(135deg, #1a1a1a 0%, #252525 20%, #1e1e1e 40%, #2a2a2a 60%, #1f1f1f 80%, #1a1a1a 100%),
@@ -71,7 +73,9 @@ const StyledBeveledPanel = styled(Paper)<{ accentColor?: string }>`
   }
 `;
 
-const AccentLine = styled(Box)<{ accentColor?: string }>`
+const AccentLine = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'accentColor',
+})<{ accentColor?: string }>`
   position: absolute;
   top: 0;
   left: 0;

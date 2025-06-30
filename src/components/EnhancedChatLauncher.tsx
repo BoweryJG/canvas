@@ -12,7 +12,9 @@ import {
 } from '@mui/icons-material';
 
 // Floating chat button with RepSpheres styling
-const FloatingButton = styled(motion.div)<{ isExpanded: boolean }>`
+const FloatingButton = styled(motion.div, {
+  shouldForwardProp: (prop) => prop !== 'isExpanded',
+})<{ isExpanded: boolean }>`
   position: fixed;
   bottom: 30px;
   right: 30px;
@@ -160,7 +162,9 @@ const AgentCard = styled(motion.div)`
   }
 `;
 
-const AgentIcon = styled(Box)<{ color: string }>`
+const AgentIcon = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'color',
+})<{ color: string }>`
   width: 48px;
   height: 48px;
   border-radius: 12px;

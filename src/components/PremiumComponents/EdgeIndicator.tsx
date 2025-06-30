@@ -127,7 +127,9 @@ const Indicator = styled('div')<{
   `}
 `;
 
-const GlowEffect = styled('div')<{ glowPosition: string }>`
+const GlowEffect = styled('div', {
+  shouldForwardProp: (prop) => prop !== 'glowPosition',
+})<{ glowPosition: string }>`
   position: absolute;
   opacity: 0;
   transition: opacity 0.3s ease;

@@ -64,7 +64,9 @@ const DataStreamWindow = styled(Box)`
   }
 `;
 
-const MatrixChar = styled('span')<{ duration: number; delay: number }>`
+const MatrixChar = styled('span', {
+  shouldForwardProp: (prop) => !['duration', 'delay'].includes(prop as string),
+})<{ duration: number; delay: number }>`
   position: absolute;
   color: #00ffc6;
   font-family: 'Courier New', monospace;

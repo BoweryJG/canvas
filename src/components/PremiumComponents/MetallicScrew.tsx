@@ -8,8 +8,10 @@ interface MetallicScrewProps {
   angle?: number;
 }
 
-const ScrewWrapper = styled(Box)<{ 
-  screwPosition: string; 
+const ScrewWrapper = styled(Box, {
+  shouldForwardProp: (prop) => !['screwPosition', 'size', 'angle'].includes(prop as string),
+})<{
+  screwPosition: string;
   size: number;
   angle: number;
 }>`
@@ -46,7 +48,9 @@ const ScrewWrapper = styled(Box)<{
   }}
 `;
 
-const Screw = styled(Box)<{ angle: number }>`
+const Screw = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'angle',
+})<{ angle: number }>`
   position: relative;
   width: 70%;
   height: 70%;
