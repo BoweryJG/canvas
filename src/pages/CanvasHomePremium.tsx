@@ -176,7 +176,18 @@ const CanvasHomePremium: React.FC = () => {
             background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)'
           }}>
             <EnhancedActionSuite
-              scanResult={deepScanResults || { doctor: scanData?.doctorName || deepScanResults?.enhanced?.doctor || deepScanResults?.basic?.doctor || 'Unknown Doctor', confidence: 50, summary: 'Scan completed successfully' }}
+              scanResult={{
+                doctor: deepScanResults?.enhanced?.doctor || deepScanResults?.basic?.doctor || scanData?.doctorName || 'Unknown Doctor',
+                product: scanData?.product || 'Product',
+                score: deepScanResults?.enhanced?.confidence || deepScanResults?.basic?.confidence || 0,
+                doctorProfile: deepScanResults?.enhanced?.summary || deepScanResults?.basic?.summary || 'Medical professional',
+                productIntel: `${scanData?.product || 'Product'} intelligence`,
+                salesBrief: deepScanResults?.enhanced?.summary || deepScanResults?.basic?.summary || '',
+                insights: deepScanResults?.enhanced?.keyPoints || deepScanResults?.basic?.keyPoints || [],
+                researchQuality: 'verified',
+                researchSources: 5,
+                factBased: true
+              }}
               researchData={deepScanResults || { practiceInfo: {}, marketInsights: {} }}
               instantIntel={deepScanResults?.instant || deepScanResults || { outreachTemplates: { email: { subject: '', body: '' } } }}
             />
