@@ -247,11 +247,12 @@ export class SalesRepReportGenerator {
     this.doc.setFillColor(...this.hexToRgb(this.brandColors.primary));
     this.doc.rect(0, 0, this.pageWidth, 120, 'F');
 
-    // Company branding
+    // Company branding - add null safety
     this.doc.setTextColor(255, 255, 255);
     this.doc.setFontSize(32);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.text(options.companyName.toUpperCase(), this.pageWidth / 2, 60, { align: 'center' });
+    const companyName = (options.companyName || 'Your Company').toUpperCase();
+    this.doc.text(companyName, this.pageWidth / 2, 60, { align: 'center' });
 
     this.doc.setFontSize(14);
     this.doc.setFont('helvetica', 'normal');
@@ -264,16 +265,18 @@ export class SalesRepReportGenerator {
     this.doc.setFont('helvetica', 'bold');
     this.doc.text('EXECUTIVE STRATEGY BRIEF', this.pageWidth / 2, this.currentY, { align: 'center' });
 
-    // Practice name and score
+    // Practice name and score - add null safety
     this.currentY += 60;
     this.doc.setFontSize(24);
     this.doc.setTextColor(...this.hexToRgb(this.brandColors.primary));
-    this.doc.text(scanResult.doctor, this.pageWidth / 2, this.currentY, { align: 'center' });
+    const doctorName = scanResult.doctor || 'Healthcare Professional';
+    this.doc.text(doctorName, this.pageWidth / 2, this.currentY, { align: 'center' });
 
     this.currentY += 40;
     this.doc.setFontSize(18);
     this.doc.setTextColor(100, 100, 100);
-    this.doc.text(`Strategic Fit Assessment: ${scanResult.score}%`, this.pageWidth / 2, this.currentY, { align: 'center' });
+    const score = scanResult.score || 0;
+    this.doc.text(`Strategic Fit Assessment: ${score}%`, this.pageWidth / 2, this.currentY, { align: 'center' });
 
     // McKinsey-style visual elements
     this.addMcKinseyVisualElements(scanResult);
@@ -297,14 +300,15 @@ export class SalesRepReportGenerator {
     this.doc.setFontSize(12);
     this.doc.setFont('helvetica', 'normal');
     
-    const execSummary = `High-priority strategic opportunity with ${scanResult.score}% practice alignment. Comprehensive market analysis reveals significant revenue potential with clear competitive advantages and defined implementation pathway.`;
+    const execSummary = `High-priority strategic opportunity with ${score}% practice alignment. Comprehensive market analysis reveals significant revenue potential with clear competitive advantages and defined implementation pathway.`;
     this.addWrappedText(execSummary, this.pageWidth - 2 * this.margin - 40, this.margin + 20);
 
-    // Footer
+    // Footer - add null safety
     this.currentY = this.pageHeight - 80;
     this.doc.setTextColor(100, 100, 100);
     this.doc.setFontSize(11);
-    this.doc.text(`Prepared for: ${options.salesRepName}`, this.margin, this.currentY);
+    const salesRepName = options.salesRepName || 'Sales Representative';
+    this.doc.text(`Prepared for: ${salesRepName}`, this.margin, this.currentY);
     this.doc.text(`Date: ${new Date().toLocaleDateString()}`, this.pageWidth - this.margin, this.currentY, { align: 'right' });
 
     this.currentY += 20;
