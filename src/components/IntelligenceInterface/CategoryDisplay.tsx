@@ -33,8 +33,8 @@ const CategoryDisplay: React.FC<CategoryDisplayProps> = ({ categories, progress:
       <div className="category-grid">
         <AnimatePresence>
           {categories.map((categoryName, index) => {
-            const categoryInfo = categoryData.find(c => c.name === categoryName);
-            if (!categoryInfo) return null;
+            const categoryInfo = categoryData.find(c => c?.name === categoryName);
+            if (!categoryInfo || !categoryInfo.name) return null;
 
             return (
               <motion.div
