@@ -125,7 +125,7 @@ const StrategyBuilder: React.FC<StrategyBuilderProps> = ({
 
     switch (agent.id) {
       case 'strategist':
-        const practiceNameStrat = context.npiDoctor?.organizationName || doctor.practiceInfo.name;
+        const practiceNameStrat = context.npiDoctor?.organizationName || doctor.practiceInfo?.name || 'Practice';
         approach = `Position as strategic growth partner for ${practiceNameStrat}`;
         keyPoints = [
           `Leverage ${doctor.marketIntelligence.growthTrend} growth trend`,

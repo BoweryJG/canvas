@@ -146,7 +146,7 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
             type: 'opportunity',
             icon: TrendingUp,
             priority: doctor.aiScore > 85 ? 'high' : 'medium',
-            title: `${context.npiDoctor?.displayName || doctor.name} - Strategic Opportunity`,
+            title: `${context.npiDoctor?.displayName || doctor?.name || 'Doctor'} - Strategic Opportunity`,
             description: `AI Score: ${doctor.aiScore}/100. ${
               doctor.marketIntelligence.growthTrend === 'growing' 
                 ? 'Practice showing strong growth indicators.' 
@@ -256,7 +256,7 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
             type: 'opportunity',
             icon: TrendingUp,
             priority: doctor.aiScore > 85 ? 'high' : 'medium',
-            title: `${context.npiDoctor?.displayName || doctor.name} - Lead Generation Opportunity`,
+            title: `${context.npiDoctor?.displayName || doctor?.name || 'Doctor'} - Lead Generation Opportunity`,
             description: `AI Score: ${doctor.aiScore}/100. ${
               doctor.marketIntelligence.growthTrend === 'growing' 
                 ? 'Practice showing strong growth indicators.' 
@@ -285,7 +285,7 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
             icon: CheckCircle,
             priority: 'high',
             title: 'Deal Closing Strategy',
-            description: `${doctor.name} - Ready for closing conversation. Practice volume supports investment. ${
+            description: `${doctor?.name || 'Doctor'} - Ready for closing conversation. Practice volume supports investment. ${
               avgProcedurePrice > 0 ? `Average procedure value: $${avgProcedurePrice.toLocaleString()}.` : ''
             }`,
             actions: [
@@ -310,7 +310,7 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
             icon: Lightbulb,
             priority: 'medium',
             title: 'Educational Opportunity',
-            description: `${doctor.name} - Focus on product knowledge and clinical benefits. ${
+            description: `${doctor?.name || 'Doctor'} - Focus on product knowledge and clinical benefits. ${
               procedureTypes > 0 ? `${procedureTypes} procedure categories available for training.` : ''
             }`,
             actions: [
