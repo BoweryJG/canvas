@@ -274,6 +274,8 @@ const RepSpheresSearchPanel: React.FC<Props> = ({
   
   const isReady = doctorName.length > 0 && product.length > 0;
   
+  console.log('RepSpheresSearchPanel: About to render component');
+  
   return (
     <SearchContainer
       initial={{ opacity: 0, y: 20 }}

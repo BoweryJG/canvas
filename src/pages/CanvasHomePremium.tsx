@@ -120,12 +120,30 @@ const CanvasHomePremium: React.FC = () => {
       <PremiumBackground />
       <MainContainer>
         {stage === 'input' && (
-          <RepSpheresSearchPanel
-            onScanStart={handleScanStart}
-            creditsRemaining={creditsRemaining}
-            creditError={creditError}
-          />
+          <>
+            <div style={{color: 'white', fontSize: '24px', padding: '20px', background: 'red'}}>
+              DEBUG: Input stage is rendering
+            </div>
+            <RepSpheresSearchPanel
+              onScanStart={handleScanStart}
+              creditsRemaining={creditsRemaining}
+              creditError={creditError}
+            />
+          </>
         )}
+        
+        {/* DEBUG: Show current stage always */}
+        <div style={{
+          position: 'fixed',
+          top: '10px',
+          right: '10px',
+          background: 'yellow',
+          color: 'black',
+          padding: '10px',
+          zIndex: 9999
+        }}>
+          Current stage: {stage}
+        </div>
         
         {stage === 'scanning-basic' && scanData && (
           <SimpleCinematicScan
