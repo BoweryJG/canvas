@@ -74,20 +74,6 @@ const HeroSubtitle = styled(Typography)`
   }
 `;
 
-// Animated jewel icon
-const JewelIcon = styled(motion.div)`
-  width: 80px;
-  height: 80px;
-  margin: 0 auto 2rem;
-  position: relative;
-  
-  svg {
-    width: 100%;
-    height: 100%;
-    filter: drop-shadow(0 0 20px rgba(0, 212, 255, 0.5));
-  }
-`;
-
 // Premium input field with glassmorphic effect
 const PremiumTextField = styled(TextField)`
   & .MuiOutlinedInput-root {
@@ -290,41 +276,6 @@ const RepSpheresSearchPanel: React.FC<Props> = ({
       transition={{ duration: 0.8 }}
     >
       <HeroSection>
-        <JewelIcon
-          animate={{ 
-            scale: [1, 1.1, 1],
-            rotate: [0, 5, -5, 0]
-          }}
-          transition={{ 
-            duration: 4,
-            repeat: Infinity,
-            repeatDelay: 2
-          }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
-            <defs>
-              <radialGradient id="jewelGradient" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
-                <stop offset="30%" stopColor="#00D4FF" stopOpacity="1" />
-                <stop offset="60%" stopColor="#00FFE1" stopOpacity="1" />
-                <stop offset="100%" stopColor="#00FFC6" stopOpacity="0.9" />
-              </radialGradient>
-            </defs>
-            <polygon 
-              points="40,5 60,25 60,55 40,75 20,55 20,25" 
-              fill="url(#jewelGradient)"
-              stroke="rgba(255,255,255,0.3)"
-              strokeWidth="1"
-            />
-            <polygon 
-              points="40,15 50,25 50,45 40,55 30,45 30,25" 
-              fill="none"
-              stroke="rgba(255,255,255,0.5)"
-              strokeWidth="0.5"
-            />
-          </svg>
-        </JewelIcon>
-        
         <HeroTitle
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
