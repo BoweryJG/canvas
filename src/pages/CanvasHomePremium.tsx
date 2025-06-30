@@ -92,7 +92,29 @@ const CanvasHomePremium: React.FC = () => {
   
   const handleBasicScanComplete = (results: any) => {
     console.log('handleBasicScanComplete called with results:', results);
-    setBasicScanResults(results);
+    
+    // Transform the results to match DoctorConfirmationPanel expected structure
+    const transformedResults = {
+      doctor: {
+        name: results.basic?.doctor || results.enhanced?.doctor || 'Unknown Doctor',
+        npi: results.basic?.npi,
+        specialty: results.basic?.specialty,
+        practice: results.basic?.practice,
+        location: results.basic?.location,
+        phone: results.basic?.phone,
+        email: results.basic?.email,
+        verified: true
+      },
+      confidence: results.enhanced?.confidence || results.basic?.confidence || 50,
+      intelligence: {
+        score: results.enhanced?.confidence || results.basic?.confidence || 50,
+        insights: results.enhanced?.keyPoints || results.basic?.keyPoints || []
+      },
+      basic: results.basic
+    };
+    
+    console.log('handleBasicScanComplete: Transformed results:', transformedResults);
+    setBasicScanResults(transformedResults);
     setStage('confirmation');
     console.log('handleBasicScanComplete: Set stage to confirmation');
   };
