@@ -201,6 +201,11 @@ export default function DoctorConfirmationPanel({
 }: DoctorConfirmationProps) {
   const { doctor, confidence, intelligence } = scanResults;
   
+  // Early return if doctor data is not available
+  if (!doctor || !doctor.name) {
+    return null;
+  }
+  
   const getInitials = (name: string) => {
     return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
   };

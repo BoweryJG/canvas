@@ -56,9 +56,9 @@ const ConversationList: React.FC<ConversationListProps> = ({
     }
   };
 
-  const filteredConversations = conversations.filter(conv => 
+  const filteredConversations = conversations.filter(conv =>
     conv.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    conv.canvas_ai_agents?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    (conv.canvas_ai_agents?.name && conv.canvas_ai_agents.name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const formatDate = (dateString: string) => {
