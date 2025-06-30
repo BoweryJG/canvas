@@ -4,7 +4,7 @@
  */
 
 import { callBraveSearch } from './apiEndpoints';
-import { findPracticeWebsite, scrapePracticeWebsite } from './puppeteerWebScraper';
+import { scrapePracticeWebsite } from './firecrawlWebScraper';
 import { createPracticeIntelligence } from './practiceIntelligence';
 
 export interface VerificationResult {
@@ -120,6 +120,20 @@ export async function fastVerifyDoctor(
   // Generate confirmation
   if (result.verifiedWebsite) {
     result.suggestedConfirmation = `Found: ${result.practiceName || cleanDoctorName} at ${result.verifiedWebsite}`;
+    
+    // Scrape the practice website for intelligence
+    try {
+      console.log(`🌐 Scraping practice website: ${result.verifiedWebsite}`);
+      const scrapedData = await scrapePracticeWebsite(result.verifiedWebsite);
+      
+      if (scrapedData) {
+        // Create and store practice intelligence
+        createPracticeIntelligence(scrapedData, cleanDoctorName);
+        console.log(`✅ Practice intelligence created for ${cleanDoctorName}`);
+      }
+    } catch (error) {
+      console.error('Error scraping practice website:', error);
+    }
   } else {
     result.suggestedConfirmation = `Could not verify practice website for ${cleanDoctorName}`;
   }

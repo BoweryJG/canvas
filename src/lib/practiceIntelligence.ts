@@ -68,7 +68,7 @@ export function getPracticeIntelligence(): PracticeIntelligence | null {
 export function createPracticeIntelligence(
   scrapedData: any,
   doctorName: string,
-  searchResults?: any
+  _searchResults?: any
 ): PracticeIntelligence {
   // For Pure Dental example
   const intel: PracticeIntelligence = {
