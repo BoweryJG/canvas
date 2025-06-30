@@ -264,15 +264,37 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         branding: 'canvas'
       });
       
+      console.log('PDF Blob created:', pdfBlob);
+      console.log('PDF Blob size:', pdfBlob.size);
+      console.log('PDF Blob type:', pdfBlob.type);
+      
+      if (!pdfBlob || pdfBlob.size === 0) {
+        throw new Error('PDF generation failed - empty blob');
+      }
+      
       // Force download instead of opening blob URL
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `canvas-intelligence-${scanResult.doctor}-${new Date().toISOString().split('T')[0]}.pdf`;
+      const filename = `canvas-intelligence-${scanResult.doctor.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+      link.download = filename;
+      
+      console.log('Download link created:', link.href);
+      console.log('Download filename:', filename);
+      
       document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      
+      // Add a small delay to ensure the link is in the DOM
+      setTimeout(() => {
+        link.click();
+        console.log('Download link clicked');
+        
+        setTimeout(() => {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          console.log('Download cleanup completed');
+        }, 100);
+      }, 10);
       
       setPdfState({ loading: false });
       console.log('✅ PDF intelligence brief generated successfully');
@@ -307,15 +329,37 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         format: 'comprehensive'
       });
       
+      console.log('Deep Research PDF Blob created:', pdfBlob);
+      console.log('Deep Research PDF Blob size:', pdfBlob.size);
+      console.log('Deep Research PDF Blob type:', pdfBlob.type);
+      
+      if (!pdfBlob || pdfBlob.size === 0) {
+        throw new Error('Deep research PDF generation failed - empty blob');
+      }
+      
       // Force download instead of opening blob URL
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `deep-research-${scanResult.doctor}-${new Date().toISOString().split('T')[0]}.pdf`;
+      const filename = `deep-research-${scanResult.doctor.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+      link.download = filename;
+      
+      console.log('Deep Research download link created:', link.href);
+      console.log('Deep Research download filename:', filename);
+      
       document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      
+      // Add a small delay to ensure the link is in the DOM
+      setTimeout(() => {
+        link.click();
+        console.log('Deep Research download link clicked');
+        
+        setTimeout(() => {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          console.log('Deep Research download cleanup completed');
+        }, 100);
+      }, 10);
       
       setDeepReportState({ loading: false });
       console.log('✅ Deep research report generated successfully');
@@ -407,15 +451,37 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
           break;
       }
       
+      console.log('Sales Report PDF Blob created:', pdfBlob);
+      console.log('Sales Report PDF Blob size:', pdfBlob.size);
+      console.log('Sales Report PDF Blob type:', pdfBlob.type);
+      
+      if (!pdfBlob || pdfBlob.size === 0) {
+        throw new Error('Sales report PDF generation failed - empty blob');
+      }
+      
       // Force download instead of opening blob URL
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `sales-report-${scanResult.doctor}-${new Date().toISOString().split('T')[0]}.pdf`;
+      const filename = `sales-report-${reportType}-${scanResult.doctor.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+      link.download = filename;
+      
+      console.log('Sales Report download link created:', link.href);
+      console.log('Sales Report download filename:', filename);
+      
       document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      
+      // Add a small delay to ensure the link is in the DOM
+      setTimeout(() => {
+        link.click();
+        console.log('Sales Report download link clicked');
+        
+        setTimeout(() => {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+          console.log('Sales Report download cleanup completed');
+        }, 100);
+      }, 10);
       
       setSalesReportState({ loading: false });
       console.log(`✅ ${reportType} sales rep report generated successfully`);
