@@ -264,14 +264,15 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         branding: 'canvas'
       });
       
-      // Open PDF in new tab instead of downloading
+      // Force download instead of opening blob URL
       const url = URL.createObjectURL(pdfBlob);
-      window.open(url, '_blank');
-      
-      // Cleanup after a delay to ensure the tab has loaded
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-      }, 1000);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `canvas-intelligence-${scanResult.doctor}-${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       
       setPdfState({ loading: false });
       console.log('✅ PDF intelligence brief generated successfully');
@@ -306,14 +307,15 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         format: 'comprehensive'
       });
       
-      // Open PDF in new tab instead of downloading
+      // Force download instead of opening blob URL
       const url = URL.createObjectURL(pdfBlob);
-      window.open(url, '_blank');
-      
-      // Cleanup after a delay to ensure the tab has loaded
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-      }, 1000);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `deep-research-${scanResult.doctor}-${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       
       setDeepReportState({ loading: false });
       console.log('✅ Deep research report generated successfully');
@@ -405,14 +407,15 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
           break;
       }
       
-      // Open PDF in new tab instead of downloading
+      // Force download instead of opening blob URL
       const url = URL.createObjectURL(pdfBlob);
-      window.open(url, '_blank');
-      
-      // Cleanup after a delay to ensure the tab has loaded
-      setTimeout(() => {
-        URL.revokeObjectURL(url);
-      }, 1000);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `sales-report-${scanResult.doctor}-${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       
       setSalesReportState({ loading: false });
       console.log(`✅ ${reportType} sales rep report generated successfully`);
