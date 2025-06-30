@@ -12,7 +12,6 @@ export default defineConfig({
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
           'ui-vendor': ['@mui/material', '@emotion/react', '@emotion/styled'],
-          'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
         }
       }
     }
