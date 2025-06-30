@@ -313,28 +313,55 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       }
       
       // Force download instead of opening blob URL
-      const url = URL.createObjectURL(pdfBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      const filename = `canvas-intelligence-${scanResult.doctor.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
-      link.download = filename;
-      
-      console.log('Download link created:', link.href);
-      console.log('Download filename:', filename);
-      
-      document.body.appendChild(link);
-      
-      // Add a small delay to ensure the link is in the DOM
-      setTimeout(() => {
-        link.click();
-        console.log('Download link clicked');
+      try {
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement('a');
+        link.href = url;
         
+        // Safer filename generation
+        const doctorName = (scanResult.doctor || 'Unknown-Doctor').replace(/[^a-zA-Z0-9]/g, '-');
+        const filename = `canvas-intelligence-${doctorName}-${new Date().toISOString().split('T')[0]}.pdf`;
+        link.download = filename;
+        
+        console.log('Download link created:', link.href);
+        console.log('Download filename:', filename);
+        
+        // Set additional attributes for better compatibility
+        link.style.display = 'none';
+        link.target = '_blank';
+        
+        document.body.appendChild(link);
+        
+        // Add a small delay to ensure the link is in the DOM
         setTimeout(() => {
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-          console.log('Download cleanup completed');
-        }, 100);
-      }, 10);
+          try {
+            link.click();
+            console.log('Download link clicked');
+            
+            setTimeout(() => {
+              try {
+                if (document.body.contains(link)) {
+                  document.body.removeChild(link);
+                }
+                URL.revokeObjectURL(url);
+                console.log('Download cleanup completed');
+              } catch (cleanupError) {
+                console.error('Download cleanup error:', cleanupError);
+              }
+            }, 100);
+          } catch (clickError) {
+            console.error('Download click error:', clickError);
+            // Fallback: try direct download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+          }
+        }, 10);
+      } catch (downloadError) {
+        console.error('Download setup error:', downloadError);
+        throw new Error('Failed to setup download mechanism');
+      }
       
       setPdfState({ loading: false });
       console.log('✅ PDF intelligence brief generated successfully');
@@ -580,28 +607,55 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       }
       
       // Force download instead of opening blob URL
-      const url = URL.createObjectURL(pdfBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      const filename = `sales-report-${reportType}-${scanResult.doctor.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
-      link.download = filename;
-      
-      console.log('Sales Report download link created:', link.href);
-      console.log('Sales Report download filename:', filename);
-      
-      document.body.appendChild(link);
-      
-      // Add a small delay to ensure the link is in the DOM
-      setTimeout(() => {
-        link.click();
-        console.log('Sales Report download link clicked');
+      try {
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement('a');
+        link.href = url;
         
+        // Safer filename generation
+        const doctorName = (scanResult.doctor || 'Unknown-Doctor').replace(/[^a-zA-Z0-9]/g, '-');
+        const filename = `sales-report-${reportType}-${doctorName}-${new Date().toISOString().split('T')[0]}.pdf`;
+        link.download = filename;
+        
+        console.log('Sales Report download link created:', link.href);
+        console.log('Sales Report download filename:', filename);
+        
+        // Set additional attributes for better compatibility
+        link.style.display = 'none';
+        link.target = '_blank';
+        
+        document.body.appendChild(link);
+        
+        // Add a small delay to ensure the link is in the DOM
         setTimeout(() => {
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-          console.log('Sales Report download cleanup completed');
-        }, 100);
-      }, 10);
+          try {
+            link.click();
+            console.log('Sales Report download link clicked');
+            
+            setTimeout(() => {
+              try {
+                if (document.body.contains(link)) {
+                  document.body.removeChild(link);
+                }
+                URL.revokeObjectURL(url);
+                console.log('Sales Report download cleanup completed');
+              } catch (cleanupError) {
+                console.error('Sales Report cleanup error:', cleanupError);
+              }
+            }, 100);
+          } catch (clickError) {
+            console.error('Sales Report click error:', clickError);
+            // Fallback: try direct download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+          }
+        }, 10);
+      } catch (downloadError) {
+        console.error('Sales Report download setup error:', downloadError);
+        throw new Error('Failed to setup download mechanism');
+      }
       
       setSalesReportState({ loading: false });
       console.log(`✅ ${reportType} sales rep report generated successfully`);
