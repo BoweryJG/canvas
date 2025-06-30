@@ -4,7 +4,7 @@ import { type ResearchData } from './webResearch';
 import { type PersonalizedOutreach } from './outreachSystem';
 
 export interface CRMConfig {
-  provider: 'salesforce' | 'hubspot' | 'pipedrive' | 'zoho' | 'custom';
+  provider: 'sphere-os' | 'salesforce' | 'hubspot' | 'pipedrive' | 'zoho' | 'custom';
   apiKey?: string;
   instanceUrl?: string;
   hubId?: string;
@@ -145,6 +145,8 @@ export class CRMIntegrationManager {
   async syncContact(contact: CRMContact): Promise<CRMSyncResult> {
     try {
       switch (this.config.provider) {
+        case 'sphere-os':
+          return await this.syncSphereOSContact(contact);
         case 'salesforce':
           return await this.syncSalesforceContact(contact);
         case 'hubspot':
@@ -169,6 +171,8 @@ export class CRMIntegrationManager {
   async syncOpportunity(opportunity: CRMOpportunity): Promise<CRMSyncResult> {
     try {
       switch (this.config.provider) {
+        case 'sphere-os':
+          return await this.syncSphereOSOpportunity(opportunity);
         case 'salesforce':
           return await this.syncSalesforceOpportunity(opportunity);
         case 'hubspot':
@@ -193,6 +197,8 @@ export class CRMIntegrationManager {
   async syncActivity(activity: CRMActivity): Promise<CRMSyncResult> {
     try {
       switch (this.config.provider) {
+        case 'sphere-os':
+          return await this.syncSphereOSActivity(activity);
         case 'salesforce':
           return await this.syncSalesforceActivity(activity);
         case 'hubspot':
@@ -206,6 +212,139 @@ export class CRMIntegrationManager {
         default:
           throw new Error(`Unsupported CRM provider: ${this.config.provider}`);
       }
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Sphere oS Integration (RepSpheres CRM)
+  private async syncSphereOSContact(contact: CRMContact): Promise<CRMSyncResult> {
+    try {
+      const sphereOSData = {
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+        email: contact.email,
+        phone: contact.phone,
+        title: contact.title,
+        company: contact.company,
+        source: 'canvas_intelligence',
+        canvasIntelligenceScore: contact.customFields?.practiceScore,
+        canvasResearchQuality: contact.customFields?.researchQuality,
+        canvasLastUpdated: new Date().toISOString(),
+        tags: ['Canvas Generated', 'High Priority'],
+        customFields: contact.customFields
+      };
+
+      console.log('🌐 Syncing to Sphere oS CRM:', sphereOSData);
+      
+      // Call to Sphere oS API at crm.repspheres.com
+      const response = await fetch(`${this.config.instanceUrl}/api/contacts`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.config.apiKey}`,
+          'User-Agent': 'Canvas-Intelligence/1.0'
+        },
+        body: JSON.stringify(sphereOSData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Sphere oS API error: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      return {
+        success: true,
+        contactId: result.id || 'sphere_' + Date.now()
+      };
+    } catch (error) {
+      console.error('Sphere oS sync error:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  private async syncSphereOSOpportunity(opportunity: CRMOpportunity): Promise<CRMSyncResult> {
+    try {
+      const sphereOSData = {
+        name: opportunity.name,
+        accountName: opportunity.accountName,
+        contactId: opportunity.contactId,
+        stage: opportunity.stage,
+        value: opportunity.amount,
+        probability: opportunity.probability,
+        expectedCloseDate: opportunity.expectedCloseDate,
+        description: opportunity.description,
+        source: 'canvas_intelligence',
+        canvasGenerated: true,
+        practiceScore: opportunity.customFields?.practiceScore,
+        tags: ['Canvas Intelligence', 'AI Generated']
+      };
+
+      console.log('🌐 Syncing opportunity to Sphere oS:', sphereOSData);
+      
+      const response = await fetch(`${this.config.instanceUrl}/api/opportunities`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.config.apiKey}`,
+          'User-Agent': 'Canvas-Intelligence/1.0'
+        },
+        body: JSON.stringify(sphereOSData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Sphere oS API error: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      return {
+        success: true,
+        opportunityId: result.id || 'sphere_opp_' + Date.now()
+      };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  private async syncSphereOSActivity(activity: CRMActivity): Promise<CRMSyncResult> {
+    try {
+      const sphereOSData = {
+        contactId: activity.contactId,
+        opportunityId: activity.opportunityId,
+        type: activity.type,
+        subject: activity.subject,
+        description: activity.description,
+        dueDate: activity.dueDate,
+        completed: activity.completed || false,
+        source: 'canvas_intelligence',
+        canvasGenerated: true,
+        priority: 'high'
+      };
+
+      console.log('🌐 Syncing activity to Sphere oS:', sphereOSData);
+      
+      const response = await fetch(`${this.config.instanceUrl}/api/activities`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.config.apiKey}`,
+          'User-Agent': 'Canvas-Intelligence/1.0'
+        },
+        body: JSON.stringify(sphereOSData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Sphere oS API error: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      return {
+        success: true,
+        activityId: result.id || 'sphere_act_' + Date.now()
+      };
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -840,6 +979,11 @@ export function createCRMIntegration(config: CRMConfig): CRMIntegrationManager {
 
 // Default configurations for popular CRM providers
 export const defaultCRMConfigs: Record<string, Partial<CRMConfig>> = {
+  'sphere-os': {
+    provider: 'sphere-os',
+    instanceUrl: 'https://crm.repspheres.com',
+    enabled: true // Enable by default as primary CRM
+  },
   salesforce: {
     provider: 'salesforce',
     enabled: false

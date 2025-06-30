@@ -3,7 +3,8 @@ import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import RepSpheresSearchPanel from '../components/RepSpheresSearchPanel';
 import SimpleCinematicScan from '../components/SimpleCinematicScan';
-import SimpleProgressiveResults from '../components/SimpleProgressiveResults';
+import DoctorConfirmationPanel from '../components/DoctorConfirmationPanel';
+import EnhancedActionSuite from '../components/EnhancedActionSuite';
 import EnhancedChatLauncher from '../components/EnhancedChatLauncher';
 import { useAuth } from '../auth';
 import { checkUserCredits, deductCredit } from '../lib/creditManager';
@@ -59,9 +60,10 @@ const MainContainer = styled(Box)`
 `;
 
 const CanvasHomePremium: React.FC = () => {
-  const [stage, setStage] = useState<'input' | 'scanning' | 'results'>('input');
+  const [stage, setStage] = useState<'input' | 'scanning-basic' | 'confirmation' | 'scanning-deep' | 'campaigns'>('input');
   const [scanData, setScanData] = useState<any>(null);
-  const [scanResults, setScanResults] = useState<any>(null);
+  const [basicScanResults, setBasicScanResults] = useState<any>(null);
+  const [deepScanResults, setDeepScanResults] = useState<any>(null);
   const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
   const [creditError, setCreditError] = useState('');
   const { user } = useAuth();
@@ -79,35 +81,29 @@ const CanvasHomePremium: React.FC = () => {
   const handleScanStart = async (doctorName: string, product: string, location?: string) => {
     setScanData({ doctorName, product, location });
     
-    // Allow non-authenticated users to try the scan
-    if (!user) {
-      setStage('scanning');
-      return;
-    }
-    
-    // For authenticated users, check credits
-    const creditCheck = await checkUserCredits(user.id);
-    setCreditsRemaining(creditCheck.creditsRemaining);
-    
-    if (!creditCheck.hasCredits) {
-      setCreditError('You have no credits remaining. Please upgrade your plan to continue scanning.');
-      return;
-    }
-    
-    // Deduct credit and start scan
-    const deducted = await deductCredit(user.id);
-    if (!deducted) {
-      setCreditError('Failed to process scan. Please try again.');
-      return;
-    }
-    
-    setCreditsRemaining(creditCheck.creditsRemaining - 1);
-    setStage('scanning');
+    // Both scan stages are free for everyone to impress users
+    setStage('scanning-basic');
   };
   
-  const handleScanComplete = (results: any) => {
-    setScanResults(results);
-    setStage('results');
+  const handleBasicScanComplete = (results: any) => {
+    setBasicScanResults(results);
+    setStage('confirmation');
+  };
+  
+  const handleGoDeeper = () => {
+    setStage('scanning-deep');
+  };
+  
+  const handleSearchAgain = () => {
+    setBasicScanResults(null);
+    setDeepScanResults(null);
+    setScanData(null);
+    setStage('input');
+  };
+  
+  const handleDeepScanComplete = (results: any) => {
+    setDeepScanResults(results);
+    setStage('campaigns');
   };
   
   
@@ -116,28 +112,51 @@ const CanvasHomePremium: React.FC = () => {
       <PremiumBackground />
       <MainContainer>
         {stage === 'input' && (
-          <RepSpheresSearchPanel 
+          <RepSpheresSearchPanel
             onScanStart={handleScanStart}
             creditsRemaining={creditsRemaining}
             creditError={creditError}
           />
         )}
         
-        {stage === 'scanning' && scanData && (
+        {stage === 'scanning-basic' && scanData && (
           <SimpleCinematicScan
             doctorName={scanData.doctorName}
             location={scanData.location}
-            onComplete={handleScanComplete}
+            onComplete={handleBasicScanComplete}
           />
         )}
         
-        {stage === 'results' && scanResults && scanData && (
-          <SimpleProgressiveResults
-            doctorName={scanData.doctorName}
-            userTier={user?.subscription?.tier || 'free'}
-            onUpgradeClick={() => console.log('Upgrade clicked')}
-            scanData={scanResults}
+        {stage === 'confirmation' && basicScanResults && (
+          <DoctorConfirmationPanel
+            scanResults={basicScanResults}
+            onGoDeeper={handleGoDeeper}
+            onSearchAgain={handleSearchAgain}
           />
+        )}
+        
+        {stage === 'scanning-deep' && scanData && (
+          <SimpleCinematicScan
+            doctorName={scanData.doctorName}
+            location={scanData.location}
+            onComplete={handleDeepScanComplete}
+          />
+        )}
+        
+        {stage === 'campaigns' && deepScanResults && scanData && (
+          <Box sx={{
+            minHeight: '100vh',
+            pt: 10,
+            pb: 4,
+            px: 2,
+            background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)'
+          }}>
+            <EnhancedActionSuite
+              scanResult={deepScanResults}
+              researchData={deepScanResults.research}
+              instantIntel={deepScanResults.instantIntel}
+            />
+          </Box>
         )}
       </MainContainer>
       

@@ -14,6 +14,7 @@ interface CRMIntegrationPanelProps {
 
 const CRMIntegrationPanel: React.FC<CRMIntegrationPanelProps> = ({ onConfigChange }) => {
   const [configs, setConfigs] = useState<CRMConfig[]>([
+    { ...defaultCRMConfigs['sphere-os'], provider: 'sphere-os', enabled: true },
     { ...defaultCRMConfigs.salesforce, provider: 'salesforce', enabled: false },
     { ...defaultCRMConfigs.hubspot, provider: 'hubspot', enabled: false },
     { ...defaultCRMConfigs.pipedrive, provider: 'pipedrive', enabled: false },
