@@ -122,6 +122,10 @@ const CanvasHomePremium: React.FC = () => {
   
   const handleDeepScanComplete = (results: any) => {
     console.log('handleDeepScanComplete called with results:', results);
+    console.log('handleDeepScanComplete: results.research:', results?.research);
+    console.log('handleDeepScanComplete: results.instantIntel:', results?.instantIntel);
+    console.log('handleDeepScanComplete: results.instant:', results?.instant);
+    console.log('handleDeepScanComplete: Object.keys(results):', Object.keys(results || {}));
     setDeepScanResults(results);
     setStage('campaigns');
     console.log('handleDeepScanComplete: Set stage to campaigns');
@@ -162,7 +166,7 @@ const CanvasHomePremium: React.FC = () => {
           />
         )}
         
-        {stage === 'campaigns' && deepScanResults && scanData && (
+        {stage === 'campaigns' && (
           <Box sx={{
             minHeight: '100vh',
             pt: 10,
@@ -171,33 +175,11 @@ const CanvasHomePremium: React.FC = () => {
             background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)'
           }}>
             <EnhancedActionSuite
-              scanResult={deepScanResults}
-              researchData={deepScanResults.research}
-              instantIntel={deepScanResults.instantIntel}
+              scanResult={deepScanResults || {}}
+              researchData={deepScanResults || {}}
+              instantIntel={deepScanResults || {}}
             />
           </Box>
-        )}
-        
-        {/* DEBUG: Show when campaigns stage but missing data */}
-        {stage === 'campaigns' && (!deepScanResults || !scanData) && (
-          <div style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'blue',
-            color: 'white',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '18px',
-            zIndex: 9999,
-            padding: '20px'
-          }}>
-            <div>DEBUG: Campaigns stage but missing data!</div>
-            <div>deepScanResults: {deepScanResults ? 'EXISTS' : 'NULL'}</div>
-            <div>scanData: {scanData ? 'EXISTS' : 'NULL'}</div>
-            <div>stage: {stage}</div>
-          </div>
         )}
       </MainContainer>
       
