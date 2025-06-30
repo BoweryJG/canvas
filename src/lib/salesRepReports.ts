@@ -1038,12 +1038,17 @@ export class SalesRepReportGenerator {
 
   // Helper Methods for Report Generation
   private setupDocument(scanResult: EnhancedScanResult, options: SalesRepReportOptions, subtitle: string): void {
+    const reportType = options.reportType || 'sales_report';
+    const doctorName = scanResult.doctor || 'Healthcare Professional';
+    const salesRepName = options.salesRepName || 'Sales Representative';
+    const companyName = options.companyName || 'Company';
+    
     this.doc.setProperties({
-      title: `${options.reportType.replace('_', ' ').toUpperCase()} - ${scanResult.doctor}`,
+      title: `${reportType.replace('_', ' ').toUpperCase()} - ${doctorName}`,
       subject: subtitle,
-      author: options.salesRepName,
-      creator: options.companyName,
-      keywords: `sales, report, ${scanResult.doctor}, ${options.reportType}`
+      author: salesRepName,
+      creator: companyName,
+      keywords: `sales, report, ${doctorName}, ${reportType}`
     });
   }
 
@@ -1546,10 +1551,12 @@ export class SalesRepReportGenerator {
 
   // Outreach-specific helper methods
   private addOutreachMetricsSummary(scanResult: EnhancedScanResult, researchData: ResearchData): void {
+    const practiceScore = scanResult.score || 0;
+    const researchQuality = scanResult.researchQuality || 'Standard';
     const metrics = [
-      { label: 'Practice Fit', value: `${scanResult.score}%` },
+      { label: 'Practice Fit', value: `${practiceScore}%` },
       { label: 'Staff Size', value: `${researchData.practiceInfo?.staff || 10}+` },
-      { label: 'Research Quality', value: scanResult.researchQuality.toUpperCase() },
+      { label: 'Research Quality', value: researchQuality.toUpperCase() },
       { label: 'ROI Potential', value: `${this.calculateExpectedROI(scanResult)}%` }
     ];
 
