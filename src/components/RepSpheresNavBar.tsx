@@ -122,6 +122,10 @@ const RepSpheresNavBar = () => {
     window.location.href = '/';
   };
 
+  const handleLogout = () => {
+    setLogoutModalOpen(true);
+  };
+
   const handleMoreClick = () => {
     if (user) {
       setLogoutModalOpen(true);
@@ -249,9 +253,14 @@ const RepSpheresNavBar = () => {
             {/* Right Actions */}
             <div className="nav-actions">
               {user ? (
-                <button className="nav-cta" onClick={handleDashboard}>
-                  Dashboard
-                </button>
+                <>
+                  <button className="nav-cta" onClick={handleDashboard}>
+                    Dashboard
+                  </button>
+                  <button className="nav-cta" onClick={handleLogout}>
+                    Logout
+                  </button>
+                </>
               ) : (
                 <>
                   <button className="nav-cta" onClick={handleLogin}>
