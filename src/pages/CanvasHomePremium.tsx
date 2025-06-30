@@ -112,10 +112,11 @@ const CanvasHomePremium: React.FC = () => {
     };
     
     console.log('handleBasicScanComplete: Transformed results:', transformedResults);
+    setDeepScanResults(results);
     
-    // Skip confirmation stage - go directly to deep scanning
-    console.log('handleBasicScanComplete: Skipping confirmation, going to scanning-deep');
-    setStage('scanning-deep');
+    // Skip ALL scanning stages - go DIRECTLY to campaigns
+    console.log('handleBasicScanComplete: SKIPPING ALL SCANS - going DIRECTLY to campaigns');
+    setStage('campaigns');
   };
   
   
