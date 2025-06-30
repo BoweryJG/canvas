@@ -31,7 +31,12 @@ const SearchContainer = styled(motion.div)`
 const HeroSection = styled(Box)`
   text-align: center;
   margin-bottom: 60px;
+  margin-top: 120px;
   position: relative;
+  
+  @media (max-width: 768px) {
+    margin-top: 100px;
+  }
 `;
 
 const HeroTitle = styled(motion.h1)`
