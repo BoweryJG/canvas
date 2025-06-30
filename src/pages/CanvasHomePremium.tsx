@@ -3,7 +3,6 @@ import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import RepSpheresSearchPanel from '../components/RepSpheresSearchPanel';
 import SimpleCinematicScan from '../components/SimpleCinematicScan';
-import DoctorConfirmationPanel from '../components/DoctorConfirmationPanel';
 import EnhancedActionSuite from '../components/EnhancedActionSuite';
 import EnhancedChatLauncher from '../components/EnhancedChatLauncher';
 import { useAuth } from '../auth/AuthContext';
@@ -62,7 +61,7 @@ const MainContainer = styled(Box)`
 const CanvasHomePremium: React.FC = () => {
   console.log('CanvasHomePremium: Component starting to render');
   
-  const [stage, setStage] = useState<'input' | 'scanning-basic' | 'confirmation' | 'scanning-deep' | 'campaigns'>('input');
+  const [stage, setStage] = useState<'input' | 'scanning-basic' | 'scanning-deep' | 'campaigns'>('input');
   const [scanData, setScanData] = useState<any>(null);
   const [basicScanResults, setBasicScanResults] = useState<any>(null);
   const [deepScanResults, setDeepScanResults] = useState<any>(null);
@@ -93,7 +92,7 @@ const CanvasHomePremium: React.FC = () => {
   const handleBasicScanComplete = (results: any) => {
     console.log('handleBasicScanComplete called with results:', results);
     
-    // Transform the results to match DoctorConfirmationPanel expected structure
+    // Transform the results to match expected structure
     const transformedResults = {
       doctor: {
         name: results.basic?.doctor || results.enhanced?.doctor || 'Unknown Doctor',
@@ -115,13 +114,12 @@ const CanvasHomePremium: React.FC = () => {
     
     console.log('handleBasicScanComplete: Transformed results:', transformedResults);
     setBasicScanResults(transformedResults);
-    setStage('confirmation');
-    console.log('handleBasicScanComplete: Set stage to confirmation');
-  };
-  
-  const handleGoDeeper = () => {
+    
+    // Skip confirmation stage - go directly to deep scanning
+    console.log('handleBasicScanComplete: Skipping confirmation, going to scanning-deep');
     setStage('scanning-deep');
   };
+  
   
   const handleSearchAgain = () => {
     setBasicScanResults(null);
@@ -144,30 +142,12 @@ const CanvasHomePremium: React.FC = () => {
       <PremiumBackground />
       <MainContainer>
         {stage === 'input' && (
-          <>
-            <div style={{color: 'white', fontSize: '24px', padding: '20px', background: 'red'}}>
-              DEBUG: Input stage is rendering
-            </div>
-            <RepSpheresSearchPanel
-              onScanStart={handleScanStart}
-              creditsRemaining={creditsRemaining}
-              creditError={creditError}
-            />
-          </>
+          <RepSpheresSearchPanel
+            onScanStart={handleScanStart}
+            creditsRemaining={creditsRemaining}
+            creditError={creditError}
+          />
         )}
-        
-        {/* DEBUG: Show current stage always */}
-        <div style={{
-          position: 'fixed',
-          top: '10px',
-          right: '10px',
-          background: 'yellow',
-          color: 'black',
-          padding: '10px',
-          zIndex: 9999
-        }}>
-          Current stage: {stage}
-        </div>
         
         {stage === 'scanning-basic' && scanData && (
           <SimpleCinematicScan
@@ -177,34 +157,6 @@ const CanvasHomePremium: React.FC = () => {
           />
         )}
         
-        {stage === 'confirmation' && basicScanResults && (
-          <DoctorConfirmationPanel
-            scanResults={basicScanResults}
-            onGoDeeper={handleGoDeeper}
-            onSearchAgain={handleSearchAgain}
-          />
-        )}
-        
-        {/* DEBUG: Show when confirmation stage but no basicScanResults */}
-        {stage === 'confirmation' && !basicScanResults && (
-          <div style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'red',
-            color: 'white',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '24px',
-            zIndex: 9999
-          }}>
-            DEBUG: Confirmation stage but basicScanResults is null!
-            <br/>
-            <button onClick={handleSearchAgain} style={{margin: '20px', padding: '10px'}}>
-              Search Again
-            </button>
-          </div>
-        )}
         
         {stage === 'scanning-deep' && scanData && (
           <SimpleCinematicScan
