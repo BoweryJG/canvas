@@ -631,7 +631,8 @@ export class SalesRepReportGenerator {
     this.doc.setTextColor(255, 255, 255);
     this.doc.setFontSize(24);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.text(options.companyName.toUpperCase(), this.pageWidth / 2, 50, { align: 'center' });
+    const companyName = options.companyName || 'Your Company';
+    this.doc.text(companyName.toUpperCase(), this.pageWidth / 2, 50, { align: 'center' });
 
     this.doc.setFontSize(12);
     this.doc.setFont('helvetica', 'normal');
@@ -642,13 +643,15 @@ export class SalesRepReportGenerator {
     this.doc.setTextColor(0, 0, 0);
     this.doc.setFontSize(28);
     this.doc.setFont('helvetica', 'bold');
-    this.doc.text(title, this.pageWidth / 2, this.currentY, { align: 'center' });
+    const reportTitle = title || 'Sales Report';
+    this.doc.text(reportTitle, this.pageWidth / 2, this.currentY, { align: 'center' });
 
     // Doctor and practice info
     this.currentY += 50;
     this.doc.setFontSize(20);
     this.doc.setTextColor(...this.hexToRgb(this.brandColors.primary));
-    this.doc.text(scanResult.doctor, this.pageWidth / 2, this.currentY, { align: 'center' });
+    const doctorName = scanResult.doctor || 'Healthcare Professional';
+    this.doc.text(doctorName, this.pageWidth / 2, this.currentY, { align: 'center' });
 
     this.currentY += 30;
     this.doc.setFontSize(14);

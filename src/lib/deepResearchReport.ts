@@ -425,16 +425,19 @@ export class CanvasDeepResearchGenerator {
     this.currentY += 80;
     this.doc.setFontSize(28);
     this.doc.setTextColor(10, 32, 64);
-    this.doc.text(scanResult.doctor, this.pageWidth / 2, this.currentY, { align: 'center' });
+    const doctorName = scanResult.doctor || 'Healthcare Professional';
+    this.doc.text(doctorName, this.pageWidth / 2, this.currentY, { align: 'center' });
     
     // Report Details
     this.currentY += 60;
     this.doc.setFontSize(14);
     this.doc.setTextColor(100, 100, 100);
-    this.doc.text(`Practice Fit Score: ${scanResult.score}%`, this.pageWidth / 2, this.currentY, { align: 'center' });
+    const practiceScore = scanResult.score || 0;
+    this.doc.text(`Practice Fit Score: ${practiceScore}%`, this.pageWidth / 2, this.currentY, { align: 'center' });
     
     this.currentY += 25;
-    this.doc.text(`Research Quality: ${scanResult.researchQuality.toUpperCase()}`, this.pageWidth / 2, this.currentY, { align: 'center' });
+    const researchQuality = scanResult.researchQuality || 'standard';
+    this.doc.text(`Research Quality: ${researchQuality.toUpperCase()}`, this.pageWidth / 2, this.currentY, { align: 'center' });
     
     this.currentY += 25;
     this.doc.text(`Generated: ${new Date().toLocaleDateString()}`, this.pageWidth / 2, this.currentY, { align: 'center' });

@@ -102,13 +102,14 @@ export class CanvasPDFExporter {
   }
 
   private setupDocument(scanResult: EnhancedScanResult): void {
+    const doctorName = scanResult.doctor || 'Healthcare Professional';
     const metadata: PDFMetadata = {
-      title: `Canvas Intelligence Brief - ${scanResult.doctor}`,
+      title: `Canvas Intelligence Brief - ${doctorName}`,
       subject: 'Medical Sales Intelligence Report',
       author: 'Canvas Intelligence Platform',
       creator: 'Canvas Medical Sales Intelligence',
       producer: 'Canvas AI',
-      keywords: ['medical sales', 'intelligence', 'canvas', scanResult.doctor]
+      keywords: ['medical sales', 'intelligence', 'canvas', doctorName]
     };
 
     this.doc.setProperties({
@@ -148,11 +149,13 @@ export class CanvasPDFExporter {
     this.currentY += 50;
     this.doc.setFontSize(24);
     this.doc.setTextColor(10, 32, 64);
-    this.doc.text(scanResult.doctor, this.pageWidth / 2, this.currentY, { align: 'center' });
+    const doctorName = scanResult.doctor || 'Healthcare Professional';
+    this.doc.text(doctorName, this.pageWidth / 2, this.currentY, { align: 'center' });
     
     // Practice Fit Score
     this.currentY += 80;
-    this.addFitScoreVisualization(scanResult.score);
+    const practiceScore = scanResult.score || 0;
+    this.addFitScoreVisualization(practiceScore);
     
     // Generation Date
     this.currentY = this.pageHeight - 100;
@@ -207,8 +210,9 @@ export class CanvasPDFExporter {
     this.currentY += 20;
     this.addSubsectionHeader('Strategic Recommendations');
     
+    const practiceScore = scanResult.score || 0;
     const recommendations = [
-      `High-priority prospect with ${scanResult.score}% practice alignment`,
+      `High-priority prospect with ${practiceScore}% practice alignment`,
       `Focus on ${this.getTopOpportunities(scanResult).slice(0, 2).join(' and ')}`,
       `Approach timeline: ${this.getRecommendedTimeline(scanResult)}`,
       `Expected ROI: ${this.calculateExpectedROI(scanResult)}% efficiency improvement`
@@ -221,8 +225,9 @@ export class CanvasPDFExporter {
   }
 
   private addKeyMetricsRow(scanResult: EnhancedScanResult, researchData: ResearchData): void {
+    const practiceScore = scanResult.score || 0;
     const metrics = [
-      { label: 'Practice Fit', value: `${scanResult.score}%`, color: [0, 212, 255] },
+      { label: 'Practice Fit', value: `${practiceScore}%`, color: [0, 212, 255] },
       { label: 'Research Quality', value: `${this.calculateResearchQuality(researchData)}%`, color: [16, 185, 129] },
       { label: 'Fact-Based', value: `${scanResult.factBased ? 'Yes' : 'No'}`, color: [251, 191, 36] },
       { label: 'Sources Found', value: `${researchData.sources?.length || 0}`, color: [139, 69, 19] }
@@ -264,7 +269,7 @@ export class CanvasPDFExporter {
     
     // Basic Information
     this.addSubsectionHeader('Professional Information');
-    this.addProfileField('Name', scanResult.doctor);
+    this.addProfileField('Name', scanResult.doctor || 'Healthcare Professional');
     this.addProfileField('Specialty', 'Medical Practice');
     this.addProfileField('Practice Type', this.extractPracticeType(researchData));
     this.addProfileField('Years in Practice', this.extractExperience(researchData));
