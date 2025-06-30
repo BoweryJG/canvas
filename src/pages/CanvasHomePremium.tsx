@@ -91,8 +91,10 @@ const CanvasHomePremium: React.FC = () => {
   };
   
   const handleBasicScanComplete = (results: any) => {
+    console.log('handleBasicScanComplete called with results:', results);
     setBasicScanResults(results);
     setStage('confirmation');
+    console.log('handleBasicScanComplete: Set stage to confirmation');
   };
   
   const handleGoDeeper = () => {
@@ -159,6 +161,27 @@ const CanvasHomePremium: React.FC = () => {
             onGoDeeper={handleGoDeeper}
             onSearchAgain={handleSearchAgain}
           />
+        )}
+        
+        {/* DEBUG: Show when confirmation stage but no basicScanResults */}
+        {stage === 'confirmation' && !basicScanResults && (
+          <div style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'red',
+            color: 'white',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '24px',
+            zIndex: 9999
+          }}>
+            DEBUG: Confirmation stage but basicScanResults is null!
+            <br/>
+            <button onClick={handleSearchAgain} style={{margin: '20px', padding: '10px'}}>
+              Search Again
+            </button>
+          </div>
         )}
         
         {stage === 'scanning-deep' && scanData && (
