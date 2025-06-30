@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type EnhancedScanResult } from '../lib/enhancedAI';
 import { type ResearchData } from '../lib/webResearch';
