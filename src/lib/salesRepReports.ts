@@ -1008,14 +1008,14 @@ export class SalesRepReportGenerator {
       {
         option: 'Phased Implementation',
         timeline: '120 days',
-        investment: `${Math.round(parseFloat(this.calculateImplementationCost(researchData).replace(/[$,]/g, '')) * 0.8).toLocaleString()}`,
+        investment: `${Math.round(parseFloat((this.calculateImplementationCost(researchData) || '$0').replace(/[$,]/g, '')) * 0.8).toLocaleString()}`,
         roi: `${Math.round(this.calculateExpectedROI(scanResult) * 0.75)}% initial efficiency improvement`,
         description: 'Gradual rollout starting with highest-impact modules'
       },
       {
         option: 'Pilot Program',
         timeline: '60 days',
-        investment: `${Math.round(parseFloat(this.calculateImplementationCost(researchData).replace(/[$,]/g, '')) * 0.4).toLocaleString()}`,
+        investment: `${Math.round(parseFloat((this.calculateImplementationCost(researchData) || '$0').replace(/[$,]/g, '')) * 0.4).toLocaleString()}`,
         roi: `${Math.round(this.calculateExpectedROI(scanResult) * 0.5)}% proof of concept ROI`,
         description: 'Limited scope proof of concept with specific department'
       }
@@ -1048,7 +1048,7 @@ export class SalesRepReportGenerator {
     const companyName = options.companyName || 'Company';
     
     this.doc.setProperties({
-      title: `${reportType.replace('_', ' ').toUpperCase()} - ${doctorName}`,
+      title: `${(reportType || 'sales_report').replace('_', ' ').toUpperCase()} - ${doctorName}`,
       subject: subtitle,
       author: salesRepName,
       creator: companyName,
@@ -1396,7 +1396,7 @@ export class SalesRepReportGenerator {
       ['Implementation Cost', this.calculateImplementationCost(researchData), '-', '-'],
       ['Efficiency Savings', `$${Math.round(this.calculateEfficiencySavings(researchData) * 0.3).toLocaleString()}`, `$${Math.round(this.calculateEfficiencySavings(researchData) * 0.35).toLocaleString()}`, `$${Math.round(this.calculateEfficiencySavings(researchData) * 0.4).toLocaleString()}`],
       ['Revenue Lift', `$${Math.round(this.calculateRevenueLift(researchData) * 0.08).toLocaleString()}`, `$${Math.round(this.calculateRevenueLift(researchData) * 0.12).toLocaleString()}`, `$${Math.round(this.calculateRevenueLift(researchData) * 0.15).toLocaleString()}`],
-      ['Net Benefit', `$${Math.round((this.calculateEfficiencySavings(researchData) * 0.3 + this.calculateRevenueLift(researchData) * 0.08) - parseFloat(this.calculateImplementationCost(researchData).replace(/[$,]/g, ''))).toLocaleString()}`, `$${Math.round(this.calculateEfficiencySavings(researchData) * 0.35 + this.calculateRevenueLift(researchData) * 0.12).toLocaleString()}`, `$${Math.round(this.calculateEfficiencySavings(researchData) * 0.4 + this.calculateRevenueLift(researchData) * 0.15).toLocaleString()}`]
+      ['Net Benefit', `$${Math.round((this.calculateEfficiencySavings(researchData) * 0.3 + this.calculateRevenueLift(researchData) * 0.08) - parseFloat((this.calculateImplementationCost(researchData) || '$0').replace(/[$,]/g, ''))).toLocaleString()}`, `$${Math.round(this.calculateEfficiencySavings(researchData) * 0.35 + this.calculateRevenueLift(researchData) * 0.12).toLocaleString()}`, `$${Math.round(this.calculateEfficiencySavings(researchData) * 0.4 + this.calculateRevenueLift(researchData) * 0.15).toLocaleString()}`]
     ];
 
     const colWidths = [150, 100, 100, 100];
