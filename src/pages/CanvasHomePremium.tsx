@@ -190,6 +190,8 @@ const CanvasHomePremium: React.FC = () => {
               }}
               researchData={deepScanResults || { practiceInfo: {}, marketInsights: {} }}
               instantIntel={deepScanResults?.instant || deepScanResults || { outreachTemplates: { email: { subject: '', body: '' } } }}
+              deepScanResults={deepScanResults}
+              scanData={scanData}
             />
           </Box>
         )}

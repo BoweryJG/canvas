@@ -36,6 +36,8 @@ interface EnhancedActionSuiteProps {
   scanResult: EnhancedScanResult;
   researchData?: ResearchData;
   instantIntel?: InstantIntelligence;
+  deepScanResults?: any;
+  scanData?: any;
 }
 
 interface OutreachState {
@@ -49,7 +51,9 @@ interface OutreachState {
 const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({ 
   scanResult, 
   researchData,
-  instantIntel 
+  instantIntel,
+  deepScanResults,
+  scanData
 }) => {
   const [activeTab, setActiveTab] = useState<'outreach' | 'reports' | 'analytics' | 'crm' | 'batch'>('outreach');
   const [emailState] = useState<OutreachState>({ loading: false, sent: false });
@@ -295,7 +299,16 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         completedAt: new Date().toISOString()
       };
       
-      const pdfBlob = await generatePDFReport(scanResult, fallbackResearchData, {
+      // Pass the REAL data to the PDF generator
+      const realResearchData = {
+        ...fallbackResearchData,
+        deepScanResults: deepScanResults,
+        scanData: scanData,
+        actualSearchResults: deepScanResults?.basic || deepScanResults?.enhanced || {},
+        product: scanData?.product || scanResult.product
+      };
+      
+      const pdfBlob = await generatePDFReport(scanResult, realResearchData, {
         includeLogo: true,
         includeResearch: true,
         includeOutreach: true,

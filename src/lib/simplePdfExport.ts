@@ -16,12 +16,50 @@ export interface PDFExportOptions {
   branding?: 'canvas' | 'custom';
 }
 
+// Product-specific strategies
+const PRODUCT_STRATEGIES: Record<string, any> = {
+  'YOMI': {
+    category: 'Robotic Surgery System',
+    keyBenefits: [
+      'Precision implant placement with robotic guidance',
+      'Reduced surgery time by up to 50%',
+      'Improved patient outcomes and satisfaction',
+      'ROI typically achieved within 18-24 months'
+    ],
+    targetSpecialties: ['Oral Surgery', 'Periodontics', 'Prosthodontics', 'Implant Dentistry'],
+    salesApproach: 'Focus on practice efficiency, precision outcomes, and competitive differentiation. Emphasize how YOMI positions them as technology leaders in their market.',
+    objectionHandling: {
+      'Cost': 'Compare to lost revenue from referred cases. Show ROI calculator.',
+      'Learning Curve': 'Comprehensive training program, ongoing support, quick adoption.',
+      'Space': 'Compact design, mobile unit, minimal footprint required.'
+    },
+    competitiveAdvantage: 'First FDA-cleared robotic dental surgery system. No direct competitors in robotic dental surgery space.'
+  },
+  'BOTOX': {
+    category: 'Aesthetic Injectable',
+    keyBenefits: [
+      'Most recognized brand in aesthetics',
+      'Predictable results with established protocols',
+      'High patient demand and satisfaction',
+      'Excellent profit margins per treatment'
+    ],
+    targetSpecialties: ['Dermatology', 'Plastic Surgery', 'Med Spa', 'Aesthetic Medicine'],
+    salesApproach: 'Emphasize brand recognition, patient demand, and profitability. Focus on training support and marketing co-op opportunities.',
+    objectionHandling: {
+      'Competition': 'Gold standard with most clinical data and patient preference.',
+      'Price': 'Premium pricing justified by results and patient willingness to pay.',
+      'Storage': 'Simple refrigeration requirements, long shelf life.'
+    },
+    competitiveAdvantage: 'Market leader with 70%+ market share. Strongest brand recognition among patients.'
+  }
+};
+
 /**
  * Generate PDF report with product intelligence support
  */
 export async function generatePDFReport(
   scanResult: EnhancedScanResult,
-  researchData: ResearchData,
+  researchData: ResearchData & { deepScanResults?: any, scanData?: any, actualSearchResults?: any, product?: string },
   _options?: PDFExportOptions
 ): Promise<Blob> {
   // Use enhanced exporter if product intelligence is available
@@ -36,6 +74,15 @@ export async function generatePDFReport(
   const margin = 20;
   const contentWidth = pageWidth - (margin * 2);
   let yPosition = margin;
+  
+  // Get the actual product name
+  const productName = researchData.product || scanResult.product || 'Product';
+  const productUpper = productName.toUpperCase();
+  const productStrategy = PRODUCT_STRATEGIES[productUpper] || null;
+  
+  // Get actual search results
+  const searchResults = researchData.actualSearchResults || {};
+  const deepScanData = researchData.deepScanResults || {};
   
   // Helper function to add text with wrapping
   const addWrappedText = (text: string, fontSize: number, isBold: boolean = false) => {
@@ -66,7 +113,7 @@ export async function generatePDFReport(
   
   // Executive Summary Box
   doc.setFillColor(245, 245, 250);
-  doc.rect(margin, yPosition, contentWidth, 60, 'F');
+  doc.rect(margin, yPosition, contentWidth, 70, 'F');
   yPosition += 15;
   
   doc.setFontSize(16);
@@ -74,119 +121,167 @@ export async function generatePDFReport(
   doc.text('EXECUTIVE SUMMARY', margin + 10, yPosition);
   yPosition += 10;
   
-  // Key Details
+  // Key Details from ACTUAL search
   doc.setFontSize(12);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Doctor: Dr. ${scanResult.doctor || 'Unknown'}`, margin + 10, yPosition);
+  const doctorName = searchResults.doctor || scanResult.doctor || 'Unknown';
+  doc.text(`Doctor: Dr. ${doctorName}`, margin + 10, yPosition);
   yPosition += 8;
-  doc.text(`Product: ${scanResult.product || 'Not specified'}`, margin + 10, yPosition);
+  doc.text(`Product: ${productName}`, margin + 10, yPosition);
   yPosition += 8;
-  doc.text(`Practice Fit Score: ${scanResult.score || 0}%`, margin + 10, yPosition);
+  doc.text(`Practice Fit Score: ${searchResults.confidence || scanResult.score || 0}%`, margin + 10, yPosition);
   yPosition += 8;
-  doc.text(`Research Quality: ${scanResult.researchQuality || 'Preliminary'}`, margin + 10, yPosition);
-  yPosition = 120;
   
-  // Professional Summary
+  // Add actual source URL if found
+  if (searchResults.source) {
+    doc.text(`Source: ${searchResults.source}`, margin + 10, yPosition);
+    yPosition += 8;
+  }
+  yPosition = 130;
+  
+  // Professional Profile from ACTUAL search results
   checkPageBreak();
   addWrappedText('PROFESSIONAL PROFILE', 14, true);
   yPosition += 5;
   
-  if (scanResult.doctorProfile) {
+  // Use actual search summary
+  if (searchResults.summary) {
+    addWrappedText(searchResults.summary, 11);
+  } else if (scanResult.doctorProfile) {
     addWrappedText(scanResult.doctorProfile, 11);
   } else {
-    addWrappedText('Dr. ' + (scanResult.doctor || 'Unknown') + ' is a healthcare professional with established practice presence. Further intelligence gathering recommended for comprehensive profile development.', 11);
+    addWrappedText(`Dr. ${doctorName} - Professional profile pending detailed analysis.`, 11);
   }
-  yPosition += 10;
   
-  // Product Intelligence
-  checkPageBreak();
-  addWrappedText('PRODUCT INTELLIGENCE: ' + (scanResult.product || 'Product').toUpperCase(), 14, true);
-  yPosition += 5;
-  
-  if (scanResult.productIntel) {
-    addWrappedText(scanResult.productIntel, 11);
-  } else {
-    addWrappedText(`${scanResult.product || 'This product'} represents a significant opportunity in the medical technology space. Market analysis indicates strong potential for adoption among forward-thinking practitioners.`, 11);
-  }
-  yPosition += 10;
-  
-  // Sales Strategy
-  checkPageBreak();
-  addWrappedText('STRATEGIC SALES APPROACH', 14, true);
-  yPosition += 5;
-  
-  if (scanResult.salesBrief) {
-    addWrappedText(scanResult.salesBrief, 11);
-  } else {
-    addWrappedText('Recommended approach: Lead with value proposition focusing on practice efficiency and patient outcomes. Emphasize ROI and competitive advantages. Schedule initial consultation to assess specific practice needs.', 11);
-  }
-  yPosition += 10;
-  
-  // Key Insights
-  checkPageBreak();
-  addWrappedText('KEY INSIGHTS & OPPORTUNITIES', 14, true);
-  yPosition += 5;
-  
-  if (scanResult.insights && scanResult.insights.length > 0) {
-    scanResult.insights.forEach((insight) => {
-      checkPageBreak(20);
-      // Remove emojis and clean up the text
-      const cleanInsight = insight.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
-      doc.setFontSize(11);
-      doc.text('• ', margin, yPosition);
-      const bulletLines = doc.splitTextToSize(cleanInsight, contentWidth - 10);
-      doc.text(bulletLines, margin + 10, yPosition);
-      yPosition += bulletLines.length * 5 + 5;
+  // Add actual key points from search
+  if (searchResults.keyPoints && searchResults.keyPoints.length > 0) {
+    yPosition += 5;
+    searchResults.keyPoints.forEach((point: string) => {
+      const cleanPoint = point.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+      if (cleanPoint) {
+        doc.setFontSize(11);
+        doc.text('• ' + cleanPoint, margin, yPosition);
+        yPosition += 8;
+      }
     });
-  } else {
-    const defaultInsights = [
-      'Practice shows indicators of technology adoption readiness',
-      'Geographic location presents favorable market conditions',
-      'Professional network suggests influence within specialty community',
-      'Timing aligns with industry trends toward modernization'
-    ];
-    defaultInsights.forEach(insight => {
+  }
+  yPosition += 10;
+  
+  // PRODUCT-SPECIFIC Intelligence Section
+  checkPageBreak();
+  addWrappedText(`${productUpper} OPPORTUNITY ANALYSIS`, 14, true);
+  yPosition += 5;
+  
+  if (productStrategy) {
+    // Product Category
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Product Category: ${productStrategy.category}`, margin, yPosition);
+    yPosition += 10;
+    
+    // Key Benefits for THIS product
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${productUpper} Key Benefits:`, margin, yPosition);
+    yPosition += 8;
+    productStrategy.keyBenefits.forEach((benefit: string) => {
       doc.setFontSize(11);
-      doc.text('• ' + insight, margin, yPosition);
+      doc.text('• ' + benefit, margin + 10, yPosition);
       yPosition += 8;
     });
-  }
-  yPosition += 10;
-  
-  // Practice Information (if available)
-  if (researchData?.practiceInfo) {
-    checkPageBreak();
-    addWrappedText('PRACTICE INTELLIGENCE', 14, true);
     yPosition += 5;
     
-    const practiceInfo = researchData.practiceInfo;
-    if (practiceInfo.name) {
+    // Target Specialties
+    if (productStrategy.targetSpecialties.length > 0) {
+      doc.setFontSize(12);
+      doc.text(`Ideal for: ${productStrategy.targetSpecialties.join(', ')}`, margin, yPosition);
+      yPosition += 10;
+    }
+  } else {
+    // Generic product analysis for unknown products
+    addWrappedText(`${productName} represents an opportunity to enhance practice capabilities and patient outcomes. Detailed product intelligence analysis recommended.`, 11);
+  }
+  yPosition += 10;
+  
+  // PRODUCT-SPECIFIC Sales Strategy
+  checkPageBreak();
+  addWrappedText(`${productUpper} SALES STRATEGY`, 14, true);
+  yPosition += 5;
+  
+  if (productStrategy) {
+    addWrappedText(productStrategy.salesApproach, 11);
+    yPosition += 10;
+    
+    // Objection Handling for THIS product
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Common Objections & Responses:', margin, yPosition);
+    yPosition += 8;
+    
+    Object.entries(productStrategy.objectionHandling).forEach(([objection, response]) => {
+      checkPageBreak(20);
+      doc.setFont('helvetica', 'bold');
       doc.setFontSize(11);
-      doc.text(`Practice: ${practiceInfo.name}`, margin, yPosition);
+      doc.text(`"${objection}": `, margin, yPosition);
+      doc.setFont('helvetica', 'normal');
+      const responseLines = doc.splitTextToSize(response as string, contentWidth - 20);
+      doc.text(responseLines, margin + 10, yPosition + 8);
+      yPosition += 8 + (responseLines.length * 5) + 5;
+    });
+    
+    // Competitive Advantage
+    yPosition += 5;
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Competitive Advantage:', margin, yPosition);
+    yPosition += 8;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(11);
+    const compLines = doc.splitTextToSize(productStrategy.competitiveAdvantage, contentWidth);
+    doc.text(compLines, margin, yPosition);
+    yPosition += compLines.length * 5 + 10;
+  } else {
+    addWrappedText(`Develop a customized approach highlighting ${productName}'s unique value proposition and alignment with practice goals.`, 11);
+  }
+  
+  // Contact Information (if available from search)
+  if (deepScanData.basic?.source || deepScanData.enhanced?.source) {
+    checkPageBreak();
+    addWrappedText('CONTACT INTELLIGENCE', 14, true);
+    yPosition += 5;
+    
+    doc.setFontSize(11);
+    if (deepScanData.basic?.source) {
+      doc.text(`Website: ${deepScanData.basic.source}`, margin, yPosition);
       yPosition += 8;
     }
-    if (practiceInfo.address) {
-      doc.text(`Location: ${practiceInfo.address}`, margin, yPosition);
-      yPosition += 8;
-    }
-    if (practiceInfo.specialties && practiceInfo.specialties.length > 0) {
-      doc.text(`Specialties: ${practiceInfo.specialties.join(', ')}`, margin, yPosition);
-      yPosition += 8;
-    }
+    // Extract any social media or contact info from keyPoints
+    const allKeyPoints = [...(deepScanData.basic?.keyPoints || []), ...(deepScanData.enhanced?.keyPoints || [])];
+    allKeyPoints.forEach(point => {
+      if (point.includes('Instagram') || point.includes('@')) {
+        doc.text(`Social: ${point}`, margin, yPosition);
+        yPosition += 8;
+      }
+    });
     yPosition += 10;
   }
   
-  // Next Steps
+  // Next Steps - PRODUCT SPECIFIC
   checkPageBreak();
-  addWrappedText('RECOMMENDED NEXT STEPS', 14, true);
+  addWrappedText(`${productUpper} IMPLEMENTATION ROADMAP`, 14, true);
   yPosition += 5;
   
-  const nextSteps = [
-    '1. Initial outreach via preferred communication channel',
-    '2. Schedule discovery call to assess specific practice needs',
-    '3. Prepare customized ROI analysis based on practice volume',
-    '4. Coordinate product demonstration with key stakeholders',
-    '5. Develop implementation timeline aligned with practice goals'
+  const nextSteps = productStrategy ? [
+    `1. Initial ${productName} consultation - assess specific practice needs`,
+    `2. ${productStrategy.category} ROI analysis based on current patient volume`,
+    `3. Schedule ${productName} demonstration with clinical team`,
+    `4. Review ${productName} training and support programs`,
+    `5. Develop custom implementation timeline for ${productName} integration`
+  ] : [
+    `1. Initial outreach to discuss ${productName} opportunity`,
+    `2. Needs assessment for ${productName} implementation`,
+    `3. Custom ROI analysis for ${productName}`,
+    `4. Product demonstration and evaluation`,
+    `5. Implementation planning and support`
   ];
   
   nextSteps.forEach(step => {
@@ -200,7 +295,7 @@ export async function generatePDFReport(
   doc.setFontSize(9);
   doc.setTextColor(100, 100, 100);
   doc.text(`Generated by Canvas Intelligence Platform | ${new Date().toLocaleString()}`, margin, 280);
-  doc.text(`Confidential - For Internal Use Only`, pageWidth - margin - 80, 280);
+  doc.text(`Confidential - ${productName} Opportunity Analysis`, pageWidth - margin - 80, 280);
   
   // Convert to blob
   const pdfBlob = doc.output('blob');
