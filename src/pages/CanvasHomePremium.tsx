@@ -7,7 +7,7 @@ import DoctorConfirmationPanel from '../components/DoctorConfirmationPanel';
 import EnhancedActionSuite from '../components/EnhancedActionSuite';
 import EnhancedChatLauncher from '../components/EnhancedChatLauncher';
 import { useAuth } from '../auth';
-import { checkUserCredits, deductCredit } from '../lib/creditManager';
+import { checkUserCredits } from '../lib/creditManager';
 
 // Premium gradient background with RepSpheres styling
 const PremiumBackground = styled(Box)`
@@ -65,7 +65,7 @@ const CanvasHomePremium: React.FC = () => {
   const [basicScanResults, setBasicScanResults] = useState<any>(null);
   const [deepScanResults, setDeepScanResults] = useState<any>(null);
   const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
-  const [creditError, setCreditError] = useState('');
+  const [creditError] = useState('');
   const { user } = useAuth();
   
   useEffect(() => {

@@ -1,19 +1,13 @@
-import React from 'react';
 import { Box, Typography, Card, CardContent, Button, Chip, Avatar } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { motion } from 'framer-motion';
-import { 
-  CheckCircle, 
-  LocationOn, 
-  Business, 
-  Phone, 
-  Email, 
+import {
+  CheckCircle,
+  LocationOn,
+  Business,
   TrendingUp,
   AutoAwesome
 } from '@mui/icons-material';
-import BeveledPanel from './PremiumComponents/BeveledPanel';
-import MetallicScrew from './PremiumComponents/MetallicScrew';
-import EdgeIndicator from './PremiumComponents/EdgeIndicator';
 
 interface DoctorConfirmationProps {
   scanResults: {
