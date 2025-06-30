@@ -63,7 +63,6 @@ const CanvasHomePremium: React.FC = () => {
   
   const [stage, setStage] = useState<'input' | 'scanning-basic' | 'scanning-deep' | 'campaigns'>('input');
   const [scanData, setScanData] = useState<any>(null);
-  const [basicScanResults, setBasicScanResults] = useState<any>(null);
   const [deepScanResults, setDeepScanResults] = useState<any>(null);
   const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
   const [creditError] = useState('');
@@ -113,7 +112,6 @@ const CanvasHomePremium: React.FC = () => {
     };
     
     console.log('handleBasicScanComplete: Transformed results:', transformedResults);
-    setBasicScanResults(transformedResults);
     
     // Skip confirmation stage - go directly to deep scanning
     console.log('handleBasicScanComplete: Skipping confirmation, going to scanning-deep');
@@ -121,12 +119,6 @@ const CanvasHomePremium: React.FC = () => {
   };
   
   
-  const handleSearchAgain = () => {
-    setBasicScanResults(null);
-    setDeepScanResults(null);
-    setScanData(null);
-    setStage('input');
-  };
   
   const handleDeepScanComplete = (results: any) => {
     setDeepScanResults(results);
