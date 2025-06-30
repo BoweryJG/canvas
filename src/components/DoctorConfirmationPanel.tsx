@@ -194,15 +194,20 @@ const SecondaryButton = styled(Button)`
   }
 `;
 
-export default function DoctorConfirmationPanel({ 
-  scanResults, 
-  onGoDeeper, 
-  onSearchAgain 
+export default function DoctorConfirmationPanel({
+  scanResults,
+  onGoDeeper,
+  onSearchAgain
 }: DoctorConfirmationProps) {
+  console.log('DoctorConfirmationPanel: Received scanResults:', scanResults);
+  
   const { doctor, confidence, intelligence } = scanResults;
+  console.log('DoctorConfirmationPanel: Extracted doctor:', doctor);
+  console.log('DoctorConfirmationPanel: Doctor name:', doctor?.name);
   
   // Early return if doctor data is not available
   if (!doctor || !doctor.name) {
+    console.log('DoctorConfirmationPanel: Returning null - no doctor or doctor.name');
     return null;
   }
   
