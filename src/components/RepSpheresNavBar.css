@@ -1,9 +1,14 @@
 /* RepSpheres NavBar - Award-Winning Navigation Bar with Inline Telemetry */
 
 :root {
+  --purple-primary: #9f58fa;
+  --blue-accent: #4B96DC;
   --gem-impossible: 255, 0, 255;
   --gem-shift: 0, 255, 255;
   --gem-deep: 255, 0, 170;
+  --gem-impossible-hex: #ff00ff;
+  --gem-shift-hex: #00ffff;
+  --gem-deep-hex: #ff00aa;
 }
 
 /* Fixed Header Container for Nav + Telemetry */
@@ -518,18 +523,18 @@
   position: relative;
   padding: 10px 24px !important;
   border-radius: 12px !important;
-  background: linear-gradient(135deg, #9f58fa, #4B96DC) !important;
+  background: linear-gradient(135deg, var(--purple-primary), var(--blue-accent)) !important;
   color: white !important;
   font-weight: 600 !important;
   font-size: 14px !important;
   text-decoration: none;
-  border: none !important;
-  cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   box-shadow: 
     0 4px 20px rgba(159, 88, 250, 0.3),
     0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  border: none !important;
+  cursor: pointer;
 }
 
 .nav-cta::after {
@@ -540,7 +545,7 @@
   width: 100%;
   height: 100%;
   border: 2px solid;
-  border-color: transparent rgba(var(--gem-impossible), 1) transparent rgba(var(--gem-shift), 1);
+  border-color: transparent var(--gem-impossible-hex) transparent var(--gem-shift-hex);
   border-radius: 12px;
   transform: translate(-50%, -50%) scale(1.1);
   opacity: 0;
@@ -584,16 +589,11 @@
     0 0 0 2px rgba(255, 255, 255, 0.2) inset,
     0 0 40px rgba(255, 0, 255, 0.3);
   filter: brightness(1.1);
-  border-color: transparent !important;
 }
 
 .nav-cta:focus,
 .nav-cta:focus-visible {
   outline: none !important;
-  box-shadow: 
-    0 6px 30px rgba(159, 88, 250, 0.4),
-    0 0 0 2px rgba(255, 255, 255, 0.2) inset,
-    0 0 40px rgba(255, 0, 255, 0.3);
 }
 
 /* More Menu with Radar Animation */
