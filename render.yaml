@@ -2,6 +2,7 @@ services:
   - type: web
     name: canvas-scraper
     runtime: node
+    rootDir: scraper-service
     buildCommand: npm install
     startCommand: npm start
     envVars:
