@@ -21,7 +21,7 @@ body {
   color: white;
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
-  padding-top: 84px; /* Account for fixed navbar height (60px) + top padding (24px) */
+  padding-top: 110px; /* Account for fixed navbar height (60px) + top padding (24px) + telemetry (26px) */
 }
 
 /* Allow navbar to have curved inward effect */

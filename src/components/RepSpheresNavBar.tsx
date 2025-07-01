@@ -129,19 +129,44 @@ const RepSpheresNavBar = () => {
     }
   };
 
+  const handleSignOut = () => {
+    setLogoutModalOpen(true);
+  };
+
+  const setIsLoginOpen = setLoginModalOpen;
+  const setIsSignUpOpen = setSignUpModalOpen;
+
   return (
     <>
-      {/* Award-Winning Navigation Bar with Ultimate Features */}
-      <nav className={`nav-container ${isScrolled ? 'scrolled' : ''}`} ref={navRef}>
-        {/* Edge Mount Indicators */}
-        <div className="nav-edge left-edge"></div>
-        <div className="nav-edge right-edge"></div>
-
-        {/* 4-Point Luxury Screw System */}
-        <div className="nav-screw screw-tl"></div>
-        <div className="nav-screw screw-tr"></div>
-        <div className="nav-screw screw-bl"></div>
-        <div className="nav-screw screw-br"></div>
+      <div className={`header-container ${isScrolled ? 'scrolled' : ''}`}>
+        <nav className="nav-container" ref={navRef}>
+          {/* Edge Mount Indicators */}
+          <div className="nav-edge left-edge" />
+          <div className="nav-edge right-edge" />
+          
+          {/* Advanced Metallic Screws Container */}
+          <div className="nav-screws">
+            <div className="screw-wrapper screw-wrapper-top-left">
+              <div className="screw">
+                <div className="screw-jewel" />
+              </div>
+            </div>
+            <div className="screw-wrapper screw-wrapper-top-right">
+              <div className="screw">
+                <div className="screw-jewel" />
+              </div>
+            </div>
+            <div className="screw-wrapper screw-wrapper-bot-left">
+              <div className="screw">
+                <div className="screw-jewel" />
+              </div>
+            </div>
+            <div className="screw-wrapper screw-wrapper-bot-right">
+              <div className="screw">
+                <div className="screw-jewel" />
+              </div>
+            </div>
+          </div>
 
 
           <div className="nav-inner">
@@ -232,29 +257,54 @@ const RepSpheresNavBar = () => {
             {/* Right Actions */}
             <div className="nav-actions">
               {user ? (
-                <button className="nav-cta" onClick={handleLogout}>
-                  Logout
-                </button>
+                <>
+                  <button
+                    onClick={handleSignOut}
+                    className="nav-cta"
+                  >
+                    Sign Out
+                  </button>
+                </>
               ) : (
                 <>
-                  <button className="nav-cta" onClick={handleLogin}>
+                  <button
+                    onClick={() => setIsLoginOpen(true)}
+                    className="nav-cta"
+                  >
                     Login
                   </button>
-                  <button className="nav-cta nav-signup" onClick={handleSignUp}>
+                  <button
+                    onClick={() => setIsSignUpOpen(true)}
+                    className="nav-cta"
+                  >
                     Sign Up
                   </button>
                 </>
               )}
-              <button className="nav-more" aria-label="More options" onClick={handleMoreClick}>
+              
+              {/* More Menu */}
+              <button className="nav-more">
                 <div className="nav-more-icon">
-                  <span className="nav-more-dot"></span>
-                  <span className="nav-more-dot"></span>
-                  <span className="nav-more-dot"></span>
+                  <span className="nav-more-dot" />
+                  <span className="nav-more-dot" />
+                  <span className="nav-more-dot" />
                 </div>
               </button>
             </div>
           </div>
-      </nav>
+        </nav>
+        
+        {/* PATCHED TELEMETRY SYSTEM */}
+        <div className="telemetry-container">
+          <div className="telemetry-rail-system">
+            <div className="telemetry-rail-wrapper unified">
+              <div className="telemetry-node" />
+              <span className="telemetry-status-inline">AI SALES INTELLIGENCE ACTIVE</span>
+              <div className="telemetry-node" />
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Auth Modals */}
       <LoginModal
