@@ -23,9 +23,10 @@ app.post('/scrape', async (req, res) => {
   try {
     console.log(`🕷️ Scraping: ${url}`);
     
-    // Launch Puppeteer with optimized settings
+    // Launch Puppeteer with Railway-optimized settings
     browser = await puppeteer.launch({
       headless: 'new',
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -33,9 +34,9 @@ app.post('/scrape', async (req, res) => {
         '--disable-gpu',
         '--no-first-run',
         '--no-zygote',
-        '--deterministic-fetch',
-        '--disable-features=IsolateOrigins',
-        '--disable-site-isolation-trials'
+        '--single-process',
+        '--disable-web-security',
+        '--disable-features=IsolateOrigins,site-per-process'
       ]
     });
     
