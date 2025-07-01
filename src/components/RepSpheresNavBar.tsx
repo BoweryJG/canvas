@@ -109,26 +109,6 @@ const RepSpheresNavBar = () => {
     return location.pathname === href;
   };
 
-  const handleLogin = () => {
-    setLoginModalOpen(true);
-  };
-
-  const handleSignUp = () => {
-    setSignUpModalOpen(true);
-  };
-
-  const handleLogout = () => {
-    setLogoutModalOpen(true);
-  };
-
-  const handleMoreClick = () => {
-    if (user) {
-      setLogoutModalOpen(true);
-    } else {
-      setLoginModalOpen(true);
-    }
-  };
-
   const handleSignOut = () => {
     setLogoutModalOpen(true);
   };
