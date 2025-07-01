@@ -143,13 +143,6 @@ const RepSpheresNavBar = () => {
         <div className="nav-screw screw-bl"></div>
         <div className="nav-screw screw-br"></div>
 
-        {/* Dynamic Nav Rail */}
-        <div className="nav-rail">
-          <div className="power-node"></div>
-          <div className="power-node"></div>
-          <div className="power-node"></div>
-          <div className="power-node"></div>
-        </div>
 
           <div className="nav-inner">
             {/* Identity */}
