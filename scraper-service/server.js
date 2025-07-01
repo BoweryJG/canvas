@@ -1,5 +1,6 @@
 const express = require('express');
-const puppeteer = require('puppeteer');
+const axios = require('axios');
+const cheerio = require('cheerio');
 const cors = require('cors');
 
 const app = express();
@@ -8,7 +9,7 @@ app.use(express.json());
 
 // Health check
 app.get('/', (req, res) => {
-  res.json({ status: 'Canvas Scraper Service Running' });
+  res.json({ status: 'Canvas Scraper Service Running (Lightweight Version)' });
 });
 
 // Main scraping endpoint
@@ -19,144 +20,40 @@ app.post('/scrape', async (req, res) => {
     return res.status(400).json({ error: 'URL is required' });
   }
   
-  let browser;
   try {
     console.log(`🕷️ Scraping: ${url}`);
     
-    // Launch Puppeteer with Render-friendly options
-    browser = await puppeteer.launch({
-      headless: 'new',
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--single-process',
-        '--disable-gpu'
-      ]
+    // Fetch the HTML
+    const response = await axios.get(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      },
+      timeout: 30000
     });
     
-    const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+    const $ = cheerio.load(response.data);
+    const bodyText = $('body').text();
     
-    // Extract all the data we need
-    const data = await page.evaluate(() => {
-      // Helper to get text
-      const getText = (selector) => {
-        const el = document.querySelector(selector);
-        return el ? el.textContent.trim() : '';
-      };
-      
-      // Extract all text content
-      const bodyText = document.body.innerText;
-      
-      // Phone numbers
-      const phoneRegex = /\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g;
-      const phones = [...new Set(bodyText.match(phoneRegex) || [])];
-      
-      // Emails
-      const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
-      const emails = [...new Set(bodyText.match(emailRegex) || [])]
-        .filter(e => !e.includes('example.com'));
-      
-      // Services
-      const serviceKeywords = [
-        'implants', 'dental implants', 'surgery', 'extraction', 
-        'crown', 'bridge', 'cleaning', 'whitening', 'orthodontics',
-        'periodontics', 'endodontics', 'prosthodontics', 'cosmetic',
-        'veneers', 'root canal', 'invisalign', 'braces', 'dentures'
-      ];
-      const services = serviceKeywords.filter(service => 
-        bodyText.toLowerCase().includes(service)
-      );
-      
-      // Technologies
-      const techKeywords = [
-        'YOMI', 'robotic', 'digital', 'CAD/CAM', 'CEREC',
-        'cone beam', 'CBCT', 'laser', '3D', 'intraoral scanner',
-        'iTero', 'digital x-ray', 'panoramic'
-      ];
-      const technologies = techKeywords.filter(tech => 
-        bodyText.toLowerCase().includes(tech.toLowerCase())
-      );
-      
-      // Social media
-      const socialLinks = {};
-      document.querySelectorAll('a[href*="facebook.com"]').forEach(link => {
-        socialLinks.facebook = link.href;
-      });
-      document.querySelectorAll('a[href*="instagram.com"]').forEach(link => {
-        socialLinks.instagram = link.href;
-      });
-      document.querySelectorAll('a[href*="youtube.com"]').forEach(link => {
-        socialLinks.youtube = link.href;
-      });
-      document.querySelectorAll('a[href*="linkedin.com"]').forEach(link => {
-        socialLinks.linkedin = link.href;
-      });
-      
-      // Extract Instagram handle from text
-      const igHandleMatch = bodyText.match(/@[\w\.]+/);
-      if (igHandleMatch && !socialLinks.instagram) {
-        socialLinks.instagramHandle = igHandleMatch[0];
-      }
-      
-      // Staff names
-      const staffRegex = /Dr\.?\s+[A-Z][a-z]+\s+[A-Z][a-z]+|[A-Z][a-z]+\s+[A-Z][a-z]+,?\s+(DDS|DMD|MD)/g;
-      const staff = [...new Set(bodyText.match(staffRegex) || [])];
-      
-      // Address
-      const addressRegex = /\d+\s+[A-Za-z\s]+(?:Street|St|Avenue|Ave|Drive|Dr|Road|Rd)[,\s]+[A-Za-z\s]+,\s*[A-Z]{2}\s+\d{5}/;
-      const address = bodyText.match(addressRegex)?.[0];
-      
-      // Hours (look for day patterns)
-      const hoursRegex = /(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)[:\s]+[\d:\s\-ampAMP]+/g;
-      const hours = bodyText.match(hoursRegex) || [];
-      
-      // Get page title and meta description
-      const title = document.title;
-      const metaDesc = document.querySelector('meta[name="description"]')?.content || 
-                       document.querySelector('meta[property="og:description"]')?.content;
-      
-      // Look for specific focus areas
-      const focusAreas = [];
-      if (bodyText.includes('Exclusive Dental Implants')) focusAreas.push('Exclusive Dental Implants');
-      if (bodyText.includes('Four Ever Smile')) focusAreas.push('Four Ever Smile™');
-      
-      // Extract any taglines or slogans (usually in headers)
-      const h1s = Array.from(document.querySelectorAll('h1')).map(h => h.textContent.trim());
-      const h2s = Array.from(document.querySelectorAll('h2')).map(h => h.textContent.trim());
-      
-      return {
-        title,
-        metaDescription: metaDesc,
-        phones,
-        emails,
-        services,
-        technologies,
-        socialLinks,
-        staff,
-        address,
-        hours,
-        focusAreas,
-        headers: { h1s, h2s },
-        // Include raw text for additional parsing if needed
-        rawText: bodyText.substring(0, 5000) // First 5000 chars
-      };
-    });
-    
-    // Take a screenshot
-    const screenshot = await page.screenshot({ 
-      encoding: 'base64',
-      fullPage: false,
-      type: 'jpeg',
-      quality: 80
-    });
-    
-    await browser.close();
+    // Extract data
+    const data = {
+      title: $('title').text() || '',
+      metaDescription: $('meta[name="description"]').attr('content') || 
+                       $('meta[property="og:description"]').attr('content') || '',
+      phones: extractPhones(bodyText),
+      emails: extractEmails(bodyText),
+      services: extractServices(bodyText),
+      technologies: extractTechnologies(bodyText),
+      socialLinks: extractSocialLinks($),
+      staff: extractStaff(bodyText),
+      address: extractAddress(bodyText),
+      hours: extractHours(bodyText),
+      focusAreas: extractFocusAreas(bodyText),
+      headers: {
+        h1s: $('h1').map((i, el) => $(el).text().trim()).get(),
+        h2s: $('h2').map((i, el) => $(el).text().trim()).get()
+      },
+      rawText: bodyText.substring(0, 5000)
+    };
     
     console.log(`✅ Successfully scraped ${url}`);
     
@@ -164,13 +61,11 @@ app.post('/scrape', async (req, res) => {
       success: true,
       url,
       data,
-      screenshot: `data:image/jpeg;base64,${screenshot}`
+      screenshot: null // No screenshot with lightweight scraper
     });
     
   } catch (error) {
     console.error('Scraping error:', error);
-    if (browser) await browser.close();
-    
     res.status(500).json({ 
       success: false,
       error: error.message 
@@ -178,70 +73,93 @@ app.post('/scrape', async (req, res) => {
   }
 });
 
-// Search for practice website
-app.post('/search-practice', async (req, res) => {
-  const { doctorName, location } = req.body;
+// Helper functions
+function extractPhones(text) {
+  const phoneRegex = /\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g;
+  return [...new Set(text.match(phoneRegex) || [])];
+}
+
+function extractEmails(text) {
+  const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+  return [...new Set(text.match(emailRegex) || [])]
+    .filter(e => !e.includes('example.com'));
+}
+
+function extractServices(text) {
+  const serviceKeywords = [
+    'implants', 'dental implants', 'surgery', 'extraction', 
+    'crown', 'bridge', 'cleaning', 'whitening', 'orthodontics',
+    'periodontics', 'endodontics', 'prosthodontics', 'cosmetic',
+    'veneers', 'root canal', 'invisalign', 'braces', 'dentures'
+  ];
+  return serviceKeywords.filter(service => 
+    text.toLowerCase().includes(service)
+  );
+}
+
+function extractTechnologies(text) {
+  const techKeywords = [
+    'YOMI', 'robotic', 'digital', 'CAD/CAM', 'CEREC',
+    'cone beam', 'CBCT', 'laser', '3D', 'intraoral scanner',
+    'iTero', 'digital x-ray', 'panoramic'
+  ];
+  return techKeywords.filter(tech => 
+    text.toLowerCase().includes(tech.toLowerCase())
+  );
+}
+
+function extractSocialLinks($) {
+  const socialLinks = {};
   
-  let browser;
-  try {
-    browser = await puppeteer.launch({
-      headless: 'new',
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable',
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--single-process'
-      ]
-    });
-    
-    const page = await browser.newPage();
-    
-    // Google search for the practice
-    const searchQuery = `"${doctorName}" ${location || ''} dental practice website -yelp -healthgrades -zocdoc`;
-    const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
-    
-    await page.goto(searchUrl, { waitUntil: 'networkidle2' });
-    
-    // Extract search results
-    const results = await page.evaluate(() => {
-      const links = [];
-      document.querySelectorAll('a[href]').forEach(link => {
-        const href = link.href;
-        const text = link.textContent;
-        
-        // Filter for likely practice websites
-        if (href && !href.includes('google.com') && 
-            !href.includes('yelp.com') && 
-            !href.includes('healthgrades.com') &&
-            !href.includes('facebook.com') &&
-            href.includes('http')) {
-          links.push({ url: href, text });
-        }
-      });
-      return links.slice(0, 10);
-    });
-    
-    await browser.close();
-    
-    res.json({
-      success: true,
-      query: searchQuery,
-      results
-    });
-    
-  } catch (error) {
-    console.error('Search error:', error);
-    if (browser) await browser.close();
-    
-    res.status(500).json({ 
-      success: false,
-      error: error.message 
-    });
+  $('a[href*="facebook.com"]').each((i, el) => {
+    socialLinks.facebook = $(el).attr('href');
+  });
+  
+  $('a[href*="instagram.com"]').each((i, el) => {
+    socialLinks.instagram = $(el).attr('href');
+  });
+  
+  $('a[href*="youtube.com"]').each((i, el) => {
+    socialLinks.youtube = $(el).attr('href');
+  });
+  
+  $('a[href*="linkedin.com"]').each((i, el) => {
+    socialLinks.linkedin = $(el).attr('href');
+  });
+  
+  // Extract Instagram handle from text
+  const igHandleMatch = $('body').text().match(/@[\w\.]+/);
+  if (igHandleMatch && !socialLinks.instagram) {
+    socialLinks.instagramHandle = igHandleMatch[0];
   }
-});
+  
+  return socialLinks;
+}
+
+function extractStaff(text) {
+  const staffRegex = /Dr\.?\s+[A-Z][a-z]+\s+[A-Z][a-z]+|[A-Z][a-z]+\s+[A-Z][a-z]+,?\s+(DDS|DMD|MD)/g;
+  return [...new Set(text.match(staffRegex) || [])];
+}
+
+function extractAddress(text) {
+  const addressRegex = /\d+\s+[A-Za-z\s]+(?:Street|St|Avenue|Ave|Drive|Dr|Road|Rd)[,\s]+[A-Za-z\s]+,\s*[A-Z]{2}\s+\d{5}/;
+  const match = text.match(addressRegex);
+  return match ? match[0] : null;
+}
+
+function extractHours(text) {
+  const hoursRegex = /(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)[:\s]+[\d:\s\-ampAMP]+/g;
+  return text.match(hoursRegex) || [];
+}
+
+function extractFocusAreas(text) {
+  const focusAreas = [];
+  if (text.includes('Exclusive Dental Implants')) focusAreas.push('Exclusive Dental Implants');
+  if (text.includes('Four Ever Smile')) focusAreas.push('Four Ever Smile™');
+  return focusAreas;
+}
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Canvas Scraper Service running on port ${PORT}`);
+  console.log(`🚀 Canvas Scraper Service (Lightweight) running on port ${PORT}`);
 });

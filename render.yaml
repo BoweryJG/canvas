@@ -1,10 +1,10 @@
 services:
   - type: web
     name: canvas-scraper
-    runtime: docker
+    runtime: node
     rootDir: scraper-service
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
+    buildCommand: npm install
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
