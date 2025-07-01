@@ -33,30 +33,28 @@ export interface ScrapedWebsiteData {
 }
 
 /**
- * Call Firecrawl API through our Netlify function
+ * Call our own scraper service on Render
  */
-async function callFirecrawl(url: string): Promise<any> {
+async function callScraper(url: string): Promise<any> {
   try {
-    const response = await fetch('/.netlify/functions/firecrawl-scrape', {
+    // Use environment variable or fallback to localhost for dev
+    const SCRAPER_URL = process.env.VITE_SCRAPER_URL || 'http://localhost:3000';
+    
+    const response = await fetch(`${SCRAPER_URL}/scrape`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        url,
-        formats: ['markdown'],
-        onlyMainContent: true,
-        removeBase64Images: true
-      })
+      body: JSON.stringify({ url })
     });
 
     if (!response.ok) {
-      throw new Error(`Firecrawl error: ${response.status}`);
+      throw new Error(`Scraper error: ${response.status}`);
     }
 
     return await response.json();
   } catch (error) {
-    console.error('Firecrawl API error:', error);
+    console.error('Scraper API error:', error);
     throw error;
   }
 }
@@ -145,16 +143,42 @@ function extractPracticeData(content: string, url: string): ScrapedWebsiteData {
  */
 export async function scrapePracticeWebsite(url: string): Promise<ScrapedWebsiteData | null> {
   try {
-    console.log(`🕷️ Scraping website with Firecrawl: ${url}`);
+    console.log(`🕷️ Scraping website with Canvas Scraper: ${url}`);
     
-    const result = await callFirecrawl(url);
+    const result = await callScraper(url);
     
-    if (!result.data || !result.data.markdown) {
-      console.error('No content returned from Firecrawl');
+    if (!result.success || !result.data) {
+      console.error('No content returned from scraper');
       return null;
     }
     
-    const scrapedData = extractPracticeData(result.data.markdown, url);
+    // Transform the scraper data to our format
+    const data = result.data;
+    const scrapedData: ScrapedWebsiteData = {
+      url,
+      title: data.title || '',
+      description: data.metaDescription || '',
+      services: data.services || [],
+      technologies: data.technologies || [],
+      contactInfo: {
+        phone: data.phones?.[0],
+        email: data.emails?.[0],
+        address: data.address,
+        hours: data.hours || []
+      },
+      socialMedia: {
+        ...data.socialLinks,
+        instagram: data.socialLinks?.instagramHandle || data.socialLinks?.instagram
+      },
+      staff: data.staff || [],
+      testimonials: [],
+      techStack: [],
+      practiceInfo: {
+        specialties: data.focusAreas || [],
+        insuranceAccepted: [],
+        languages: []
+      }
+    };
     
     console.log(`✅ Successfully scraped ${url}`);
     return scrapedData;
