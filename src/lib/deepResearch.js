@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai/api/v1",
-  apiKey: "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",
+  apiKey: import.meta.env.VITE_OPENROUTER_API_KEY || '',
   dangerouslyAllowBrowser: true
 });
 
