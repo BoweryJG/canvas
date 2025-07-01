@@ -240,7 +240,7 @@ const RepSpheresNavBar = () => {
                   <button className="nav-cta" onClick={handleLogin}>
                     Login
                   </button>
-                  <button className="nav-cta" onClick={handleSignUp}>
+                  <button className="nav-cta nav-signup" onClick={handleSignUp}>
                     Sign Up
                   </button>
                 </>
