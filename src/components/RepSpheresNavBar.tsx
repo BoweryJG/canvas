@@ -131,37 +131,25 @@ const RepSpheresNavBar = () => {
 
   return (
     <>
-      {/* Fixed Header Container */}
-      <div className={`header-container ${isScrolled ? 'scrolled' : ''}`}>
-        {/* Award-Winning Navigation Bar with Ultimate Features */}
-        <nav className="nav-container" ref={navRef}>
-          {/* Edge Mount Indicators */}
-          <div className="nav-edge left-edge"></div>
-          <div className="nav-edge right-edge"></div>
+      {/* Award-Winning Navigation Bar with Ultimate Features */}
+      <nav className={`nav-container ${isScrolled ? 'scrolled' : ''}`} ref={navRef}>
+        {/* Edge Mount Indicators */}
+        <div className="nav-edge left-edge"></div>
+        <div className="nav-edge right-edge"></div>
 
-          {/* Advanced Metallic Screws with Wrappers */}
-          <div className="nav-screws">
-            <div className="screw-wrapper screw-wrapper-top-left">
-              <div className="screw">
-                <div className="screw-jewel"></div>
-              </div>
-            </div>
-            <div className="screw-wrapper screw-wrapper-top-right">
-              <div className="screw">
-                <div className="screw-jewel"></div>
-              </div>
-            </div>
-            <div className="screw-wrapper screw-wrapper-bot-left">
-              <div className="screw">
-                <div className="screw-jewel"></div>
-              </div>
-            </div>
-            <div className="screw-wrapper screw-wrapper-bot-right">
-              <div className="screw">
-                <div className="screw-jewel"></div>
-              </div>
-            </div>
-          </div>
+        {/* 4-Point Luxury Screw System */}
+        <div className="nav-screw screw-tl"></div>
+        <div className="nav-screw screw-tr"></div>
+        <div className="nav-screw screw-bl"></div>
+        <div className="nav-screw screw-br"></div>
+
+        {/* Dynamic Nav Rail */}
+        <div className="nav-rail">
+          <div className="power-node"></div>
+          <div className="power-node"></div>
+          <div className="power-node"></div>
+          <div className="power-node"></div>
+        </div>
 
           <div className="nav-inner">
             {/* Identity */}
@@ -204,7 +192,10 @@ const RepSpheresNavBar = () => {
                   </circle>
                 </svg>
               </div>
-              <span className="nav-logo-text">Canvas</span>
+              <div className="nav-logo-text">
+                <div>RepSpheres</div>
+                <div className="nav-logo-subtitle">CANVAS</div>
+              </div>
             </Link>
 
             {/* Navigation Links */}
@@ -270,8 +261,7 @@ const RepSpheresNavBar = () => {
               </button>
             </div>
           </div>
-        </nav>
-      </div>
+      </nav>
 
       {/* Auth Modals */}
       <LoginModal
