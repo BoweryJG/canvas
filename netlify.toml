@@ -4,7 +4,7 @@
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "20"
   SECRETS_SCAN_OMIT_KEYS = "VITE_SUPABASE_URL"
 
 # Cache control for HTML files - NEVER cache
