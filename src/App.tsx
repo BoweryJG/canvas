@@ -22,6 +22,7 @@ import { SecureStorage, CSRFTokenManager } from './utils/security'
 import { analytics } from './utils/analytics'
 import { OnboardingFlow } from './components/Onboarding/OnboardingFlow'
 import SharedIntelligence from './pages/SharedIntelligence'
+import ShareAnalytics from './pages/ShareAnalytics'
 // import ChatLauncher from './components/agents/ChatLauncher'
 // import { EnhancedAgentSystem } from './components/agents/EnhancedAgentSystem'
 // import { CanvasAIPro } from './components/agents/CanvasAIPro'
@@ -148,6 +149,7 @@ function AppContent() {
           <Route path="/auth-test" element={<AuthTest />} />
           <Route path="/test-auth-modals" element={<TestAuthModals />} />
           <Route path="/intel/:linkId" element={<SharedIntelligence />} />
+          <Route path="/analytics/shares" element={<ShareAnalytics />} />
         </Routes>
         {/* <ChatLauncher /> */}
         {/* <EnhancedAgentSystem /> */}

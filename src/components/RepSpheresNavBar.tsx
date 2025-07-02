@@ -238,6 +238,13 @@ const RepSpheresNavBar = () => {
             <div className="nav-actions">
               {user ? (
                 <>
+                  <Link
+                    to="/analytics/shares"
+                    className={`nav-link ${isLinkActive('/analytics/shares') ? 'active' : ''}`}
+                  >
+                    <span className="nav-link-icon icon-analytics"></span>
+                    <span>Analytics</span>
+                  </Link>
                   <button
                     onClick={handleSignOut}
                     className="nav-cta"
