@@ -178,7 +178,8 @@ export async function generatePersonalizedSMS(
   scrapedWebsiteData?: any,
   productIntelligence?: any
 ): Promise<{ message: string; followUp?: string }> {
-  // Remove unused variables
+  // Pick the most impactful detail for SMS
+  let specificDetail = '';
   if (scrapedWebsiteData?.practiceInfo?.teamSize) {
     specificDetail = `your ${scrapedWebsiteData.practiceInfo.teamSize}-person team`;
   } else if (scrapedWebsiteData?.services?.[0]) {

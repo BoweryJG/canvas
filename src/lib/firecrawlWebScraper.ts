@@ -162,7 +162,6 @@ function extractTechStack(data: any, url: string): ScrapedWebsiteData['techStack
   };
   
   // Detect CMS from various signals
-  const content = (data.content || '').toLowerCase();
   const html = (data.html || '').toLowerCase();
   
   // CMS Detection

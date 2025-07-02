@@ -202,9 +202,9 @@ export async function orchestrateIntelligenceWorkflow(
       } as any,
       salesRepInfo?.name || 'Sales Rep',
       salesRepInfo?.company || 'Company',
-      procedure,
-      scrapedData,
-      productIntelligence
+      procedure || undefined,
+      scrapedData || undefined,
+      productIntelligence || undefined
     );
     
     const step3Time = Date.now() - step3Start;
