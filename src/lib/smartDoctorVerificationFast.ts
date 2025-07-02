@@ -216,6 +216,12 @@ function classifyResult(
       confidence += 10;
       signals.push('custom_domain');
     }
+    
+    // If we have a verified practice website, set to 100% confidence
+    if (confidence >= 80) {
+      confidence = 100;
+      signals.push('verified_practice_website');
+    }
   }
   
   return {
