@@ -31,6 +31,8 @@ import { SEOReportModal } from './SEOReportModal';
 import { useAuth } from '../auth/hooks';
 import { findProcedureByName } from '../lib/procedureDatabase';
 import { type InstantIntelligence } from '../lib/instantIntelligence';
+import ShareIntelligenceModal from './ShareIntelligenceModal';
+import { type SubscriptionTier } from '../types/magicLink';
 
 interface EnhancedActionSuiteProps {
   scanResult: EnhancedScanResult;
@@ -70,6 +72,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState('');
   const [showSEOReport, setShowSEOReport] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const { user } = useAuth();
   
   // Contact information state
@@ -86,7 +89,14 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
     product: 'Your Product'
   });
   
-
+  // Determine user tier (you would get this from user subscription data)
+  const getUserTier = (): SubscriptionTier => {
+    // TODO: Get actual tier from user subscription
+    // For now, default to 'free' if no user, 'starter' if logged in
+    if (!user) return 'free';
+    // In production, check user.subscription_tier or similar
+    return 'starter'; // Default for logged in users
+  };
 
   /**
    * Generate personalized SMS
@@ -1272,6 +1282,17 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                   >
                     🔍 SEO Analysis Report
                   </button>
+                  <button 
+                    onClick={() => setShowShareModal(true)}
+                    className="report-btn share-btn"
+                    style={{
+                      background: 'linear-gradient(135deg, #00FFC6, #00D4FF)',
+                      color: '#000',
+                      fontWeight: 700
+                    }}
+                  >
+                    🔗 Share Intelligence Report
+                  </button>
                 </div>
               </div>
 
@@ -1718,6 +1739,22 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
           userId={user?.id}
         />
       )}
+      
+      {/* Share Intelligence Modal */}
+      <ShareIntelligenceModal
+        open={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        reportData={{
+          scanResult,
+          researchData,
+          deepScanResults,
+          scanData,
+          instantIntel
+        }}
+        doctorName={scanResult.doctor}
+        userTier={getUserTier()}
+        userId={user?.id || 'anonymous'}
+      />
     </motion.div>
   );
 };
