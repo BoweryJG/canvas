@@ -162,7 +162,7 @@ export async function orchestrateIntelligenceWorkflow(
     const dataPoints = countDataPoints(scrapedData);
     
     result.intelligence = {
-      websiteData: scrapedData,
+      websiteData: scrapedData || undefined,
       deepInsights,
       dataPoints,
       timeElapsed: step2Time
@@ -210,7 +210,7 @@ export async function orchestrateIntelligenceWorkflow(
     const step3Time = Date.now() - step3Start;
     
     result.content = {
-      productIntelligence,
+      productIntelligence: productIntelligence || undefined,
       generatedContent,
       matchScore: productIntelligence?.matchScore,
       timeElapsed: step3Time
@@ -228,9 +228,9 @@ export async function orchestrateIntelligenceWorkflow(
     result.totalTimeElapsed = Date.now() - startTime;
     
     console.log(`\n✅ WORKFLOW COMPLETE in ${result.totalTimeElapsed}ms (${(result.totalTimeElapsed / 1000).toFixed(1)}s)`);
-    console.log(`   Step 1 (Discovery): ${result.discovery.timeElapsed}ms`);
-    console.log(`   Step 2 (Intelligence): ${result.intelligence.timeElapsed}ms`);
-    console.log(`   Step 3 (Content): ${result.content.timeElapsed}ms`);
+    console.log(`   Step 1 (Discovery): ${result.discovery?.timeElapsed || 0}ms`);
+    console.log(`   Step 2 (Intelligence): ${result.intelligence?.timeElapsed || 0}ms`);
+    console.log(`   Step 3 (Content): ${result.content?.timeElapsed || 0}ms`);
     
     if (warnings.length > 0) {
       console.log(`\n⚠️  Warnings: ${warnings.join(', ')}`);

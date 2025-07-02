@@ -196,6 +196,7 @@ SPECIFIC DETAILS:
 - Top service: ${scrapedWebsiteData?.services?.[0] || 'General'}
 - CMS: ${scrapedWebsiteData?.techStack?.cms || 'Unknown'}
 - ROI timeline: ${productIntelligence?.roiCalculation?.timeToROI || 'Quick'}
+- Specific detail: ${specificDetail || 'your practice'}
 
 REQUIREMENTS:
 1. Max 160 characters
