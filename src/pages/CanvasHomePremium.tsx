@@ -3,6 +3,7 @@ import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import RepSpheresSearchPanel from '../components/RepSpheresSearchPanel';
 import SimpleCinematicScan from '../components/SimpleCinematicScan';
+import DeepIntelligenceScan from '../components/DeepIntelligenceScan';
 import EnhancedActionSuite from '../components/EnhancedActionSuite';
 import EnhancedChatLauncher from '../components/EnhancedChatLauncher';
 import { useAuth } from '../auth/AuthContext';
@@ -91,32 +92,12 @@ const CanvasHomePremium: React.FC = () => {
   const handleBasicScanComplete = (results: any) => {
     console.log('handleBasicScanComplete called with results:', results);
     
-    // Transform the results to match expected structure
-    const transformedResults = {
-      doctor: {
-        name: results.basic?.doctor || results.enhanced?.doctor || 'Unknown Doctor',
-        npi: results.basic?.npi,
-        specialty: results.basic?.specialty,
-        practice: results.basic?.practice,
-        location: results.basic?.location,
-        phone: results.basic?.phone,
-        email: results.basic?.email,
-        verified: true
-      },
-      confidence: results.enhanced?.confidence || results.basic?.confidence || 50,
-      intelligence: {
-        score: results.enhanced?.confidence || results.basic?.confidence || 50,
-        insights: results.enhanced?.keyPoints || results.basic?.keyPoints || []
-      },
-      basic: results.basic
-    };
-    
-    console.log('handleBasicScanComplete: Transformed results:', transformedResults);
+    // Store basic scan results
     setDeepScanResults(results);
     
-    // Skip ALL scanning stages - go DIRECTLY to campaigns
-    console.log('handleBasicScanComplete: SKIPPING ALL SCANS - going DIRECTLY to campaigns');
-    setStage('campaigns');
+    // Proceed to deep scan phase for comprehensive intelligence gathering
+    console.log('handleBasicScanComplete: Moving to deep scan phase');
+    setStage('scanning-deep');
   };
   
   
@@ -160,9 +141,10 @@ const CanvasHomePremium: React.FC = () => {
         
         
         {stage === 'scanning-deep' && scanData && (
-          <SimpleCinematicScan
+          <DeepIntelligenceScan
             doctorName={scanData.doctorName}
             location={scanData.location}
+            basicScanResults={deepScanResults}
             onComplete={handleDeepScanComplete}
           />
         )}

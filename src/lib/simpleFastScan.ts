@@ -76,9 +76,11 @@ export async function simpleFastScan(
       }
     }
     
-    // FALLBACK: Original search if no practice name or low confidence
+    // FALLBACK: Enhanced queries to find actual practice websites
     const queries = [
-      `"Dr. ${doctorName}" ${location || ''} ${specialty || 'medical'} practice website`,
+      `"Dr. ${doctorName}" ${location || ''} ${specialty || 'medical'} practice website -healthgrades -vitals -zocdoc`,
+      `"${doctorName}" official website ${location || ''}`,
+      `"Dr. ${doctorName}" ${location || ''} .com site`,
       `"${doctorName}" ${practiceName || ''} ${location || ''}`,
       `"Dr. ${doctorName}" ${location || ''} contact`
     ];
@@ -93,19 +95,31 @@ export async function simpleFastScan(
     }
     
     if (searchResults?.web?.results?.length > 0) {
-      const firstResult = searchResults.web.results[0];
+      // Find the best result (prioritize actual practice websites)
+      let bestResult = searchResults.web.results[0];
+      let bestScore = 0;
+      
+      for (const result of searchResults.web.results) {
+        const score = scoreSearchResult(result, doctorName, location);
+        if (score > bestScore) {
+          bestScore = score;
+          bestResult = result;
+        }
+      }
+      
       results.basic = {
         stage: 'basic',
         doctor: doctorName,
-        confidence: 60,
-        summary: firstResult.title || `Found Dr. ${doctorName}`,
+        confidence: bestScore > 70 ? bestScore : 60,
+        summary: bestResult.title || `Found Dr. ${doctorName}`,
         keyPoints: [
-          '✅ Practice found',
+          bestScore > 70 ? '✅ Official practice website found' : '✅ Practice found',
           `📍 ${location || 'Location identified'}`,
-          '⭐ Reviews available',
-          '📞 Contact info found'
+          bestScore > 70 ? `🔗 ${new URL(bestResult.url).hostname}` : '⭐ Reviews available',
+          '📞 Contact info available'
         ],
-        source: firstResult.url,
+        source: bestResult.url,
+        allResults: searchResults.web.results.slice(0, 5), // Keep top 5 for deep scan
         timeElapsed: 2
       };
     }
@@ -141,4 +155,49 @@ export async function simpleFastScan(
   }
   
   return results;
+}
+
+/**
+ * Score search results to prioritize actual practice websites
+ */
+function scoreSearchResult(result: any, doctorName: string, location?: string): number {
+  const url = result.url.toLowerCase();
+  const title = (result.title || '').toLowerCase();
+  const cleanName = doctorName.replace(/^Dr\.\s*/i, '').toLowerCase();
+  
+  let score = 0;
+  
+  // Directory sites get low scores
+  const directories = ['healthgrades', 'vitals', 'zocdoc', 'yelp', 'yellowpages', 'webmd'];
+  if (directories.some(d => url.includes(d))) {
+    return 20; // Low score for directories
+  }
+  
+  // Check for practice website indicators
+  const practiceKeywords = ['dental', 'practice', 'clinic', 'medical', 'office', 'center'];
+  if (practiceKeywords.some(k => url.includes(k) || title.includes(k))) {
+    score += 30;
+  }
+  
+  // Doctor name in title or URL
+  if (title.includes(cleanName) || url.includes(cleanName.replace(/\s+/g, ''))) {
+    score += 40;
+  }
+  
+  // Location match
+  if (location && (title.includes(location.toLowerCase()) || url.includes(location.toLowerCase()))) {
+    score += 10;
+  }
+  
+  // Custom domain (.com not a subdomain)
+  if (url.match(/^https?:\/\/[^\/]+\.com/) && !url.includes('.wix') && !url.includes('.square')) {
+    score += 20;
+  }
+  
+  // Specific boost for known patterns (like puredental.com for dentists)
+  if (url.includes('dental') && url.endsWith('.com') && title.includes(cleanName)) {
+    score = 90; // High confidence for dental practice websites
+  }
+  
+  return Math.min(score, 100);
 }
