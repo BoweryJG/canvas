@@ -78,14 +78,22 @@ export async function simpleFastScan(
       }
     }
     
-    // FALLBACK: Enhanced queries to find actual practice websites
+    // PRECISION SEARCH: Use only NPI data for accurate results
+    // Extract city and state from location if provided
+    const locationParts = location ? location.split(',').map(part => part.trim()) : [];
+    const city = locationParts[0] || '';
+    const state = locationParts[1] || '';
+    
+    // Create focused search query using ONLY doctor name + city + state + specialty
+    const primaryQuery = `"Dr. ${doctorName}" ${city} ${state} ${specialty || 'doctor'}`.trim();
+    
+    // Backup queries if primary fails (still focused, no exclusions)
     const queries = [
-      `"Dr. ${doctorName}" ${location || ''} ${specialty || 'medical'} practice website -healthgrades -vitals -zocdoc`,
-      `"${doctorName}" official website ${location || ''}`,
-      `"Dr. ${doctorName}" ${location || ''} .com site`,
-      `"${doctorName}" ${practiceName || ''} ${location || ''}`,
-      `"Dr. ${doctorName}" ${location || ''} contact`
-    ];
+      primaryQuery,
+      `"${doctorName}" ${city} ${state} practice`,
+      practiceName ? `"${practiceName}" ${doctorName}` : null,
+      `"Dr. ${doctorName}" ${location || ''}`
+    ].filter(q => q !== null);
     
     let searchResults = null;
     for (const searchQuery of queries) {
@@ -186,43 +194,66 @@ function scoreSearchResult(result: any, doctorName: string, location?: string): 
   const url = result.url.toLowerCase();
   const title = (result.title || '').toLowerCase();
   const cleanName = doctorName.replace(/^Dr\.\s*/i, '').toLowerCase();
+  const lastName = cleanName.split(' ').pop() || cleanName;
   
   let score = 0;
   
-  // Directory sites get low scores
-  const directories = ['healthgrades', 'vitals', 'zocdoc', 'yelp', 'yellowpages', 'webmd'];
+  // IMMEDIATELY REJECT directory sites - return 0 score
+  const directories = [
+    'healthgrades', 'vitals', 'zocdoc', 'yelp', 'yellowpages', 'webmd',
+    'ratemds', 'wellness.com', 'doctor.com', 'findadoctor', 'doximity',
+    'npidb', 'npino', 'hipaaspace', 'healthcare6', 'md.com', 'doctors.com',
+    'facebook.com', 'linkedin.com', 'twitter.com', 'instagram.com'
+  ];
   if (directories.some(d => url.includes(d))) {
-    return 20; // Low score for directories
+    return 0; // Zero score for directories - we don't want them at all
   }
   
-  // Check for practice website indicators
-  const practiceKeywords = ['dental', 'practice', 'clinic', 'medical', 'office', 'center'];
-  if (practiceKeywords.some(k => url.includes(k) || title.includes(k))) {
-    score += 30;
+  // Domain contains doctor's last name = HIGH confidence
+  const domain = url.match(/https?:\/\/([^\/]+)/)?.[1] || '';
+  if (domain.includes(lastName.replace(/\s+/g, ''))) {
+    score += 50;
   }
   
-  // Doctor name in title or URL
-  if (title.includes(cleanName) || url.includes(cleanName.replace(/\s+/g, ''))) {
+  // Title contains doctor's full name = HIGH confidence
+  if (title.includes(cleanName) || title.includes(`dr ${lastName}`)) {
     score += 40;
   }
   
-  // Location match
-  if (location && (title.includes(location.toLowerCase()) || url.includes(location.toLowerCase()))) {
-    score += 10;
+  // Domain contains specialty keywords = GOOD indicator
+  const specialtyKeywords = ['dental', 'medical', 'clinic', 'practice', 'dermatology', 
+                            'orthodontic', 'pediatric', 'surgery', 'wellness', 'health'];
+  if (specialtyKeywords.some(k => domain.includes(k))) {
+    score += 30;
   }
   
-  // Custom domain (.com not a subdomain)
-  if (url.match(/^https?:\/\/[^\/]+\.com/) && !url.includes('.wix') && !url.includes('.square')) {
+  // Custom .com domain (not a subdomain or website builder)
+  const customDomainPattern = /^https?:\/\/[^\/]+\.(com|net|org|health|dental|medical)$/i;
+  const websiteBuilders = ['.wix', '.square', '.weebly', '.godaddy', '.wordpress', 
+                          '.blogspot', '.github', '.netlify', '.vercel'];
+  
+  if (customDomainPattern.test(url) && !websiteBuilders.some(builder => url.includes(builder))) {
     score += 20;
   }
   
-  // Specific boost for known patterns (like puredental.com for dentists)
-  if (url.includes('dental') && url.endsWith('.com') && title.includes(cleanName)) {
-    score = 100; // 100% confidence for actual dental practice websites
+  // Location match (if provided)
+  if (location) {
+    const locationParts = location.toLowerCase().split(',').map(p => p.trim());
+    if (locationParts.some(part => title.includes(part) || url.includes(part))) {
+      score += 10;
+    }
   }
   
-  // Any custom .com domain with doctor name should get very high confidence
-  if (score >= 70 && url.match(/^https?:\/\/[^\/]+\.com/)) {
+  // SPECIAL PATTERNS for known practice website formats
+  // Example: puredental.com, smithdental.com, etc.
+  if ((url.includes('dental') || url.includes('medical') || url.includes('clinic')) && 
+      domain.endsWith('.com') && 
+      (domain.includes(lastName.replace(/\s+/g, '')) || title.includes(cleanName))) {
+    return 100; // 100% confidence - this is definitely their practice website
+  }
+  
+  // If we have high scoring indicators, boost to at least 95
+  if (score >= 70) {
     score = Math.max(score, 95);
   }
   

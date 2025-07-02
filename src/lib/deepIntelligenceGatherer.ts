@@ -31,157 +31,107 @@ export interface DeepIntelligenceResult {
 export async function deepIntelligenceGather(
   doctorName: string,
   location?: string,
-  basicResults?: any
-): Promise<DeepIntelligenceResult> {
+  basicResults?: any,
+  specialty?: string,
+  practiceName?: string,
+  npi?: string
+): Promise<DeepIntelligenceResult | null> {
   console.log(`🔍 Starting deep intelligence gathering for ${doctorName}`);
   
-  const result: DeepIntelligenceResult = {
-    confidence: 0,
-    summary: '',
-    keyPoints: [],
-    sources: []
-  };
-  
   try {
-    // Extract website from basic results if available
-    let primaryWebsite: string | null = null;
+    // Use our precision website discovery system
+    const { discoverPracticeWebsite } = await import('./websiteDiscovery');
     
-    // First check if we have a high-confidence website from basic scan
-    if (basicResults?.basic?.source && basicResults?.basic?.confidence > 70) {
-      const source = basicResults.basic.source.toLowerCase();
-      if (!isDirectorySite(source)) {
-        primaryWebsite = basicResults.basic.source;
-      }
+    // Extract city and state from location
+    const locationParts = location ? location.split(',').map(part => part.trim()) : [];
+    const city = locationParts[0];
+    const state = locationParts[1];
+    
+    // Discover the actual practice website
+    const discoveryResult = await discoverPracticeWebsite(
+      doctorName,
+      city,
+      state,
+      specialty,
+      practiceName,
+      npi
+    );
+    
+    // If no website found, return null (no generic fallbacks)
+    if (!discoveryResult) {
+      console.log(`❌ No practice website found for Dr. ${doctorName} - returning null`);
+      return null;
     }
     
-    // If not, analyze all results from basic scan
-    if (!primaryWebsite && basicResults?.basic?.allResults) {
-      for (const result of basicResults.basic.allResults) {
-        const url = result.url.toLowerCase();
-        if (!isDirectorySite(url) && isPracticeWebsite(url, result.title || '', doctorName)) {
-          primaryWebsite = result.url;
-          break;
-        }
-      }
-    }
+    const primaryWebsite = discoveryResult.websiteUrl;
     
-    // If no website from basic scan, do targeted searches
-    if (!primaryWebsite) {
-      primaryWebsite = await findPracticeWebsite(doctorName, location);
-    }
+    console.log(`✅ Found primary website with ${discoveryResult.confidence}% confidence: ${primaryWebsite}`);
     
-    if (primaryWebsite) {
-      console.log(`✅ Found primary website: ${primaryWebsite}`);
-      result.website = primaryWebsite;
+    // Create result object
+    const result: DeepIntelligenceResult = {
+      confidence: discoveryResult.confidence,
+      website: primaryWebsite,
+      summary: '',
+      keyPoints: [],
+      sources: [{
+        url: primaryWebsite,
+        type: 'practice_website',
+        relevance: discoveryResult.confidence
+      }]
+    };
+    
+    // Scrape and analyze the website
+    try {
+      const scrapedData = await scrapePracticeWebsite(primaryWebsite);
       
-      // Scrape and analyze the website
-      try {
-        const scrapedData = await scrapePracticeWebsite(primaryWebsite);
+      if (scrapedData) {
+        // Extract practice information
+        result.practiceInfo = extractPracticeInfo(scrapedData);
         
-        if (scrapedData) {
-          // Extract practice information
-          result.practiceInfo = extractPracticeInfo(scrapedData);
-          
-          // Build intelligence summary
-          result.summary = buildIntelligenceSummary(doctorName, result.practiceInfo, primaryWebsite);
-          
-          // Generate key points
-          result.keyPoints = generateKeyPoints(result.practiceInfo, primaryWebsite);
-          
-          // 100% confidence when we have the actual practice website
-          result.confidence = 100;
-        }
-      } catch (scrapeError) {
-        console.error('Error scraping website:', scrapeError);
-        // Still 100% confidence if we found their actual website (even if scraping fails)
+        // Build intelligence summary
+        result.summary = buildIntelligenceSummary(doctorName, result.practiceInfo, primaryWebsite);
+        
+        // Generate key points with discovery insights
+        result.keyPoints = [
+          `✅ Official practice website verified (${discoveryResult.discoveryMethod})`,
+          ...generateKeyPoints(result.practiceInfo, primaryWebsite),
+          `🎯 ${discoveryResult.verificationSignals.length} verification signals confirmed`
+        ];
+        
+        // 100% confidence when we have scraped data from the actual website
         result.confidence = 100;
+      } else {
+        // Website found but scraping failed - still valuable
         result.summary = `Found official practice website for Dr. ${doctorName} at ${primaryWebsite}`;
         result.keyPoints = [
-          '✅ Official practice website verified',
+          `✅ Practice website discovered via ${discoveryResult.discoveryMethod}`,
           `🔗 ${primaryWebsite}`,
-          '📞 Direct contact information available',
-          '🏥 Established medical practice',
-          '💯 100% verified source'
+          `📊 ${discoveryResult.confidence}% discovery confidence`,
+          '📞 Visit website for contact information',
+          `🔍 ${discoveryResult.verificationSignals.join(', ')}`
         ];
       }
-    } else {
-      // Fallback: Using directory/aggregated data - minimum 85% confidence
-      result.confidence = 85;
-      result.summary = `Comprehensive profile for Dr. ${doctorName} from verified sources`;
+    } catch (scrapeError) {
+      console.error('Error scraping website:', scrapeError);
+      // Website found but scraping failed
+      result.summary = `Verified practice website for Dr. ${doctorName}: ${primaryWebsite}`;
       result.keyPoints = [
-        '✅ Verified medical professional',
-        `📍 ${location || 'Location verified'}`,
-        '🏥 Active medical practice',
-        '📊 Multiple verified sources',
-        '🔍 Data from professional directories'
+        `✅ Website verified: ${discoveryResult.title}`,
+        `🔗 ${primaryWebsite}`,
+        `🎯 Discovery method: ${discoveryResult.discoveryMethod}`,
+        '⚡ Manual verification recommended'
       ];
     }
     
-    // Add sources
-    result.sources.push({
-      url: primaryWebsite || 'Multiple sources',
-      type: primaryWebsite ? 'practice_website' : 'aggregated',
-      relevance: result.confidence
-    });
+    return result;
     
   } catch (error) {
     console.error('Deep intelligence error:', error);
-    // Even with errors, maintain minimum 85% confidence
-    result.confidence = 85;
-    result.summary = `Verified profile for Dr. ${doctorName}`;
-    result.keyPoints = [
-      '✅ Medical professional verified',
-      `📍 ${location || 'USA'}`,
-      '🏥 Licensed practitioner',
-      '📊 Professional standing confirmed'
-    ];
+    // Return null on error - no generic fallbacks
+    return null;
   }
-  
-  return result;
 }
 
-/**
- * Find practice website through targeted searches
- */
-async function findPracticeWebsite(doctorName: string, location?: string): Promise<string | null> {
-  const cleanName = doctorName.replace(/^Dr\.\s*/i, '').trim();
-  
-  // Targeted queries to find actual practice websites
-  const queries = [
-    `"${cleanName}" practice website ${location || ''}`,
-    `"Dr. ${cleanName}" official website`,
-    `"${cleanName}" dental clinic site:*.com`,
-    `"${cleanName}" medical practice homepage`
-  ];
-  
-  for (const query of queries) {
-    try {
-      console.log(`🔎 Searching: ${query}`);
-      const results = await callBraveSearch(query, 10);
-      
-      if (results?.web?.results) {
-        // Look for actual practice websites
-        for (const result of results.web.results) {
-          const url = result.url.toLowerCase();
-          const title = (result.title || '').toLowerCase();
-          
-          // Skip directories
-          if (isDirectorySite(url)) continue;
-          
-          // Check for practice indicators
-          if (isPracticeWebsite(url, title, cleanName)) {
-            console.log(`✅ Found practice website: ${result.url}`);
-            return result.url;
-          }
-        }
-      }
-    } catch (error) {
-      console.error(`Search failed for: ${query}`, error);
-    }
-  }
-  
-  return null;
-}
 
 /**
  * Check if URL is a directory site
