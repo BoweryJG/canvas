@@ -118,7 +118,7 @@ function calculateMatchScore(
   let score = 50; // Base score
   
   // Specialty match
-  if (product.specialty && practiceData.practiceInfo?.specialties?.includes(product.specialty)) {
+  if (product.specialty && (practiceData.practiceInfo as any)?.specialties?.includes(product.specialty)) {
     score += 20;
   }
   
@@ -211,7 +211,7 @@ function identifyIntegrationOpportunities(
  */
 function calculateROI(
   product: DentalProcedure | AestheticProcedure,
-  practiceData: DeepIntelligenceResult,
+  _practiceData: DeepIntelligenceResult,
   scrapedData?: ScrapedWebsiteData
 ): ProductIntelligence['roiCalculation'] {
   const teamSize = scrapedData?.practiceInfo?.teamSize || 5;
@@ -293,7 +293,7 @@ async function identifyCompetitiveAdvantages(
                     Be specific and compelling. Format: One advantage per line.`;
     
     const aiAdvantages = await callPerplexityResearch(prompt, 'search');
-    const lines = aiAdvantages.split('\n').filter(line => line.trim());
+    const lines = aiAdvantages.split('\n').filter((line: string) => line.trim());
     advantages.push(...lines.slice(0, 2));
   } catch (error) {
     console.error('AI advantage generation failed:', error);
@@ -306,7 +306,7 @@ async function identifyCompetitiveAdvantages(
  * Create implementation plan based on practice size
  */
 function createImplementationPlan(
-  product: DentalProcedure | AestheticProcedure,
+  _product: DentalProcedure | AestheticProcedure,
   teamSize: number
 ): ProductIntelligence['implementationPlan'] {
   let timeframe = '2-4 weeks';
@@ -341,15 +341,15 @@ function createImplementationPlan(
  * Generate benefits specific to this practice
  */
 function generatePersonalizedBenefits(
-  product: DentalProcedure | AestheticProcedure,
+  _product: DentalProcedure | AestheticProcedure,
   practiceData: DeepIntelligenceResult,
   scrapedData?: ScrapedWebsiteData
 ): string[] {
   const benefits: string[] = [];
   
   // Website-specific benefits
-  if (scrapedData?.website) {
-    const domain = new URL(scrapedData.website).hostname;
+  if ((scrapedData as any)?.website) {
+    const domain = new URL((scrapedData as any).website).hostname;
     benefits.push(`Seamlessly integrates with ${domain}'s existing patient flow`);
   }
   
@@ -451,7 +451,7 @@ function createObjectionHandlers(
  */
 export function generateValueProposition(
   productIntel: ProductIntelligence,
-  practiceData: DeepIntelligenceResult,
+  _practiceData: DeepIntelligenceResult,
   scrapedData?: ScrapedWebsiteData
 ): string {
   const benefits = productIntel.personalizedBenefits.slice(0, 2).join(' and ');
@@ -459,8 +459,8 @@ export function generateValueProposition(
   
   let proposition = `${productIntel.product.name} ${benefits}, `;
   
-  if (scrapedData?.website) {
-    proposition += `perfectly complementing ${new URL(scrapedData.website).hostname}'s digital presence. `;
+  if ((scrapedData as any)?.website) {
+    proposition += `perfectly complementing ${new URL((scrapedData as any).website).hostname}'s digital presence. `;
   }
   
   proposition += `With an expected ${roi.patientVolumeIncrease} increase in patient volume, `;

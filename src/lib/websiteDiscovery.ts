@@ -25,7 +25,7 @@ export async function discoverPracticeWebsite(
   state?: string,
   specialty?: string,
   practiceName?: string,
-  npi?: string
+  _npi?: string
 ): Promise<WebsiteDiscoveryResult | null> {
   console.log(`🎯 Starting precision website discovery for Dr. ${doctorName}`);
   

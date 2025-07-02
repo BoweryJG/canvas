@@ -197,9 +197,9 @@ export async function orchestrateIntelligenceWorkflow(
       productName,
       {
         enhancedInsights: deepInsights,
-        practiceInfo: deepInsights.practiceInfo,
+        practiceInfo: deepInsights.practiceInfo || {},
         sources: deepInsights.sources
-      },
+      } as any,
       salesRepInfo?.name || 'Sales Rep',
       salesRepInfo?.company || 'Company',
       procedure,

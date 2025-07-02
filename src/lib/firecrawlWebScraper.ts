@@ -124,15 +124,15 @@ export async function scrapePracticeWebsite(url: string): Promise<ScrapedWebsite
         hours: data.hours || []
       },
       socialMedia,
-      staff: data.staff || extractStaffNames(data.content),
+      staff: data.staff || extractStaffNames(data.content || ''),
       testimonials: data.testimonials || [],
       techStack,
       practiceInfo: {
         specialties: data.focusAreas || [],
         insuranceAccepted: data.insurance || [],
         languages: data.languages || [],
-        teamSize: data.staff?.length || estimateTeamSize(data.content),
-        awards: extractAwards(data.content)
+        teamSize: data.staff?.length || estimateTeamSize(data.content || ''),
+        awards: extractAwards(data.content || '')
       },
       recentContent,
       painPoints,

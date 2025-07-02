@@ -2,7 +2,6 @@
  * DEEP INTELLIGENCE GATHERER - Advanced website discovery and content analysis
  */
 
-import { callBraveSearch } from './apiEndpoints';
 import { scrapePracticeWebsite } from './firecrawlWebScraper';
 
 export interface DeepIntelligenceResult {
@@ -31,7 +30,7 @@ export interface DeepIntelligenceResult {
 export async function deepIntelligenceGather(
   doctorName: string,
   location?: string,
-  basicResults?: any,
+  _basicResults?: any,
   specialty?: string,
   practiceName?: string,
   npi?: string
@@ -133,51 +132,7 @@ export async function deepIntelligenceGather(
 }
 
 
-/**
- * Check if URL is a directory site
- */
-function isDirectorySite(url: string): boolean {
-  const directories = [
-    'healthgrades', 'vitals', 'zocdoc', 'yelp', 'yellowpages', 
-    'webmd', 'ratemds', 'wellness.com', 'doctor.com'
-  ];
-  return directories.some(dir => url.includes(dir));
-}
-
-/**
- * Check if URL is likely a practice website
- */
-function isPracticeWebsite(url: string, title: string, doctorName: string): boolean {
-  const urlLower = url.toLowerCase();
-  const titleLower = title.toLowerCase();
-  const nameLower = doctorName.toLowerCase();
-  
-  // Direct domain match (like puredental.com for Greg White)
-  if (urlLower.includes('dental') && titleLower.includes(nameLower)) {
-    return true;
-  }
-  
-  // Practice name indicators
-  const practiceIndicators = [
-    'practice', 'clinic', 'dental', 'medical', 'office', 
-    'center', 'associates', 'group', 'physicians'
-  ];
-  
-  const hasPracticeIndicator = practiceIndicators.some(ind => 
-    urlLower.includes(ind) || titleLower.includes(ind)
-  );
-  
-  // Check for doctor name in title or URL
-  const hasDocName = titleLower.includes(nameLower) || 
-                     urlLower.includes(nameLower.replace(/\s+/g, ''));
-  
-  // Custom domain (not a subdomain of a platform)
-  const isCustomDomain = !urlLower.includes('.wix') && 
-                        !urlLower.includes('.square') && 
-                        !urlLower.includes('.wordpress');
-  
-  return hasPracticeIndicator && (hasDocName || isCustomDomain);
-}
+// Removed unused helper functions
 
 /**
  * Extract practice information from scraped data

@@ -30,8 +30,8 @@ export async function generatePersonalizedEmail(
   doctorName: string,
   productName: string,
   researchData: ResearchData,
-  salesRepName: string,
-  companyName: string,
+  _salesRepName: string,
+  _companyName: string,
   procedure?: DentalProcedure | AestheticProcedure,
   scrapedWebsiteData?: any,
   productIntelligence?: any
@@ -178,10 +178,7 @@ export async function generatePersonalizedSMS(
   scrapedWebsiteData?: any,
   productIntelligence?: any
 ): Promise<{ message: string; followUp?: string }> {
-  const insights = researchData.enhancedInsights;
-  
-  // Pick the most impactful detail for SMS
-  let specificDetail = '';
+  // Remove unused variables
   if (scrapedWebsiteData?.practiceInfo?.teamSize) {
     specificDetail = `your ${scrapedWebsiteData.practiceInfo.teamSize}-person team`;
   } else if (scrapedWebsiteData?.services?.[0]) {

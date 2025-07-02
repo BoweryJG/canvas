@@ -48,7 +48,7 @@ export default function DeepIntelligenceScan({
           if (!mounted) return;
           setScanStage('Discovering Practice Website...');
           setProgress(25);
-          if (deepResults.website) {
+          if (deepResults?.website) {
             setFoundWebsite(deepResults.website);
           }
         }, 800);
@@ -74,7 +74,7 @@ export default function DeepIntelligenceScan({
           setProgress(90);
           
           // Calculate final score
-          const score = deepResults.confidence || 75;
+          const score = deepResults?.confidence || 75;
           setIntelligenceScore(score);
         }, 3200);
         
@@ -92,11 +92,11 @@ export default function DeepIntelligenceScan({
               ...deepResults,
               stage: 'enhanced',
               doctor: doctorName,
-              confidence: deepResults.confidence,
-              summary: deepResults.summary,
-              keyPoints: deepResults.keyPoints,
-              website: deepResults.website,
-              practiceInfo: deepResults.practiceInfo
+              confidence: deepResults?.confidence || 0,
+              summary: deepResults?.summary || '',
+              keyPoints: deepResults?.keyPoints || [],
+              website: deepResults?.website || '',
+              practiceInfo: deepResults?.practiceInfo || {}
             }
           };
           
