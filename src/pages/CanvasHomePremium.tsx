@@ -92,12 +92,12 @@ const CanvasHomePremium: React.FC = () => {
   const handleBasicScanComplete = (results: any) => {
     console.log('handleBasicScanComplete called with results:', results);
     
-    // Store basic scan results
+    // Store scan results - our unified system already did everything!
     setDeepScanResults(results);
     
-    // Proceed to deep scan phase for comprehensive intelligence gathering
-    console.log('handleBasicScanComplete: Moving to deep scan phase');
-    setStage('scanning-deep');
+    // Skip deep scan since unified intelligence already did comprehensive analysis
+    console.log('handleBasicScanComplete: Moving directly to campaigns (unified system complete)');
+    setStage('campaigns');
   };
   
   
@@ -134,6 +134,7 @@ const CanvasHomePremium: React.FC = () => {
         {stage === 'scanning-basic' && scanData && (
           <SimpleCinematicScan
             doctorName={scanData.doctorName}
+            productName={scanData.product}
             location={scanData.location}
             onComplete={handleBasicScanComplete}
           />

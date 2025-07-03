@@ -5,6 +5,7 @@
  */
 
 import { callBraveSearch } from './apiEndpoints';
+import { analyzeWebsitesWithClaude4Opus } from './aiWebsiteAnalyzer';
 
 export interface WebsiteDiscoveryResult {
   websiteUrl: string;
@@ -19,6 +20,17 @@ export interface WebsiteDiscoveryResult {
  * Discover a doctor's actual practice website with high precision
  * @returns Website URL with 100% confidence or null if not found
  */
+export async function discoverPracticeWebsiteWithAI(
+  doctorName: string,
+  city?: string,
+  state?: string,
+  specialty?: string,
+  practiceName?: string,
+  _npi?: string
+): Promise<WebsiteDiscoveryResult | null> {
+  return discoverPracticeWebsite(doctorName, city, state, specialty, practiceName, _npi);
+}
+
 export async function discoverPracticeWebsite(
   doctorName: string,
   city?: string,
@@ -27,55 +39,77 @@ export async function discoverPracticeWebsite(
   practiceName?: string,
   _npi?: string
 ): Promise<WebsiteDiscoveryResult | null> {
-  console.log(`🎯 Starting precision website discovery for Dr. ${doctorName}`);
+  console.log(`🎯 Starting AI-powered website discovery for Dr. ${doctorName}`);
   
-  // Extract last name for domain matching
-  const cleanName = doctorName.replace(/^Dr\.\s*/i, '').trim();
-  const lastName = cleanName.split(' ').pop()?.toLowerCase() || cleanName.toLowerCase();
-  
-  // Build precision search query - NO EXCLUSIONS
-  const searchQuery = buildPrecisionQuery(doctorName, city, state, specialty);
+  // Build multiple search queries for better coverage
+  const searchQueries = buildSmartSearchQueries(doctorName, city, state, specialty, practiceName);
   
   try {
-    // Execute search with timeout
-    const searchPromise = callBraveSearch(searchQuery, 20); // Get more results for better matching
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Search timeout')), 8000)
+    // Execute multiple searches to gather comprehensive results
+    const allSearchResults: any[] = [];
+    const seenUrls = new Set<string>();
+    
+    for (const query of searchQueries) {
+      console.log(`🔍 Searching: "${query}"`);
+      try {
+        const searchPromise = callBraveSearch(query, 15);
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Search timeout')), 5000)
+        );
+        
+        const results = await Promise.race([searchPromise, timeoutPromise]);
+        
+        if (results?.web?.results?.length) {
+          // Add unique results
+          for (const result of results.web.results) {
+            if (!seenUrls.has(result.url)) {
+              seenUrls.add(result.url);
+              allSearchResults.push(result);
+            }
+          }
+        }
+      } catch (searchError) {
+        console.log(`Search failed for query "${query}":`, searchError);
+        // Continue with other queries
+      }
+    }
+    
+    if (allSearchResults.length === 0) {
+      console.log('❌ No search results found across all queries');
+      return null;
+    }
+    
+    console.log(`📊 Found ${allSearchResults.length} unique results across all searches`);
+    
+    // Use Claude 4 Opus to analyze results
+    const aiAnalysis = await analyzeWebsitesWithClaude4Opus(
+      allSearchResults,
+      doctorName,
+      practiceName,  // This could be "Pure Dental" for Dr. Greg White
+      specialty,
+      city,
+      state
     );
     
-    const results = await Promise.race([searchPromise, timeoutPromise]);
-    
-    if (!results?.web?.results?.length) {
-      console.log('❌ No search results found');
+    // Check if we found any practice websites
+    if (aiAnalysis.practiceWebsites.length === 0) {
+      console.log('❌ Claude 4 Opus found no practice websites');
+      console.log('Rejected sites:', aiAnalysis.rejectedSites);
       return null;
     }
     
-    // Score and rank all results
-    const scoredResults = results.web.results
-      .map((result: any) => ({
-        ...result,
-        score: scoreWebsiteResult(result, doctorName, lastName, city, state, specialty, practiceName)
-      }))
-      .filter((result: any) => result.score.total > 0) // Remove directories (score 0)
-      .sort((a: any, b: any) => b.score.total - a.score.total);
-    
-    // Check if we have a high-confidence match
-    const topResult = scoredResults[0];
-    if (!topResult || topResult.score.total < 70) {
-      console.log(`❌ No high-confidence practice website found (best score: ${topResult?.score.total || 0})`);
-      return null;
-    }
-    
-    // We found the practice website!
-    console.log(`✅ Found practice website with ${topResult.score.total}% confidence: ${topResult.url}`);
+    // Get the best practice website
+    const bestWebsite = aiAnalysis.practiceWebsites[0];
+    console.log(`✅ Claude 4 Opus found practice website with ${bestWebsite.confidence}% confidence: ${bestWebsite.url}`);
+    console.log(`Reason: ${bestWebsite.reason}`);
     
     return {
-      websiteUrl: topResult.url,
-      confidence: topResult.score.total >= 95 ? 100 : topResult.score.total,
-      discoveryMethod: topResult.score.method,
-      title: topResult.title,
-      description: topResult.description,
-      verificationSignals: topResult.score.signals
+      websiteUrl: bestWebsite.url,
+      confidence: bestWebsite.confidence,
+      discoveryMethod: 'ai_verified' as any,
+      title: bestWebsite.reason,
+      description: `Verified by Claude 4 Opus: ${bestWebsite.signals.join(', ')}`,
+      verificationSignals: ['claude-4-opus-verified', ...bestWebsite.signals]
     };
     
   } catch (error) {
@@ -85,179 +119,68 @@ export async function discoverPracticeWebsite(
 }
 
 /**
- * Build precision search query
+ * Build smart search queries using NPI organization data and multiple strategies
  */
-function buildPrecisionQuery(
+function buildSmartSearchQueries(
   doctorName: string,
-  city?: string,
-  state?: string,
-  specialty?: string
-): string {
-  // Start with doctor name
-  let query = `"Dr. ${doctorName}"`;
-  
-  // Add location if available
-  if (city) query += ` ${city}`;
-  if (state) query += ` ${state}`;
-  
-  // Add specialty if available
-  if (specialty) {
-    // Clean up specialty (remove "Doctor" suffix if present)
-    const cleanSpecialty = specialty.replace(/\s*Doctor$/i, '').trim();
-    query += ` ${cleanSpecialty}`;
-  }
-  
-  return query;
-}
-
-/**
- * Score a search result to determine if it's an actual practice website
- */
-function scoreWebsiteResult(
-  result: any,
-  doctorName: string,
-  lastName: string,
   city?: string,
   state?: string,
   specialty?: string,
-  practiceName?: string
-): {
-  total: number;
-  method: 'name_match' | 'specialty_match' | 'location_match' | 'practice_name';
-  signals: string[];
-} {
-  const url = result.url.toLowerCase();
-  const title = (result.title || '').toLowerCase();
-  const description = (result.description || '').toLowerCase();
-  const cleanName = doctorName.toLowerCase().replace(/^dr\.\s*/i, '');
+  organizationName?: string
+): string[] {
+  const queries: string[] = [];
   
-  // Extract domain
-  const domain = url.match(/https?:\/\/([^\/]+)/)?.[1] || '';
-  const domainParts = domain.split('.');
-  const mainDomain = domainParts[domainParts.length - 2] || '';
+  // Extract last name for targeted searches
+  const cleanName = doctorName.replace(/^Dr\.\s*/i, '').trim();
+  const lastName = cleanName.split(' ').pop() || cleanName;
   
-  // IMMEDIATE REJECTION - Directory sites get score 0
-  const directories = [
-    'healthgrades', 'vitals', 'zocdoc', 'yelp', 'yellowpages', 'webmd',
-    'ratemds', 'wellness', 'doctor.com', 'findadoctor', 'doximity',
-    'npidb', 'npino', 'hipaaspace', 'healthcare6', 'md.com', 'doctors.com',
-    'facebook', 'linkedin', 'twitter', 'instagram', 'youtube',
-    'bbb.org', 'manta.com', 'chamberofcommerce', 'merchantcircle'
-  ];
-  
-  if (directories.some(dir => domain.includes(dir))) {
-    return { total: 0, method: 'name_match', signals: ['directory_site'] };
-  }
-  
-  let score = 0;
-  const signals: string[] = [];
-  let primaryMethod: 'name_match' | 'specialty_match' | 'location_match' | 'practice_name' = 'name_match';
-  
-  // 1. DOMAIN NAME MATCHING (Highest confidence)
-  // Check if domain contains last name
-  if (mainDomain.includes(lastName.replace(/\s+/g, ''))) {
-    score += 50;
-    signals.push('domain_contains_lastname');
-    primaryMethod = 'name_match';
-  }
-  
-  // Check if domain contains practice name
-  if (practiceName) {
-    const cleanPracticeName = practiceName.toLowerCase()
-      .replace(/[^a-z0-9]/g, '')
-      .substring(0, 20); // First part of practice name
+  // Priority 1: Organization name searches (e.g., "Pure Dental")
+  if (organizationName && organizationName.length > 2) {
+    // Direct organization search
+    queries.push(`"${organizationName}" ${city || ''} ${state || ''}`);
     
-    if (mainDomain.includes(cleanPracticeName)) {
-      score += 50;
-      signals.push('domain_matches_practice');
-      primaryMethod = 'practice_name';
+    // Organization + doctor name
+    queries.push(`"${organizationName}" "Dr. ${doctorName}"`);
+    
+    // Clean organization name for domain searches
+    const orgClean = organizationName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (orgClean.length > 3) {
+      queries.push(`site:${orgClean}.com OR site:www.${orgClean}.com`);
     }
   }
   
-  // 2. TITLE MATCHING
-  // Full name in title
-  if (title.includes(cleanName) || title.includes(`dr ${lastName}`)) {
-    score += 40;
-    signals.push('title_contains_fullname');
-  }
+  // Priority 2: Standard doctor searches
+  queries.push(`"Dr. ${doctorName}" ${city || ''} ${state || ''} ${specialty || ''}`);
   
-  // Practice name in title
-  if (practiceName && title.includes(practiceName.toLowerCase())) {
-    score += 30;
-    signals.push('title_contains_practice');
-  }
-  
-  // 3. SPECIALTY MATCHING
-  const specialtyKeywords = [
-    'dental', 'dentist', 'orthodont', 'endodont', 'periodont',
-    'medical', 'clinic', 'practice', 'dermatolog', 'pediatric',
-    'surgery', 'surgeon', 'wellness', 'health', 'aesthetic',
-    'cosmetic', 'implant', 'family', 'general'
-  ];
-  
-  const matchedSpecialty = specialtyKeywords.find(keyword => 
-    domain.includes(keyword) || title.includes(keyword)
-  );
-  
-  if (matchedSpecialty) {
-    score += 30;
-    signals.push(`specialty_keyword_${matchedSpecialty}`);
-    if (score === 30) primaryMethod = 'specialty_match';
-  }
-  
-  // Extra points if specialty matches the provided one
-  if (specialty && matchedSpecialty && specialty.toLowerCase().includes(matchedSpecialty)) {
-    score += 20;
-    signals.push('specialty_exact_match');
-  }
-  
-  // 4. CUSTOM DOMAIN VALIDATION
-  const isCustomDomain = /^https?:\/\/[^\/]+\.(com|net|org|dental|medical|health|clinic|care)$/i.test(url);
-  const websiteBuilders = ['.wix', '.square', '.weebly', '.godaddy', '.wordpress', '.blogspot'];
-  
-  if (isCustomDomain && !websiteBuilders.some(builder => url.includes(builder))) {
-    score += 20;
-    signals.push('custom_domain');
-  }
-  
-  // 5. LOCATION MATCHING
-  if (city || state) {
-    const locationMatches = [
-      city && (title.includes(city.toLowerCase()) || domain.includes(city.toLowerCase())),
-      state && (title.includes(state.toLowerCase()) || description.includes(state.toLowerCase()))
-    ].filter(Boolean).length;
+  // Priority 3: Practice pattern searches
+  if (lastName.length > 2) {
+    // Common dental practice patterns
+    if (specialty?.toLowerCase().includes('dent')) {
+      queries.push(`"${lastName} dental" ${city || ''} ${state || ''}`);
+      queries.push(`site:${lastName}dental.com OR site:${lastName}dentistry.com`);
+    }
     
-    score += locationMatches * 10;
-    if (locationMatches > 0) {
-      signals.push('location_match');
-      if (score === locationMatches * 10) primaryMethod = 'location_match';
+    // Common medical practice patterns
+    if (specialty?.toLowerCase().includes('medic') || !specialty?.toLowerCase().includes('dent')) {
+      queries.push(`"${lastName} medical" ${city || ''} ${state || ''}`);
+      queries.push(`"${lastName} clinic" ${city || ''} ${state || ''}`);
     }
   }
   
-  // 6. SPECIAL PATTERNS - Maximum confidence
-  // Pattern: lastnamedental.com, smithmedical.com, etc.
-  if (mainDomain.includes(lastName.replace(/\s+/g, '')) && 
-      specialtyKeywords.some(k => mainDomain.includes(k))) {
-    score = 100;
-    signals.push('perfect_domain_pattern');
-    primaryMethod = 'name_match';
+  // Priority 4: Location-based searches
+  if (city) {
+    queries.push(`"Dr. ${doctorName}" practice website ${city}`);
   }
   
-  // Pattern: Practice name + location
-  if (practiceName && city && 
-      title.includes(practiceName.toLowerCase()) && 
-      title.includes(city.toLowerCase())) {
-    score = Math.max(score, 95);
-    signals.push('practice_location_match');
-    primaryMethod = 'practice_name';
-  }
+  // Remove duplicates and empty queries
+  const uniqueQueries = [...new Set(queries)]
+    .filter(q => q && q.trim().length > 5)
+    .map(q => q.trim());
   
-  return {
-    total: Math.min(score, 100),
-    method: primaryMethod,
-    signals
-  };
+  // Limit to top 5 queries to avoid too many API calls
+  return uniqueQueries.slice(0, 5);
 }
+
 
 /**
  * Validate that a URL is accessible and not a 404

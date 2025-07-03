@@ -5,16 +5,17 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
-import { simpleFastScan } from '../lib/simpleFastScan';
+import { gatherUnifiedIntelligence } from '../lib/unifiedIntelligenceCore';
 import { IntelligenceInterface } from './IntelligenceInterface';
 
 interface Props {
   doctorName: string;
+  productName: string;
   location?: string;
   onComplete?: (results: any) => void;
 }
 
-export default function SimpleCinematicScan({ doctorName, location, onComplete }: Props) {
+export default function SimpleCinematicScan({ doctorName, productName, location, onComplete }: Props) {
   const [progress, setProgress] = useState(0);
   const [scanStage, setScanStage] = useState('Initializing...');
   const [intelligenceScore, setIntelligenceScore] = useState(0);
@@ -61,9 +62,9 @@ export default function SimpleCinematicScan({ doctorName, location, onComplete }
         setScanStage('NPI Database Access');
         setProgress(5);
         
-        // Start the actual scan with timeout handling
+        // Start the actual scan with timeout handling using our UNIFIED system
         const scanPromise = Promise.race([
-          simpleFastScan(doctorName, location),
+          gatherUnifiedIntelligence(doctorName, productName, location),
           new Promise((_, reject) => 
             setTimeout(() => reject(new Error('Scan timeout')), maxScanTime - 1000)
           )
@@ -97,22 +98,18 @@ export default function SimpleCinematicScan({ doctorName, location, onComplete }
           setProgress(85);
         }, 3200);
         
-        // Get actual results with error handling
-        let results;
+        // Get actual results with error handling from UNIFIED system
+        let unifiedResults;
         try {
-          results = await scanPromise;
+          unifiedResults = await scanPromise;
+          console.log('✅ Unified Intelligence Results:', unifiedResults);
         } catch (error) {
-          console.warn('Scan failed, using fallback results:', error);
-          results = {
-            basic: {
-              confidence: 60,
-              doctor: { name: doctorName, location: location || 'Unknown' },
-              practice: { name: `${doctorName} Practice`, verified: false }
-            },
-            enhanced: {
-              confidence: 60,
-              insights: ['Scan completed with limited data']
-            }
+          console.warn('Unified scan failed, using fallback results:', error);
+          unifiedResults = {
+            discovery: { practiceWebsite: null, confidence: 0, discoveryMethod: 'fallback' },
+            intelligence: { practiceInfo: { name: `${doctorName} Practice`, services: [], technologies: [] }, insights: [], opportunities: [], painPoints: [], competitiveAdvantage: [] },
+            instant: { summary: 'Scan completed with limited data', keyPoints: ['Basic scan completed'], confidence: 60 },
+            timingMs: { discovery: 0, intelligence: 0, total: 0 }
           };
         }
         
@@ -126,18 +123,37 @@ export default function SimpleCinematicScan({ doctorName, location, onComplete }
           completed = true;
           clearTimeout(safetyTimeout);
           
-          // Calculate intelligence score based on confidence
-          const score = results.enhanced?.confidence || results.basic?.confidence || 60;
+          // Calculate intelligence score based on unified results
+          const score = unifiedResults.instant?.confidence || 60;
           setIntelligenceScore(score);
-          setScanStage('Intelligence Report Ready');
+          setScanStage(unifiedResults.discovery.practiceWebsite ? 'Practice Website Found!' : 'Basic Scan Complete');
           setProgress(100);
+          
+          // Convert unified results to legacy format for compatibility
+          const legacyResults = {
+            unified: unifiedResults,  // Full unified results
+            basic: {
+              confidence: score,
+              doctor: { name: doctorName, location: location || 'Unknown' },
+              practice: { 
+                name: unifiedResults.intelligence.practiceInfo.name || `${doctorName} Practice`, 
+                verified: unifiedResults.discovery.practiceWebsite !== null,
+                website: unifiedResults.discovery.practiceWebsite
+              }
+            },
+            enhanced: {
+              confidence: score,
+              insights: unifiedResults.intelligence.insights,
+              opportunities: unifiedResults.intelligence.opportunities
+            }
+          };
           
           // Complete after showing 100% - shorter delay on mobile
           const completionDelay = isMobile ? 500 : 1000;
           setTimeout(() => {
             if (!mounted) return;
             setIsScanning(false);
-            onComplete?.(results);
+            onComplete?.(legacyResults);
           }, completionDelay);
         }, finalTimeout);
         
