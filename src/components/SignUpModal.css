@@ -75,16 +75,34 @@
 /* 4-Point Luxury Screws */
 .screw {
   position: absolute;
-  width: 6.3px;
-  height: 6.3px;
-  background: radial-gradient(circle at 30% 30%, var(--metal-light), var(--metal-dark));
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(circle at 35% 35%, #e0e0e0 0%, #b8b8b8 15%, #888 40%, #555 70%, #222 100%);
   border-radius: 50%;
   box-shadow: 
-    inset -1px -1px 2px rgba(0,0,0,0.6),
-    inset 1px 1px 2px rgba(255,255,255,0.2),
-    0 1px 2px rgba(0,0,0,0.4);
+    inset 0 1px 2px rgba(255,255,255,0.5),
+    inset 0 -1px 2px rgba(0,0,0,0.6),
+    0 1px 3px rgba(0,0,0,0.8),
+    0 0 8px rgba(0,0,0,0.3);
   z-index: 10;
   transition: transform 0.4s ease;
+  transform-origin: center center;
+}
+
+.screw::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 70%;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(0,0,0,0.7) 20%, 
+    rgba(0,0,0,0.7) 80%, 
+    transparent
+  );
+  transform: translate(-50%, -50%);
 }
 
 .screw::after {
@@ -92,22 +110,44 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 80%;
-  height: 0.75px;
-  background: var(--metal-shadow);
-  transform: translate(-50%, -50%) rotate(var(--angle, 45deg));
-  box-shadow: 0 1.5px 0 -0.75px var(--metal-shadow);
+  width: 1px;
+  height: 70%;
+  background: linear-gradient(180deg, 
+    transparent, 
+    rgba(0,0,0,0.7) 20%, 
+    rgba(0,0,0,0.7) 80%, 
+    transparent
+  );
+  transform: translate(-50%, -50%);
 }
 
-.screw-tl { top: 12px; left: 12px; --angle: 15deg; }
-.screw-tr { top: 12px; right: 12px; --angle: -22deg; }
-.screw-bl { bottom: 12px; left: 12px; --angle: -8deg; }
-.screw-br { bottom: 12px; right: 12px; --angle: 30deg; }
+.screw-tl { 
+  top: 20px; 
+  left: 20px; 
+  animation-delay: 0s;
+}
+.screw-tr { 
+  top: 20px; 
+  right: 20px; 
+  animation-delay: 2s;
+}
+.screw-bl { 
+  bottom: 20px; 
+  left: 20px; 
+  animation-delay: 4s;
+}
+.screw-br { 
+  bottom: 20px; 
+  right: 20px; 
+  animation-delay: 6s;
+}
 
 /* Screw idle animation */
 @keyframes screwIdle {
   0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(15deg); }
+  25% { transform: rotate(1.5deg); }
+  50% { transform: rotate(-1deg); }
+  75% { transform: rotate(0.5deg); }
 }
 
 .screw {
