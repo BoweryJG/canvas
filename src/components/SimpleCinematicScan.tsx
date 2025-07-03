@@ -99,7 +99,7 @@ export default function SimpleCinematicScan({ doctorName, productName, location,
         }, 3200);
         
         // Get actual results with error handling from UNIFIED system
-        let unifiedResults;
+        let unifiedResults: any;
         try {
           unifiedResults = await scanPromise;
           console.log('✅ Unified Intelligence Results:', unifiedResults);

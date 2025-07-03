@@ -406,6 +406,7 @@ export default function IntegratedCanvasExperience() {
         {stage === 'scanning' && (
           <SimpleCinematicScan
             doctorName={doctor}
+            productName="General Analysis"
             location={location}
             onComplete={(results) => {
               setScanResults(results);

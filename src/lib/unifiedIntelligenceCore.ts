@@ -196,8 +196,8 @@ export async function gatherUnifiedIntelligence(
           practiceInfo: {
             name: scrapedData.title || organizationName || `Dr. ${doctorName}'s Practice`,
             services: scrapedData.services || [],
-            technologies: Object.keys(scrapedData.techStack || {}).filter(k => scrapedData.techStack[k]),
-            teamSize: scrapedData.teamMembers?.length,
+            technologies: Object.keys(scrapedData.techStack || {}).filter(k => (scrapedData.techStack as any)[k]),
+            teamSize: (scrapedData as any).teamMembers?.length,
             socialMedia: scrapedData.socialMedia || {}
           },
           insights: generateInsights(scrapedData, productName),
