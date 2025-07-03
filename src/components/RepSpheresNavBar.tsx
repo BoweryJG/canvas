@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth';
 import LoginModal from './LoginModal';
@@ -6,11 +6,22 @@ import LogoutModal from './LogoutModal';
 import SignUpModal from './SignUpModal';
 import './RepSpheresNavBar.css';
 
+interface NavLink {
+  href: string;
+  label: string;
+  icon: string;
+  external?: boolean;
+}
+
+interface RepSpheresNavBarProps {
+  customLinks?: NavLink[];
+  logoHref?: string;
+}
+
 const RepSpheresNavBar = ({ 
   customLinks = [],
-  logoHref = '/',
-  theme = 'default' 
-}) => {
+  logoHref = '/'
+}: RepSpheresNavBarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [telemetryStatus, setTelemetryStatus] = useState(0);
@@ -68,7 +79,7 @@ const RepSpheresNavBar = ({
     };
   }, [isMobileMenuOpen]);
 
-  const handleLinkClick = (e, href) => {
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     // If it's a hash link, handle smooth scroll
     if (href.startsWith('#')) {
       e.preventDefault();
@@ -271,7 +282,7 @@ const RepSpheresNavBar = ({
       {/* Mobile Menu Overlay */}
       <div className={`mobile-menu-overlay ${isMobileMenuOpen ? 'active' : ''}`}
            onClick={(e) => {
-             if (e.target.classList.contains('mobile-menu-overlay')) {
+             if ((e.target as HTMLElement).classList.contains('mobile-menu-overlay')) {
                setIsMobileMenuOpen(false);
              }
            }}>
