@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth';
 import LoginModal from './LoginModal';
@@ -6,152 +6,127 @@ import LogoutModal from './LogoutModal';
 import SignUpModal from './SignUpModal';
 import './RepSpheresNavBar.css';
 
-const RepSpheresNavBar = () => {
-  const navRef = useRef<HTMLElement>(null);
-  const logoRef = useRef<HTMLAnchorElement>(null);
+const RepSpheresNavBar = ({ 
+  customLinks = [],
+  logoHref = '/',
+  theme = 'default' 
+}) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [telemetryStatus, setTelemetryStatus] = useState(0);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const [signUpModalOpen, setSignUpModalOpen] = useState(false);
   const { user } = useAuth();
   const location = useLocation();
 
-  // Update theme colors based on scroll position
-  const updateThemeColors = () => {
-    const y = window.scrollY;
-    const windowHeight = window.innerHeight;
-    const body = document.body;
-    const root = document.documentElement;
-    
-    // Calculate which section we're in
-    const section = Math.floor(y / windowHeight);
-    
-    // Define color themes for each section
-    const themes = [
-      { impossible: '255, 0, 255', shift: '0, 255, 255', deep: '255, 0, 170' }, // Hero - Magenta/Cyan
-      { impossible: '77, 212, 142', shift: '255, 170, 0', deep: '0, 255, 136' }, // Market - Green/Orange
-      { impossible: '255, 107, 53', shift: '255, 204, 224', deep: '245, 57, 105' }, // Canvas - Orange/Pink
-      { impossible: '75, 150, 220', shift: '159, 88, 250', deep: '0, 212, 255' }, // Sphere OS - Blue/Purple
-      { impossible: '245, 57, 105', shift: '255, 0, 255', deep: '159, 88, 250' }  // Podcasts - Pink/Magenta
-    ];
-    
-    const currentTheme = themes[Math.min(section, themes.length - 1)];
-    
-    // Update CSS variables
-    root.style.setProperty('--gem-impossible', `rgb(${currentTheme.impossible})`);
-    root.style.setProperty('--gem-shift', `rgb(${currentTheme.shift})`);
-    root.style.setProperty('--gem-deep', `rgb(${currentTheme.deep})`);
-    
-    // For rgba() usage in CSS
-    body.style.setProperty('--gem-impossible', currentTheme.impossible);
-    body.style.setProperty('--gem-shift', currentTheme.shift);
-    body.style.setProperty('--gem-deep', currentTheme.deep);
-  };
+  // Default navigation links
+  const defaultLinks = [
+    { href: 'https://marketdata.repspheres.com/', label: 'Market Data', icon: 'market', external: true },
+    { href: '/', label: 'Canvas', icon: 'canvas' },
+    { href: '#pipeline', label: 'Pipeline', icon: 'pipeline' },
+    { href: 'https://crm.repspheres.com/', label: 'Sphere oS', icon: 'sphere', external: true },
+    { href: 'https://workshop-homepage.netlify.app/?page=podcast', label: 'Podcasts', icon: 'podcasts', external: true }
+  ];
+
+  const navLinks = customLinks.length > 0 ? customLinks : defaultLinks;
+
+  // Telemetry status messages
+  const statusMessages = [
+    '⏱ AI SYNC 97%',
+    '🔗 NEURAL LINK ACTIVE',
+    '⚡ QUANTUM CORE 100%',
+    '📊 DATA STREAM LIVE',
+    '🛡️ SECURITY OPTIMAL',
+    '🌐 NETWORK STABLE',
+    '💎 GEMS ALIGNED',
+    '🔮 PREDICTION MODE'
+  ];
 
   useEffect(() => {
-    // Initial theme update
-    updateThemeColors();
-
-    // Handle scroll for navbar effects
     const handleScroll = () => {
-      const offset = window.scrollY * 0.05;
-      document.documentElement.style.setProperty('--scroll-offset', `${offset}px`);
-      
       setIsScrolled(window.scrollY > 50);
-      
-      // Update theme colors on scroll
-      updateThemeColors();
     };
 
     window.addEventListener('scroll', handleScroll);
-
-    // 3D Tilt Effect on Logo
-    const logo = logoRef.current;
-    if (logo) {
-      const handleMouseMove = (e: MouseEvent) => {
-        const rect = logo.getBoundingClientRect();
-        const x = e.clientX - rect.left - rect.width / 2;
-        const y = e.clientY - rect.top - rect.height / 2;
-        const rotateX = (y / rect.height) * 10;
-        const rotateY = -(x / rect.width) * 10;
-        logo.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-      };
-
-      const handleMouseLeave = () => {
-        logo.style.transform = '';
-      };
-
-      const handleMouseEnter = () => {
-        const jewel = logo.querySelector('circle[fill="url(#jewelGradient)"]');
-        if (jewel) {
-          (jewel as SVGElement).style.filter = 'brightness(1.5)';
-          setTimeout(() => {
-            (jewel as SVGElement).style.filter = '';
-          }, 150);
-        }
-      };
-
-      logo.addEventListener('mousemove', handleMouseMove);
-      logo.addEventListener('mouseleave', handleMouseLeave);
-      logo.addEventListener('mouseenter', handleMouseEnter);
-
-      // Cleanup
-      return () => {
-        logo.removeEventListener('mousemove', handleMouseMove);
-        logo.removeEventListener('mouseleave', handleMouseLeave);
-        logo.removeEventListener('mouseenter', handleMouseEnter);
-        window.removeEventListener('scroll', handleScroll);
-      };
-    }
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const isLinkActive = (href: string) => {
-    return location.pathname === href;
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTelemetryStatus((prev) => (prev + 1) % statusMessages.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    // Prevent body scroll when mobile menu is open
+    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : '';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
+
+  const handleLinkClick = (e, href) => {
+    // If it's a hash link, handle smooth scroll
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleLogin = () => {
+    setLoginModalOpen(true);
+  };
+
+  const handleSignup = () => {
+    setSignUpModalOpen(true);
   };
 
   const handleSignOut = () => {
     setLogoutModalOpen(true);
   };
 
-  const setIsLoginOpen = setLoginModalOpen;
-  const setIsSignUpOpen = setSignUpModalOpen;
-
   return (
     <>
-      <div className={`header-container ${isScrolled ? 'scrolled' : ''}`}>
-        <nav className="nav-container" ref={navRef}>
+      <div className={`repspheres-header-container ${isScrolled ? 'scrolled' : ''}`}>
+        <nav className="repspheres-nav-container">
           {/* Edge Mount Indicators */}
-          <div className="nav-edge left-edge" />
-          <div className="nav-edge right-edge" />
-          
-          {/* Advanced Metallic Screws Container */}
+          <div className="nav-edge left-edge"></div>
+          <div className="nav-edge right-edge"></div>
+
+          {/* Metallic Screws */}
           <div className="nav-screws">
             <div className="screw-wrapper screw-wrapper-top-left">
               <div className="screw">
-                <div className="screw-jewel" />
+                <div className="screw-jewel"></div>
               </div>
             </div>
             <div className="screw-wrapper screw-wrapper-top-right">
               <div className="screw">
-                <div className="screw-jewel" />
+                <div className="screw-jewel"></div>
               </div>
             </div>
             <div className="screw-wrapper screw-wrapper-bot-left">
               <div className="screw">
-                <div className="screw-jewel" />
+                <div className="screw-jewel"></div>
               </div>
             </div>
             <div className="screw-wrapper screw-wrapper-bot-right">
               <div className="screw">
-                <div className="screw-jewel" />
+                <div className="screw-jewel"></div>
               </div>
             </div>
           </div>
 
-
           <div className="nav-inner">
-            {/* Identity */}
-            <Link to="/" className="nav-logo" ref={logoRef}>
+            {/* Logo */}
+            <Link to={logoHref} className="nav-logo">
               <div className="nav-logo-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
                   <defs>
@@ -161,9 +136,9 @@ const RepSpheresNavBar = () => {
                     </linearGradient>
                     <radialGradient id="jewelGradient" cx="50%" cy="50%" r="50%">
                       <stop offset="0%" stopColor="#fff" stopOpacity="1" />
-                      <stop offset="30%" stopColor="#00D4FF" stopOpacity="1" />
-                      <stop offset="60%" stopColor="#00FFE1" stopOpacity="1" />
-                      <stop offset="100%" stopColor="#00FFC6" stopOpacity="0.9" />
+                      <stop offset="30%" stopColor="#ff00ff" stopOpacity="1" />
+                      <stop offset="60%" stopColor="#00ffff" stopOpacity="1" />
+                      <stop offset="100%" stopColor="#ff00aa" stopOpacity="0.9" />
                     </radialGradient>
                     <filter id="glowTrail">
                       <feGaussianBlur in="SourceGraphic" stdDeviation="0.6" result="blur" />
@@ -190,106 +165,154 @@ const RepSpheresNavBar = () => {
                   </circle>
                 </svg>
               </div>
-              <div className="nav-logo-text">
-                <div>RepSpheres</div>
-                <div className="nav-logo-subtitle">CANVAS</div>
-              </div>
+              <span className="nav-logo-text">RepSpheres</span>
             </Link>
 
-            {/* Navigation Links */}
+            {/* Desktop Navigation Links */}
             <nav className="nav-links">
-              <a 
-                href="https://marketdata.repspheres.com/" 
-                className={`nav-link ${isLinkActive('/market-data') ? 'active' : ''}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className="nav-link-icon icon-market"></span>
-                <span>Market Data</span>
-              </a>
-              <Link 
-                to="/" 
-                className={`nav-link ${isLinkActive('/') ? 'active' : ''}`}
-              >
-                <span className="nav-link-icon icon-canvas"></span>
-                <span>Canvas</span>
-              </Link>
-              <a 
-                href="https://crm.repspheres.com/" 
-                className={`nav-link ${isLinkActive('/sphere-os') ? 'active' : ''}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className="nav-link-icon icon-sphere"></span>
-                <span>Sphere oS</span>
-              </a>
-              <a 
-                href="https://workshop-homepage.netlify.app/?page=podcast" 
-                className={`nav-link ${isLinkActive('/podcasts') ? 'active' : ''}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <span className="nav-link-icon icon-podcasts"></span>
-                <span>Podcasts</span>
-              </a>
+              {navLinks.map((link, index) => (
+                link.external ? (
+                  <a 
+                    key={index} 
+                    href={link.href} 
+                    className="nav-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <span className={`nav-link-icon icon-${link.icon}`}></span>
+                    <span>{link.label}</span>
+                  </a>
+                ) : (
+                  <Link 
+                    key={index} 
+                    to={link.href} 
+                    className={`nav-link ${location.pathname === link.href ? 'active' : ''}`}
+                    onClick={(e) => handleLinkClick(e, link.href)}
+                  >
+                    <span className={`nav-link-icon icon-${link.icon}`}></span>
+                    <span>{link.label}</span>
+                  </Link>
+                )
+              ))}
+              {user && (
+                <Link
+                  to="/analytics/shares"
+                  className={`nav-link ${location.pathname === '/analytics/shares' ? 'active' : ''}`}
+                >
+                  <span className="nav-link-icon icon-analytics"></span>
+                  <span>Analytics</span>
+                </Link>
+              )}
             </nav>
 
             {/* Right Actions */}
             <div className="nav-actions">
               {user ? (
                 <>
-                  <Link
-                    to="/analytics/shares"
-                    className={`nav-link ${isLinkActive('/analytics/shares') ? 'active' : ''}`}
-                  >
-                    <span className="nav-link-icon icon-analytics"></span>
-                    <span>Analytics</span>
-                  </Link>
-                  <button
-                    onClick={handleSignOut}
+                  <button 
                     className="nav-cta"
+                    onClick={handleSignOut}
                   >
                     Sign Out
                   </button>
                 </>
               ) : (
                 <>
-                  <button
-                    onClick={() => setIsLoginOpen(true)}
-                    className="nav-cta"
+                  <button 
+                    className="nav-cta-secondary"
+                    onClick={handleLogin}
                   >
                     Login
                   </button>
-                  <button
-                    onClick={() => setIsSignUpOpen(true)}
+                  <button 
                     className="nav-cta"
+                    onClick={handleSignup}
                   >
                     Sign Up
                   </button>
                 </>
               )}
-              
-              {/* More Menu */}
-              <button className="nav-more">
+              <button className="nav-more" aria-label="More options">
                 <div className="nav-more-icon">
-                  <span className="nav-more-dot" />
-                  <span className="nav-more-dot" />
-                  <span className="nav-more-dot" />
+                  <span className="nav-more-dot"></span>
+                  <span className="nav-more-dot"></span>
+                  <span className="nav-more-dot"></span>
+                </div>
+              </button>
+              <button 
+                className={`nav-hamburger ${isMobileMenuOpen ? 'active' : ''}`}
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                aria-label="Toggle menu"
+              >
+                <div className="hamburger-icon">
+                  <span className="hamburger-line"></span>
+                  <span className="hamburger-line"></span>
+                  <span className="hamburger-line"></span>
                 </div>
               </button>
             </div>
           </div>
         </nav>
-        
-        {/* PATCHED TELEMETRY SYSTEM */}
+
+        {/* Telemetry System */}
         <div className="telemetry-container">
           <div className="telemetry-rail-system">
             <div className="telemetry-rail-wrapper unified">
-              <div className="telemetry-node" />
-              <span className="telemetry-status-inline">AI SALES INTELLIGENCE ACTIVE</span>
-              <div className="telemetry-node" />
+              <div className="telemetry-node left"></div>
+              <div className="telemetry-status-inline">
+                {statusMessages[telemetryStatus]}
+              </div>
+              <div className="telemetry-node right"></div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      <div className={`mobile-menu-overlay ${isMobileMenuOpen ? 'active' : ''}`}
+           onClick={(e) => {
+             if (e.target.classList.contains('mobile-menu-overlay')) {
+               setIsMobileMenuOpen(false);
+             }
+           }}>
+        <div className="mobile-menu">
+          <nav className="mobile-menu-links">
+            {navLinks.map((link, index) => (
+              link.external ? (
+                <a 
+                  key={index}
+                  href={link.href} 
+                  className="mobile-menu-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span className={`nav-link-icon icon-${link.icon}`}></span>
+                  <span>{link.label}</span>
+                </a>
+              ) : (
+                <Link 
+                  key={index}
+                  to={link.href} 
+                  className="mobile-menu-link"
+                  onClick={(e) => handleLinkClick(e, link.href)}
+                >
+                  <span className={`nav-link-icon icon-${link.icon}`}></span>
+                  <span>{link.label}</span>
+                </Link>
+              )
+            ))}
+            {user && (
+              <Link
+                to="/analytics/shares"
+                className="mobile-menu-link"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <span className="nav-link-icon icon-analytics"></span>
+                <span>Analytics</span>
+              </Link>
+            )}
+          </nav>
         </div>
       </div>
 
