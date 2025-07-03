@@ -52,6 +52,7 @@
   padding: 36px 30px 24px;
   transform-style: preserve-3d;
   opacity: 1;
+  overflow: visible;
 }
 
 /* Breathing Animation */
@@ -98,10 +99,10 @@
   box-shadow: 0 1.5px 0 -0.75px var(--metal-shadow);
 }
 
-.screw-tl { top: 8px; left: 8px; --angle: 15deg; }
-.screw-tr { top: 8px; right: 8px; --angle: -22deg; }
-.screw-bl { bottom: 8px; left: 8px; --angle: -8deg; }
-.screw-br { bottom: 8px; right: 8px; --angle: 30deg; }
+.screw-tl { top: 12px; left: 12px; --angle: 15deg; }
+.screw-tr { top: 12px; right: 12px; --angle: -22deg; }
+.screw-bl { bottom: 12px; left: 12px; --angle: -8deg; }
+.screw-br { bottom: 12px; right: 12px; --angle: 30deg; }
 
 /* Screw idle animation */
 @keyframes screwIdle {
@@ -117,11 +118,11 @@
 /* Power Rail */
 .power-rail {
   position: absolute;
-  top: 0;
+  top: -1px;
   left: 50%;
   transform: translateX(-50%);
   width: 80%;
-  height: 1.5px;
+  height: 2px;
   background: linear-gradient(to right,
     transparent,
     rgba(255, 0, 170, 0.2),
@@ -129,7 +130,8 @@
     rgba(255, 0, 170, 0.2),
     transparent
   );
-  overflow: hidden;
+  overflow: visible;
+  z-index: 5;
 }
 
 .power-rail::after {
@@ -150,12 +152,13 @@
 /* Power Nodes */
 .power-node {
   position: absolute;
-  top: -1.5px;
-  width: 4.5px;
-  height: 4.5px;
+  top: -2px;
+  width: 6px;
+  height: 6px;
   background: radial-gradient(circle, var(--gem-deep), transparent);
   border-radius: 50%;
   animation: nodePulse 2s infinite ease-in-out;
+  z-index: 6;
 }
 
 .power-node:nth-child(1) { left: 20%; animation-delay: 0s; }

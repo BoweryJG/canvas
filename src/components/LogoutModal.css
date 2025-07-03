@@ -99,10 +99,10 @@
   box-shadow: 0 1.5px 0 -0.75px var(--metal-shadow);
 }
 
-.screw-tl { top: 8px; left: 8px; --angle: 15deg; }
-.screw-tr { top: 8px; right: 8px; --angle: -22deg; }
-.screw-bl { bottom: 8px; left: 8px; --angle: -8deg; }
-.screw-br { bottom: 8px; right: 8px; --angle: 30deg; }
+.screw-tl { top: 12px; left: 12px; --angle: 15deg; }
+.screw-tr { top: 12px; right: 12px; --angle: -22deg; }
+.screw-bl { bottom: 12px; left: 12px; --angle: -8deg; }
+.screw-br { bottom: 12px; right: 12px; --angle: 30deg; }
 
 /* Screw idle animation */
 @keyframes screwIdle {
