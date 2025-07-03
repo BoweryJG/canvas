@@ -35,22 +35,30 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
       delay: 0.1
     });
 
-    gsap.from(".screw", {
-      duration: 0.6,
-      scale: 0,
-      rotation: -180,
-      stagger: 0.1,
-      ease: "back.out(1.7)",
-      delay: 0.5
-    });
+    // Screw entrance animation with proper scoping
+    const screwElements = modalRef.current?.querySelectorAll('.screw');
+    if (screwElements && screwElements.length > 0) {
+      gsap.from(screwElements, {
+        duration: 0.6,
+        scale: 0,
+        rotation: -180,
+        stagger: 0.15, // Slightly longer stagger for better effect
+        ease: "back.out(1.7)",
+        delay: 0.5
+      });
+    }
 
-    gsap.from(".power-node", {
-      duration: 0.4,
-      scale: 0,
-      stagger: 0.1,
-      ease: "power2.out",
-      delay: 0.7
-    });
+    // Power node animation with proper scoping
+    const powerNodes = modalRef.current?.querySelectorAll('.power-node');
+    if (powerNodes && powerNodes.length > 0) {
+      gsap.from(powerNodes, {
+        duration: 0.4,
+        scale: 0,
+        stagger: 0.1,
+        ease: "power2.out",
+        delay: 0.7
+      });
+    }
 
     // Hover effects for social buttons
     const socialBtns = modalRef.current?.querySelectorAll('.social-btn');

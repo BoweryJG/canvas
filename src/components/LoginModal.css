@@ -228,17 +228,17 @@
     box-shadow: 0 0 4px rgba(255, 0, 255, 0.6);
 }
 
-/* Screw idle animation */
+/* Screw idle animation with better timing */
 @keyframes screwIdle {
     0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(1.5deg); }
-    50% { transform: rotate(-1deg); }
-    75% { transform: rotate(0.5deg); }
+    25% { transform: rotate(2deg); }
+    50% { transform: rotate(-1.5deg); }
+    75% { transform: rotate(1deg); }
 }
 
 .screw {
-    animation: screwIdle 8s ease-in-out infinite;
-    animation-delay: calc(var(--screw-index, 0) * 2s);
+    animation: screwIdle 12s ease-in-out infinite;
+    animation-delay: calc(var(--screw-index, 0) * 3s);
 }
 
 /* Power Rail */
@@ -422,6 +422,8 @@
     position: relative;
     overflow: hidden;
     margin-bottom: 12px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .social-btn::before {
