@@ -97,7 +97,11 @@ const moreMenuItems = [
 // Check if a link is active
 const isLinkActive = (href: string, currentUrl: string) => {
   if (href.startsWith('http')) {
-    return currentUrl.includes(new URL(href).hostname);
+    try {
+      return currentUrl.includes(new URL(href).hostname);
+    } catch {
+      return false;
+    }
   }
   
   // Special case for podcast page
