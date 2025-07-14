@@ -131,6 +131,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     initializeAuth();
+    
+    // Force loading to false after 5 seconds to prevent infinite loading
+    const loadingTimeout = setTimeout(() => {
+      if (mounted && state.loading) {
+        console.log('[AuthContext] Forcing loading to false after timeout');
+        setState(prev => ({
+          ...prev,
+          loading: false,
+          error: null
+        }));
+      }
+    }, 5000);
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -153,6 +165,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => {
       mounted = false;
       subscription.unsubscribe();
+      clearTimeout(loadingTimeout);
     };
   }, []);
 
