@@ -213,7 +213,13 @@ function extractTechStack(data: any, url: string): ScrapedWebsiteData['techStack
   }
   
   // Hosting Detection (from URL patterns or headers)
-  const domain = new URL(url).hostname;
+  let domain: string;
+  try {
+    domain = new URL(url).hostname;
+  } catch {
+    // Extract domain from URL string as fallback
+    domain = url.replace(/^https?:\/\//, '').split('/')[0] || '';
+  }
   if (domain.includes('godaddy')) {
     techStack.hosting = 'GoDaddy';
   } else if (data.headers?.['x-powered-by']?.includes('AWS')) {

@@ -723,7 +723,13 @@ async function searchLocalSEOCompetitors(doctor: Doctor): Promise<SEOReport['com
     return {
       topRanking: results.map((r: any) => ({
         name: r.title || 'Competitor',
-        domain: new URL(r.url).hostname,
+        domain: (() => {
+          try {
+            return new URL(r.url).hostname;
+          } catch {
+            return r.url?.replace(/^https?:\/\//, '').split('/')[0] || 'unknown';
+          }
+        })(),
         estimatedTraffic: 'Medium',
         keywordOverlap: [`dentist ${doctor.city}`, `dental care ${doctor.city}`]
       }))

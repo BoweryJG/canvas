@@ -208,9 +208,20 @@ export function extractWebsiteMetadata(discoveryResult: WebsiteDiscoveryResult):
   tld: string;
   likelyPracticeType?: string;
 } {
-  const url = new URL(discoveryResult.websiteUrl);
-  const domain = url.hostname;
-  const tld = domain.split('.').pop() || '';
+  let url: URL;
+  let domain: string;
+  let tld: string;
+  
+  try {
+    url = new URL(discoveryResult.websiteUrl);
+    domain = url.hostname;
+    tld = domain.split('.').pop() || '';
+  } catch {
+    // Fallback for invalid URLs
+    domain = discoveryResult.websiteUrl.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+    tld = domain.split('.').pop() || '';
+    url = { protocol: 'https:' } as any; // Mock URL object for isSecure check
+  }
   
   // Determine likely practice type from domain
   let likelyPracticeType: string | undefined;

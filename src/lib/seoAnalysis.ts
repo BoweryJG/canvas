@@ -342,7 +342,13 @@ async function analyzeCompetitors(
     const seen = new Set<string>();
     
     for (const result of results.web.results.slice(0, 5)) {
-      const domain = new URL(result.url).hostname.replace('www.', '');
+      let domain: string;
+      try {
+        domain = new URL(result.url).hostname.replace('www.', '');
+      } catch {
+        // Skip invalid URLs
+        continue;
+      }
       
       if (!seen.has(domain) && !result.url.includes(doctorName.toLowerCase())) {
         seen.add(domain);

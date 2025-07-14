@@ -155,7 +155,13 @@ function fallbackWebsiteAnalysis(
   
   for (const result of searchResults) {
     const urlLower = result.url.toLowerCase();
-    const domain = new URL(result.url).hostname.toLowerCase();
+    let domain: string;
+    try {
+      domain = new URL(result.url).hostname.toLowerCase();
+    } catch {
+      // Skip invalid URLs
+      continue;
+    }
     
     // Check if it's a rejected site
     const isRejected = rejectPatterns.some(pattern => urlLower.includes(pattern));

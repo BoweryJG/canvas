@@ -349,8 +349,16 @@ function generatePersonalizedBenefits(
   
   // Website-specific benefits
   if ((scrapedData as any)?.website) {
-    const domain = new URL((scrapedData as any).website).hostname;
-    benefits.push(`Seamlessly integrates with ${domain}'s existing patient flow`);
+    try {
+      const domain = new URL((scrapedData as any).website).hostname;
+      benefits.push(`Seamlessly integrates with ${domain}'s existing patient flow`);
+    } catch {
+      // Fallback if URL parsing fails
+      const websiteName = (scrapedData as any).website.replace(/^https?:\/\//, '').split('/')[0];
+      if (websiteName) {
+        benefits.push(`Seamlessly integrates with ${websiteName}'s existing patient flow`);
+      }
+    }
   }
   
   // Tech stack benefits
@@ -460,7 +468,16 @@ export function generateValueProposition(
   let proposition = `${productIntel.product.name} ${benefits}, `;
   
   if ((scrapedData as any)?.website) {
-    proposition += `perfectly complementing ${new URL((scrapedData as any).website).hostname}'s digital presence. `;
+    try {
+      const hostname = new URL((scrapedData as any).website).hostname;
+      proposition += `perfectly complementing ${hostname}'s digital presence. `;
+    } catch {
+      // Fallback if URL parsing fails
+      const websiteName = (scrapedData as any).website.replace(/^https?:\/\//, '').split('/')[0];
+      if (websiteName) {
+        proposition += `perfectly complementing ${websiteName}'s digital presence. `;
+      }
+    }
   }
   
   proposition += `With an expected ${roi.patientVolumeIncrease} increase in patient volume, `;

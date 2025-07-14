@@ -342,7 +342,12 @@ export function generateWowFactorOpening(
   
   // Team recognition
   if (scrapedData?.staff?.length > 3) {
-    options.push(`Dr. ${doctorName}, your ${scrapedData.staff.length}-member team at ${new URL(scrapedData.url).hostname} is impressive.`);
+    try {
+      const hostname = new URL(scrapedData.url).hostname;
+      options.push(`Dr. ${doctorName}, your ${scrapedData.staff.length}-member team at ${hostname} is impressive.`);
+    } catch {
+      options.push(`Dr. ${doctorName}, your ${scrapedData.staff.length}-member team is impressive.`);
+    }
   }
   
   // Tech savvy
@@ -362,8 +367,12 @@ export function generateWowFactorOpening(
   
   // Default to website reference
   if (options.length === 0 && scrapedData?.url) {
-    const domain = new URL(scrapedData.url).hostname;
-    options.push(`Dr. ${doctorName}, ${domain} showcases your practice beautifully.`);
+    try {
+      const domain = new URL(scrapedData.url).hostname;
+      options.push(`Dr. ${doctorName}, ${domain} showcases your practice beautifully.`);
+    } catch {
+      options.push(`Dr. ${doctorName}, your website showcases your practice beautifully.`);
+    }
   }
   
   return options[0] || `Dr. ${doctorName}, your practice stands out in the community.`;

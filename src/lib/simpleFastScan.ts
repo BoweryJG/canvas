@@ -125,7 +125,13 @@ export async function simpleFastScan(
         keyPoints: [
           bestScore > 70 ? '✅ Official practice website found' : '✅ Practice found',
           `📍 ${location || 'Location identified'}`,
-          bestScore > 70 ? `🔗 ${new URL(bestResult.url).hostname}` : '⭐ Reviews available',
+          bestScore > 70 ? (() => {
+            try {
+              return `🔗 ${new URL(bestResult.url).hostname}`;
+            } catch {
+              return '🔗 Practice website found';
+            }
+          })() : '⭐ Reviews available',
           '📞 Contact info available'
         ],
         source: bestResult.url,

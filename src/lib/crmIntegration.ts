@@ -756,7 +756,16 @@ export class CRMIntegrationManager {
     return {
       firstName: firstName || 'Unknown',
       lastName: lastName || 'Doctor',
-      email: researchData.practiceInfo?.website ? `contact@${new URL(researchData.practiceInfo.website).hostname}` : undefined,
+      email: researchData.practiceInfo?.website ? (() => {
+        try {
+          const url = new URL(researchData.practiceInfo.website);
+          return `contact@${url.hostname}`;
+        } catch {
+          // If URL parsing fails, try to extract domain manually
+          const domain = researchData.practiceInfo.website.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+          return domain ? `contact@${domain}` : undefined;
+        }
+      })() : undefined,
       phone: researchData.practiceInfo?.phone,
       title: 'Medical Doctor',
       company: researchData.practiceInfo?.name || `${scanResult.doctor} Medical Practice`,
