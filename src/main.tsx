@@ -4,6 +4,10 @@ import './index.css'
 import App from './App.tsx'
 import { OrbContextProvider } from './components/OrbContextProvider'
 import { AuthProvider } from './auth'
+import { enableURLDebugging } from './lib/urlDebugger'
+
+// Enable URL debugging to catch invalid URLs
+enableURLDebugging();
 
 // Debug mode - comment out to use normal app
 // import AppDebug from './AppDebug.tsx'
