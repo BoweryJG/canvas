@@ -205,7 +205,13 @@ export default function MarketInsightsSimple() {
                       mt: 2,
                       color: 'rgba(255, 255, 255, 0.5)'
                     }}>
-                      Source: {new URL(insight.source).hostname}
+                      Source: {(() => {
+                        try {
+                          return new URL(insight.source).hostname;
+                        } catch {
+                          return insight.source;
+                        }
+                      })()}
                     </Typography>
                   )}
                 </CardContent>
