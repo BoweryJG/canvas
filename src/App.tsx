@@ -33,6 +33,7 @@ import './App.css'
 import './styles/mobile.css'
 
 function App() {
+  console.log('[App] Main App component rendering');
   return <AppContent />;
 }
 

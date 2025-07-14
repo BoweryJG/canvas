@@ -21,6 +21,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  console.log('[AuthProvider] Rendering AuthProvider');
   const [state, setState] = useState<AuthState>({
     user: null,
     session: null,
@@ -328,6 +329,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     subscription: state.user?.subscription,
     isAdmin: state.user?.app_metadata?.roles?.includes('admin') || false,
   };
+
+  console.log('[AuthProvider] Rendering with state:', { loading: state.loading, user: state.user?.email });
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
