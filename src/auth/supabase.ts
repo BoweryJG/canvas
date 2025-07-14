@@ -2,8 +2,14 @@ import { createClient } from '@supabase/supabase-js';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // Get environment variables with fallbacks for development
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://cbopynuvhcymbumjnvay.supabase.co';
+let supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://cbopynuvhcymbumjnvay.supabase.co';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNib3B5bnV2aGN5bWJ1bWpudmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5OTUxNzMsImV4cCI6MjA1OTU3MTE3M30.UZElMkoHugIt984RtYWyfrRuv2rB67opQdCrFVPCfzU';
+
+// Check if the URL is masked/invalid (contains asterisks or is not a valid URL)
+if (supabaseUrl.includes('*') || !supabaseUrl.match(/^https?:\/\//)) {
+  console.warn('Invalid Supabase URL detected, using fallback');
+  supabaseUrl = 'https://cbopynuvhcymbumjnvay.supabase.co';
+}
 
 // Log warning instead of throwing error
 if (!supabaseUrl || !supabaseAnonKey) {
