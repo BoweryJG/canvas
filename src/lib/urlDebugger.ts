@@ -15,7 +15,7 @@ window.URL = function(url: string | URL, base?: string | URL) {
     console.error('Failed to construct URL:', {
       url,
       base,
-      error: error.message,
+      error: error instanceof Error ? error.message : String(error),
       stack: new Error().stack
     });
     
