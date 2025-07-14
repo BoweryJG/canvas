@@ -222,7 +222,7 @@ class MarketInsightsService {
             metric: 'Trending',
             trend: 'up',
             details: result.description,
-            source: result.url,
+            source: result.url || undefined, // Don't pass null/empty strings
             lastUpdated: new Date().toISOString()
           });
         }
@@ -238,6 +238,11 @@ class MarketInsightsService {
   // Helper methods
   private async extractMarketInsight(searchResult: any): Promise<MarketInsight | null> {
     try {
+      // Validate required fields
+      if (!searchResult?.title || !searchResult?.description) {
+        return null;
+      }
+
       // Extract numbers and percentages from description
       const numbers = searchResult.description.match(/\d+\.?\d*%?/g);
       const metric = numbers?.[0] || 'N/A';
@@ -248,7 +253,7 @@ class MarketInsightsService {
         title: searchResult.title,
         metric: metric,
         details: searchResult.description,
-        source: searchResult.url,
+        source: searchResult.url || undefined, // Don't pass null/empty strings
         lastUpdated: new Date().toISOString()
       };
     } catch (error) {
