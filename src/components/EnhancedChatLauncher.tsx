@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, IconButton, Typography } from '@mui/material';
+import { Box, IconButton, Typography, Modal } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -10,6 +10,7 @@ import {
   Analytics,
   Campaign
 } from '@mui/icons-material';
+import SimpleDemoChatInterface from './agents/SimpleDemoChatInterface';
 
 // Floating chat button with RepSpheres styling
 const FloatingButton = styled(motion.div, {
@@ -222,10 +223,42 @@ const agents = [
   }
 ];
 
+// Chat modal styling
+const ChatModal = styled(Modal)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ChatModalContent = styled(Box)`
+  width: 90vw;
+  max-width: 1200px;
+  height: 90vh;
+  background: rgba(26, 26, 26, 0.98);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.5),
+    inset 0 0 50px rgba(255, 255, 255, 0.02);
+  overflow: hidden;
+  position: relative;
+`;
+
+const ChatHeader = styled(Box)`
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(159, 88, 250, 0.1) 0%, rgba(75, 150, 220, 0.1) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const EnhancedChatLauncher: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [, setSelectedAgent] = useState<string | null>(null);
+  const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
   const [showPulse, setShowPulse] = useState(true);
+  const [showChatModal, setShowChatModal] = useState(false);
   
   useEffect(() => {
     // Hide pulse after first interaction
@@ -243,8 +276,14 @@ const EnhancedChatLauncher: React.FC = () => {
   
   const handleAgentSelect = (agentId: string) => {
     setSelectedAgent(agentId);
-    // Here you would launch the actual agent chat interface
+    setIsExpanded(false); // Close the agent selector
+    setShowChatModal(true); // Open the chat modal
     console.log('Selected agent:', agentId);
+  };
+  
+  const handleCloseChatModal = () => {
+    setShowChatModal(false);
+    setSelectedAgent(null);
   };
   
   return (
@@ -353,6 +392,48 @@ const EnhancedChatLauncher: React.FC = () => {
           </ExpandedPanel>
         )}
       </AnimatePresence>
+      
+      {/* Chat Modal */}
+      <ChatModal
+        open={showChatModal}
+        onClose={handleCloseChatModal}
+        closeAfterTransition
+      >
+        <ChatModalContent>
+          <ChatHeader>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box sx={{ 
+                width: 40, 
+                height: 40, 
+                borderRadius: '10px',
+                background: agents.find(a => a.id === selectedAgent)?.color || 'linear-gradient(135deg, #9f58fa 0%, #4B96DC 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {(() => {
+                  const agent = agents.find(a => a.id === selectedAgent);
+                  const Icon = agent?.icon || AutoAwesome;
+                  return <Icon sx={{ color: 'white', fontSize: 20 }} />;
+                })()}
+              </Box>
+              <Typography variant="h6" sx={{ color: '#fff', fontWeight: 600 }}>
+                {agents.find(a => a.id === selectedAgent)?.name || 'AI Assistant'}
+              </Typography>
+            </Box>
+            <IconButton onClick={handleCloseChatModal} sx={{ color: 'rgba(255,255,255,0.6)' }}>
+              <Close />
+            </IconButton>
+          </ChatHeader>
+          
+          <Box sx={{ height: 'calc(100% - 68px)' }}>
+            <SimpleDemoChatInterface 
+              agentId={selectedAgent || undefined} 
+              agentName={agents.find(a => a.id === selectedAgent)?.name}
+            />
+          </Box>
+        </ChatModalContent>
+      </ChatModal>
     </>
   );
 };
