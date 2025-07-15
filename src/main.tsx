@@ -73,8 +73,7 @@ if (!rootElement) {
 } else {
   console.log('[Canvas] Root element found, creating React root...');
   
-  // Clear the loading screen immediately
-  rootElement.innerHTML = '';
+  // Don't clear the loading screen yet - let React handle it
   
   try {
     const root = createRoot(rootElement);

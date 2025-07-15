@@ -23,6 +23,9 @@ import { analytics } from './utils/analytics'
 import { OnboardingFlow } from './components/Onboarding/OnboardingFlow'
 import SharedIntelligence from './pages/SharedIntelligence'
 import ShareAnalytics from './pages/ShareAnalytics'
+import { LoadingScreen } from './components/LoadingScreen'
+import { useAuth } from './auth/AuthContext'
+import { AuthLoadingWrapper } from './components/AuthLoadingWrapper'
 // import ChatLauncher from './components/agents/ChatLauncher'
 // import { EnhancedAgentSystem } from './components/agents/EnhancedAgentSystem'
 // import { CanvasAIPro } from './components/agents/CanvasAIPro'
@@ -128,13 +131,14 @@ function AppContent() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        {/* DEBUG: Temporarily disable onboarding */}
-        {false && showOnboarding && (
-          <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
-        )}
-        <ConnectionStatus />
-        <RepSpheresNavBar />
-        <Routes>
+        <AuthLoadingWrapper>
+          {/* DEBUG: Temporarily disable onboarding */}
+          {false && showOnboarding && (
+            <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
+          )}
+          <ConnectionStatus />
+          <RepSpheresNavBar />
+          <Routes>
           <Route path="/" element={(() => {
             console.log('DEBUG: Route "/" is being rendered');
             return <CanvasHomePremium />;
@@ -157,6 +161,7 @@ function AppContent() {
         {/* DEBUG: Temporarily disable CanvasAIPro */}
         {/* <CanvasAIPro /> */}
         {/* <AISalesAgentLauncher /> */}
+        </AuthLoadingWrapper>
       </AuthProvider>
     </ErrorBoundary>
   );
