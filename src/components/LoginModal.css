@@ -125,120 +125,66 @@
     50% { transform: scale(1.02); opacity: 0.2; }
 }
 
-/* 4-Point Luxury Screws */
+/* 4-Point Luxury Screws - Cartier Style */
 .screw {
     position: absolute;
-    width: 16px;
-    height: 16px;
-    background: radial-gradient(circle at 35% 35%, #e0e0e0 0%, #b8b8b8 15%, #888 40%, #555 70%, #222 100%);
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle at 40% 40%, 
+        #f0f0f0 0%, 
+        #d8d8d8 20%, 
+        #c0c0c0 40%, 
+        #999999 60%, 
+        #777777 80%, 
+        #555555 100%
+    );
     border-radius: 50%;
     box-shadow: 
-        inset 0 1px 2px rgba(255,255,255,0.5),
-        inset 0 -1px 2px rgba(0,0,0,0.6),
-        0 1px 3px rgba(0,0,0,0.8),
-        0 0 8px rgba(0,0,0,0.3);
+        inset 0 2px 3px rgba(255,255,255,0.8),
+        inset 0 -2px 3px rgba(0,0,0,0.5),
+        0 1px 2px rgba(0,0,0,0.8),
+        0 2px 4px rgba(0,0,0,0.4);
     z-index: 10;
-    transition: transform 0.4s ease;
-    transform-origin: center center;
 }
 
+/* Slotted head groove */
 .screw::before {
     content: '';
     position: absolute;
     top: 50%;
-    left: 50%;
-    width: 70%;
-    height: 1px;
-    background: linear-gradient(90deg, 
-        transparent, 
-        rgba(0,0,0,0.7) 20%, 
-        rgba(0,0,0,0.7) 80%, 
-        transparent
+    left: 10%;
+    width: 80%;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(0,0,0,0.3) 10%,
+        rgba(0,0,0,0.6) 30%,
+        rgba(0,0,0,0.8) 50%,
+        rgba(0,0,0,0.6) 70%,
+        rgba(0,0,0,0.3) 90%,
+        transparent 100%
     );
-    transform: translate(-50%, -50%);
-}
-
-.screw::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 1px;
-    height: 70%;
-    background: linear-gradient(180deg, 
-        transparent, 
-        rgba(0,0,0,0.7) 20%, 
-        rgba(0,0,0,0.7) 80%, 
-        transparent
-    );
-    transform: translate(-50%, -50%);
+    transform: translateY(-50%);
+    box-shadow: 
+        inset 0 1px 1px rgba(0,0,0,0.5),
+        0 1px 0 rgba(255,255,255,0.3);
 }
 
 .screw-tl { 
-    top: 20px; 
-    left: 20px; 
-    animation-delay: 0s;
+    top: 16px; 
+    left: 16px; 
 }
 .screw-tr { 
-    top: 20px; 
-    right: 20px; 
-    animation-delay: 2s;
+    top: 16px; 
+    right: 16px; 
 }
 .screw-bl { 
-    bottom: 20px; 
-    left: 20px; 
-    animation-delay: 4s;
+    bottom: 16px; 
+    left: 16px; 
 }
 .screw-br { 
-    bottom: 20px; 
-    right: 20px; 
-    animation-delay: 6s;
-}
-
-/* Add jewel center to screws */
-.screw-tl::before,
-.screw-tr::before,
-.screw-bl::before,
-.screw-br::before {
-    width: 70%;
-    height: 1px;
-}
-
-/* Jewel center dot */
-.screw-tl::after::before,
-.screw-tr::after::before,
-.screw-bl::after::before,
-.screw-br::after::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 4px;
-    height: 4px;
-    transform: translate(-50%, -50%);
-    background: radial-gradient(circle at center, 
-        rgba(255,255,255,0.9), 
-        rgba(255, 0, 255, 0.7), 
-        rgba(255, 0, 170, 0.5), 
-        transparent
-    );
-    border-radius: 50%;
-    opacity: 0.8;
-    animation: jewelPulse 3s infinite;
-    box-shadow: 0 0 4px rgba(255, 0, 255, 0.6);
-}
-
-/* Screw idle animation with better timing */
-@keyframes screwIdle {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(2deg); }
-    50% { transform: rotate(-1.5deg); }
-    75% { transform: rotate(1deg); }
-}
-
-.screw {
-    animation: screwIdle 12s ease-in-out infinite;
-    animation-delay: calc(var(--screw-index, 0) * 3s);
+    bottom: 16px; 
+    right: 16px; 
 }
 
 /* Power Rail */
