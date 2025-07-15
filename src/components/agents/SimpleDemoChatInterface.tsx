@@ -102,7 +102,7 @@ const SendButton = styled(IconButton)`
 `;
 
 const SimpleDemoChatInterface: React.FC<SimpleDemoChatInterfaceProps> = ({ 
-  agentId,
+  agentId: _agentId, // Prefixed with _ to indicate it's intentionally unused
   agentName = 'AI Assistant'
 }) => {
   const [messages, setMessages] = useState<Message[]>([
