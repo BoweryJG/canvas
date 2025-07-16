@@ -91,10 +91,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
         }
         
-        const { data: { session }, error } = await Promise.race([
+        const result = await Promise.race([
           supabase.auth.getSession(),
           authTimeout
-        ]);
+        ]).catch((timeoutError) => ({
+          data: { session: null },
+          error: timeoutError
+        }));
+        
+        const { data: { session }, error } = result as { data: { session: any }, error: any };
         
         // If we get a refresh token error, clear auth and continue as public
         if (error && error.message?.includes('Refresh Token')) {

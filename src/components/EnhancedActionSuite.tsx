@@ -923,6 +923,12 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             exit={{ opacity: 0, x: -20 }}
             className="tab-content outreach-content"
           >
+            {(!researchData && !instantIntel) && (
+              <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p>Loading outreach data...</p>
+              </div>
+            )}
             {/* Email Outreach */}
             <div className="outreach-section">
               <div className="section-header">
@@ -1257,6 +1263,12 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             exit={{ opacity: 0, x: -20 }}
             className="tab-content reports-content"
           >
+            {(!researchData && !instantIntel && !scanResult) && (
+              <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p>Loading report data...</p>
+              </div>
+            )}
             <div className="reports-section">
               <div className="reports-category">
                 <h4>📊 Intelligence Reports</h4>
@@ -1374,24 +1386,98 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             exit={{ opacity: 0, x: -20 }}
             className="tab-content analytics-content"
           >
+            {!scanResult && (
+              <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p>Loading analytics data...</p>
+              </div>
+            )}
+            
+            {scanResult && (
+            <div>
             <div className="analytics-dashboard">
               <div className="metric-card">
                 <h4>Research Quality</h4>
-                <div className="metric-value">{scanResult.researchQuality}</div>
+                <div className="metric-value">{scanResult?.researchQuality || 'N/A'}</div>
+                <div className="metric-description">Quality of research data found</div>
               </div>
               <div className="metric-card">
                 <h4>Practice Fit</h4>
-                <div className="metric-value">{scanResult.score}%</div>
+                <div className="metric-value">{scanResult?.score || 0}%</div>
+                <div className="metric-description">Match score for this practice</div>
               </div>
               <div className="metric-card">
                 <h4>Data Sources</h4>
-                <div className="metric-value">{scanResult.researchSources || 0}</div>
+                <div className="metric-value">{researchData?.sources?.length || scanResult?.researchSources || 0}</div>
+                <div className="metric-description">Number of data sources used</div>
               </div>
               <div className="metric-card">
-                <h4>Fact-Based</h4>
-                <div className="metric-value">{scanResult.factBased ? 'Yes' : 'No'}</div>
+                <h4>Confidence Level</h4>
+                <div className="metric-value">{researchData?.confidenceScore || instantIntel?.confidenceScore || scanResult?.score || 0}%</div>
+                <div className="metric-description">Confidence in research findings</div>
+              </div>
+              <div className="metric-card">
+                <h4>Practice Type</h4>
+                <div className="metric-value">{researchData?.businessIntel?.practiceType || 'Unknown'}</div>
+                <div className="metric-description">Type of medical practice</div>
+              </div>
+              <div className="metric-card">
+                <h4>Patient Volume</h4>
+                <div className="metric-value">{researchData?.businessIntel?.patientVolume || 'Unknown'}</div>
+                <div className="metric-description">Estimated patient volume</div>
+              </div>
+              <div className="metric-card">
+                <h4>Years Experience</h4>
+                <div className="metric-value">{researchData?.credentials?.yearsExperience || 'N/A'}</div>
+                <div className="metric-description">Doctor's years of experience</div>
+              </div>
+              <div className="metric-card">
+                <h4>Review Rating</h4>
+                <div className="metric-value">{researchData?.reviews?.averageRating || 'N/A'}</div>
+                <div className="metric-description">Average patient review rating</div>
               </div>
             </div>
+            
+            {researchData?.businessIntel?.growthIndicators && researchData.businessIntel.growthIndicators.length > 0 && (
+              <div className="growth-indicators">
+                <h4>Growth Indicators</h4>
+                <div className="indicators-list">
+                  {researchData.businessIntel.growthIndicators.map((indicator, index) => (
+                    <div key={index} className="indicator-item">
+                      ✅ {indicator}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {researchData?.businessIntel?.recentNews && researchData.businessIntel.recentNews.length > 0 && (
+              <div className="recent-news">
+                <h4>Recent News</h4>
+                <div className="news-list">
+                  {researchData.businessIntel.recentNews.map((news, index) => (
+                    <div key={index} className="news-item">
+                      📰 {news}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {researchData?.businessIntel?.technologyStack && researchData.businessIntel.technologyStack.length > 0 && (
+              <div className="technology-stack">
+                <h4>Technology Stack</h4>
+                <div className="tech-list">
+                  {researchData.businessIntel.technologyStack.map((tech, index) => (
+                    <div key={index} className="tech-item">
+                      💻 {tech}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            </div>
+            )}
           </motion.div>
         )}
 
@@ -1403,6 +1489,12 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             exit={{ opacity: 0, x: -20 }}
             className="tab-content crm-content"
           >
+            {!researchData && (
+              <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p>Loading CRM data...</p>
+              </div>
+            )}
             <div className="crm-sync-section">
               <div className="section-header">
                 <h4>🔗 CRM Synchronization</h4>
@@ -1471,6 +1563,12 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             exit={{ opacity: 0, x: -20 }}
             className="tab-content batch-content"
           >
+            {!scanResult && (
+              <div className="loading-state">
+                <div className="loading-spinner"></div>
+                <p>Loading batch analysis...</p>
+              </div>
+            )}
             <div className="batch-analysis-section">
               <div className="section-header">
                 <h4>👥 Multi-Doctor Batch Analysis</h4>
