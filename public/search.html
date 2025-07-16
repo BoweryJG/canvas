@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas Search - Direct Access</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // Force bypass any stuck loading states
+        window.addEventListener('DOMContentLoaded', () => {
+            // Clear any problematic storage
+            try {
+                localStorage.removeItem('auth-loading');
+                sessionStorage.clear();
+            } catch (e) {}
+            
+            // Redirect to main app with forced state
+            setTimeout(() => {
+                window.location.href = '/?bypass=true';
+            }, 100);
+        });
+    </script>
+</head>
+<body style="background: #000; color: white; font-family: system-ui; display: flex; align-items: center; justify-content: center; height: 100vh;">
+    <div style="text-align: center;">
+        <h1>🎯 CANVAS</h1>
+        <p>Redirecting to search...</p>
+    </div>
+</body>
+</html>
