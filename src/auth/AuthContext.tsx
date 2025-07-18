@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         // Add timeout to prevent hanging
         const authTimeout = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('Auth initialization timeout')), 3000);
+          setTimeout(() => reject(new Error('Auth initialization timeout')), 1500);
         });
         
         // First, check if we have an invalid refresh token
@@ -146,7 +146,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     initializeAuth();
     
-    // Force loading to false after 2 seconds to prevent infinite loading
+    // Force loading to false after 1 second to prevent infinite loading
     const loadingTimeout = setTimeout(() => {
       if (mounted) {
         console.log('[AuthContext] Forcing loading to false after timeout');
@@ -156,7 +156,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           error: null
         }));
       }
-    }, 2000);
+    }, 1000);
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(

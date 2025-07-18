@@ -13,15 +13,19 @@ export const AuthLoadingWrapper: React.FC<AuthLoadingWrapperProps> = ({ children
   useEffect(() => {
     // Clear the HTML loading screen once React takes over
     const rootElement = document.getElementById('root');
-    if (rootElement && rootElement.innerHTML.includes('Loading Provider Intelligence')) {
-      rootElement.innerHTML = '';
+    if (rootElement) {
+      // Clear any existing HTML content from the static loading screen
+      const htmlContent = rootElement.innerHTML;
+      if (htmlContent.includes('Loading Provider Intelligence') || htmlContent.includes('CANVAS')) {
+        rootElement.innerHTML = '';
+      }
     }
     
-    // Force show content after 1 second regardless of loading state
+    // Force show content after 500ms to prevent stuck loading screens
     const forceTimeout = setTimeout(() => {
       console.log('[AuthLoadingWrapper] Force showing content after timeout');
       setForceShow(true);
-    }, 1000);
+    }, 500);
     
     return () => clearTimeout(forceTimeout);
   }, []);
