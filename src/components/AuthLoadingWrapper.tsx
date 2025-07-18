@@ -7,7 +7,7 @@ interface AuthLoadingWrapperProps {
 }
 
 export const AuthLoadingWrapper: React.FC<AuthLoadingWrapperProps> = ({ children }) => {
-  const { loading } = useAuth();
+  const { loading, user } = useAuth();
   const [forceShow, setForceShow] = useState(false);
   
   useEffect(() => {
@@ -28,16 +28,18 @@ export const AuthLoadingWrapper: React.FC<AuthLoadingWrapperProps> = ({ children
       }
     }
     
-    // Force show content after 200ms to prevent stuck loading screens
+    // Force show content after 100ms to prevent stuck loading screens
     const forceTimeout = setTimeout(() => {
       console.log('[AuthLoadingWrapper] Force showing content after timeout');
       setForceShow(true);
-    }, 200);
+    }, 100);
     
     return () => clearTimeout(forceTimeout);
   }, []);
   
-  if (loading && !forceShow) {
+  // Only show loading screen if auth is actually loading AND we haven't determined the user state yet
+  // If user is null (unauthenticated), that's a valid state - show content immediately
+  if (loading && !forceShow && user === undefined) {
     return <LoadingScreen message="Initializing Canvas..." />;
   }
   
