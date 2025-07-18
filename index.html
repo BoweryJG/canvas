@@ -10,6 +10,20 @@
     <meta property="og:title" content="Canvas | Precision Provider Intelligence" />
     <meta property="og:description" content="From NPI data to closed deals in minutes" />
     <meta name="description" content="Canvas - Precision provider intelligence platform transforming medical device sales through AI-powered insights" />
+    <!-- Chrome-specific loading screen fix -->
+    <style>
+      @media screen and (-webkit-min-device-pixel-ratio:0) {
+        /* Chrome-specific CSS */
+        #initial-loader {
+          transition: opacity 0.1s ease-out !important;
+        }
+        .chrome-hide-loader #initial-loader {
+          opacity: 0 !important;
+          pointer-events: none !important;
+          display: none !important;
+        }
+      }
+    </style>
     <!-- URL Debugger - MUST BE FIRST SCRIPT -->
     <script src="/url-debugger.js"></script>
   </head>

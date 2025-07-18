@@ -11,30 +11,48 @@ export const AuthLoadingWrapper: React.FC<AuthLoadingWrapperProps> = ({ children
   const [forceShow, setForceShow] = useState(false);
   
   useEffect(() => {
-    // Clear the HTML loading screen once React takes over
-    const initialLoader = document.getElementById('initial-loader');
-    if (initialLoader) {
-      console.log('[AuthLoadingWrapper] Removing initial loader');
-      initialLoader.remove();
-    }
-    
-    // Also clear any remaining HTML content
-    const rootElement = document.getElementById('root');
-    if (rootElement) {
-      const htmlContent = rootElement.innerHTML;
-      if (htmlContent.includes('Loading Provider Intelligence') || htmlContent.includes('CANVAS')) {
-        console.log('[AuthLoadingWrapper] Clearing HTML loading screen');
-        rootElement.innerHTML = '';
+    // Chrome-specific aggressive loading screen clearing
+    const clearLoadingScreen = () => {
+      console.log('[AuthLoadingWrapper] Chrome-specific clearing initiated');
+      
+      // Method 1: Add Chrome-specific CSS class to body
+      document.body.classList.add('chrome-hide-loader');
+      
+      // Method 2: Remove by ID
+      const initialLoader = document.getElementById('initial-loader');
+      if (initialLoader) {
+        console.log('[AuthLoadingWrapper] Removing initial loader by ID');
+        initialLoader.remove();
       }
-    }
+      
+      // Method 3: Clear root innerHTML completely
+      const rootElement = document.getElementById('root');
+      if (rootElement) {
+        const htmlContent = rootElement.innerHTML;
+        if (htmlContent.includes('Loading Provider Intelligence') || htmlContent.includes('CANVAS') || htmlContent.includes('🎯')) {
+          console.log('[AuthLoadingWrapper] Clearing HTML loading screen completely');
+          rootElement.innerHTML = '';
+        }
+      }
+      
+      // Method 4: Force hide any remaining loading elements
+      const loadingElements = document.querySelectorAll('[style*="Loading Provider Intelligence"], [style*="CANVAS"]');
+      loadingElements.forEach(el => {
+        console.log('[AuthLoadingWrapper] Force hiding loading element');
+        (el as HTMLElement).style.display = 'none';
+      });
+    };
     
-    // Force show content after 100ms to prevent stuck loading screens
-    const forceTimeout = setTimeout(() => {
-      console.log('[AuthLoadingWrapper] Force showing content after timeout');
-      setForceShow(true);
-    }, 100);
+    // Clear immediately
+    clearLoadingScreen();
     
-    return () => clearTimeout(forceTimeout);
+    // Chrome-specific: Clear again after a micro-delay
+    setTimeout(clearLoadingScreen, 10);
+    
+    // Force show content immediately for Chrome
+    setForceShow(true);
+    
+    return () => {};
   }, []);
   
   // Only show loading screen if auth is actually loading AND we haven't determined the user state yet
