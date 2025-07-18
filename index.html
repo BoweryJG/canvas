@@ -23,6 +23,14 @@
           display: none !important;
         }
       }
+      
+      /* iPad Chrome specific fix */
+      @media screen and (max-width: 1024px) and (-webkit-min-device-pixel-ratio:0) {
+        #initial-loader {
+          display: none !important;
+          visibility: hidden !important;
+        }
+      }
     </style>
     <!-- URL Debugger - MUST BE FIRST SCRIPT -->
     <script src="/url-debugger.js"></script>
