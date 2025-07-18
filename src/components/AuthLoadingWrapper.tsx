@@ -12,20 +12,27 @@ export const AuthLoadingWrapper: React.FC<AuthLoadingWrapperProps> = ({ children
   
   useEffect(() => {
     // Clear the HTML loading screen once React takes over
+    const initialLoader = document.getElementById('initial-loader');
+    if (initialLoader) {
+      console.log('[AuthLoadingWrapper] Removing initial loader');
+      initialLoader.remove();
+    }
+    
+    // Also clear any remaining HTML content
     const rootElement = document.getElementById('root');
     if (rootElement) {
-      // Clear any existing HTML content from the static loading screen
       const htmlContent = rootElement.innerHTML;
       if (htmlContent.includes('Loading Provider Intelligence') || htmlContent.includes('CANVAS')) {
+        console.log('[AuthLoadingWrapper] Clearing HTML loading screen');
         rootElement.innerHTML = '';
       }
     }
     
-    // Force show content after 500ms to prevent stuck loading screens
+    // Force show content after 200ms to prevent stuck loading screens
     const forceTimeout = setTimeout(() => {
       console.log('[AuthLoadingWrapper] Force showing content after timeout');
       setForceShow(true);
-    }, 500);
+    }, 200);
     
     return () => clearTimeout(forceTimeout);
   }, []);

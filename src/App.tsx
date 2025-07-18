@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import RepSpheresNavBar from './components/RepSpheresNavBar'
-import { AuthProvider } from './auth'
 import MarketInsights from './pages/MarketInsightsSimple'
 import CanvasHomePremium from './pages/CanvasHomePremium'
 import SimpleLogin from './pages/SimpleLogin'
@@ -128,39 +127,37 @@ function AppContent() {
   
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <AuthLoadingWrapper>
-          {/* DEBUG: Temporarily disable onboarding */}
-          {false && showOnboarding && (
-            <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
-          )}
-          <ConnectionStatus />
-          <RepSpheresNavBar />
-          <Routes>
-          <Route path="/" element={(() => {
-            console.log('DEBUG: Route "/" is being rendered');
-            return <CanvasHomePremium />;
-          })()} />
-          <Route path="/login" element={<SimpleLogin />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/research" element={<EnhancedResearchPanelWithRender />} />
-          <Route path="/market-insights" element={<MarketInsights />} />
-          <Route path="/test-npi" element={<TestNPI />} />
-          <Route path="/test-npi-debug" element={<TestNPIDebug />} />
-          <Route path="/test-npi-minimal" element={<TestNPIMinimal />} />
-          <Route path="/force-auth" element={<ForceAuth />} />
-          <Route path="/auth-test" element={<AuthTest />} />
-          <Route path="/test-auth-modals" element={<TestAuthModals />} />
-          <Route path="/intel/:linkId" element={<SharedIntelligence />} />
-          <Route path="/analytics/shares" element={<ShareAnalytics />} />
-        </Routes>
-        {/* <ChatLauncher /> */}
-        {/* <EnhancedAgentSystem /> */}
-        {/* DEBUG: Temporarily disable CanvasAIPro */}
-        {/* <CanvasAIPro /> */}
-        {/* <AISalesAgentLauncher /> */}
-        </AuthLoadingWrapper>
-      </AuthProvider>
+      <AuthLoadingWrapper>
+        {/* DEBUG: Temporarily disable onboarding */}
+        {false && showOnboarding && (
+          <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
+        )}
+        <ConnectionStatus />
+        <RepSpheresNavBar />
+        <Routes>
+        <Route path="/" element={(() => {
+          console.log('DEBUG: Route "/" is being rendered');
+          return <CanvasHomePremium />;
+        })()} />
+        <Route path="/login" element={<SimpleLogin />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/research" element={<EnhancedResearchPanelWithRender />} />
+        <Route path="/market-insights" element={<MarketInsights />} />
+        <Route path="/test-npi" element={<TestNPI />} />
+        <Route path="/test-npi-debug" element={<TestNPIDebug />} />
+        <Route path="/test-npi-minimal" element={<TestNPIMinimal />} />
+        <Route path="/force-auth" element={<ForceAuth />} />
+        <Route path="/auth-test" element={<AuthTest />} />
+        <Route path="/test-auth-modals" element={<TestAuthModals />} />
+        <Route path="/intel/:linkId" element={<SharedIntelligence />} />
+        <Route path="/analytics/shares" element={<ShareAnalytics />} />
+      </Routes>
+      {/* <ChatLauncher /> */}
+      {/* <EnhancedAgentSystem /> */}
+      {/* DEBUG: Temporarily disable CanvasAIPro */}
+      {/* <CanvasAIPro /> */}
+      {/* <AISalesAgentLauncher /> */}
+      </AuthLoadingWrapper>
     </ErrorBoundary>
   );
 }
