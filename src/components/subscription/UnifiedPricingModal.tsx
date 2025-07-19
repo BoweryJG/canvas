@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -6,7 +6,6 @@ import {
   DialogActions,
   Button,
   Typography,
-  Grid,
   Card,
   CardContent,
   CardActions,
@@ -23,7 +22,7 @@ import {
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import StarIcon from '@mui/icons-material/Star';
 import { useUnifiedSubscription } from '../../auth/useUnifiedSubscription';
-import { UnifiedSubscription } from '../../services/subscriptionService';
+import { type UnifiedSubscription } from '../../services/subscriptionService';
 
 interface UnifiedPricingModalProps {
   open: boolean;
@@ -43,7 +42,7 @@ export const UnifiedPricingModal: React.FC<UnifiedPricingModalProps> = ({
   const [subscribing, setSubscribing] = useState<string | null>(null);
 
   const handleBillingCycleChange = (
-    event: React.MouseEvent<HTMLElement>,
+    _event: React.MouseEvent<HTMLElement>,
     newBillingCycle: 'monthly' | 'annual' | null,
   ) => {
     if (newBillingCycle !== null) {
@@ -120,14 +119,14 @@ export const UnifiedPricingModal: React.FC<UnifiedPricingModalProps> = ({
       </DialogTitle>
 
       <DialogContent>
-        <Grid container spacing={3}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 3 }}>
           {Object.entries(repxPlans).map(([tierKey, plan]) => {
             const isCurrentTier = tierKey === currentTier;
             const isPopular = tierKey === 'repx2';
             const savings = getSavings(plan);
             
             return (
-              <Grid item xs={12} md={6} lg={4} key={tierKey}>
+              <Box key={tierKey}>
                 <Card 
                   elevation={isPopular ? 8 : 2}
                   sx={{ 
@@ -239,10 +238,10 @@ export const UnifiedPricingModal: React.FC<UnifiedPricingModalProps> = ({
                     </Button>
                   </CardActions>
                 </Card>
-              </Grid>
+              </Box>
             );
           })}
-        </Grid>
+        </Box>
         
         <Box textAlign="center" mt={4}>
           <Typography variant="body2" color="text.secondary">

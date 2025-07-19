@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './AuthContext';
-import { subscriptionService, UnifiedSubscription } from '../services/subscriptionService';
+import { subscriptionService, type UnifiedSubscription } from '../services/subscriptionService';
 
 interface UnifiedUsage {
   calls: number;

@@ -142,7 +142,7 @@ class SubscriptionService {
   /**
    * Check if user has access to specific RepX features based on Canvas tier
    */
-  hasRepXAccess(canvasTier: string, feature: 'calls' | 'emails' | 'canvas_scans'): boolean {
+  hasRepXAccess(canvasTier: string, _feature: 'calls' | 'emails' | 'canvas_scans'): boolean {
     const repxTier = this.mapCanvasToRepXTier(canvasTier);
     return repxTier !== null;
   }
