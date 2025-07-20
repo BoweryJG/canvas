@@ -36,8 +36,7 @@ const RepSpheresNavBar = ({
     { href: 'https://marketdata.repspheres.com/', label: 'Market Data', icon: 'market', external: true },
     { href: '/', label: 'Canvas', icon: 'canvas' },
     { href: '#pipeline', label: 'Pipeline', icon: 'pipeline' },
-    { href: 'https://crm.repspheres.com/', label: 'Sphere oS', icon: 'sphere', external: true },
-    { href: 'https://workshop-homepage.netlify.app/?page=podcast', label: 'Podcasts', icon: 'podcasts', external: true }
+    { href: 'https://crm.repspheres.com/', label: 'CRM', icon: 'sphere', external: true }
   ];
 
   const navLinks = customLinks.length > 0 ? customLinks : defaultLinks;
@@ -205,15 +204,6 @@ const RepSpheresNavBar = ({
                   </Link>
                 )
               ))}
-              {user && (
-                <Link
-                  to="/analytics/shares"
-                  className={`nav-link ${location.pathname === '/analytics/shares' ? 'active' : ''}`}
-                >
-                  <span className="nav-link-icon icon-analytics"></span>
-                  <span>Analytics</span>
-                </Link>
-              )}
             </nav>
 
             {/* Right Actions */}
@@ -313,16 +303,6 @@ const RepSpheresNavBar = ({
                 </Link>
               )
             ))}
-            {user && (
-              <Link
-                to="/analytics/shares"
-                className="mobile-menu-link"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <span className="nav-link-icon icon-analytics"></span>
-                <span>Analytics</span>
-              </Link>
-            )}
           </nav>
         </div>
       </div>

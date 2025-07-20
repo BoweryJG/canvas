@@ -73,7 +73,7 @@
 }
 
 /* 4-Point Luxury Screws - Cartier Style */
-.screw {
+.logout-modal .screw {
   position: absolute;
   width: 20px;
   height: 20px;
@@ -95,7 +95,7 @@
 }
 
 /* Slotted head groove */
-.screw::before {
+.logout-modal .screw::before {
   content: '';
   position: absolute;
   top: 50%;
@@ -117,21 +117,21 @@
     0 1px 0 rgba(255,255,255,0.3);
 }
 
-.screw-tl { 
-  top: 16px; 
-  left: 16px; 
+.logout-modal .screw-tl { 
+  top: 16px !important; 
+  left: 16px !important; 
 }
-.screw-tr { 
-  top: 16px; 
-  right: 16px; 
+.logout-modal .screw-tr { 
+  top: 16px !important; 
+  right: 16px !important; 
 }
-.screw-bl { 
-  bottom: 16px; 
-  left: 16px; 
+.logout-modal .screw-bl { 
+  bottom: 16px !important; 
+  left: 16px !important; 
 }
-.screw-br { 
-  bottom: 16px; 
-  right: 16px; 
+.logout-modal .screw-br { 
+  bottom: 16px !important; 
+  right: 16px !important; 
 }
 
 /* Power Rail - Red theme */
