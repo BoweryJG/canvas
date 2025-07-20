@@ -34,8 +34,8 @@ const RepSpheresNavBar = ({
   // Default navigation links
   const defaultLinks = [
     { href: 'https://marketdata.repspheres.com/', label: 'Market Data', icon: 'market', external: true },
-    { href: '/', label: 'Canvas', icon: 'canvas' },
-    { href: '#pipeline', label: 'Pipeline', icon: 'pipeline' },
+    { href: 'https://canvas.repspheres.com/', label: 'Canvas', icon: 'canvas', external: true },
+    { href: 'https://repconnect.repspheres.com/', label: 'RepConnect', icon: 'pipeline', external: true },
     { href: 'https://crm.repspheres.com/', label: 'CRM', icon: 'sphere', external: true }
   ];
 
