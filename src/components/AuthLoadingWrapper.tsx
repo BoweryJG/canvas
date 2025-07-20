@@ -13,15 +13,12 @@ export const AuthLoadingWrapper: React.FC<AuthLoadingWrapperProps> = ({ children
   useEffect(() => {
     // Chrome-specific aggressive loading screen clearing
     const clearLoadingScreen = () => {
-      console.log('[AuthLoadingWrapper] Chrome-specific clearing initiated');
-      
       // Method 1: Add Chrome-specific CSS class to body
       document.body.classList.add('chrome-hide-loader');
       
       // Method 2: Remove by ID
       const initialLoader = document.getElementById('initial-loader');
       if (initialLoader) {
-        console.log('[AuthLoadingWrapper] Removing initial loader by ID');
         initialLoader.remove();
       }
       
@@ -30,7 +27,6 @@ export const AuthLoadingWrapper: React.FC<AuthLoadingWrapperProps> = ({ children
       if (rootElement) {
         const htmlContent = rootElement.innerHTML;
         if (htmlContent.includes('Loading Provider Intelligence') || htmlContent.includes('CANVAS') || htmlContent.includes('🎯')) {
-          console.log('[AuthLoadingWrapper] Clearing HTML loading screen completely');
           rootElement.innerHTML = '';
         }
       }
@@ -38,7 +34,6 @@ export const AuthLoadingWrapper: React.FC<AuthLoadingWrapperProps> = ({ children
       // Method 4: Force hide any remaining loading elements
       const loadingElements = document.querySelectorAll('[style*="Loading Provider Intelligence"], [style*="CANVAS"]');
       loadingElements.forEach(el => {
-        console.log('[AuthLoadingWrapper] Force hiding loading element');
         (el as HTMLElement).style.display = 'none';
       });
     };
