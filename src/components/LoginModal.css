@@ -125,49 +125,45 @@
     50% { transform: scale(1.02); opacity: 0.2; }
 }
 
-/* 4-Point Luxury Screws - Cartier Style */
+/* 4-Point Luxury Screws - Micro Style matching navbar */
 .login-modal .screw {
     position: absolute;
-    width: 20px;
-    height: 20px;
-    background: radial-gradient(circle at 40% 40%, 
-        #f0f0f0 0%, 
-        #d8d8d8 20%, 
-        #c0c0c0 40%, 
-        #999999 60%, 
-        #777777 80%, 
-        #555555 100%
+    width: 6px;
+    height: 6px;
+    background: radial-gradient(circle at 35% 35%, 
+        #e0e0e0 0%, 
+        #b8b8b8 15%, 
+        #888 40%, 
+        #555 70%, 
+        #222 100%
     );
     border-radius: 50%;
     box-shadow: 
-        inset 0 2px 3px rgba(255,255,255,0.8),
-        inset 0 -2px 3px rgba(0,0,0,0.5),
-        0 1px 2px rgba(0,0,0,0.8),
-        0 2px 4px rgba(0,0,0,0.4);
+        inset 0 0.5px 1px rgba(255,255,255,0.4),
+        inset 0 -0.5px 1px rgba(0,0,0,0.5),
+        0 0.5px 2px rgba(0,0,0,0.8);
     z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Slotted head groove */
+/* Slotted head groove - micro sized */
 .login-modal .screw::before {
     content: '';
     position: absolute;
     top: 50%;
-    left: 10%;
-    width: 80%;
-    height: 2px;
+    left: 50%;
+    width: 70%;
+    height: 0.5px;
     background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(0,0,0,0.3) 10%,
-        rgba(0,0,0,0.6) 30%,
+        transparent,
+        rgba(0,0,0,0.6) 20%,
         rgba(0,0,0,0.8) 50%,
-        rgba(0,0,0,0.6) 70%,
-        rgba(0,0,0,0.3) 90%,
-        transparent 100%
+        rgba(0,0,0,0.6) 80%,
+        transparent
     );
-    transform: translateY(-50%);
-    box-shadow: 
-        inset 0 1px 1px rgba(0,0,0,0.5),
-        0 1px 0 rgba(255,255,255,0.3);
+    transform: translate(-50%, -50%);
 }
 
 .login-modal .screw-tl { 

@@ -185,8 +185,8 @@
 
 .screw-wrapper {
     position: absolute;
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: radial-gradient(circle at center, 
         rgba(0,0,0,0.3) 0%, 
@@ -204,8 +204,8 @@
 
 .screw {
     position: relative;
-    width: 5px;
-    height: 5px;
+    width: 4px;
+    height: 4px;
     background: 
         radial-gradient(circle at 35% 35%, #e0e0e0 0%, #b8b8b8 15%, #888 40%, #555 70%, #222 100%);
     border-radius: 50%;
@@ -395,12 +395,12 @@
 .nav-cta,
 .nav-cta-secondary {
     position: relative;
-    padding: 10px 24px;
-    border-radius: 12px;
+    padding: 8px 16px;
+    border-radius: 10px;
     background: linear-gradient(135deg, var(--purple-primary), var(--blue-accent));
     color: white;
-    font-weight: 600;
-    font-size: 14px;
+    font-weight: 500;
+    font-size: 13px;
     text-decoration: none;
     border: none;
     cursor: pointer;
