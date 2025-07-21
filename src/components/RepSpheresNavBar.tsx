@@ -30,6 +30,28 @@ const RepSpheresNavBar = ({
   const [signUpModalOpen, setSignUpModalOpen] = useState(false);
   const { user } = useAuth();
   const location = useLocation();
+  
+  // Get user initials from name or email
+  const getUserInitials = () => {
+    if (!user) return '';
+    
+    // Try to get from full name first
+    if (user.user_metadata?.full_name) {
+      const names = user.user_metadata.full_name.trim().split(' ');
+      if (names.length >= 2) {
+        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+      }
+      return names[0].substring(0, 2).toUpperCase();
+    }
+    
+    // Fallback to email
+    if (user.email) {
+      const emailPart = user.email.split('@')[0];
+      return emailPart.substring(0, 2).toUpperCase();
+    }
+    
+    return 'U';
+  };
 
   // Default navigation links
   const defaultLinks = [
@@ -210,6 +232,9 @@ const RepSpheresNavBar = ({
             <div className="nav-actions">
               {user ? (
                 <>
+                  <div className="user-avatar" title={user.email}>
+                    <span className="user-initials">{getUserInitials()}</span>
+                  </div>
                   <button 
                     className="nav-cta"
                     onClick={handleSignOut}
