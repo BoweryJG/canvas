@@ -76,22 +76,55 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     }
   },
   
-  explorer: {
-    id: 'explorer',
-    name: 'Explorer',
-    displayName: 'Explorer',
-    price: 49,
+  repx1: {
+    id: 'repx1',
+    name: 'RepX1',
+    displayName: 'RepX1 Professional Business Line',
+    price: 39,
     features: [
-      { id: 'instant_scan', name: 'Instant Scan', enabled: true, depth: 'standard', deliveryTime: 2 },
-      { id: 'detailed_profile', name: 'Detailed Profile', enabled: true, depth: 'standard', deliveryTime: 5 },
-      { id: 'practice_intel', name: 'Practice Intelligence', enabled: true, depth: 'standard', deliveryTime: 8 },
-      { id: 'pro_outreach', name: 'Pro Outreach', enabled: true, depth: 'standard', deliveryTime: 10 },
-      { id: 'basic_psychology', name: 'Basic Psychology', enabled: true, depth: 'basic', deliveryTime: 12 }
+      { id: 'professional_line', name: 'Professional Business Line for Life', enabled: true, depth: 'standard', deliveryTime: 0 },
+      { id: 'ai_transcription', name: 'AI transcription of every sales call', enabled: true, depth: 'standard', deliveryTime: 0 },
+      { id: 'crm_integration', name: 'Transcriptions sent directly to your CRM', enabled: true, depth: 'standard', deliveryTime: 0 },
+      { id: 'call_separation', name: 'Professional/personal call separation', enabled: true, depth: 'standard', deliveryTime: 0 },
+      { id: 'call_analytics', name: 'Basic call analytics and history', enabled: true, depth: 'basic', deliveryTime: 0 }
     ],
     apiLimits: {
-      scansPerDay: 50,
+      scansPerDay: 0,
+      apiCallsPerScan: 0,
+      concurrentScans: 0,
+      dataRetention: 30
+    },
+    deliveryTimes: {
+      initialScan: 999999,
+      basicProfile: 999999,
+      enhancedAnalysis: 999999,
+      deepIntelligence: 999999,
+      outreachGeneration: 999999
+    },
+    uiTheme: {
+      primaryColor: '#00ffc6',
+      accentColor: '#7B42F6',
+      icon: '📞',
+      animationSpeed: 1.5
+    }
+  },
+  
+  repx2: {
+    id: 'repx2',
+    name: 'RepX2',
+    displayName: 'RepX2 Market Intelligence',
+    price: 97,
+    features: [
+      { id: 'everything_repx1', name: 'Everything in RepX1', enabled: true, depth: 'standard', deliveryTime: 0 },
+      { id: 'email_integration', name: 'Work email integration (no IT approval needed)', enabled: true, depth: 'standard', deliveryTime: 0 },
+      { id: 'market_data', name: 'Basic Market Data access (all procedures)', enabled: true, depth: 'standard', deliveryTime: 0 },
+      { id: 'canvas_scans', name: '10 Canvas practice scans per day', enabled: true, depth: 'standard', deliveryTime: 2 },
+      { id: 'enhanced_analytics', name: 'Enhanced call analytics and insights', enabled: true, depth: 'standard', deliveryTime: 0 }
+    ],
+    apiLimits: {
+      scansPerDay: 10,
       apiCallsPerScan: 20,
-      concurrentScans: 3,
+      concurrentScans: 2,
       dataRetention: 30
     },
     deliveryTimes: {
@@ -102,30 +135,29 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       outreachGeneration: 10
     },
     uiTheme: {
-      primaryColor: '#00ffc6',
-      accentColor: '#7B42F6',
-      icon: '⚡',
-      animationSpeed: 1.5
+      primaryColor: '#4B96DC',
+      accentColor: '#00ffc6',
+      icon: '📊',
+      animationSpeed: 2
     }
   },
   
-  professional: {
-    id: 'professional',
-    name: 'Professional',
-    displayName: 'Professional',
-    price: 149,
+  repx3: {
+    id: 'repx3',
+    name: 'RepX3',
+    displayName: 'RepX3 Territory Command',
+    price: 197,
     features: [
-      { id: 'instant_everything', name: 'Instant Everything', enabled: true, depth: 'deep', deliveryTime: 1 },
-      { id: 'psychological_profile', name: 'Deep Psychology', enabled: true, depth: 'deep', deliveryTime: 3 },
-      { id: 'predictive_timing', name: 'Predictive Timing', enabled: true, depth: 'deep', deliveryTime: 5 },
-      { id: 'competitive_intel', name: 'Competitive Intel', enabled: true, depth: 'deep', deliveryTime: 7 },
-      { id: 'genius_campaigns', name: 'Genius Campaigns', enabled: true, depth: 'deep', deliveryTime: 10 },
-      { id: 'ai_coaching', name: 'AI Sales Coach', enabled: true, depth: 'deep', deliveryTime: 0 }
+      { id: 'everything_repx2', name: 'Everything in RepX2', enabled: true, depth: 'deep', deliveryTime: 0 },
+      { id: 'full_canvas', name: 'Full Canvas practice intelligence platform', enabled: true, depth: 'deep', deliveryTime: 1 },
+      { id: 'territory_mapping', name: 'Territory mapping and local insights', enabled: true, depth: 'deep', deliveryTime: 2 },
+      { id: 'market_analytics', name: 'Advanced market analytics with trends', enabled: true, depth: 'deep', deliveryTime: 3 },
+      { id: 'competitive_intel', name: 'Competitive intelligence reports', enabled: true, depth: 'deep', deliveryTime: 5 }
     ],
     apiLimits: {
-      scansPerDay: 500,
-      apiCallsPerScan: 100,
-      concurrentScans: 10,
+      scansPerDay: 25,
+      apiCallsPerScan: 50,
+      concurrentScans: 5,
       dataRetention: 90
     },
     deliveryTimes: {
@@ -136,90 +168,58 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       outreachGeneration: 5
     },
     uiTheme: {
-      primaryColor: '#FFD700',
-      accentColor: '#FF6B6B',
-      icon: '🧠',
-      animationSpeed: 2
+      primaryColor: '#9f58fa',
+      accentColor: '#4B96DC',
+      icon: '🗺️',
+      animationSpeed: 2.5
     }
   },
   
-  growth: {
-    id: 'growth',
-    name: 'Growth',
-    displayName: 'Growth',
-    price: 349,
+  repx4: {
+    id: 'repx4',
+    name: 'RepX4',
+    displayName: 'RepX4 Executive Operations',
+    price: 397,
     features: [
-      { id: 'everything', name: 'Everything Instant', enabled: true, depth: 'unlimited', deliveryTime: 0 },
-      { id: 'team_access', name: 'Team Access', enabled: true, depth: 'unlimited', deliveryTime: 0 },
-      { id: 'api_access', name: 'API Access', enabled: true, depth: 'unlimited', deliveryTime: 0 },
-      { id: 'white_label', name: 'White Label', enabled: true, depth: 'unlimited', deliveryTime: 0 },
-      { id: 'market_domination', name: 'Market Domination Suite', enabled: true, depth: 'unlimited', deliveryTime: 0 }
+      { id: 'everything_repx3', name: 'Everything in RepX3', enabled: true, depth: 'unlimited', deliveryTime: 0 },
+      { id: 'ai_coaching', name: 'AI coaching insights and recommendations', enabled: true, depth: 'unlimited', deliveryTime: 0 },
+      { id: 'workflow_automation', name: 'Workflow automation (up to 5 workflows)', enabled: true, depth: 'unlimited', deliveryTime: 0 },
+      { id: 'advanced_crm', name: 'Advanced CRM integration and automation', enabled: true, depth: 'unlimited', deliveryTime: 0 },
+      { id: 'performance_analytics', name: 'Real-time sales performance analytics', enabled: true, depth: 'unlimited', deliveryTime: 0 }
     ],
     apiLimits: {
-      scansPerDay: 999999,
-      apiCallsPerScan: 999999,
-      concurrentScans: 50,
+      scansPerDay: 50,
+      apiCallsPerScan: 100,
+      concurrentScans: 10,
       dataRetention: 365
     },
     deliveryTimes: {
       initialScan: 0.5,
       basicProfile: 1,
-      enhancedAnalysis: 5,
-      deepIntelligence: 10,
+      enhancedAnalysis: 10,
+      deepIntelligence: 30,
       outreachGeneration: 2
     },
     uiTheme: {
-      primaryColor: '#FF0080',
-      accentColor: '#00D9FF',
-      icon: '👑',
+      primaryColor: '#FF6B35',
+      accentColor: '#9f58fa',
+      icon: '⚡',
       animationSpeed: 3
     }
   },
   
-  enterprise: {
-    id: 'enterprise',
-    name: 'Enterprise',
-    displayName: 'Enterprise',
-    price: 749,
+  repx5: {
+    id: 'repx5',
+    name: 'RepX5',
+    displayName: 'RepX5 Elite Global',
+    price: 797,
     features: [
-      { id: 'everything_pro', name: 'Everything Pro', enabled: true, depth: 'unlimited', deliveryTime: 0 },
-      { id: 'unlimited_team', name: 'Team Access (20)', enabled: true, depth: 'unlimited', deliveryTime: 0 },
-      { id: 'full_api', name: 'Full API Access', enabled: true, depth: 'unlimited', deliveryTime: 0 },
-      { id: 'custom_integrations', name: 'Custom Integrations', enabled: true, depth: 'unlimited', deliveryTime: 0 },
-      { id: 'dedicated_support', name: 'Dedicated Support', enabled: true, depth: 'unlimited', deliveryTime: 0 }
-    ],
-    apiLimits: {
-      scansPerDay: 999999,
-      apiCallsPerScan: 999999,
-      concurrentScans: 100,
-      dataRetention: 365
-    },
-    deliveryTimes: {
-      initialScan: 0.3,
-      basicProfile: 0.5,
-      enhancedAnalysis: 3,
-      deepIntelligence: 5,
-      outreachGeneration: 1
-    },
-    uiTheme: {
-      primaryColor: '#7B42F6',
-      accentColor: '#00ffc6',
-      icon: '🚀',
-      animationSpeed: 4
-    }
-  },
-  
-  elite: {
-    id: 'elite',
-    name: 'Elite',
-    displayName: 'Elite',
-    price: 1499,
-    features: [
-      { id: 'unlimited_everything', name: 'Unlimited Everything', enabled: true, depth: 'unlimited', deliveryTime: 0 },
-      { id: 'unlimited_team', name: 'Unlimited Team', enabled: true, depth: 'unlimited', deliveryTime: 0 },
-      { id: 'white_label', name: 'White Label', enabled: true, depth: 'unlimited', deliveryTime: 0 },
-      { id: 'custom_ai', name: 'Custom AI Models', enabled: true, depth: 'unlimited', deliveryTime: 0 },
-      { id: 'priority_everything', name: 'Priority Everything', enabled: true, depth: 'unlimited', deliveryTime: 0 }
+      { id: 'everything_repx4', name: 'Everything in RepX4', enabled: true, depth: 'unlimited', deliveryTime: 0 },
+      { id: 'real_time_coaching', name: 'Real-time AI whisper coaching during live calls', enabled: true, depth: 'unlimited', deliveryTime: 0 },
+      { id: 'unlimited_everything', name: 'Unlimited calls, emails, and Canvas scans', enabled: true, depth: 'unlimited', deliveryTime: 0 },
+      { id: 'unlimited_workflows', name: 'Unlimited workflow automations', enabled: true, depth: 'unlimited', deliveryTime: 0 },
+      { id: 'custom_ai_agent', name: 'Custom AI agent configuration', enabled: true, depth: 'unlimited', deliveryTime: 0 },
+      { id: 'dedicated_manager', name: 'Dedicated success manager', enabled: true, depth: 'unlimited', deliveryTime: 0 }
     ],
     apiLimits: {
       scansPerDay: 999999,

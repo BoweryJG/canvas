@@ -10,6 +10,7 @@ import { baselineResearch } from './baselineUSETHISONLYresearch';
 import { adaptiveResearch } from './adaptiveResearch';
 import { streamlinedResearch } from './streamlinedResearch';
 import type { ResearchData } from './webResearch';
+import { validateScanRequest, recordScanUsage } from './subscriptionEnforcement';
 
 // Feature flags for controlling which system to use
 const FEATURE_FLAGS = {
@@ -29,6 +30,8 @@ export interface UnifiedResearchOptions {
   progress?: ResearchProgressCallback;
   onInstantComplete?: (result: InstantScanResult) => void;
   onDeepComplete?: (result: DeepResearchResult) => void;
+  userId?: string; // For subscription validation
+  skipValidation?: boolean; // For admin/testing purposes
 }
 
 export interface ResearchProgressCallback {
@@ -46,6 +49,8 @@ export interface UnifiedResearchResult {
   legacy?: ResearchData;
   adaptive?: ResearchData | any; // ExtendedResearchData
   error?: string;
+  subscriptionError?: string; // For subscription-related errors
+  limitExceeded?: boolean;
 }
 
 /**
@@ -61,12 +66,39 @@ export async function unifiedCanvasResearch(
     existingWebsite,
     progress,
     onInstantComplete,
-    onDeepComplete
+    onDeepComplete,
+    userId,
+    skipValidation = false
   } = options;
   
   console.log('🎯 Unified Canvas Research starting for:', doctor.displayName);
   console.log('📋 Mode:', mode);
   console.log('🔧 Feature flags:', FEATURE_FLAGS);
+  
+  // Validate subscription limits before proceeding
+  if (!skipValidation && userId) {
+    try {
+      console.log('🔒 Validating subscription limits...');
+      const validation = await validateScanRequest(userId);
+      
+      if (!validation.allowed) {
+        console.warn('❌ Scan request denied:', validation.errorMessage);
+        return {
+          mode: 'instant',
+          error: 'Subscription limit exceeded',
+          subscriptionError: validation.errorMessage,
+          limitExceeded: true
+        };
+      }
+      
+      console.log('✅ Subscription validation passed');
+    } catch (validationError) {
+      console.error('⚠️ Subscription validation failed:', validationError);
+      // Continue with scan but log the issue
+    }
+  } else if (!userId && !skipValidation) {
+    console.warn('⚠️ No userId provided for subscription validation');
+  }
   
   try {
     // Determine which mode to use
@@ -87,6 +119,16 @@ export async function unifiedCanvasResearch(
         progress
       );
       
+      // Record usage after successful scan
+      if (userId && !skipValidation) {
+        try {
+          await recordScanUsage(userId, 'streamlined');
+          console.log('📊 Scan usage recorded');
+        } catch (usageError) {
+          console.warn('⚠️ Failed to record scan usage:', usageError);
+        }
+      }
+      
       return {
         mode: 'adaptive', // Return as adaptive for compatibility
         adaptive: streamlinedResult
@@ -103,6 +145,16 @@ export async function unifiedCanvasResearch(
         progress
       );
       
+      // Record usage after successful scan
+      if (userId && !skipValidation) {
+        try {
+          await recordScanUsage(userId, 'adaptive');
+          console.log('📊 Scan usage recorded');
+        } catch (usageError) {
+          console.warn('⚠️ Failed to record scan usage:', usageError);
+        }
+      }
+      
       return {
         mode: 'adaptive',
         adaptive: adaptiveResult
@@ -118,6 +170,16 @@ export async function unifiedCanvasResearch(
         onInstantComplete,
         onDeepComplete
       );
+      
+      // Record usage after successful scan
+      if (userId && !skipValidation) {
+        try {
+          await recordScanUsage(userId, 'instant');
+          console.log('📊 Scan usage recorded');
+        } catch (usageError) {
+          console.warn('⚠️ Failed to record scan usage:', usageError);
+        }
+      }
       
       // Note: Results are delivered via callbacks
       return {
@@ -136,6 +198,16 @@ export async function unifiedCanvasResearch(
         existingWebsite,
         progress
       );
+      
+      // Record usage after successful scan
+      if (userId && !skipValidation) {
+        try {
+          await recordScanUsage(userId, 'legacy');
+          console.log('📊 Scan usage recorded');
+        } catch (usageError) {
+          console.warn('⚠️ Failed to record scan usage:', usageError);
+        }
+      }
       
       return {
         mode: 'legacy',

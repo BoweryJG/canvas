@@ -126,7 +126,7 @@
 }
 
 /* 4-Point Luxury Screws - Cartier Style */
-.screw {
+.login-modal .screw {
     position: absolute;
     width: 20px;
     height: 20px;
@@ -148,7 +148,7 @@
 }
 
 /* Slotted head groove */
-.screw::before {
+.login-modal .screw::before {
     content: '';
     position: absolute;
     top: 50%;
@@ -170,21 +170,21 @@
         0 1px 0 rgba(255,255,255,0.3);
 }
 
-.screw-tl { 
-    top: 16px; 
-    left: 16px; 
+.login-modal .screw-tl { 
+    top: 16px !important; 
+    left: 16px !important; 
 }
-.screw-tr { 
-    top: 16px; 
-    right: 16px; 
+.login-modal .screw-tr { 
+    top: 16px !important; 
+    right: 16px !important; 
 }
-.screw-bl { 
-    bottom: 16px; 
-    left: 16px; 
+.login-modal .screw-bl { 
+    bottom: 16px !important; 
+    left: 16px !important; 
 }
-.screw-br { 
-    bottom: 16px; 
-    right: 16px; 
+.login-modal .screw-br { 
+    bottom: 16px !important; 
+    right: 16px !important; 
 }
 
 /* Power Rail */
@@ -370,6 +370,9 @@
     margin-bottom: 12px;
     white-space: nowrap;
     text-overflow: ellipsis;
+    min-height: 50px;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .social-btn::before {
@@ -662,7 +665,31 @@
         padding: 60px 30px 40px;
     }
 
-    .screw {
+    .login-modal .screw {
         display: none;
+    }
+}
+
+/* Additional button constraints for small screens */
+@media (max-width: 600px) {
+    .login-modal {
+        width: 90%;
+        min-width: 320px;
+        max-width: 400px;
+    }
+    .social-btn {
+        font-size: 14px;
+        padding: 12px 16px;
+        min-height: 44px;
+        max-width: 100%;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 360px) {
+    .social-btn {
+        font-size: 13px;
+        padding: 10px 12px;
+        gap: 8px;
     }
 }

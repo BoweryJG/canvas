@@ -15,31 +15,31 @@ if (stripePublishableKey) {
 
 export const stripe = stripePromise;
 
-// Stripe price IDs for each tier
+// RepX Enhancement Levels - Stripe price IDs for each tier
 export const STRIPE_PRICE_IDS: Record<string, { monthly: string | null; annual: string | null }> = {
   free: {
     monthly: null, // Free tier
     annual: null
   },
-  explorer: {
-    monthly: import.meta.env.VITE_STRIPE_PRICE_EXPLORER_MONTHLY || import.meta.env.STRIPE_PRICE_EXPLORER_MONTHLY,
-    annual: import.meta.env.VITE_STRIPE_PRICE_EXPLORER_ANNUAL || import.meta.env.STRIPE_PRICE_EXPLORER_ANNUAL
+  repx1: {
+    monthly: import.meta.env.VITE_STRIPE_REPX1_MONTHLY_PRICE_ID || 'price_1RRutVGRiAPUZqWuDMSAqHsD',
+    annual: import.meta.env.VITE_STRIPE_REPX1_ANNUAL_PRICE_ID || 'price_1RWMSCGRiAPUZqWu30j19b9G'
   },
-  professional: {
-    monthly: import.meta.env.VITE_STRIPE_PRICE_PROFESSIONAL_MONTHLY || import.meta.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY,
-    annual: import.meta.env.VITE_STRIPE_PRICE_PROFESSIONAL_ANNUAL || import.meta.env.STRIPE_PRICE_PROFESSIONAL_ANNUAL
+  repx2: {
+    monthly: import.meta.env.VITE_STRIPE_REPX2_MONTHLY_PRICE_ID || 'price_1RRushGRiAPUZqWuIvqueK7h',
+    annual: import.meta.env.VITE_STRIPE_REPX2_ANNUAL_PRICE_ID || 'price_1RWMT4GRiAPUZqWuqiNhkZfw'
   },
-  growth: {
-    monthly: import.meta.env.VITE_STRIPE_PRICE_GROWTH_MONTHLY || import.meta.env.STRIPE_PRICE_GROWTH_MONTHLY,
-    annual: import.meta.env.VITE_STRIPE_PRICE_GROWTH_ANNUAL || import.meta.env.STRIPE_PRICE_GROWTH_ANNUAL
+  repx3: {
+    monthly: import.meta.env.VITE_STRIPE_REPX3_MONTHLY_PRICE_ID || 'price_1RWMW3GRiAPUZqWuoTA0eLUC',
+    annual: import.meta.env.VITE_STRIPE_REPX3_ANNUAL_PRICE_ID || 'price_1RRus5GRiAPUZqWup3jk1S8U'
   },
-  enterprise: {
-    monthly: import.meta.env.VITE_STRIPE_PRICE_ENTERPRISE_MONTHLY || import.meta.env.STRIPE_PRICE_ENTERPRISE_MONTHLY,
-    annual: import.meta.env.VITE_STRIPE_PRICE_ENTERPRISE_ANNUAL || import.meta.env.STRIPE_PRICE_ENTERPRISE_ANNUAL
+  repx4: {
+    monthly: import.meta.env.VITE_STRIPE_REPX4_MONTHLY_PRICE_ID || 'price_1RRurNGRiAPUZqWuklICsE4P',
+    annual: import.meta.env.VITE_STRIPE_REPX4_ANNUAL_PRICE_ID || 'price_1RWMWjGRiAPUZqWu6YBZY7o4'
   },
-  elite: {
-    monthly: import.meta.env.VITE_STRIPE_PRICE_ELITE_MONTHLY || import.meta.env.STRIPE_PRICE_ELITE_MONTHLY,
-    annual: import.meta.env.VITE_STRIPE_PRICE_ELITE_ANNUAL || import.meta.env.STRIPE_PRICE_ELITE_ANNUAL
+  repx5: {
+    monthly: import.meta.env.VITE_STRIPE_REPX5_MONTHLY_PRICE_ID || 'price_1RRuqbGRiAPUZqWu3f91wnNx',
+    annual: import.meta.env.VITE_STRIPE_REPX5_ANNUAL_PRICE_ID || 'price_1RWMXEGRiAPUZqWuPwcgrovN'
   }
 };
 
@@ -61,15 +61,17 @@ export async function createCheckoutSession(
       throw new Error('Invalid subscription tier or billing cycle');
     }
 
-    // Call Netlify function to create checkout session
-    const response = await fetch('/.netlify/functions/stripe-create-checkout-session', {
+    // Call backend API to create checkout session
+    const response = await fetch('https://osbackend-zl1h.onrender.com/api/stripe/create-checkout-session', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        tier,
+        billingCycle,
         priceId,
-        userId,
+        customerEmail: _userEmail,
         successUrl: `${window.location.origin}/dashboard?subscription=success`,
         cancelUrl: `${window.location.origin}/pricing?subscription=canceled`
       })
@@ -79,8 +81,8 @@ export async function createCheckoutSession(
       throw new Error('Failed to create checkout session');
     }
 
-    const { sessionId } = await response.json();
-    return sessionId;
+    const result = await response.json();
+    return result.data?.sessionId || result.sessionId;
   } catch (error) {
     console.error('Error creating checkout session:', error);
     throw error;
