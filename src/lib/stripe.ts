@@ -47,7 +47,7 @@ export const STRIPE_PRICE_IDS: Record<string, { monthly: string | null; annual: 
 export async function createCheckoutSession(
   tier: keyof typeof SUBSCRIPTION_TIERS,
   billingCycle: 'monthly' | 'annual' = 'monthly',
-  userId: string,
+  _userId: string,
   _userEmail?: string
 ) {
   try {

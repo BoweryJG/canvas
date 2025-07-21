@@ -68,7 +68,7 @@ export const SubscriptionUsageDisplay: React.FC<SubscriptionUsageDisplayProps> =
       <div className="usage-header">
         <div className="tier-info">
           <span className="tier-badge" style={{ backgroundColor: tierConfig?.uiTheme.primaryColor }}>
-            {tierConfig?.icon} {tierConfig?.displayName || tier.toUpperCase()}
+            {tierConfig?.displayName || tier.toUpperCase()}
           </span>
           <button onClick={refresh} className="refresh-button" title="Refresh usage">
             🔄
@@ -133,7 +133,7 @@ export const SubscriptionUsageDisplay: React.FC<SubscriptionUsageDisplayProps> =
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .subscription-usage-display {
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.1);
