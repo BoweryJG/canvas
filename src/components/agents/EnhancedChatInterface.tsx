@@ -88,7 +88,8 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
     const socketInstance = io(BACKEND_URL, {
       path: '/agents-ws',
       auth: {
-        token: session.access_token
+        token: session.access_token,
+        appName: 'canvas' // IMPORTANT: Specify Canvas app for proper agent filtering
       },
       transports: ['websocket']
     });
