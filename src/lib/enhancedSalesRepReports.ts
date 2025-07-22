@@ -122,7 +122,7 @@ Practice Analysis Score: ${scanResult.score}%
 
 EXECUTIVE SUMMARY
 -----------------
-This impact analysis evaluates how ${productName} will specifically benefit Dr. ${(scanResult.doctor || 'Unknown Doctor').replace(/^Dr\.?\s*/i, '')}'s practice based on comprehensive website intelligence and current capabilities assessment.
+This impact analysis evaluates how ${productName} will specifically benefit Dr. ${String(scanResult.doctor || 'Unknown Doctor').replace(/^Dr\.?\s*/i, '')}'s practice based on comprehensive website intelligence and current capabilities assessment.
 
 Practice Alignment Score: ${scanResult.score}%
 Implementation Readiness: ${scanResult.score > 80 ? 'HIGH' : scanResult.score > 60 ? 'MEDIUM' : 'DEVELOPING'}
@@ -220,7 +220,7 @@ Immediate Actions (Next 7 Days):
 3. Develop customized implementation proposal
 4. Arrange reference practice visits/calls
 
-This analysis demonstrates strong alignment between ${productName} and Dr. ${(scanResult.doctor || 'Unknown Doctor').replace(/^Dr\.?\s*/i, '')}'s practice capabilities, indicating excellent potential for successful implementation and significant practice impact.
+This analysis demonstrates strong alignment between ${productName} and Dr. ${String(scanResult.doctor || 'Unknown Doctor').replace(/^Dr\.?\s*/i, '')}'s practice capabilities, indicating excellent potential for successful implementation and significant practice impact.
 
 ---
 Report prepared using Canvas Medical Intelligence Platform
