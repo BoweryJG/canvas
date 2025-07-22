@@ -33,6 +33,7 @@ import { findProcedureByName } from '../lib/procedureDatabase';
 import { type InstantIntelligence } from '../lib/instantIntelligence';
 import ShareIntelligenceModal from './ShareIntelligenceModal';
 import { type SubscriptionTier } from '../types/magicLink';
+import MetallicScrew from './PremiumComponents/MetallicScrew';
 
 interface EnhancedActionSuiteProps {
   scanResult: EnhancedScanResult;
@@ -867,7 +868,11 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       </div>
 
       {/* Contact Information */}
-      <div className="contact-section">
+      <div className="contact-section" style={{ position: 'relative' }}>
+        <MetallicScrew position="top-left" />
+        <MetallicScrew position="top-right" />
+        <MetallicScrew position="bottom-left" />
+        <MetallicScrew position="bottom-right" />
         <h4>🎯 Target Contact Information</h4>
         <div className="contact-inputs">
           <input
@@ -895,7 +900,11 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       </div>
 
       {/* Sales Rep Information */}
-      <div className="sales-rep-section">
+      <div className="sales-rep-section" style={{ position: 'relative' }}>
+        <MetallicScrew position="top-left" />
+        <MetallicScrew position="top-right" />
+        <MetallicScrew position="bottom-left" />
+        <MetallicScrew position="bottom-right" />
         <h4>👨‍💼 Sales Rep Information</h4>
         <div className="contact-inputs">
           <input
@@ -939,7 +948,11 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
               </div>
             )}
             {/* Email Outreach */}
-            <div className="outreach-section">
+            <div className="outreach-section" style={{ position: 'relative' }}>
+              <MetallicScrew position="top-left" />
+              <MetallicScrew position="top-right" />
+              <MetallicScrew position="bottom-left" />
+              <MetallicScrew position="bottom-right" />
               <div className="section-header">
                 <h4>📧 Personalized Email Outreach</h4>
                 <div className="quality-indicators">
@@ -1144,7 +1157,11 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             </div>
 
             {/* SMS Outreach */}
-            <div className="outreach-section">
+            <div className="outreach-section" style={{ position: 'relative' }}>
+              <MetallicScrew position="top-left" />
+              <MetallicScrew position="top-right" />
+              <MetallicScrew position="bottom-left" />
+              <MetallicScrew position="bottom-right" />
               <div className="section-header">
                 <h4>💬 Smart SMS Outreach</h4>
                 <span className="character-limit">160 char limit</span>
@@ -1209,7 +1226,11 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             </div>
 
             {/* Campaign Builder */}
-            <div className="outreach-section">
+            <div className="outreach-section" style={{ position: 'relative' }}>
+              <MetallicScrew position="top-left" />
+              <MetallicScrew position="top-right" />
+              <MetallicScrew position="bottom-left" />
+              <MetallicScrew position="bottom-right" />
               <div className="section-header">
                 <h4>🚀 Multi-Touch Campaign</h4>
                 <span className="campaign-type">
@@ -1280,7 +1301,11 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             )}
             
             {/* Always show report buttons - disable if no data */}
-            <div className="reports-section">
+            <div className="reports-section" style={{ position: 'relative' }}>
+              <MetallicScrew position="top-left" />
+              <MetallicScrew position="top-right" />
+              <MetallicScrew position="bottom-left" />
+              <MetallicScrew position="bottom-right" />
               {/* Status indicator */}
               <div className="reports-status">
                 {(researchData || instantIntel || scanResult) ? (
@@ -1419,7 +1444,11 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
             )}
             
             {scanResult && (
-            <div>
+            <div style={{ position: 'relative' }}>
+              <MetallicScrew position="top-left" />
+              <MetallicScrew position="top-right" />
+              <MetallicScrew position="bottom-left" />
+              <MetallicScrew position="bottom-right" />
             <div className="analytics-dashboard">
               <div className="metric-card">
                 <h4>Research Quality</h4>
@@ -1520,7 +1549,11 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                 <p>Loading CRM data...</p>
               </div>
             )}
-            <div className="crm-sync-section">
+            <div className="crm-sync-section" style={{ position: 'relative' }}>
+              <MetallicScrew position="top-left" />
+              <MetallicScrew position="top-right" />
+              <MetallicScrew position="bottom-left" />
+              <MetallicScrew position="bottom-right" />
               <div className="section-header">
                 <h4>🔗 CRM Synchronization</h4>
                 <div className="sync-status">
@@ -1594,7 +1627,11 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                 <p>Loading batch analysis...</p>
               </div>
             )}
-            <div className="batch-analysis-section">
+            <div className="batch-analysis-section" style={{ position: 'relative' }}>
+              <MetallicScrew position="top-left" />
+              <MetallicScrew position="top-right" />
+              <MetallicScrew position="bottom-left" />
+              <MetallicScrew position="bottom-right" />
               <div className="section-header">
                 <h4>👥 Multi-Doctor Batch Analysis</h4>
                 <p>Analyze multiple doctors simultaneously for efficient prospecting and lead qualification</p>

@@ -52,20 +52,16 @@ const Screw = styled(Box, {
   shouldForwardProp: (prop) => prop !== 'angle',
 })<{ angle: number }>`
   position: relative;
-  width: 70%;
-  height: 70%;
+  width: 4px;
+  height: 4px;
   background: 
-    radial-gradient(circle at 35% 35%, #e0e0e0 0%, #b8b8b8 15%, #888 40%, #555 70%, #222 100%),
-    linear-gradient(135deg, #ccc 0%, #666 100%);
-  background-size: 100%, 100%;
+    radial-gradient(circle at 35% 35%, #e0e0e0 0%, #b8b8b8 15%, #888 40%, #555 70%, #222 100%);
   border-radius: 50%;
   box-shadow:
     inset 0 0.5px 1px rgba(255,255,255,0.4),
     inset 0 -0.5px 1px rgba(0,0,0,0.5),
-    0 0.5px 2px rgba(0,0,0,0.8),
-    0 0 3px rgba(0,0,0,0.3);
+    0 0.5px 2px rgba(0,0,0,0.8);
   transform: rotate(${props => props.angle}deg);
-  border: 0.5px solid rgba(0,0,0,0.2);
   animation: screwWiggle 5s ease-in-out infinite;
   animation-delay: ${props => props.angle * 0.01}s;
   
@@ -83,7 +79,7 @@ const Screw = styled(Box, {
     top: 50%;
     left: 50%;
     width: 70%;
-    height: 8%;
+    height: 0.5px;
     background: linear-gradient(
       90deg, 
       transparent, 
@@ -92,7 +88,6 @@ const Screw = styled(Box, {
       transparent
     );
     transform: translate(-50%, -50%);
-    box-shadow: 0 0 1px rgba(255,255,255,0.15);
   }
   
   /* Phillips head groove - vertical */
@@ -101,7 +96,7 @@ const Screw = styled(Box, {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 8%;
+    width: 0.5px;
     height: 70%;
     background: linear-gradient(
       180deg, 
@@ -111,7 +106,6 @@ const Screw = styled(Box, {
       transparent
     );
     transform: translate(-50%, -50%);
-    box-shadow: 0 0 1px rgba(255,255,255,0.15);
   }
 `;
 
@@ -119,8 +113,8 @@ const ScrewJewel = styled(Box)`
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 20%;
-  height: 20%;
+  width: 1.5px;
+  height: 1.5px;
   transform: translate(-50%, -50%);
   background: radial-gradient(
     circle at center, 
@@ -147,7 +141,7 @@ const ScrewJewel = styled(Box)`
 
 const MetallicScrew: React.FC<MetallicScrewProps> = ({ 
   position, 
-  size = 12,
+  size = 6,
   angle 
 }) => {
   // Generate random angle if not provided
