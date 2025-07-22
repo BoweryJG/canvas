@@ -27,7 +27,7 @@ interface AnthropicResponse {
  */
 export async function callAnthropicDirect(
   prompt: string, 
-  model: string = 'claude-3-opus-20240229',
+  model: string = 'claude-3-5-sonnet-20241022',
   userId?: string
 ): Promise<string> {
   // Use the same rate limiter as OpenRouter for consistency
@@ -93,10 +93,10 @@ export async function callAnthropicInsteadOfOpenRouter(
   // Map OpenRouter model names to Anthropic model names
   const modelMap: Record<string, string> = {
     'anthropic/claude-3.5-sonnet': 'claude-3-5-sonnet-20241022',
-    'anthropic/claude-3-opus-20240229': 'claude-3-opus-20240229',
-    'anthropic/claude-opus-4': 'claude-opus-4-20250514', // Claude 4 Opus
-    'anthropic/claude-opus-4-20250514': 'claude-opus-4-20250514', // Direct mapping
-    'claude-opus-4-20250514': 'claude-opus-4-20250514', // Direct name
+    'anthropic/claude-3-5-sonnet-20241022': 'claude-3-5-sonnet-20241022',
+    'claude-3-5-sonnet-20241022': 'claude-3-5-sonnet-20241022', // Claude 4 Opus
+    'anthropic/claude-3-5-sonnet-20241022': 'claude-3-5-sonnet-20241022', // Direct mapping
+    'claude-3-5-sonnet-20241022': 'claude-3-5-sonnet-20241022', // Direct name
     'anthropic/claude-3-sonnet-20240229': 'claude-3-sonnet-20240229',
     'anthropic/claude-3-haiku-20240307': 'claude-3-haiku-20240307'
   };

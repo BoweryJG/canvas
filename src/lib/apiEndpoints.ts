@@ -67,6 +67,7 @@ export async function callBraveSearch(query: string, count: number = 10, userId?
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include', // Include cookies
       body: JSON.stringify({ query, count })
     });
 
@@ -146,6 +147,7 @@ export async function callFirecrawlScrape(url: string, options: any = {}, userId
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify({ url, ...options })
     });
 
@@ -301,6 +303,7 @@ export async function callPerplexityResearch(query: string, mode: 'search' | 're
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include',
       body: JSON.stringify({ query, mode })
     });
 
@@ -336,27 +339,23 @@ export async function callPerplexityResearch(query: string, mode: 'search' | 're
 }
 
 /**
- * Direct Anthropic API integration for AI model calls
- */
-export async function callClaude(prompt: string, model: string = 'claude-opus-4-20250514', userId?: string) {
-  const { callAnthropicDirect } = await import('./directAnthropic');
-  return callAnthropicDirect(prompt, model, userId);
-}
-
-/**
- * Claude 4 Outreach Generation API
+ * Claude Outreach Generation API via backend proxy
  */
 export async function callClaudeOutreach(prompt: string, userId?: string) {
-  return withGlobalRateLimit(globalOpenRouterLimiter, 'openrouter', userId, async () => {
+  return withGlobalRateLimit(globalOpenRouterLimiter, 'anthropic-outreach', userId, async () => {
     try {
-      console.log(`🧠 Claude 4 Outreach Generation`);
+      console.log(`🧠 Claude Outreach Generation via backend proxy`);
       
-      const response = await fetch(getApiEndpoint('openRouter'), {
+      const response = await fetch(getApiEndpoint('anthropic'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ prompt })
+        credentials: 'include',
+        body: JSON.stringify({ 
+          prompt, 
+          model: 'claude-3-5-sonnet-20241022' 
+        })
       });
 
       if (!response.ok) {
@@ -364,7 +363,7 @@ export async function callClaudeOutreach(prompt: string, userId?: string) {
       }
 
       const data = await response.json();
-      console.log(`✅ Claude 4 outreach generated successfully`);
+      console.log(`✅ Claude outreach generated successfully`);
       
       return data;
     } catch (error) {
@@ -405,6 +404,7 @@ export async function callBraveLocalSearch(query: string, count: number = 20, us
         headers: {
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({ query, count })
       });
 
@@ -502,6 +502,7 @@ export async function callPerplexityMarketResearch(query: string, model: 'sonar'
           headers: {
             'Content-Type': 'application/json'
           },
+          credentials: 'include',
           body: JSON.stringify({ query, model })
         });
 
@@ -526,4 +527,47 @@ export async function callPerplexityMarketResearch(query: string, model: 'sonar'
     },
     600000 // 10 minute cache
   );
+}
+
+/**
+ * Call Anthropic Claude API via backend proxy
+ */
+export async function callClaude(prompt: string, model: string = 'claude-3-5-sonnet-20241022', userId?: string) {
+  return withGlobalRateLimit(globalOpenRouterLimiter, 'anthropic', userId, async () => {
+    try {
+      console.log(`🧠 Claude via backend proxy: ${model}`);
+      
+      const response = await fetch(getApiEndpoint('anthropic'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ prompt, model })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Backend Anthropic API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(`✅ Claude analysis completed successfully`);
+      
+      return data;
+    } catch (error) {
+      console.error('Claude API error:', error);
+      
+      // Return fallback response
+      return {
+        choices: [{
+          message: {
+            content: JSON.stringify({
+              error: 'Analysis unavailable',
+              fallback: true
+            })
+          }
+        }]
+      };
+    }
+  });
 }

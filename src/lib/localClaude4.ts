@@ -73,7 +73,7 @@ export async function callLocalClaude4(prompt: string): Promise<any> {
  */
 export async function callClaudeWithLocalFallback(
   prompt: string, 
-  preferredModel: string = 'anthropic/claude-3-opus-20240229'
+  preferredModel: string = 'anthropic/claude-3-5-sonnet-20241022'
 ): Promise<any> {
   const config = getClaudeConfig();
   
@@ -101,8 +101,8 @@ export async function callClaudeWithLocalFallback(
   const { callClaude } = await import('./apiEndpoints');
   // Map old model names to new ones
   let mappedModel = preferredModel;
-  if (preferredModel === 'anthropic/claude-3-opus-20240229') {
-    mappedModel = 'claude-3-opus-20240229';
+  if (preferredModel === 'anthropic/claude-3-5-sonnet-20241022') {
+    mappedModel = 'claude-3-5-sonnet-20241022';
   }
   return callClaude(prompt, mappedModel);
 }

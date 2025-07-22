@@ -414,7 +414,7 @@ Return ONLY a JSON object with these fields:
 Website content:
 ${content.substring(0, 3000)}`;
 
-    const response = await callClaude(prompt, 'claude-opus-4-20250514');
+    const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
     return JSON.parse(response);
   } catch (error) {
     console.log('Could not extract website intelligence:', error);
@@ -718,7 +718,7 @@ async function synthesizeIntelligence(
       );
 
       try {
-        const response = await callClaude(prompt, 'claude-opus-4-20250514');
+        const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
         return JSON.parse(response);
       } catch (error) {
         console.error('Synthesis failed:', error);

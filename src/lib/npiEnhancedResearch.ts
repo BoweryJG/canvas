@@ -370,7 +370,7 @@ If no review data is found, use null for averageRating and empty arrays for list
 IMPORTANT: Respond with ONLY the JSON object, no explanations or other text.`;
 
   try {
-    const response = await callClaude(prompt, 'claude-opus-4-20250514');
+    const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
     
     // Clean response if wrapped in markdown
     let cleanResponse = response;
@@ -417,7 +417,7 @@ Return ONLY a JSON object with:
 }`;
 
   try {
-    const response = await callClaude(prompt, 'claude-opus-4-20250514');
+    const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
     return parseAIResponse(response);
   } catch (error) {
     return {
@@ -452,7 +452,7 @@ Return ONLY a JSON object with:
 }`;
 
   try {
-    const response = await callClaude(prompt, 'claude-opus-4-20250514');
+    const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
     return parseAIResponse(response);
   } catch (error) {
     return {

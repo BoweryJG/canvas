@@ -5,15 +5,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Essential Commands
 
 ### Development
-- `npm run dev` - Start development server with Vite
-- `npm run build` - Build for production
+- `npm run dev` - Start development server with Vite (port 7002)
+- `npm run build` - Build for production (includes TypeScript compilation)
 - `npm run preview` - Preview production build
-- `npm test` - Run tests (if configured)
+- `npm run lint` - Run ESLint on codebase
+- `netlify dev` - Run local development with functions
 
-### Backend Testing
+### Testing & Verification
 - `node test_canvas_endpoints.js` - Test Canvas API endpoints
 - `node verify_canvas_agents.js` - Verify agent database integration
-- `netlify dev` - Run local development with functions
+- `node test-apis.js` - Test external API integrations
+- `node comprehensive-site-test.js` - Full site functionality test
 
 ## Architecture Overview
 
@@ -161,17 +163,21 @@ User Message → WebSocket → Agent Processing → Streaming Response → UI Up
 
 **Required for full functionality:**
 - `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (authentication)
-- `VITE_ANTHROPIC_API_KEY` (AI agent responses)
+- `VITE_STRIPE_PUBLISHABLE_KEY` (payment processing)
+- `VITE_OPENROUTER_API_KEY` (AI models via OpenRouter)
+- `VITE_ANTHROPIC_API_KEY` (direct Claude API access)
 - `VITE_OPENAI_API_KEY` (backup AI provider)
 - `VITE_BRAVE_SEARCH_API_KEY` (web research)
 - `VITE_FIRECRAWL_API_KEY` (website analysis)
 - `VITE_PERPLEXITY_API_KEY` (AI research)
 
 #### Build Configuration
-- **Vite**: Modern build tool with hot module replacement
-- **TypeScript**: Full type safety across application
+- **Vite**: Modern build tool with hot module replacement (port 7002)
+- **TypeScript**: Full type safety across application (strict mode)
+- **Material-UI v7**: Core UI component library with Emotion styling
 - **Tailwind CSS**: Utility-first styling framework
 - **Framer Motion**: Advanced animations and transitions
+- **Code Splitting**: Vendor chunks for React and UI libraries
 
 #### Error Handling
 - **Graceful Degradation**: Fallbacks when research APIs unavailable

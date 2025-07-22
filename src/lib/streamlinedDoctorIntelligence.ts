@@ -338,7 +338,7 @@ Return JSON with these fields:
 
   try {
     // Use Claude 4 Opus directly
-    const response = await callClaude(prompt, 'claude-opus-4-20250514');
+    const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
     return JSON.parse(response);
   } catch (error) {
     console.error('Claude 4 Opus error, trying Claude 3.5 Sonnet:', error);

@@ -38,7 +38,7 @@ const MODEL_CAPABILITIES: Record<string, ModelCapabilities> = {
   },
   
   // OpenRouter Models
-  'anthropic/claude-opus-4': {
+  'claude-3-5-sonnet-20241022': {
     realTimeData: false,
     deepReasoning: true,
     costPerRequest: 0.025,
@@ -52,7 +52,7 @@ const MODEL_CAPABILITIES: Record<string, ModelCapabilities> = {
     speedRating: 8,
     bestFor: ['fast analysis', 'code generation', 'structured data', 'efficient fallback']
   },
-  'anthropic/claude-3-opus-20240229': {
+  'anthropic/claude-3-5-sonnet-20241022': {
     realTimeData: false,
     deepReasoning: true,
     costPerRequest: 0.015,
@@ -223,7 +223,7 @@ Format as JSON with these fields:
 
     try {
       // Try Claude 4 Opus first for premium synthesis
-      return await this.callOpenRouterModel(prompt, 'anthropic/claude-opus-4');
+      return await this.callOpenRouterModel(prompt, 'claude-3-5-sonnet-20241022');
     } catch (error) {
       console.error('Claude 4 Opus error, trying Claude 3.5 Sonnet fallback:', error);
       // Fallback to Claude 3.5 Sonnet if Claude 4 Opus fails
@@ -318,8 +318,8 @@ Format as JSON with these fields:
     try {
       // Map old model names to new ones
       let mappedModel = model;
-      if (model === 'anthropic/claude-opus-4') {
-        mappedModel = 'claude-opus-4-20250514';
+      if (model === 'claude-3-5-sonnet-20241022') {
+        mappedModel = 'claude-3-5-sonnet-20241022';
       } else if (model === 'anthropic/claude-3.5-sonnet-20241022') {
         mappedModel = 'claude-3.5-sonnet-20241022';
       }

@@ -217,7 +217,7 @@ Provide JSON:
   "digitalPresence": "Strong|Moderate|Weak",
   "buyingSignals": [3 specific signals],
   "competitivePosition": "one sentence"
-}`, 'claude-opus-4-20250514'),
+}`, 'claude-3-5-sonnet-20241022'),
         new Promise(resolve => setTimeout(() => resolve(null), timeRemaining - 100))
       ]);
       
@@ -412,7 +412,7 @@ Provide specific, actionable psychological insights in JSON:
   "triggers": ["specific psychological triggers that motivate action"],
   "objections": ["likely specific objections they'll raise"],
   "motivators": ["what truly drives their decisions"]
-}`, 'claude-opus-4-20250514');
+}`, 'claude-3-5-sonnet-20241022');
   
   try {
     return JSON.parse(analysis);
@@ -456,7 +456,7 @@ Provide JSON with local dental competitors:
   ],
   "marketPosition": "where target doctor stands",
   "pricingStrategy": "recommended pricing approach"
-}`, 'claude-opus-4-20250514');
+}`, 'claude-3-5-sonnet-20241022');
         
         try {
           return JSON.parse(competitorData);
@@ -519,7 +519,7 @@ Each piece should:
 - Include personalized elements
 - End with clear call-to-action
 
-Format as JSON with the structure shown.`, 'anthropic/claude-opus-4');
+Format as JSON with the structure shown.`, 'claude-3-5-sonnet-20241022');
   
   try {
     const parsed = JSON.parse(contentGeneration);
@@ -690,7 +690,7 @@ Provide a detailed SEO analysis in JSON format:
     "contentGaps": ["Blog topics they're missing"],
     "technicalFixes": ["Specific technical improvements"]
   }
-}`, 'claude-opus-4-20250514');
+}`, 'claude-3-5-sonnet-20241022');
     
     const parsed = JSON.parse(seoAnalysis);
     

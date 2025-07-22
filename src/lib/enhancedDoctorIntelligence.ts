@@ -251,13 +251,13 @@ Format as JSON with these exact fields:
 
   try {
     // Try Claude 4 Opus first (premium model)
-    const response = await callClaude(prompt, 'claude-opus-4-20250514');
+    const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
     return JSON.parse(response);
   } catch (error) {
     console.error('Claude 4 Opus error, trying fallback:', error);
     // Fallback to Claude 3.5 Sonnet (fast, efficient alternative)
     try {
-      const response = await callClaude(prompt, 'claude-opus-4-20250514');
+      const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
       return JSON.parse(response);
     } catch (fallbackError) {
       return createDefaultInsights(doctor, product);

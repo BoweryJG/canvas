@@ -7,7 +7,7 @@ import { type Doctor } from '../components/DoctorAutocomplete';
 import { type ResearchSource } from './webResearch';
 import { type ExtendedResearchData } from './types/research';
 import { callBraveSearch, callFirecrawlScrape } from './apiEndpoints';
-import { callAnthropicInsteadOfOpenRouter } from './directAnthropic';
+import { getApiEndpoint } from '../config/api';
 import { findProcedureByName } from './procedureDatabase';
 import { searchCache, cachedApiCall, CacheKeys } from './intelligentCaching';
 
@@ -234,12 +234,24 @@ Generate a complete analysis including:
 Return as JSON with all sections filled. Be specific and reference actual details found about the practice.`;
 
   try {
-    const response = await callAnthropicInsteadOfOpenRouter(
-      prompt,
-      'anthropic/claude-3.5-sonnet' // Use Sonnet for speed/cost
-    );
-    
-    return JSON.parse(response.choices[0].message.content);
+    const response = await fetch(getApiEndpoint('anthropic'), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        prompt,
+        model: 'claude-3-5-sonnet-20241022'
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Backend Anthropic API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return JSON.parse(data.choices[0].message.content);
   } catch (error) {
     console.error('AI analysis failed:', error);
     return {};

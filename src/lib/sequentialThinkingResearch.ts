@@ -80,7 +80,7 @@ Respond with JSON:
   try {
     const response = await callClaude(
       `${systemPrompt}\n\n${userPrompt}`,
-      'anthropic/claude-opus-4'
+      'claude-3-5-sonnet-20241022'
     );
     
     // Clean response - remove markdown code blocks if present
@@ -420,7 +420,7 @@ Return ONLY this JSON structure (no explanations, no markdown, just JSON):
   try {
     const synthesisResponse = MOCK_MODE 
       ? await mockOpenRouterSynthesis(enhancedPrompt)
-      : await callClaude(enhancedPrompt, 'claude-opus-4-20250514');
+      : await callClaude(enhancedPrompt, 'claude-3-5-sonnet-20241022');
     
     // Clean and parse response
     let cleanSynthesis = synthesisResponse;

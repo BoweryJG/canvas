@@ -20,7 +20,7 @@ console.log('🔧 Using API_BASE_URL:', API_BASE_URL);
 export const API_ENDPOINTS = {
   braveSearch: `${API_BASE_URL}/api/brave-search`,
   firecrawlScrape: `${API_BASE_URL}/api/firecrawl-scrape`,
-  openRouter: `${API_BASE_URL}/api/openrouter`,
+  anthropic: `${API_BASE_URL}/api/anthropic`,
   perplexityResearch: `${API_BASE_URL}/api/perplexity-research`,
   // NPI lookup should use Netlify function directly to avoid CORS issues
   npiLookup: '/.netlify/functions/npi-lookup',
