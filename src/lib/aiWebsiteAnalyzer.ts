@@ -46,6 +46,7 @@ ${organizationName ? `- The practice/organization name from NPI database is: "${
 ${specialty ? `- Specialty: ${specialty}` : ''}
 ${city && state ? `- Location: ${city}, ${state}` : ''}
 - Doctor's last name: ${lastName}
+- IMPORTANT: Buffalo suburbs include Williamsville, Amherst, Clarence, Orchard Park, etc. A practice in these areas serves Buffalo patients.
 
 ACCEPTANCE CRITERIA for practice websites:
 1. Must be the actual practice/clinic website (not directories or aggregators)
@@ -53,15 +54,18 @@ ACCEPTANCE CRITERIA for practice websites:
 3. Should have practice information, services, team, contact details
 4. Prioritize .com domains with professional appearance
 5. If organization name matches domain (e.g., puredental.com for "Pure Dental"), give highest confidence
+6. Practice names often follow patterns like "[LastName] Dental" or "[FirstName] Dental"
 
-IMMEDIATE REJECTION criteria:
-1. Directory sites (HealthGrades, Vitals, ZocDoc, Yelp, etc.)
-2. Podcast platforms (libsyn, spotify, apple podcasts, etc.)
-3. Media/video sites (YouTube, Vimeo, etc.)
-4. Social media profiles
+IMMEDIATE REJECTION criteria (MUST REJECT ALL OF THESE):
+1. Directory sites: HealthGrades, Vitals, ZocDoc, Yelp, RateMDs, WebMD, Wellness.com, NPI-lookup sites
+2. Podcast platforms: libsyn, spotify, apple podcasts, buzzsprout, podbean
+3. Media/video sites: YouTube, Vimeo, TikTok, Instagram
+4. Social media profiles: Facebook, LinkedIn, Twitter/X
 5. News articles or blog posts ABOUT the doctor
 6. Review aggregator sites
 7. Hospital/university general pages (unless it's their specific practice page)
+8. Insurance company doctor finders
+9. Medical society directories
 
 SEARCH RESULTS TO ANALYZE:
 ${JSON.stringify(searchResults.map(r => ({

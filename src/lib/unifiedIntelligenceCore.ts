@@ -100,6 +100,10 @@ export async function gatherUnifiedIntelligence(
     let npiData = null;
     let organizationName = '';
     let specialty = '';
+    let npiLocation = '';
+    let npiAddress = '';
+    let npiCity = '';
+    let npiState = '';
     
     try {
       const npiResults = await searchDoctorsByName(doctorName);
@@ -107,18 +111,32 @@ export async function gatherUnifiedIntelligence(
         npiData = npiResults[0];
         organizationName = npiData.organizationName || '';
         specialty = npiData.specialty || '';
+        npiAddress = npiData.address || '';
+        npiCity = npiData.city || '';
+        npiState = npiData.state || '';
+        
+        // Build location string with full address
+        if (npiCity && npiState) {
+          npiLocation = `${npiCity} ${npiState}`;
+        }
+        
         console.log(`✅ NPI Data found: ${organizationName || 'Individual Practice'}`);
+        console.log(`📍 Location: ${npiLocation || 'No location in NPI'}`);
+        console.log(`🏢 Address: ${npiAddress}`);
       }
     } catch (error) {
       console.log('NPI lookup failed, continuing without it');
     }
     
     // 1b. Build smart search queries prioritizing organization name
+    // Use NPI location if available, otherwise fall back to provided location
+    const searchLocation = npiLocation || location || '';
     const searchQueries = buildPrioritizedSearchQueries(
       doctorName,
       organizationName,
-      location,
-      specialty
+      searchLocation,
+      specialty,
+      npiAddress
     );
     
     // 1c. Execute searches and collect results
@@ -152,8 +170,8 @@ export async function gatherUnifiedIntelligence(
         doctorName,
         organizationName,  // This is key - "Pure Dental" for Dr. Greg White
         specialty,
-        location?.split(',')[0],  // city
-        location?.split(',')[1]   // state
+        npiCity || location?.split(',')[0],  // Use NPI city first
+        npiState || location?.split(',')[1]?.trim()  // Use NPI state first
       );
     } catch (error) {
       console.error('❌ Claude 4 Opus analysis failed:', error);
@@ -267,12 +285,24 @@ function buildPrioritizedSearchQueries(
   doctorName: string,
   organizationName: string,
   location?: string,
-  specialty?: string
+  specialty?: string,
+  address?: string
 ): string[] {
   const queries: string[] = [];
   const lastName = doctorName.replace(/^Dr\.\s*/i, '').split(' ').pop() || '';
+  const firstName = doctorName.replace(/^Dr\.\s*/i, '').split(' ')[0] || '';
   
-  // PRIORITY 1: Organization name (like "Pure Dental")
+  // Extract city name without state
+  const cityOnly = location?.split(' ')[0] || '';
+  
+  // PRIORITY 1: LastName Dental Pattern (e.g., "Greg Dental Buffalo")
+  // This catches practices named after the doctor
+  if (lastName && specialty?.toLowerCase().includes('dent')) {
+    queries.push(`${lastName} dental ${cityOnly}`);
+    queries.push(`"${lastName} dental" Buffalo`); // Also try major city
+  }
+  
+  // PRIORITY 2: Organization name if provided
   if (organizationName) {
     queries.push(`"${organizationName}" ${location || ''}`);
     queries.push(`"${organizationName}" "${doctorName}"`);
@@ -282,15 +312,23 @@ function buildPrioritizedSearchQueries(
     queries.push(`site:${orgClean}.com OR site:www.${orgClean}.com`);
   }
   
-  // PRIORITY 2: Doctor + location
-  queries.push(`"Dr. ${doctorName}" ${location || ''} ${specialty || ''}`);
-  
-  // PRIORITY 3: Practice patterns
-  if (lastName && specialty?.includes('dent')) {
-    queries.push(`"${lastName} dental" ${location || ''}`);
+  // PRIORITY 3: FirstName Dental Pattern (less common but possible)
+  if (firstName && specialty?.toLowerCase().includes('dent')) {
+    queries.push(`${firstName} dental ${cityOnly}`);
   }
   
-  return queries.slice(0, 5); // Top 5 queries only
+  // PRIORITY 4: Doctor + location (exclude directories)
+  queries.push(`"Dr. ${doctorName}" ${location || ''} -healthgrades -vitals -zocdoc -yelp`);
+  
+  // PRIORITY 5: Doctor + address (very specific)
+  if (address) {
+    queries.push(`"Dr. ${doctorName}" "${address}"`);
+  }
+  
+  // PRIORITY 6: Practice website patterns
+  queries.push(`"Dr. ${doctorName}" dental practice website ${cityOnly}`);
+  
+  return queries.slice(0, 6); // Top 6 queries
 }
 
 /**

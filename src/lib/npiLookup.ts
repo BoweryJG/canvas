@@ -12,6 +12,7 @@ export interface NPIDoctor {
   lastName: string;
   credential: string;
   specialty: string;
+  address: string;
   city: string;
   state: string;
   fullAddress: string;
