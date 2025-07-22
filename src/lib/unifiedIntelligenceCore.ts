@@ -216,24 +216,39 @@ export async function gatherUnifiedIntelligence(
     const intelligenceStart = Date.now();
     
     try {
-      // Scrape the actual practice website
-      const scrapedData = await scrapePracticeWebsite(result.discovery.practiceWebsite);
+      // Scrape the actual practice website with smart extraction
+      const scrapedData = await scrapePracticeWebsite(result.discovery.practiceWebsite, productName);
       
       if (scrapedData) {
-        // Extract real intelligence
+        // Extract medical intelligence
+        const allProcedures = [
+          ...Object.entries(scrapedData.dentalProcedures).filter(([_, v]) => v).map(([k, _]) => k),
+          ...Object.entries(scrapedData.aestheticProcedures).filter(([_, v]) => v).map(([k, _]) => k)
+        ];
+        
+        const allTechnologies = [
+          ...Object.entries(scrapedData.dentalTechnology).filter(([_, v]) => v).map(([k, _]) => k),
+          ...Object.entries(scrapedData.aestheticDevices).filter(([_, v]) => v).map(([k, _]) => k),
+          ...Object.entries(scrapedData.implantSystems).filter(([_, v]) => v).map(([k, _]) => k),
+          ...Object.entries(scrapedData.injectableBrands).filter(([_, v]) => v).map(([k, _]) => k)
+        ];
+        
         result.intelligence = {
           practiceInfo: {
             name: scrapedData.title || organizationName || `Dr. ${doctorName}'s Practice`,
-            services: scrapedData.services || [],
-            technologies: Object.keys(scrapedData.techStack || {}).filter(k => (scrapedData.techStack as any)[k]),
-            teamSize: (scrapedData as any).teamMembers?.length,
-            socialMedia: scrapedData.socialMedia || {}
+            services: allProcedures,
+            technologies: allTechnologies,
+            teamSize: scrapedData.practiceInfo.teamSize,
+            socialMedia: {}
           },
-          insights: generateInsights(scrapedData, productName),
-          opportunities: generateOpportunities(scrapedData, productName),
-          painPoints: identifyPainPoints(scrapedData),
-          competitiveAdvantage: identifyAdvantages(scrapedData)
+          insights: generateMedicalInsights(scrapedData, productName),
+          opportunities: scrapedData.missingProcedures,
+          painPoints: [],
+          competitiveAdvantage: scrapedData.competitiveAdvantages
         };
+        
+        // Store the scraped website data for use in reports and outreach
+        (result as any).scrapedWebsiteData = scrapedData;
         
         // Update instant results with real data
         result.instant = {
@@ -332,26 +347,39 @@ function buildPrioritizedSearchQueries(
 }
 
 /**
- * Generate insights based on scraped data and product
+ * Generate medical insights based on scraped data and product
  */
-function generateInsights(scrapedData: any, productName: string): string[] {
+function generateMedicalInsights(scrapedData: any, productName: string): string[] {
   const insights: string[] = [];
   
-  if (scrapedData.services?.length > 5) {
-    insights.push('Full-service practice with comprehensive offerings');
+  // Technology insights
+  if (scrapedData.dentalTechnology?.cbct && scrapedData.dentalTechnology?.itero) {
+    insights.push('Advanced digital workflow with CBCT and iTero');
   }
   
-  if (scrapedData.techStack?.patientPortal) {
-    insights.push('Technology-forward practice with patient portal');
+  // Implant insights
+  if (scrapedData.dentalProcedures?.implants && scrapedData.implantSystems?.straumann) {
+    insights.push('Premium implant practice using Straumann systems');
   }
   
-  if (scrapedData.acceptingNewPatients) {
-    insights.push('Growing practice actively accepting new patients');
+  // Aesthetic insights
+  const aestheticCount = Object.values(scrapedData.aestheticDevices || {}).filter(Boolean).length;
+  if (aestheticCount >= 2) {
+    insights.push(`Multi-modal aesthetic practice (${aestheticCount} devices)`);
   }
   
-  if (productName.toLowerCase().includes('yomi') && scrapedData.services?.some((s: string) => 
-    s.toLowerCase().includes('implant'))) {
-    insights.push('Already offers implant services - perfect fit for YOMI');
+  // Product-specific insights
+  if (productName.toLowerCase().includes('yomi') && scrapedData.dentalProcedures?.implants) {
+    insights.push('Implant practice - excellent YOMI candidate');
+  }
+  
+  if (productName.toLowerCase().includes('straumann') && !scrapedData.implantSystems?.straumann) {
+    insights.push('Opportunity to upgrade to Straumann implant system');
+  }
+  
+  // Practice size insights
+  if (scrapedData.practiceInfo?.teamSize > 10) {
+    insights.push('Large practice with established team infrastructure');
   }
   
   return insights;

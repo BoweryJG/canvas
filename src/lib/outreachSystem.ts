@@ -56,7 +56,7 @@ export interface PersonalizedOutreach {
 }
 
 /**
- * Generate personalized outreach using Claude 4 and research data
+ * Generate personalized outreach using Claude and medical intelligence
  */
 export async function generatePersonalizedOutreach(
   scanResult: EnhancedScanResult,
@@ -67,34 +67,43 @@ export async function generatePersonalizedOutreach(
   
   const { callClaudeOutreach } = await import('./apiEndpoints');
   
-  const researchContext = buildResearchContext(researchData);
+  // Use new medical intelligence if available
+  const scrapedData = (researchData as any).scrapedWebsiteData;
+  const medicalContext = scrapedData ? buildMedicalOutreachContext(scrapedData, scanResult.product) : buildResearchContext(researchData);
   const scanContext = buildScanContext(scanResult);
   
-  const prompt = `Generate a highly personalized ${channel} ${templateType} for medical device sales using this intelligence:
+  const prompt = `Generate a believable cold ${channel} ${templateType} for medical device sales. This must NOT sound like spam.
 
-SCAN INTELLIGENCE:
-${scanContext}
+DOCTOR: ${scanResult.doctor}
+PRODUCT: ${scanResult.product}
+PRACTICE INTELLIGENCE:
+${medicalContext}
 
-RESEARCH INTELLIGENCE:
-${researchContext}
+CRITICAL REQUIREMENTS FOR BELIEVABLE OUTREACH:
+- Reference SPECIFIC details from their website that prove you researched them
+- Mention their current procedures/technology to establish credibility
+- Don't sound like a generic sales email - be conversational
+- Show genuine understanding of their practice type
+- Connect the product to what they already do
+- Keep it brief and professional
+- ${templateType === 'first_contact' ? 'This is cold outreach - they don\'t know you' : 'This is follow-up communication'}
 
-REQUIREMENTS:
-- Use specific practice details from research (technology, staff size, specialties)
-- Reference verified facts, not assumptions
-- Match urgency to scan score (${scanResult.score}% alignment)
-- Include subtle competitive intelligence
-- Focus on ROI and practice efficiency
-- Use professional medical sales tone
-- Length: ${channel === 'sms' ? '160 chars max' : channel === 'email' ? '200-300 words' : '150-200 words'}
+TONE: Professional but conversational, like a knowledgeable colleague
+LENGTH: ${channel === 'sms' ? '160 chars max' : channel === 'email' ? '150 words max' : '100 words max'}
+
+EXAMPLE CREDIBILITY HOOKS:
+- "I noticed you offer [specific procedure] and use [specific technology]..."
+- "I saw on your website that you have [specific equipment/service]..."
+- "Given your practice's focus on [specific area], I thought you'd be interested..."
 
 OUTPUT FORMAT:
 {
-  "subject": "${channel === 'email' ? 'email subject line' : 'N/A'}",
-  "content": "personalized message content",
-  "personalizations": ["specific research detail 1", "detail 2", "detail 3"],
-  "researchInsights": ["insight that drives urgency", "competitive angle", "roi focus"],
+  "subject": "${channel === 'email' ? 'professional subject line' : 'N/A'}",
+  "content": "believable message content that proves research",
+  "personalizations": ["specific website detail 1", "specific procedure/tech 2", "practice strength 3"],
+  "researchInsights": ["why this product fits their practice", "competitive opportunity", "specific benefit"],
   "urgencyScore": number 1-10,
-  "expectedResponse": "predicted response based on practice profile"
+  "expectedResponse": "predicted response based on credibility"
 }`;
 
   try {
@@ -102,17 +111,17 @@ OUTPUT FORMAT:
     const result = JSON.parse(response.choices[0].message.content || '{}');
     
     return {
-      subject: result.subject || `${scanResult.product} Opportunity for ${scanResult.doctor}`,
-      content: result.content || generateFallbackContent(scanResult, channel),
+      subject: result.subject || generateBelievableSubject(scanResult.product, scanResult.doctor),
+      content: result.content || generateBelievableFallback(scanResult, scrapedData, channel),
       personalizations: result.personalizations || [],
       researchInsights: result.researchInsights || [],
-      urgencyScore: result.urgencyScore || 5,
-      expectedResponse: result.expectedResponse || 'Professional acknowledgment'
+      urgencyScore: result.urgencyScore || 6,
+      expectedResponse: result.expectedResponse || 'Professional consideration'
     };
     
   } catch (error) {
     console.error('Outreach generation failed:', error);
-    return generateFallbackOutreach(scanResult, templateType, channel);
+    return generateBelievableOutreach(scanResult, scrapedData, templateType, channel);
   }
 }
 
@@ -384,12 +393,86 @@ function buildResearchContext(researchData: ResearchData): string {
   return `
 PRACTICE: ${researchData.practiceInfo.name || 'Unknown'}
 LOCATION: ${researchData.practiceInfo.address || 'Unknown'}
-TECHNOLOGY: ${researchData.practiceInfo.technology?.join(', ') || 'Unknown'}
+PROCEDURES: ${researchData.practiceInfo.services?.join(', ') || 'Unknown'}
+TECHNOLOGY: ${researchData.practiceInfo.technologies?.join(', ') || 'Unknown'}
 SPECIALTIES: ${researchData.practiceInfo.specialties?.join(', ') || 'Unknown'}
-STAFF SIZE: ${researchData.practiceInfo.staff || 'Unknown'}
+STAFF SIZE: ${researchData.practiceInfo.teamSize || 'Unknown'}
 CONFIDENCE: ${researchData.confidenceScore}%
 SOURCES: ${researchData.sources.length} verified sources
   `.trim();
+}
+
+/**
+ * Build medical context from scraped website data for outreach
+ */
+function buildMedicalOutreachContext(scrapedData: any, productName: string): string {
+  if (!scrapedData) return 'Medical data unavailable';
+  
+  const productCategory = determineProductCategory(productName);
+  let context = '';
+  
+  if (productCategory === 'dental' || productCategory === 'both') {
+    const dentalProcs = Object.entries(scrapedData.dentalProcedures || {})
+      .filter(([_, has]) => has)
+      .map(([proc, _]) => proc);
+    
+    const implantSystems = Object.entries(scrapedData.implantSystems || {})
+      .filter(([_, has]) => has)
+      .map(([system, _]) => system);
+    
+    const dentalTech = Object.entries(scrapedData.dentalTechnology || {})
+      .filter(([_, has]) => has)
+      .map(([tech, _]) => tech);
+    
+    if (dentalProcs.length > 0 || implantSystems.length > 0 || dentalTech.length > 0) {
+      context += `DENTAL PRACTICE DETAILS:
+• Procedures: ${dentalProcs.join(', ') || 'Standard dental services'}
+• Implant Systems: ${implantSystems.join(', ') || 'Not specified'}
+• Technology: ${dentalTech.join(', ') || 'Traditional equipment'}
+`;
+    }
+  }
+  
+  if (productCategory === 'aesthetic' || productCategory === 'both') {
+    const aestheticProcs = Object.entries(scrapedData.aestheticProcedures || {})
+      .filter(([_, has]) => has)
+      .map(([proc, _]) => proc);
+    
+    const aestheticDevices = Object.entries(scrapedData.aestheticDevices || {})
+      .filter(([_, has]) => has)
+      .map(([device, _]) => device);
+    
+    const injectables = Object.entries(scrapedData.injectableBrands || {})
+      .filter(([_, has]) => has)
+      .map(([brand, _]) => brand);
+    
+    if (aestheticProcs.length > 0 || aestheticDevices.length > 0 || injectables.length > 0) {
+      context += `AESTHETIC PRACTICE DETAILS:
+• Procedures: ${aestheticProcs.join(', ') || 'Basic aesthetic services'}
+• Devices/Lasers: ${aestheticDevices.join(', ') || 'Standard equipment'}
+• Injectable Brands: ${injectables.join(', ') || 'Not specified'}
+`;
+    }
+  }
+  
+  return context || 'Practice details to be determined';
+}
+
+/**
+ * Determine product category for outreach context
+ */
+function determineProductCategory(productName: string): 'dental' | 'aesthetic' | 'both' {
+  const product = productName.toLowerCase();
+  const dentalKeywords = ['yomi', 'straumann', 'implant', 'dental', 'cbct', 'itero'];
+  const aestheticKeywords = ['fraxel', 'botox', 'juvederm', 'coolsculpting', 'laser', 'aesthetic'];
+  
+  const isDental = dentalKeywords.some(keyword => product.includes(keyword));
+  const isAesthetic = aestheticKeywords.some(keyword => product.includes(keyword));
+  
+  if (isDental && isAesthetic) return 'both';
+  if (isDental) return 'dental';
+  if (isAesthetic) return 'aesthetic';
+  return 'both';
 }
 
 function buildScanContext(scanResult: EnhancedScanResult): string {
@@ -422,6 +505,107 @@ Best regards,
   };
   
   return templates[channel as keyof typeof templates] || templates.email;
+}
+
+/**
+ * Generate believable subject line
+ */
+function generateBelievableSubject(productName: string, doctorName: string): string {
+  const cleanName = doctorName.replace(/^Dr\.?\s*/i, '');
+  const subjects = [
+    `${productName} integration for your practice`,
+    `${productName} opportunity - ${cleanName}`,
+    `Quick question about your practice setup`,
+    `Technology upgrade opportunity`
+  ];
+  return subjects[0]; // Use first one for consistency
+}
+
+/**
+ * Generate believable fallback content using medical intelligence
+ */
+function generateBelievableFallback(
+  scanResult: EnhancedScanResult, 
+  scrapedData: any,
+  channel: string
+): string {
+  const productCategory = determineProductCategory(scanResult.product);
+  let credibilityHook = '';
+  
+  // Build credibility based on what we found on their website
+  if (scrapedData) {
+    if (productCategory === 'dental') {
+      const procedures = Object.entries(scrapedData.dentalProcedures || {})
+        .filter(([_, has]) => has)
+        .map(([proc, _]) => proc);
+      
+      const technology = Object.entries(scrapedData.dentalTechnology || {})
+        .filter(([_, has]) => has)
+        .map(([tech, _]) => tech);
+      
+      if (procedures.length > 0) {
+        credibilityHook = `I noticed your practice offers ${procedures[0]}`;
+      } else if (technology.length > 0) {
+        credibilityHook = `I saw you have ${technology[0]} capability`;
+      }
+    } else if (productCategory === 'aesthetic') {
+      const procedures = Object.entries(scrapedData.aestheticProcedures || {})
+        .filter(([_, has]) => has)
+        .map(([proc, _]) => proc);
+      
+      const devices = Object.entries(scrapedData.aestheticDevices || {})
+        .filter(([_, has]) => has)
+        .map(([device, _]) => device);
+      
+      if (procedures.length > 0) {
+        credibilityHook = `I noticed you offer ${procedures[0]} treatments`;
+      } else if (devices.length > 0) {
+        credibilityHook = `I saw you have ${devices[0]} technology`;
+      }
+    }
+  }
+  
+  if (!credibilityHook) {
+    credibilityHook = `I've been researching your practice`;
+  }
+  
+  const templates = {
+    email: `Dr. ${scanResult.doctor.replace(/^Dr\.?\s*/i, '')},
+
+${credibilityHook} and thought ${scanResult.product} might be a good fit for your setup.
+
+Given your current capabilities, this could enhance your procedural efficiency and patient outcomes. 
+
+Would you be open to a brief conversation to discuss how this might work for your practice?
+
+Best regards,
+[Your Name]`,
+    
+    sms: `Dr. ${scanResult.doctor.replace(/^Dr\.?\s*/i, '')}, ${credibilityHook}. ${scanResult.product} could enhance your current setup. Quick call to discuss? [Your Name]`,
+    
+    linkedin: `Hello Dr. ${scanResult.doctor.replace(/^Dr\.?\s*/i, '')}, ${credibilityHook}. ${scanResult.product} shows strong potential for practices like yours. Would you be open to connecting?`
+  };
+  
+  return templates[channel as keyof typeof templates] || templates.email;
+}
+
+/**
+ * Generate believable outreach fallback
+ */
+function generateBelievableOutreach(
+  scanResult: EnhancedScanResult,
+  scrapedData: any, 
+  _templateType: string, 
+  channel: string
+): PersonalizedOutreach {
+  return {
+    subject: generateBelievableSubject(scanResult.product, scanResult.doctor),
+    content: generateBelievableFallback(scanResult, scrapedData, channel),
+    personalizations: ['Website research', 'Practice-specific details', 'Technology alignment'],
+    researchInsights: ['Practice compatibility', 'Enhancement opportunity', 'Professional upgrade'],
+    urgencyScore: 6,
+    expectedResponse: 'Professional consideration'
+  };
 }
 
 function generateFallbackOutreach(

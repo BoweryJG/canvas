@@ -42,6 +42,14 @@ interface EnhancedActionSuiteProps {
   scanData?: any;
 }
 
+/**
+ * Generate dynamic report name based on product
+ */
+function generateDynamicReportName(productName: string, doctorName: string): string {
+  const cleanDoctorName = doctorName.replace(/^Dr\.?\s*/i, '');
+  return `${productName} Impact Report for Dr. ${cleanDoctorName}`;
+}
+
 interface OutreachState {
   loading: boolean;
   content?: PersonalizedOutreach;
@@ -1316,7 +1324,9 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                     disabled={salesReportState.loading}
                     className="sales-report-btn executive"
                   >
-                    {salesReportState.loading && salesReportState.type === 'mckinsey_executive' ? '🔄 Generating...' : '📈 McKinsey Executive Brief (10 pages)'}
+                    {salesReportState.loading && salesReportState.type === 'mckinsey_executive' 
+                      ? '🔄 Generating...' 
+                      : `📈 ${generateDynamicReportName(scanResult.product, scanResult.doctor)} (10 pages)`}
                   </button>
                   <button 
                     onClick={() => handleGenerateSalesReport('initial_outreach')}
@@ -1349,8 +1359,8 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                 </div>
                 
                 <div className="sales-reports-description">
-                  <p><strong>McKinsey Executive Brief:</strong> 10-page strategic presentation with financial analysis, competitive positioning, and implementation roadmap</p>
-                  <p><strong>Initial Outreach:</strong> Research summary, conversation starters, and value propositions for first contact</p>
+                  <p><strong>{scanResult.product} Impact Report:</strong> Comprehensive analysis showing how {scanResult.product} will specifically benefit this practice, with financial projections, competitive positioning, and implementation roadmap</p>
+                  <p><strong>Initial Outreach:</strong> Believable cold outreach messages using specific practice details to establish credibility and show genuine research</p>
                   <p><strong>Follow-Up Strategy:</strong> Objection handling, refined messaging, and next-step recommendations</p>
                   <p><strong>Breakthrough Strategy:</strong> Obstacle analysis, alternative approaches, and urgency creation tactics</p>
                   <p><strong>Closing Strategy:</strong> Decision maker analysis, final push tactics, and implementation planning</p>

@@ -1765,6 +1765,9 @@ export class SalesRepReportGenerator {
 }
 
 // Factory functions for easy report generation
+/**
+ * Generate Product Impact Report (renamed from McKinsey Executive Report)
+ */
 export async function generateMcKinseyExecutiveReport(
   scanResult: EnhancedScanResult,
   researchData: ResearchData,
@@ -1772,23 +1775,23 @@ export async function generateMcKinseyExecutiveReport(
   companyName: string,
   productName: string
 ): Promise<Blob> {
-  // Use enhanced version if product intelligence is available
-  if (researchData.productIntelligence || researchData.enhancedInsights) {
-    const { generateEnhancedMcKinseyExecutiveReport } = await import('./enhancedSalesRepReports');
-    return generateEnhancedMcKinseyExecutiveReport(scanResult, researchData, salesRepName, companyName, productName);
-  }
-  
-  const generator = new SalesRepReportGenerator();
-  
-  return await generator.generateSalesRepReport(scanResult, researchData, {
-    reportType: 'mckinsey_executive',
-    includeFinancialProjections: true,
-    includeCompetitiveIntel: true,
-    includeImplementationPlan: true,
-    salesRepName,
-    companyName,
-    productName
-  });
+  // Always use the new enhanced version with medical intelligence
+  const { generateProductImpactReport } = await import('./enhancedSalesRepReports');
+  return generateProductImpactReport(scanResult, researchData, salesRepName, companyName, productName);
+}
+
+/**
+ * Generate Product Impact Report directly (new preferred method)
+ */
+export async function generateProductImpactReport(
+  scanResult: EnhancedScanResult,
+  researchData: ResearchData,
+  salesRepName: string,
+  companyName: string,
+  productName: string
+): Promise<Blob> {
+  const { generateProductImpactReport } = await import('./enhancedSalesRepReports');
+  return generateProductImpactReport(scanResult, researchData, salesRepName, companyName, productName);
 }
 
 export async function generateInitialOutreachReport(

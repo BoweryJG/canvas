@@ -7,52 +7,103 @@ export interface ScrapedWebsiteData {
   url: string;
   title?: string;
   description?: string;
-  services: string[];
-  technologies: string[];
+  
+  // DENTAL PROCEDURES & EQUIPMENT
+  dentalProcedures: {
+    implants: boolean;
+    allOnX: boolean;
+    guidedSurgery: boolean;
+    generalDentistry: boolean;
+    orthodontics: boolean;
+    endodontics: boolean;
+    periodontics: boolean;
+    oralSurgery: boolean;
+    cosmeticDentistry: boolean;
+  };
+  
+  // DENTAL IMPLANT SYSTEMS
+  implantSystems: {
+    straumann: boolean;
+    megaGen: boolean;
+    nobel: boolean;
+    neodent: boolean;
+    zimmerBiomet: boolean;
+    biohorizons: boolean;
+    other: string[];
+  };
+  
+  // DENTAL TECHNOLOGY
+  dentalTechnology: {
+    cbct: boolean;
+    itero: boolean;
+    cerec: boolean;
+    primescan: boolean;
+    trios: boolean;
+    coneBeam: boolean;
+    digitalImpressions: boolean;
+    cad_cam: boolean;
+    laser: boolean;
+  };
+  
+  // AESTHETIC PROCEDURES
+  aestheticProcedures: {
+    botox: boolean;
+    fillers: boolean;
+    prp: boolean;
+    exosomes: boolean;
+    threads: boolean;
+    microNeedling: boolean;
+    chemicalPeels: boolean;
+    skinTightening: boolean;
+  };
+  
+  // AESTHETIC DEVICES & LASERS
+  aestheticDevices: {
+    fraxel: boolean;
+    clearAndBrilliant: boolean;
+    solta: boolean;
+    thermage: boolean;
+    coolSculpting: boolean;
+    ultherapy: boolean;
+    morpheus8: boolean;
+    co2Laser: boolean;
+    ipl: boolean;
+    picosure: boolean;
+    otherLasers: string[];
+  };
+  
+  // INJECTABLE BRANDS
+  injectableBrands: {
+    juvederm: boolean;
+    restylane: boolean;
+    sculptra: boolean;
+    radiesse: boolean;
+    bellaFill: boolean;
+    rha: boolean;
+    versa: boolean;
+    dysport: boolean;
+    xeomin: boolean;
+    otherFillers: string[];
+  };
+  
+  // PRACTICE INFO (simplified)
+  practiceInfo: {
+    doctorNames: string[];
+    specialties: string[];
+    teamSize?: number;
+    locations?: number;
+  };
+  
+  // CONTACT (simplified)
   contactInfo: {
     phone?: string;
     email?: string;
     address?: string;
-    hours?: string[];
   };
-  socialMedia: {
-    facebook?: string;
-    instagram?: string;
-    linkedin?: string;
-    twitter?: string;
-    youtube?: string;
-    instagramFollowers?: number;
-    facebookLikes?: number;
-  };
-  staff: string[];
-  testimonials: string[];
-  techStack: {
-    cms?: string; // WordPress, Squarespace, etc.
-    analytics?: string[]; // Google Analytics, etc.
-    marketing?: string[]; // Mailchimp, HubSpot, etc.
-    frameworks?: string[]; // React, jQuery, etc.
-    hosting?: string; // AWS, GoDaddy, etc.
-    other?: string[];
-  };
-  practiceInfo: {
-    established?: string;
-    specialties?: string[];
-    insuranceAccepted?: string[];
-    languages?: string[];
-    teamSize?: number;
-    awards?: string[];
-  };
-  recentContent: {
-    blogPosts?: Array<{
-      title: string;
-      date?: string;
-      topic?: string;
-    }>;
-    news?: string[];
-    lastUpdated?: string;
-  };
-  painPoints?: string[]; // Identified from missing features or old tech
-  competitiveAdvantages?: string[];
+  
+  // COMPETITIVE INTELLIGENCE
+  competitiveAdvantages: string[];
+  missingProcedures: string[]; // Opportunities for sales
 }
 
 /**
@@ -75,9 +126,9 @@ async function callScraper(url: string): Promise<any> {
 }
 
 /**
- * Scrape a practice website using Firecrawl
+ * Scrape a practice website using Firecrawl with smart extraction based on product type
  */
-export async function scrapePracticeWebsite(url: string): Promise<ScrapedWebsiteData | null> {
+export async function scrapePracticeWebsite(url: string, productName?: string): Promise<ScrapedWebsiteData | null> {
   try {
     console.log(`🕷️ Scraping website with Canvas Scraper: ${url}`);
     
@@ -88,50 +139,76 @@ export async function scrapePracticeWebsite(url: string): Promise<ScrapedWebsite
       return null;
     }
     
-    // Transform the scraper data to our enhanced format
+    // Transform the scraper data to our medical-focused format
     const data = result.data;
+    const content = (data.content || data.markdown || '').toLowerCase();
+    const html = (data.html || '').toLowerCase();
+    const fullText = content + ' ' + html;
     
-    // Extract tech stack from various signals
-    const techStack = extractTechStack(data, url);
+    // Determine extraction focus based on product type
+    const extractionType = determineExtractionType(productName);
+    console.log(`🎯 Focusing extraction on: ${extractionType} (Product: ${productName})`);
     
-    // Extract social media with follower counts
-    const socialMedia = await extractSocialMediaMetrics(data.socialLinks);
+    // Smart extraction based on product type
+    let dentalProcedures = createEmptyDentalProcedures();
+    let implantSystems = createEmptyImplantSystems();
+    let dentalTechnology = createEmptyDentalTechnology();
+    let aestheticProcedures = createEmptyAestheticProcedures();
+    let aestheticDevices = createEmptyAestheticDevices();
+    let injectableBrands = createEmptyInjectableBrands();
     
-    // Extract recent content
-    const recentContent = extractRecentContent(data);
+    if (extractionType === 'dental' || extractionType === 'both') {
+      dentalProcedures = extractDentalProcedures(fullText);
+      implantSystems = extractImplantSystems(fullText);
+      dentalTechnology = extractDentalTechnology(fullText);
+    }
     
-    // Identify pain points and competitive advantages
-    const { painPoints, competitiveAdvantages } = analyzeWebsiteFeatures(data, techStack);
+    if (extractionType === 'aesthetic' || extractionType === 'both') {
+      aestheticProcedures = extractAestheticProcedures(fullText);
+      aestheticDevices = extractAestheticDevices(fullText);
+      injectableBrands = extractInjectableBrands(fullText);
+    }
+    
+    // Extract practice info
+    const practiceInfo = extractPracticeInfo(data, fullText);
+    
+    // Identify missing procedures (opportunities)
+    const missingProcedures = identifyMissingProcedures(dentalProcedures, aestheticProcedures);
+    
+    // Extract competitive advantages
+    const competitiveAdvantages = extractCompetitiveAdvantages(
+      dentalProcedures, 
+      dentalTechnology, 
+      aestheticDevices
+    );
     
     const scrapedData: ScrapedWebsiteData = {
       url,
       title: data.title || '',
       description: data.metaDescription || '',
-      services: data.services || extractServices(data.content),
-      technologies: data.technologies || [],
+      dentalProcedures,
+      implantSystems,
+      dentalTechnology,
+      aestheticProcedures,
+      aestheticDevices,
+      injectableBrands,
+      practiceInfo,
       contactInfo: {
         phone: data.phones?.[0],
         email: data.emails?.[0],
-        address: data.address,
-        hours: data.hours || []
+        address: data.addresses?.[0]
       },
-      socialMedia,
-      staff: data.staff || extractStaffNames(data.content || ''),
-      testimonials: data.testimonials || [],
-      techStack,
-      practiceInfo: {
-        specialties: data.focusAreas || [],
-        insuranceAccepted: data.insurance || [],
-        languages: data.languages || [],
-        teamSize: data.staff?.length || estimateTeamSize(data.content || ''),
-        awards: extractAwards(data.content || '')
-      },
-      recentContent,
-      painPoints,
-      competitiveAdvantages
+      competitiveAdvantages,
+      missingProcedures
     };
     
-    console.log(`✅ Successfully scraped ${url} with ${Object.keys(techStack).length} tech stack items`);
+    // Log what we found
+    const foundProcedures = Object.entries(dentalProcedures).filter(([_, v]) => v).length +
+                           Object.entries(aestheticProcedures).filter(([_, v]) => v).length;
+    const foundTech = Object.entries(dentalTechnology).filter(([_, v]) => v).length +
+                      Object.entries(aestheticDevices).filter(([_, v]) => v).length;
+    
+    console.log(`✅ Successfully scraped ${url} - Found ${foundProcedures} procedures, ${foundTech} technologies`);
     return scrapedData;
     
   } catch (error) {
@@ -141,218 +218,398 @@ export async function scrapePracticeWebsite(url: string): Promise<ScrapedWebsite
 }
 
 /**
- * Extract technology stack from website data
+ * Determine what type of extraction to perform based on product name
  */
-function extractTechStack(data: any, url: string): ScrapedWebsiteData['techStack'] {
-  const techStack: ScrapedWebsiteData['techStack'] = {
-    cms: undefined,
-    analytics: [],
-    marketing: [],
-    frameworks: [],
-    hosting: undefined,
-    other: []
-  };
+function determineExtractionType(productName?: string): 'dental' | 'aesthetic' | 'both' {
+  if (!productName) return 'both'; // Default to both if no product specified
   
-  // Detect CMS from various signals
-  const html = (data.html || '').toLowerCase();
+  const product = productName.toLowerCase();
   
-  // CMS Detection
-  if (html.includes('wp-content') || html.includes('wordpress')) {
-    techStack.cms = 'WordPress';
-  } else if (html.includes('squarespace')) {
-    techStack.cms = 'Squarespace';
-  } else if (html.includes('wix.com')) {
-    techStack.cms = 'Wix';
-  } else if (html.includes('shopify')) {
-    techStack.cms = 'Shopify';
-  } else if (html.includes('drupal')) {
-    techStack.cms = 'Drupal';
-  } else if (html.includes('joomla')) {
-    techStack.cms = 'Joomla';
-  }
-  
-  // Analytics Detection
-  if (html.includes('google-analytics') || html.includes('gtag') || html.includes('ga.js')) {
-    techStack.analytics?.push('Google Analytics');
-  }
-  if (html.includes('gtm.js') || html.includes('googletagmanager')) {
-    techStack.analytics?.push('Google Tag Manager');
-  }
-  if (html.includes('facebook.com/tr')) {
-    techStack.analytics?.push('Facebook Pixel');
-  }
-  
-  // Marketing Tools
-  if (html.includes('mailchimp')) {
-    techStack.marketing?.push('Mailchimp');
-  }
-  if (html.includes('hubspot')) {
-    techStack.marketing?.push('HubSpot');
-  }
-  if (html.includes('activecampaign')) {
-    techStack.marketing?.push('ActiveCampaign');
-  }
-  
-  // Frameworks
-  if (html.includes('react')) {
-    techStack.frameworks?.push('React');
-  }
-  if (html.includes('jquery')) {
-    techStack.frameworks?.push('jQuery');
-  }
-  if (html.includes('bootstrap')) {
-    techStack.frameworks?.push('Bootstrap');
-  }
-  
-  // Hosting Detection (from URL patterns or headers)
-  let domain: string;
-  try {
-    domain = new URL(url).hostname;
-  } catch {
-    // Extract domain from URL string as fallback
-    domain = url.replace(/^https?:\/\//, '').split('/')[0] || '';
-  }
-  if (domain.includes('godaddy')) {
-    techStack.hosting = 'GoDaddy';
-  } else if (data.headers?.['x-powered-by']?.includes('AWS')) {
-    techStack.hosting = 'AWS';
-  }
-  
-  return techStack;
-}
-
-/**
- * Extract social media links with follower counts
- */
-async function extractSocialMediaMetrics(socialLinks: any): Promise<ScrapedWebsiteData['socialMedia']> {
-  const social: ScrapedWebsiteData['socialMedia'] = {
-    facebook: socialLinks?.facebook,
-    instagram: socialLinks?.instagram || socialLinks?.instagramHandle,
-    linkedin: socialLinks?.linkedin,
-    twitter: socialLinks?.twitter,
-    youtube: socialLinks?.youtube
-  };
-  
-  // TODO: In production, you would make API calls to get actual follower counts
-  // For now, we'll indicate that this data should be fetched
-  if (social.instagram) {
-    social.instagramFollowers = 0; // Placeholder - would fetch real data
-  }
-  if (social.facebook) {
-    social.facebookLikes = 0; // Placeholder - would fetch real data
-  }
-  
-  return social;
-}
-
-/**
- * Extract recent content like blog posts and news
- */
-function extractRecentContent(data: any): ScrapedWebsiteData['recentContent'] {
-  const recentContent: ScrapedWebsiteData['recentContent'] = {
-    blogPosts: [],
-    news: [],
-    lastUpdated: undefined
-  };
-  
-  // Extract blog posts from content patterns
-  const blogPatterns = [
-    /blog.*?<h[23]>(.*?)<\/h[23]>/gi,
-    /article.*?title["\s:]+([^"<>]+)/gi,
-    /post.*?<h[23]>(.*?)<\/h[23]>/gi
+  // Dental product keywords
+  const dentalKeywords = [
+    'yomi', 'straumann', 'megagen', 'nobel', 'neodent', 'zimmer', 'biohorizons',
+    'cbct', 'itero', 'cerec', 'primescan', 'trios', 'implant', 'dental',
+    'periodontal', 'endodontic', 'orthodontic', 'oral surgery'
   ];
   
-  const content = data.html || data.content || '';
-  for (const pattern of blogPatterns) {
-    const matches = content.matchAll(pattern);
-    for (const match of matches) {
-      if (match[1] && recentContent.blogPosts!.length < 5) {
-        recentContent.blogPosts!.push({
-          title: match[1].trim(),
-          date: extractNearbyDate(content, match.index || 0)
-        });
+  // Aesthetic product keywords  
+  const aestheticKeywords = [
+    'fraxel', 'clear and brilliant', 'solta', 'thermage', 'coolsculpting',
+    'botox', 'dysport', 'xeomin', 'juvederm', 'restylane', 'sculptra',
+    'morpheus8', 'ultherapy', 'prp', 'exosome', 'microneedling',
+    'laser', 'ipl', 'aesthetic', 'cosmetic', 'dermatology'
+  ];
+  
+  const isDental = dentalKeywords.some(keyword => product.includes(keyword));
+  const isAesthetic = aestheticKeywords.some(keyword => product.includes(keyword));
+  
+  if (isDental && isAesthetic) return 'both';
+  if (isDental) return 'dental';
+  if (isAesthetic) return 'aesthetic';
+  
+  return 'both'; // Default if we can't determine
+}
+
+/**
+ * Create empty dental procedures object
+ */
+function createEmptyDentalProcedures(): ScrapedWebsiteData['dentalProcedures'] {
+  return {
+    implants: false,
+    allOnX: false,
+    guidedSurgery: false,
+    generalDentistry: false,
+    orthodontics: false,
+    endodontics: false,
+    periodontics: false,
+    oralSurgery: false,
+    cosmeticDentistry: false
+  };
+}
+
+/**
+ * Create empty implant systems object
+ */
+function createEmptyImplantSystems(): ScrapedWebsiteData['implantSystems'] {
+  return {
+    straumann: false,
+    megaGen: false,
+    nobel: false,
+    neodent: false,
+    zimmerBiomet: false,
+    biohorizons: false,
+    other: []
+  };
+}
+
+/**
+ * Create empty dental technology object
+ */
+function createEmptyDentalTechnology(): ScrapedWebsiteData['dentalTechnology'] {
+  return {
+    cbct: false,
+    itero: false,
+    cerec: false,
+    primescan: false,
+    trios: false,
+    coneBeam: false,
+    digitalImpressions: false,
+    cad_cam: false,
+    laser: false
+  };
+}
+
+/**
+ * Create empty aesthetic procedures object
+ */
+function createEmptyAestheticProcedures(): ScrapedWebsiteData['aestheticProcedures'] {
+  return {
+    botox: false,
+    fillers: false,
+    prp: false,
+    exosomes: false,
+    threads: false,
+    microNeedling: false,
+    chemicalPeels: false,
+    skinTightening: false
+  };
+}
+
+/**
+ * Create empty aesthetic devices object
+ */
+function createEmptyAestheticDevices(): ScrapedWebsiteData['aestheticDevices'] {
+  return {
+    fraxel: false,
+    clearAndBrilliant: false,
+    solta: false,
+    thermage: false,
+    coolSculpting: false,
+    ultherapy: false,
+    morpheus8: false,
+    co2Laser: false,
+    ipl: false,
+    picosure: false,
+    otherLasers: []
+  };
+}
+
+/**
+ * Create empty injectable brands object
+ */
+function createEmptyInjectableBrands(): ScrapedWebsiteData['injectableBrands'] {
+  return {
+    juvederm: false,
+    restylane: false,
+    sculptra: false,
+    radiesse: false,
+    bellaFill: false,
+    rha: false,
+    versa: false,
+    dysport: false,
+    xeomin: false,
+    otherFillers: []
+  };
+}
+
+/**
+ * Extract dental procedures from website content
+ */
+function extractDentalProcedures(content: string): ScrapedWebsiteData['dentalProcedures'] {
+  return {
+    implants: /dental\s*implant|implant\s*dentistry|teeth\s*implant/i.test(content),
+    allOnX: /all[\s-]?on[\s-]?[46x]|all[\s-]?on[\s-]?four|all[\s-]?on[\s-]?six/i.test(content),
+    guidedSurgery: /guided\s*surgery|guided\s*implant|surgical\s*guide/i.test(content),
+    generalDentistry: /general\s*dentistry|cleanings?|fillings?|cavity|cavities/i.test(content),
+    orthodontics: /orthodontic|braces|invisalign|clear\s*align/i.test(content),
+    endodontics: /endodontic|root\s*canal|pulp\s*therapy/i.test(content),
+    periodontics: /periodontic|gum\s*disease|gum\s*treatment|scaling/i.test(content),
+    oralSurgery: /oral\s*surgery|maxillofacial|extraction|wisdom\s*teeth/i.test(content),
+    cosmeticDentistry: /cosmetic\s*dentistry|veneers?|teeth\s*whitening|smile\s*makeover/i.test(content)
+  };
+}
+
+/**
+ * Extract implant systems from website content
+ */
+function extractImplantSystems(content: string): ScrapedWebsiteData['implantSystems'] {
+  const systems = {
+    straumann: /straumann/i.test(content),
+    megaGen: /megagen|mega\s*gen/i.test(content),
+    nobel: /nobel\s*biocare|nobel/i.test(content),
+    neodent: /neodent/i.test(content),
+    zimmerBiomet: /zimmer\s*biomet|zimmer/i.test(content),
+    biohorizons: /biohorizons|bio\s*horizons/i.test(content),
+    other: [] as string[]
+  };
+  
+  // Check for other implant systems
+  const otherSystems = [
+    'Hiossen', 'Dentium', 'Osstem', 'Anthogyr', 'Dentsply', 'Astra Tech'
+  ];
+  
+  otherSystems.forEach(system => {
+    if (new RegExp(system, 'i').test(content)) {
+      systems.other.push(system);
+    }
+  });
+  
+  return systems;
+}
+
+/**
+ * Extract dental technology from website content
+ */
+function extractDentalTechnology(content: string): ScrapedWebsiteData['dentalTechnology'] {
+  return {
+    cbct: /cbct|cone\s*beam|3d\s*x[\s-]?ray|3d\s*imaging/i.test(content),
+    itero: /itero|i[\s-]?tero/i.test(content),
+    cerec: /cerec/i.test(content),
+    primescan: /primescan|prime\s*scan/i.test(content),
+    trios: /trios|3shape/i.test(content),
+    coneBeam: /cone\s*beam/i.test(content),
+    digitalImpressions: /digital\s*impression|intraoral\s*scan/i.test(content),
+    cad_cam: /cad[\s\/]?cam|computer[\s-]aided/i.test(content),
+    laser: /dental\s*laser|laser\s*dentistry|soft\s*tissue\s*laser/i.test(content)
+  };
+}
+
+/**
+ * Extract aesthetic procedures from website content
+ */
+function extractAestheticProcedures(content: string): ScrapedWebsiteData['aestheticProcedures'] {
+  return {
+    botox: /botox|botulinum/i.test(content),
+    fillers: /filler|dermal\s*filler|facial\s*filler|lip\s*filler/i.test(content),
+    prp: /prp|platelet[\s-]?rich[\s-]?plasma|vampire/i.test(content),
+    exosomes: /exosome/i.test(content),
+    threads: /thread\s*lift|pdo\s*thread|lifting\s*thread/i.test(content),
+    microNeedling: /micro[\s-]?needling|dermapen|skinpen/i.test(content),
+    chemicalPeels: /chemical\s*peel|glycolic|salicylic\s*acid/i.test(content),
+    skinTightening: /skin\s*tightening|radiofrequency|rf\s*treatment/i.test(content)
+  };
+}
+
+/**
+ * Extract aesthetic devices and lasers from website content
+ */
+function extractAestheticDevices(content: string): ScrapedWebsiteData['aestheticDevices'] {
+  const devices = {
+    fraxel: /fraxel/i.test(content),
+    clearAndBrilliant: /clear\s*(?:and|&)\s*brilliant/i.test(content),
+    solta: /solta/i.test(content),
+    thermage: /thermage/i.test(content),
+    coolSculpting: /coolsculpting|cool\s*sculpting/i.test(content),
+    ultherapy: /ultherapy|ulthera/i.test(content),
+    morpheus8: /morpheus\s*8|morpheus/i.test(content),
+    co2Laser: /co2\s*laser|fractional\s*co2/i.test(content),
+    ipl: /ipl|intense\s*pulsed\s*light|photofacial/i.test(content),
+    picosure: /picosure|pico/i.test(content),
+    otherLasers: [] as string[]
+  };
+  
+  // Check for other laser systems
+  const otherLaserSystems = [
+    'Halo', 'BBL', 'V-Beam', 'Nd:YAG', 'Alexandrite', 'Diode', 'Erbium'
+  ];
+  
+  otherLaserSystems.forEach(laser => {
+    if (new RegExp(laser, 'i').test(content)) {
+      devices.otherLasers.push(laser);
+    }
+  });
+  
+  return devices;
+}
+
+/**
+ * Extract injectable brands from website content
+ */
+function extractInjectableBrands(content: string): ScrapedWebsiteData['injectableBrands'] {
+  const brands = {
+    juvederm: /juvederm|juvéderm/i.test(content),
+    restylane: /restylane/i.test(content),
+    sculptra: /sculptra/i.test(content),
+    radiesse: /radiesse/i.test(content),
+    bellaFill: /bellafill|bella\s*fill/i.test(content),
+    rha: /rha\s*collection|rha\s*filler/i.test(content),
+    versa: /versa|revanesse/i.test(content),
+    dysport: /dysport/i.test(content),
+    xeomin: /xeomin/i.test(content),
+    otherFillers: [] as string[]
+  };
+  
+  // Check for other filler brands
+  const otherBrands = [
+    'Voluma', 'Vollure', 'Volbella', 'Kybella', 'Belotero', 'Teosyal'
+  ];
+  
+  otherBrands.forEach(brand => {
+    if (new RegExp(brand, 'i').test(content)) {
+      brands.otherFillers.push(brand);
+    }
+  });
+  
+  return brands;
+}
+
+/**
+ * Extract practice information from website content
+ */
+function extractPracticeInfo(data: any, content: string): ScrapedWebsiteData['practiceInfo'] {
+  return {
+    doctorNames: extractStaffNames(content),
+    specialties: extractSpecialties(content),
+    teamSize: estimateTeamSize(content),
+    locations: extractLocationCount(content)
+  };
+}
+
+/**
+ * Identify missing procedures (sales opportunities)
+ */
+function identifyMissingProcedures(
+  dentalProcedures: ScrapedWebsiteData['dentalProcedures'],
+  aestheticProcedures: ScrapedWebsiteData['aestheticProcedures']
+): string[] {
+  const missing: string[] = [];
+  
+  // High-value dental opportunities
+  if (!dentalProcedures.implants) missing.push('Dental implants (high-value opportunity)');
+  if (!dentalProcedures.allOnX) missing.push('All-on-X procedures (premium implant service)');
+  if (!dentalProcedures.guidedSurgery) missing.push('Guided surgery (technology upgrade)');
+  
+  // Aesthetic opportunities
+  if (!aestheticProcedures.botox) missing.push('Botox treatments (high-margin)');
+  if (!aestheticProcedures.fillers) missing.push('Dermal fillers (recurring revenue)');
+  if (!aestheticProcedures.microNeedling) missing.push('Microneedling (growing trend)');
+  
+  return missing;
+}
+
+/**
+ * Extract competitive advantages based on procedures and technology
+ */
+function extractCompetitiveAdvantages(
+  dentalProcedures: ScrapedWebsiteData['dentalProcedures'],
+  dentalTechnology: ScrapedWebsiteData['dentalTechnology'],
+  aestheticDevices: ScrapedWebsiteData['aestheticDevices']
+): string[] {
+  const advantages: string[] = [];
+  
+  // Technology advantages
+  if (dentalTechnology.cbct && dentalTechnology.itero) {
+    advantages.push('Advanced imaging suite (CBCT + iTero)');
+  }
+  if (dentalTechnology.guidedSurgery || dentalProcedures.guidedSurgery) {
+    advantages.push('Guided surgery capabilities');
+  }
+  
+  // Premium procedure advantages
+  if (dentalProcedures.allOnX) {
+    advantages.push('All-on-X specialization (premium positioning)');
+  }
+  if (aestheticDevices.fraxel || aestheticDevices.clearAndBrilliant) {
+    advantages.push('Premium laser technology');
+  }
+  
+  // Multiple technology systems
+  const laserCount = Object.values(aestheticDevices).filter(Boolean).length;
+  if (laserCount >= 3) {
+    advantages.push(`Multi-platform laser practice (${laserCount} technologies)`);
+  }
+  
+  return advantages;
+}
+
+/**
+ * Extract medical specialties from content
+ */
+function extractSpecialties(content: string): string[] {
+  const specialties: string[] = [];
+  const specialtyPatterns = [
+    { name: 'Implant Dentistry', pattern: /implant\s*dentistry|oral\s*surgery/i },
+    { name: 'Cosmetic Dentistry', pattern: /cosmetic\s*dentistry|aesthetic\s*dentistry/i },
+    { name: 'Orthodontics', pattern: /orthodontic|braces|invisalign/i },
+    { name: 'Periodontics', pattern: /periodontic|gum\s*treatment/i },
+    { name: 'Endodontics', pattern: /endodontic|root\s*canal/i },
+    { name: 'Dermatology', pattern: /dermatolog|skin\s*care/i },
+    { name: 'Plastic Surgery', pattern: /plastic\s*surgery|cosmetic\s*surgery/i },
+    { name: 'Medical Aesthetics', pattern: /medical\s*aesthetic|aesthetic\s*medicine/i }
+  ];
+  
+  for (const specialty of specialtyPatterns) {
+    if (specialty.pattern.test(content)) {
+      specialties.push(specialty.name);
+    }
+  }
+  
+  return specialties;
+}
+
+/**
+ * Extract location count from content
+ */
+function extractLocationCount(content: string): number {
+  // Look for multiple location indicators
+  const locationIndicators = [
+    /(\d+)\s*location/gi,
+    /(\d+)\s*office/gi,
+    /(\d+)\s*clinic/gi
+  ];
+  
+  for (const pattern of locationIndicators) {
+    const match = content.match(pattern);
+    if (match) {
+      const count = parseInt(match[1]);
+      if (count > 1 && count < 20) { // Reasonable range
+        return count;
       }
     }
   }
   
-  // Look for news mentions
-  const newsPattern = /news|announcement|update|press release/gi;
-  const newsMatches = content.match(newsPattern);
-  if (newsMatches) {
-    recentContent.news = newsMatches.slice(0, 3);
-  }
-  
-  return recentContent;
-}
-
-/**
- * Analyze website features to identify pain points and advantages
- */
-function analyzeWebsiteFeatures(
-  data: any, 
-  techStack: ScrapedWebsiteData['techStack']
-): { 
-  painPoints: string[]; 
-  competitiveAdvantages: string[] 
-} {
-  const painPoints: string[] = [];
-  const competitiveAdvantages: string[] = [];
-  
-  // Check for missing modern features (pain points)
-  const content = (data.html || data.content || '').toLowerCase();
-  
-  if (!content.includes('appointment') && !content.includes('schedule online')) {
-    painPoints.push('No online appointment scheduling');
-  }
-  if (!content.includes('patient portal')) {
-    painPoints.push('No patient portal');
-  }
-  if (!techStack.cms || techStack.cms === 'Static HTML') {
-    painPoints.push('Static website - difficult to update');
-  }
-  if (!techStack.analytics?.length) {
-    painPoints.push('No analytics tracking');
-  }
-  if (!data.socialLinks || Object.keys(data.socialLinks).length === 0) {
-    painPoints.push('No social media presence');
-  }
-  
-  // Check for competitive advantages
-  if (content.includes('24/7') || content.includes('emergency')) {
-    competitiveAdvantages.push('24/7 emergency services');
-  }
-  if (content.includes('same day') || content.includes('same-day')) {
-    competitiveAdvantages.push('Same-day appointments');
-  }
-  if (techStack.cms === 'WordPress' || techStack.cms === 'Squarespace') {
-    competitiveAdvantages.push('Modern CMS for easy updates');
-  }
-  if (data.testimonials?.length > 10) {
-    competitiveAdvantages.push('Strong patient testimonials');
-  }
-  
-  return { painPoints, competitiveAdvantages };
-}
-
-/**
- * Helper functions for extraction
- */
-function extractServices(content: string): string[] {
-  const services: string[] = [];
-  const serviceKeywords = [
-    'implants', 'crowns', 'veneers', 'whitening', 'orthodontics',
-    'root canal', 'extraction', 'cleaning', 'x-ray', 'consultation',
-    'cosmetic', 'restoration', 'periodontal', 'pediatric', 'surgery'
-  ];
-  
-  const lowerContent = content.toLowerCase();
-  for (const keyword of serviceKeywords) {
-    if (lowerContent.includes(keyword)) {
-      services.push(keyword.charAt(0).toUpperCase() + keyword.slice(1));
-    }
-  }
-  
-  return services;
+  // Default to 1 if no multiple locations detected
+  return 1;
 }
 
 function extractStaffNames(content: string): string[] {
@@ -377,33 +634,6 @@ function estimateTeamSize(content: string): number {
   return 3; // Small practice
 }
 
-function extractAwards(content: string): string[] {
-  const awards: string[] = [];
-  const awardPatterns = [
-    /award[^.]*?(\d{4})/gi,
-    /best\s+(?:dentist|doctor|practice)[^.]*?(\d{4})/gi,
-    /top\s+(?:dentist|doctor|practice)[^.]*?(\d{4})/gi
-  ];
-  
-  for (const pattern of awardPatterns) {
-    const matches = content.matchAll(pattern);
-    for (const match of matches) {
-      if (match[0] && awards.length < 5) {
-        awards.push(match[0].trim());
-      }
-    }
-  }
-  
-  return awards;
-}
-
-function extractNearbyDate(content: string, position: number): string | undefined {
-  // Look for date within 200 characters of the position
-  const nearbyContent = content.substring(Math.max(0, position - 100), position + 100);
-  const datePattern = /(\d{1,2}[/-]\d{1,2}[/-]\d{2,4})|(\w+\s+\d{1,2},?\s+\d{4})/;
-  const dateMatch = nearbyContent.match(datePattern);
-  return dateMatch ? dateMatch[0] : undefined;
-}
 
 /**
  * Find practice website from search results
