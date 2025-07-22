@@ -1705,6 +1705,34 @@ body {
   padding: 20px 0;
 }
 
+/* Reports status indicators */
+.reports-status {
+  margin-bottom: 20px;
+  padding: 0;
+}
+
+.status-ready {
+  background: linear-gradient(135deg, rgba(0, 255, 198, 0.1), rgba(0, 212, 255, 0.1));
+  border: 1px solid rgba(0, 255, 198, 0.3);
+  color: #00FFC6;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.status-waiting {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  color: #ffc107;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
 .report-btn {
   background: rgba(16, 32, 64, 0.8);
   border: 1px solid rgba(102, 126, 234, 0.3);
@@ -1721,6 +1749,17 @@ body {
   background: rgba(102, 126, 234, 0.2);
   border-color: #00d4ff;
   transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+}
+
+.report-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.report-btn:active {
+  transform: translateY(0px);
 }
 
 .analytics-dashboard {

@@ -1278,7 +1278,21 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                 <p>Loading report data...</p>
               </div>
             )}
+            
+            {/* Always show report buttons - disable if no data */}
             <div className="reports-section">
+              {/* Status indicator */}
+              <div className="reports-status">
+                {(researchData || instantIntel || scanResult) ? (
+                  <div className="status-ready">
+                    ✅ <strong>Report Data Ready</strong> - Click any button below to generate and download reports
+                  </div>
+                ) : (
+                  <div className="status-waiting">
+                    ⏳ <strong>Waiting for scan data</strong> - Complete a doctor scan first to generate reports
+                  </div>
+                )}
+              </div>
               <div className="reports-category">
                 <h4>📊 Intelligence Reports</h4>
                 <div className="reports-grid">
