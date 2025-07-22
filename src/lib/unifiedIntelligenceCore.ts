@@ -304,8 +304,9 @@ function buildPrioritizedSearchQueries(
   address?: string
 ): string[] {
   const queries: string[] = [];
-  const lastName = doctorName.replace(/^Dr\.\s*/i, '').split(' ').pop() || '';
-  const firstName = doctorName.replace(/^Dr\.\s*/i, '').split(' ')[0] || '';
+  const safeDoctorName = doctorName || 'Unknown Doctor';
+  const lastName = safeDoctorName.replace(/^Dr\.\s*/i, '').split(' ').pop() || '';
+  const firstName = safeDoctorName.replace(/^Dr\.\s*/i, '').split(' ')[0] || '';
   
   // Extract city name without state
   const cityOnly = location?.split(' ')[0] || '';
@@ -323,7 +324,8 @@ function buildPrioritizedSearchQueries(
     queries.push(`"${organizationName}" "${doctorName}"`);
     
     // Try direct domain search
-    const orgClean = organizationName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const safeOrgName = organizationName || '';
+    const orgClean = safeOrgName.toLowerCase().replace(/[^a-z0-9]/g, '');
     queries.push(`site:${orgClean}.com OR site:www.${orgClean}.com`);
   }
   

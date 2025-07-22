@@ -511,7 +511,8 @@ function determineProductCategory(productName: string): 'dental' | 'aesthetic' |
  * Generate believable subject line
  */
 function generateBelievableSubject(productName: string, doctorName: string): string {
-  const cleanName = doctorName.replace(/^Dr\.?\s*/i, '');
+  const safeDoctorName = doctorName || 'Doctor';
+  const cleanName = safeDoctorName.replace(/^Dr\.?\s*/i, '');
   const subjects = [
     `${productName} integration for your practice`,
     `${productName} opportunity - ${cleanName}`,
@@ -570,7 +571,7 @@ function generateBelievableFallback(
   }
   
   const templates = {
-    email: `Dr. ${scanResult.doctor.replace(/^Dr\.?\s*/i, '')},
+    email: `Dr. ${(scanResult.doctor || 'Doctor').replace(/^Dr\.?\s*/i, '')},
 
 ${credibilityHook} and thought ${scanResult.product} might be a good fit for your setup.
 
@@ -581,9 +582,9 @@ Would you be open to a brief conversation to discuss how this might work for you
 Best regards,
 [Your Name]`,
     
-    sms: `Dr. ${scanResult.doctor.replace(/^Dr\.?\s*/i, '')}, ${credibilityHook}. ${scanResult.product} could enhance your current setup. Quick call to discuss? [Your Name]`,
+    sms: `Dr. ${(scanResult.doctor || 'Doctor').replace(/^Dr\.?\s*/i, '')}, ${credibilityHook}. ${scanResult.product} could enhance your current setup. Quick call to discuss? [Your Name]`,
     
-    linkedin: `Hello Dr. ${scanResult.doctor.replace(/^Dr\.?\s*/i, '')}, ${credibilityHook}. ${scanResult.product} shows strong potential for practices like yours. Would you be open to connecting?`
+    linkedin: `Hello Dr. ${(scanResult.doctor || 'Doctor').replace(/^Dr\.?\s*/i, '')}, ${credibilityHook}. ${scanResult.product} shows strong potential for practices like yours. Would you be open to connecting?`
   };
   
   return templates[channel as keyof typeof templates] || templates.email;
