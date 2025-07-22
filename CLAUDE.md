@@ -343,4 +343,50 @@ const handleMessage = async (message) => {
 - **Multi-API research capabilities** for comprehensive market analysis
 - **Mobile-optimized** for medical sales representatives in the field
 
+## Enhanced Search Logic (January 2025)
+
+The search logic has been significantly improved to find actual practice websites with high accuracy:
+
+### Key Improvements:
+1. **Full NPI Data Utilization**: Search queries now use complete NPI data including:
+   - Organization name
+   - Full street address
+   - City and state
+   - Specialty information
+
+2. **Smart Search Patterns**:
+   - `"[LastName] Dental [City]"` - Catches practices named after doctors (e.g., "Greg Dental Buffalo" finds Pure Dental)
+   - Organization name with address for highest confidence
+   - Handles suburb/city variations (e.g., Williamsville is recognized as Buffalo suburb)
+   - Excludes directories with negative search operators (-healthgrades -vitals -zocdoc)
+
+3. **Strict Directory Filtering**:
+   - AI analyzer rejects all directory sites, review sites, social media
+   - Only returns actual practice websites
+   - Prioritizes .com domains with practice information
+
+4. **Example: Dr. Greg White**:
+   - NPI shows Williamsville, NY location
+   - Search includes "White Dental Buffalo" pattern
+   - Successfully finds puredental.com website
+   - Handles suburb (Williamsville) to major city (Buffalo) mapping
+
+### Search Priority Order:
+1. `[LastName] Dental [City]` (catches doctor-named practices)
+2. `"[Organization Name]" "[Address]"` (highest confidence match)
+3. Organization domain search (site:orgname.com)
+4. Doctor name with location excluding directories
+5. Doctor name with full address
+6. Practice website patterns
+
+This approach ensures we find actual practice websites, not directories, with near 100% confidence when address matches.
+
+## Model Configuration
+
+As of January 2025, the entire application uses **Claude 3.5 Sonnet** (claude-3-5-sonnet-20241022) for all AI operations:
+- All direct Anthropic API calls use Claude 3.5 Sonnet
+- Backend proxy at `/api/anthropic` defaults to Claude 3.5 Sonnet
+- All OpenRouter references have been removed
+- Model mapping in directAnthropic.ts maps all variants to Claude 3.5 Sonnet
+
 This application serves as a comprehensive medical sales intelligence platform with full integration to the unified agent backend system, providing AI-powered coaching, real-time research capabilities, and advanced outreach tools for medical device sales success.
