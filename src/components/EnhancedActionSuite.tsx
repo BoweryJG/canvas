@@ -46,7 +46,8 @@ interface EnhancedActionSuiteProps {
  * Generate dynamic report name based on product
  */
 function generateDynamicReportName(productName: string, doctorName: string): string {
-  const cleanDoctorName = doctorName.replace(/^Dr\.?\s*/i, '');
+  const safeDoctorName = doctorName || 'Unknown Doctor';
+  const cleanDoctorName = safeDoctorName.replace(/^Dr\.?\s*/i, '');
   return `${productName} Impact Report for Dr. ${cleanDoctorName}`;
 }
 
@@ -489,7 +490,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
-      const filename = `deep-research-${scanResult.doctor.replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+      const filename = `deep-research-${(scanResult.doctor || 'Unknown-Doctor').replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
       link.download = filename;
       
       console.log('Deep Research download link created:', link.href);

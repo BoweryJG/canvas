@@ -190,7 +190,7 @@ export default function SharedIntelligence() {
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${linkData.doctor_name.replace(/\s+/g, '-')}-intelligence-report.pdf`;
+      link.download = `${(linkData.doctor_name || 'unknown').replace(/\s+/g, '-')}-intelligence-report.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
