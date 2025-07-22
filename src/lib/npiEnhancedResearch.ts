@@ -10,7 +10,7 @@
  */
 
 import { callBraveSearch } from './apiEndpoints';
-import { callOpenRouter } from './apiEndpoints';
+import { callClaude } from './apiEndpoints';
 import { type ResearchData, type ResearchSource } from './webResearch';
 import { type Doctor } from '../components/DoctorAutocomplete';
 
@@ -370,7 +370,7 @@ If no review data is found, use null for averageRating and empty arrays for list
 IMPORTANT: Respond with ONLY the JSON object, no explanations or other text.`;
 
   try {
-    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
+    const response = await callClaude(prompt, 'claude-opus-4-20250514');
     
     // Clean response if wrapped in markdown
     let cleanResponse = response;
@@ -417,7 +417,7 @@ Return ONLY a JSON object with:
 }`;
 
   try {
-    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
+    const response = await callClaude(prompt, 'claude-opus-4-20250514');
     return parseAIResponse(response);
   } catch (error) {
     return {
@@ -452,7 +452,7 @@ Return ONLY a JSON object with:
 }`;
 
   try {
-    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
+    const response = await callClaude(prompt, 'claude-opus-4-20250514');
     return parseAIResponse(response);
   } catch (error) {
     return {

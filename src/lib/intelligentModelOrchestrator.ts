@@ -314,12 +314,26 @@ Format as JSON with these fields:
   }
   
   private async callOpenRouterModel(prompt: string, model: string) {
-    const { callOpenRouter } = await import('./apiEndpoints');
+    const { callClaude } = await import('./apiEndpoints');
     try {
-      const result = await callOpenRouter(prompt, model);
+      // Map old model names to new ones
+      let mappedModel = model;
+      if (model === 'anthropic/claude-opus-4') {
+        mappedModel = 'claude-opus-4-20250514';
+      } else if (model === 'anthropic/claude-3.5-sonnet-20241022') {
+        mappedModel = 'claude-3.5-sonnet-20241022';
+      }
+      // For non-Claude models, we'll need a different approach
+      // For now, use Claude as fallback for all
+      if (model.startsWith('openai/') || model.startsWith('meta-') || model.startsWith('google/')) {
+        console.log(`Note: ${model} requested, using Claude as fallback`);
+        mappedModel = 'claude-3.5-sonnet-20241022';
+      }
+      
+      const result = await callClaude(prompt, mappedModel);
       return typeof result === 'string' ? JSON.parse(result) : result;
     } catch (error) {
-      console.error(`OpenRouter ${model} error:`, error);
+      console.error(`Claude ${model} error:`, error);
       return null;
     }
   }

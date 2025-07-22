@@ -3,7 +3,7 @@
  * Uses multiple data sources and Claude 4 Opus for premium insights
  */
 
-import { callBraveSearch, callBraveLocalSearch, callFirecrawlScrape, callOpenRouter } from './apiEndpoints';
+import { callBraveSearch, callBraveLocalSearch, callFirecrawlScrape, callClaude } from './apiEndpoints';
 import { getClaude4Processor } from './claude4LocalProcessor';
 import type { Doctor } from '../components/DoctorAutocomplete';
 import type { ResearchData, ResearchSource } from './webResearch';
@@ -393,7 +393,7 @@ Format as JSON with these exact fields:
   try {
     // Try Claude 4 Opus first via OpenRouter
     console.log('🎯 Attempting Claude 4 Opus synthesis...');
-    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
+    const response = await callClaude(prompt, 'claude-opus-4-20250514');
     return JSON.parse(response);
   } catch (error) {
     console.error('Claude 4 Opus not available, trying Claude 3.5 Sonnet:', error);

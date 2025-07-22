@@ -69,7 +69,7 @@ export async function callLocalClaude4(prompt: string): Promise<any> {
 }
 
 /**
- * Enhanced callOpenRouter that checks for local Claude first
+ * Enhanced callClaude that checks for local Claude first
  */
 export async function callClaudeWithLocalFallback(
   prompt: string, 
@@ -97,7 +97,12 @@ export async function callClaudeWithLocalFallback(
     }
   }
   
-  // Fall back to OpenRouter
-  const { callOpenRouter } = await import('./apiEndpoints');
-  return callOpenRouter(prompt, preferredModel);
+  // Fall back to Claude API
+  const { callClaude } = await import('./apiEndpoints');
+  // Map old model names to new ones
+  let mappedModel = preferredModel;
+  if (preferredModel === 'anthropic/claude-3-opus-20240229') {
+    mappedModel = 'claude-3-opus-20240229';
+  }
+  return callClaude(prompt, mappedModel);
 }

@@ -4,7 +4,7 @@
  * Comprehensive sales intelligence with Harvard/McKinsey-level content
  */
 
-import { callBraveSearch, callOpenRouter, callPerplexityResearch, callFirecrawlScrape } from './apiEndpoints';
+import { callBraveSearch, callClaude, callPerplexityResearch, callFirecrawlScrape } from './apiEndpoints';
 import { type Doctor } from '../components/DoctorAutocomplete';
 import { cachedApiCall, CacheKeys, searchCache } from './intelligentCaching';
 import { supabase } from '../auth/supabase';
@@ -199,7 +199,7 @@ export async function instantCanvasScan(
     const timeRemaining = scanDeadline - Date.now();
     if (timeRemaining > 500) {
       const quickAnalysis = await Promise.race([
-        callOpenRouter(`Analyze this dental practice in 2 seconds. Be specific and actionable.
+        callClaude(`Analyze this dental practice in 2 seconds. Be specific and actionable.
 
 Doctor: ${doctor.displayName}, ${doctor.specialty}
 Location: ${doctor.city}, ${doctor.state}
@@ -217,7 +217,7 @@ Provide JSON:
   "digitalPresence": "Strong|Moderate|Weak",
   "buyingSignals": [3 specific signals],
   "competitivePosition": "one sentence"
-}`, 'anthropic/claude-instant-1.2'),
+}`, 'claude-3-5-sonnet-20241022'),
         new Promise(resolve => setTimeout(() => resolve(null), timeRemaining - 100))
       ]);
       
@@ -394,7 +394,7 @@ async function analyzeDecisionMaking(
 ): Promise<DeepResearchResult['psychologicalProfile']> {
   await delay(DELAY_BETWEEN_CALLS);
   
-  const analysis = await callOpenRouter(`You are an expert sales psychologist. Analyze this dental professional's likely decision-making style.
+  const analysis = await callClaude(`You are an expert sales psychologist. Analyze this dental professional's likely decision-making style.
 
 Doctor: ${doctor.displayName}, ${doctor.specialty}
 Practice: ${instantResults.doctor.practice}
@@ -412,7 +412,7 @@ Provide specific, actionable psychological insights in JSON:
   "triggers": ["specific psychological triggers that motivate action"],
   "objections": ["likely specific objections they'll raise"],
   "motivators": ["what truly drives their decisions"]
-}`, 'anthropic/claude-opus-4');
+}`, 'claude-opus-4-20250514');
   
   try {
     return JSON.parse(analysis);
@@ -440,7 +440,7 @@ async function deepCompetitorAnalysis(
       // Parse Perplexity's response
       if (perplexityResult?.answer) {
         // Process the detailed research into structured data
-        const competitorData = await callOpenRouter(`Extract competitor intelligence from this research:
+        const competitorData = await callClaude(`Extract competitor intelligence from this research:
 
 ${perplexityResult.answer}
 
@@ -456,7 +456,7 @@ Provide JSON with local dental competitors:
   ],
   "marketPosition": "where target doctor stands",
   "pricingStrategy": "recommended pricing approach"
-}`, 'anthropic/claude-opus-4');
+}`, 'claude-opus-4-20250514');
         
         try {
           return JSON.parse(competitorData);
@@ -497,7 +497,7 @@ async function generatePremiumSalesContent(
 ): Promise<DeepResearchResult['salesCollateral']> {
   await delay(DELAY_BETWEEN_CALLS);
   
-  const contentGeneration = await callOpenRouter(`You are a McKinsey consultant creating premium sales collateral.
+  const contentGeneration = await callClaude(`You are a McKinsey consultant creating premium sales collateral.
 
 Target: Dr. ${doctor.displayName}
 Product: ${product}
@@ -640,7 +640,7 @@ async function generateSEOReport(doctor: Doctor, websiteUrl: string): Promise<SE
     const websiteContent = await callFirecrawlScrape(websiteUrl);
     
     // Use Claude Opus 4 to analyze SEO
-    const seoAnalysis = await callOpenRouter(`You are an expert SEO analyst. Analyze this dental practice website and provide a comprehensive SEO report.
+    const seoAnalysis = await callClaude(`You are an expert SEO analyst. Analyze this dental practice website and provide a comprehensive SEO report.
 
 Website: ${websiteUrl}
 Doctor: ${doctor.displayName}
@@ -690,7 +690,7 @@ Provide a detailed SEO analysis in JSON format:
     "contentGaps": ["Blog topics they're missing"],
     "technicalFixes": ["Specific technical improvements"]
   }
-}`, 'anthropic/claude-opus-4');
+}`, 'claude-opus-4-20250514');
     
     const parsed = JSON.parse(seoAnalysis);
     

@@ -4,7 +4,7 @@
  */
 
 import { type Doctor } from '../components/DoctorAutocomplete';
-import { callOpenRouter } from './apiEndpoints';
+import { callClaude } from './apiEndpoints';
 import { MOCK_MODE, mockSequentialThinking, mockOpenRouterSynthesis } from './mockResearch';
 
 interface SequentialThought {
@@ -420,7 +420,7 @@ Return ONLY this JSON structure (no explanations, no markdown, just JSON):
   try {
     const synthesisResponse = MOCK_MODE 
       ? await mockOpenRouterSynthesis(enhancedPrompt)
-      : await callOpenRouter(enhancedPrompt, 'anthropic/claude-opus-4');
+      : await callClaude(enhancedPrompt, 'claude-opus-4-20250514');
     
     // Clean and parse response
     let cleanSynthesis = synthesisResponse;

@@ -145,22 +145,33 @@ export async function gatherUnifiedIntelligence(
     console.log(`📊 Found ${allSearchResults.length} unique results`);
     
     // 1d. Use Claude 4 Opus to find the REAL practice website
-    const aiAnalysis = await analyzeWebsitesWithClaude4Opus(
-      allSearchResults,
-      doctorName,
-      organizationName,  // This is key - "Pure Dental" for Dr. Greg White
-      specialty,
-      location?.split(',')[0],  // city
-      location?.split(',')[1]   // state
-    );
+    let aiAnalysis: any = null;
+    try {
+      aiAnalysis = await analyzeWebsitesWithClaude4Opus(
+        allSearchResults,
+        doctorName,
+        organizationName,  // This is key - "Pure Dental" for Dr. Greg White
+        specialty,
+        location?.split(',')[0],  // city
+        location?.split(',')[1]   // state
+      );
+    } catch (error) {
+      console.error('❌ Claude 4 Opus analysis failed:', error);
+      // Use fallback with empty results
+      aiAnalysis = {
+        practiceWebsites: [],
+        rejectedSites: [],
+        analysisConfidence: 0
+      };
+    }
     
     // Update discovery results
     result.discovery = {
-      practiceWebsite: aiAnalysis.practiceWebsites[0]?.url || null,
-      confidence: aiAnalysis.practiceWebsites[0]?.confidence || 0,
+      practiceWebsite: aiAnalysis.practiceWebsites?.[0]?.url || null,
+      confidence: aiAnalysis.practiceWebsites?.[0]?.confidence || 0,
       organizationName,
       npiData,
-      rejectedSites: aiAnalysis.rejectedSites.map(r => r.url),
+      rejectedSites: aiAnalysis.rejectedSites?.map((r: any) => r.url) || [],
       discoveryMethod: 'ai-powered'
     };
     
@@ -173,7 +184,7 @@ export async function gatherUnifiedIntelligence(
         keyPoints: [
           '❌ Unable to locate practice website',
           '📍 Try adding more location details',
-          '🔍 Rejected ' + aiAnalysis.rejectedSites.length + ' directory/media sites'
+          '🔍 Rejected ' + (aiAnalysis.rejectedSites?.length || 0) + ' directory/media sites'
         ],
         confidence: 0
       };

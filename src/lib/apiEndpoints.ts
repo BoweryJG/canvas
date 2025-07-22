@@ -336,49 +336,11 @@ export async function callPerplexityResearch(query: string, mode: 'search' | 're
 }
 
 /**
- * OpenRouter API integration for AI model calls
+ * Direct Anthropic API integration for AI model calls
  */
-export async function callOpenRouter(prompt: string, model: string = 'anthropic/claude-opus-4', userId?: string) {
-  return withGlobalRateLimit(globalOpenRouterLimiter, 'openrouter', userId, async () => {
-    try {
-      console.log(`🧠 OpenRouter ${model}: "${prompt.substring(0, 50)}..."`);
-      
-      const endpoint = getApiEndpoint('openRouter');
-      console.log(`🔗 Calling OpenRouter at: ${endpoint}`);
-      
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ prompt, model })
-      });
-
-      if (!response.ok) {
-        throw new Error(`OpenRouter API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log(`✅ OpenRouter ${model} completed successfully`);
-      
-      // Extract the content from the response
-      return data.choices?.[0]?.message?.content || data.content || data;
-    } catch (error) {
-      console.error('OpenRouter API error:', error);
-      
-      // Fallback response
-      return JSON.stringify({
-        practiceSize: "medium",
-        yearsInBusiness: 10,
-        technologyAdoption: "mainstream",
-        decisionMakingSpeed: "moderate",
-        buyingSignals: ["Looking to upgrade", "Efficiency focused"],
-        painPoints: ["Time management", "Patient satisfaction"],
-        competitorProducts: [],
-        bestApproachStrategy: "Focus on efficiency gains and ROI"
-      });
-    }
-  });
+export async function callClaude(prompt: string, model: string = 'claude-opus-4-20250514', userId?: string) {
+  const { callAnthropicDirect } = await import('./directAnthropic');
+  return callAnthropicDirect(prompt, model, userId);
 }
 
 /**

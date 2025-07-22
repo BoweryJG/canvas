@@ -4,7 +4,7 @@
  * Filters out directories, podcasts, media sites, and other non-practice sites
  */
 
-import { callOpenRouter } from './apiEndpoints';
+import { callAnthropicInsteadOfOpenRouter } from './directAnthropic';
 
 export interface AnalyzedWebsite {
   url: string;
@@ -99,17 +99,21 @@ IMPORTANT:
   try {
     console.log('🤖 Analyzing websites with Claude 4 Opus...');
     
-    const response = await callOpenRouter(
+    const response = await callAnthropicInsteadOfOpenRouter(
       prompt,
-      'anthropic/claude-3-opus-20240229'  // Claude 4 Opus
+      'anthropic/claude-3-opus-20240229'  // Claude 3 Opus
     );
     
-    if (!response) {
-      throw new Error('No response from Claude 4 Opus');
+    if (!response || !response.choices || !response.choices[0] || !response.choices[0].message) {
+      throw new Error('Invalid response structure from Claude');
     }
     
     // Parse the JSON response
-    const content = typeof response === 'string' ? response : JSON.stringify(response);
+    const content = response.choices[0].message.content;
+    if (!content) {
+      throw new Error('No content in Claude response');
+    }
+    
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     
     if (!jsonMatch) {

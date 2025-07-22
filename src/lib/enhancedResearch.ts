@@ -4,7 +4,7 @@
  */
 
 import { callBraveSearch } from './apiEndpoints';
-import { callOpenRouter } from './apiEndpoints';
+import { callClaude } from './apiEndpoints';
 
 // Target prospect types we're optimized for
 export type ProspectType = 'dentist' | 'dermatologist' | 'plastic_surgeon' | 'medspa_owner';
@@ -196,7 +196,7 @@ Format as JSON with these exact fields:
 }`;
 
   try {
-    const response = await callOpenRouter(prompt, 'anthropic/claude-3-sonnet');
+    const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
     const parsed = JSON.parse(response);
     
     return {

@@ -10,7 +10,7 @@
  * await unifiedCanvasResearch(doctor, product, { mode: 'instant' });
  */
 
-import { callBraveSearch, callBraveLocalSearch, callOpenRouter } from './apiEndpoints';
+import { callBraveSearch, callBraveLocalSearch, callClaude } from './apiEndpoints';
 import { gatherProductIntelligence, combineIntelligence } from './productProcedureIntelligence';
 import type { Doctor } from '../components/DoctorAutocomplete';
 import type { ResearchData, ResearchSource } from './webResearch';
@@ -338,14 +338,14 @@ Return JSON with these fields:
 
   try {
     // Use Claude 4 Opus directly
-    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
+    const response = await callClaude(prompt, 'claude-opus-4-20250514');
     return JSON.parse(response);
   } catch (error) {
     console.error('Claude 4 Opus error, trying Claude 3.5 Sonnet:', error);
     
     // Fallback to Claude 3.5 Sonnet
     try {
-      const response = await callOpenRouter(prompt, 'anthropic/claude-3.5-sonnet-20241022');
+      const response = await callClaude(prompt, 'claude-3.5-sonnet-20241022');
       return JSON.parse(response);
     } catch (fallbackError) {
       console.error('All synthesis failed:', fallbackError);

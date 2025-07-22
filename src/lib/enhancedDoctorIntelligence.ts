@@ -3,7 +3,7 @@
  * Uses multiple data sources and Claude 4 for premium insights
  */
 
-import { callBraveSearch, callPerplexitySearch, callOpenRouter } from './apiEndpoints';
+import { callBraveSearch, callPerplexitySearch, callClaude } from './apiEndpoints';
 import type { Doctor } from '../components/DoctorAutocomplete';
 import type { ResearchData, ResearchSource } from './webResearch';
 
@@ -251,7 +251,7 @@ Format as JSON with these exact fields:
 
   try {
     // Try Claude 4 Opus first (premium model)
-    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
+    const response = await callClaude(prompt, 'claude-opus-4-20250514');
     return JSON.parse(response);
   } catch (error) {
     console.error('Claude 4 Opus error, trying fallback:', error);

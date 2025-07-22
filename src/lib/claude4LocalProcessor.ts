@@ -64,14 +64,14 @@ export class Claude4LocalProcessor {
   }
   
   private async processViaOpenRouter(prompt: string): Promise<any> {
-    const { callOpenRouter } = await import('./apiEndpoints');
+    const { callClaude } = await import('./apiEndpoints');
     // Try Claude 4 Opus first, then fall back to Claude 3.5 Sonnet
     try {
-      const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
+      const response = await callClaude(prompt, 'claude-opus-4-20250514');
       return JSON.parse(response);
     } catch (error) {
       console.log('Claude 4 Opus not available, using Claude 3.5 Sonnet');
-      const response = await callOpenRouter(prompt, 'anthropic/claude-3.5-sonnet-20241022');
+      const response = await callClaude(prompt, 'claude-3.5-sonnet-20241022');
       return JSON.parse(response);
     }
   }

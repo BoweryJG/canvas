@@ -20,12 +20,12 @@
     <div id="results"></div>
     
     <script type="module">
-        import { callOpenRouter } from 'http://localhost:3000/src/lib/apiEndpoints.js';
+        import { callClaude } from 'http://localhost:3000/src/lib/apiEndpoints.js';
         
         window.testWithLibrary = async function() {
             const results = document.getElementById('results');
             try {
-                const response = await callOpenRouter('Hello, what AI model are you?');
+                const response = await callClaude('Hello, what AI model are you?', 'claude-opus-4-20250514');
                 results.innerHTML += '<div class="result success">Library Response: ' + response + '</div>';
             } catch (error) {
                 results.innerHTML += '<div class="result error">Library Error: ' + error.message + '</div>';
@@ -48,7 +48,7 @@
                     },
                     body: JSON.stringify({
                         prompt: 'Hello! Please tell me exactly which Claude model you are. Be specific.',
-                        model: 'anthropic/claude-opus-4'
+                        model: 'claude-opus-4-20250514'
                     })
                 });
                 

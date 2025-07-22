@@ -6,7 +6,7 @@
 
 import { type Doctor } from '../components/DoctorAutocomplete';
 import { type ResearchData, type ResearchSource } from './webResearch';
-import { callBraveSearch, callBraveLocalSearch, callFirecrawlScrape, callOpenRouter } from './apiEndpoints';
+import { callBraveSearch, callBraveLocalSearch, callFirecrawlScrape, callClaude } from './apiEndpoints';
 import { calculateEnhancedConfidence, extractConfidenceFactors } from './enhancedConfidenceScoring';
 import { ENHANCED_SYNTHESIS_PROMPT } from './enhancedSynthesisPrompts';
 import { 
@@ -414,7 +414,7 @@ Return ONLY a JSON object with these fields:
 Website content:
 ${content.substring(0, 3000)}`;
 
-    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
+    const response = await callClaude(prompt, 'claude-opus-4-20250514');
     return JSON.parse(response);
   } catch (error) {
     console.log('Could not extract website intelligence:', error);
@@ -718,7 +718,7 @@ async function synthesizeIntelligence(
       );
 
       try {
-        const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
+        const response = await callClaude(prompt, 'claude-opus-4-20250514');
         return JSON.parse(response);
       } catch (error) {
         console.error('Synthesis failed:', error);

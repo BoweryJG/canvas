@@ -3,7 +3,7 @@
  * Researches the product/procedure in the local market context
  */
 
-import { callBraveSearch, callBraveLocalSearch, callOpenRouter } from './apiEndpoints';
+import { callBraveSearch, callBraveLocalSearch, callClaude } from './apiEndpoints';
 
 export interface ProductIntelligence {
   productName: string;
@@ -218,7 +218,7 @@ Focus on:
 - Winning message angles for this specific market`;
 
   try {
-    const response = await callOpenRouter(prompt, 'anthropic/claude-opus-4');
+    const response = await callClaude(prompt, 'claude-opus-4-20250514');
     return JSON.parse(response);
   } catch (error) {
     console.error('Claude 4 synthesis error:', error);

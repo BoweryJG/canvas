@@ -16,11 +16,11 @@
             const script = document.createElement('script');
             script.type = 'module';
             script.textContent = `
-                import { callOpenRouter } from 'http://localhost:3000/src/lib/apiEndpoints.ts';
+                import { callClaude } from 'http://localhost:3000/src/lib/apiEndpoints.ts';
                 
                 window.testAPI = async function() {
                     try {
-                        const response = await callOpenRouter('Hello, confirm you are Claude Opus 4', 'anthropic/claude-opus-4');
+                        const response = await callClaude('Hello, confirm you are Claude Opus 4', 'claude-opus-4-20250514');
                         return response;
                     } catch (error) {
                         return { error: error.message };
