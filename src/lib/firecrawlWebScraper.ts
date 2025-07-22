@@ -56,11 +56,11 @@ export interface ScrapedWebsiteData {
 }
 
 /**
- * Call the backend's firecrawl-scrape endpoint (now using Puppeteer)
+ * Call the backend's firecrawl-scrape endpoint (using Firecrawl API)
  */
 async function callScraper(url: string): Promise<any> {
   try {
-    // Use the apiEndpoints callFirecrawlScrape function which now uses Puppeteer
+    // Use the apiEndpoints callFirecrawlScrape function
     const { callFirecrawlScrape } = await import('./apiEndpoints');
     
     const response = await callFirecrawlScrape(url, {
