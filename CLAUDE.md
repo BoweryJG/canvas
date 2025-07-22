@@ -355,7 +355,8 @@ The search logic has been significantly improved to find actual practice website
    - Specialty information
 
 2. **Smart Search Patterns**:
-   - `"[LastName] Dental [City]"` - Catches practices named after doctors (e.g., "Greg Dental Buffalo" finds Pure Dental)
+   - `"[LastName] [Specialty] [City]"` - Primary pattern (e.g., "Kauvar dermatology New York")
+   - `"[LastName] Dental [City]"` - For dentists (e.g., "White Dental Buffalo" finds Pure Dental)
    - Organization name with address for highest confidence
    - Handles suburb/city variations (e.g., Williamsville is recognized as Buffalo suburb)
    - Excludes directories with negative search operators (-healthgrades -vitals -zocdoc)
@@ -365,19 +366,25 @@ The search logic has been significantly improved to find actual practice website
    - Only returns actual practice websites
    - Prioritizes .com domains with practice information
 
-4. **Example: Dr. Greg White**:
-   - NPI shows Williamsville, NY location
-   - Search includes "White Dental Buffalo" pattern
-   - Successfully finds puredental.com website
-   - Handles suburb (Williamsville) to major city (Buffalo) mapping
+4. **Proven Examples**:
+   - **Dr. Greg White**: NPI shows Williamsville, NY → Search "White dental Buffalo" → Finds puredental.com ✓
+   - **Dr. Arielle Kauvar**: NPI shows New York, NY → Search "Kauvar dermatology New York" → Finds nylaserskincare.com ✓
 
 ### Search Priority Order:
-1. `[LastName] Dental [City]` (catches doctor-named practices)
-2. `"[Organization Name]" "[Address]"` (highest confidence match)
-3. Organization domain search (site:orgname.com)
-4. Doctor name with location excluding directories
-5. Doctor name with full address
-6. Practice website patterns
+1. `[LastName] [Specialty] [City]` (primary pattern for all doctors)
+2. `[LastName] Dental [City]` (specific for dentists)
+3. `"[Organization Name]" "[Address]"` (highest confidence if org name exists)
+4. Organization domain search (site:orgname.com)
+5. `"Dr. [FullName]" "[Address]"` (very specific with full address)
+6. Doctor name with location excluding directories (-healthgrades -vitals)
+
+### NPI Data Used:
+- **firstName & lastName**: For name patterns
+- **specialty**: Critical for search relevance
+- **address**: For high-confidence matching
+- **city & state**: Primary location identifiers
+- **organizationName**: When available, highest priority
+- **phone**: Available but not used in search
 
 This approach ensures we find actual practice websites, not directories, with near 100% confidence when address matches.
 

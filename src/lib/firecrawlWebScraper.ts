@@ -56,26 +56,18 @@ export interface ScrapedWebsiteData {
 }
 
 /**
- * Call our own scraper service on Render
+ * Call the backend's firecrawl-scrape endpoint (now using Puppeteer)
  */
 async function callScraper(url: string): Promise<any> {
   try {
-    // Use environment variable or fallback to localhost for dev
-    const SCRAPER_URL = process.env.VITE_SCRAPER_URL || 'http://localhost:3000';
+    // Use the apiEndpoints callFirecrawlScrape function which now uses Puppeteer
+    const { callFirecrawlScrape } = await import('./apiEndpoints');
     
-    const response = await fetch(`${SCRAPER_URL}/scrape`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ url })
+    const response = await callFirecrawlScrape(url, {
+      formats: ['markdown']
     });
 
-    if (!response.ok) {
-      throw new Error(`Scraper error: ${response.status}`);
-    }
-
-    return await response.json();
+    return response;
   } catch (error) {
     console.error('Scraper API error:', error);
     throw error;
