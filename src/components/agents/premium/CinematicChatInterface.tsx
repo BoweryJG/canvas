@@ -447,14 +447,15 @@ Instructions:
 
 Response:`;
       
-      const response = await fetch(getApiEndpoint('openRouter'), {
+      const response = await fetch(getApiEndpoint('anthropic'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           prompt: fullPrompt,
-          model: 'anthropic/claude-3-sonnet',
+          model: 'claude-3-5-sonnet-20241022',
           userId: `canvas-${agentId}`,
         }),
       });

@@ -94,9 +94,9 @@ export async function callAnthropicInsteadOfOpenRouter(
   const modelMap: Record<string, string> = {
     'anthropic/claude-3.5-sonnet': 'claude-3-5-sonnet-20241022',
     'anthropic/claude-3-5-sonnet-20241022': 'claude-3-5-sonnet-20241022',
-    'claude-3-5-sonnet-20241022': 'claude-3-5-sonnet-20241022', // Claude 4 Opus
-    'anthropic/claude-3-5-sonnet-20241022': 'claude-3-5-sonnet-20241022', // Direct mapping
-    'claude-3-5-sonnet-20241022': 'claude-3-5-sonnet-20241022', // Direct name
+    'claude-3-5-sonnet-20241022': 'claude-3-5-sonnet-20241022',
+    'anthropic/claude-opus-4': 'claude-3-5-sonnet-20241022', // Map Opus 4 to Sonnet
+    'claude-opus-4-20250514': 'claude-3-5-sonnet-20241022', // Map Opus 4 to Sonnet
     'anthropic/claude-3-sonnet-20240229': 'claude-3-sonnet-20240229',
     'anthropic/claude-3-haiku-20240307': 'claude-3-haiku-20240307'
   };
