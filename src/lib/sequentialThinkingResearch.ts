@@ -78,7 +78,7 @@ Respond with JSON:
 }`;
 
   try {
-    const response = await callOpenRouter(
+    const response = await callClaude(
       `${systemPrompt}\n\n${userPrompt}`,
       'anthropic/claude-opus-4'
     );

@@ -400,7 +400,7 @@ Format as JSON with these exact fields:
     
     // Fallback to Claude 3.5 Sonnet (better than 3.0)
     try {
-      const response = await callOpenRouter(prompt, 'anthropic/claude-3.5-sonnet-20241022');
+      const response = await callClaude(prompt, 'claude-opus-4-20250514');
       return JSON.parse(response);
     } catch (fallbackError) {
       console.error('Claude 3.5 Sonnet failed, trying local processor');

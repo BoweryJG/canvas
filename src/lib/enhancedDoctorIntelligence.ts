@@ -257,7 +257,7 @@ Format as JSON with these exact fields:
     console.error('Claude 4 Opus error, trying fallback:', error);
     // Fallback to Claude 3.5 Sonnet (fast, efficient alternative)
     try {
-      const response = await callOpenRouter(prompt, 'anthropic/claude-3.5-sonnet-20241022');
+      const response = await callClaude(prompt, 'claude-opus-4-20250514');
       return JSON.parse(response);
     } catch (fallbackError) {
       return createDefaultInsights(doctor, product);

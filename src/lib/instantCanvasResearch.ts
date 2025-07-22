@@ -217,13 +217,13 @@ Provide JSON:
   "digitalPresence": "Strong|Moderate|Weak",
   "buyingSignals": [3 specific signals],
   "competitivePosition": "one sentence"
-}`, 'claude-3-5-sonnet-20241022'),
+}`, 'claude-opus-4-20250514'),
         new Promise(resolve => setTimeout(() => resolve(null), timeRemaining - 100))
       ]);
       
       if (quickAnalysis) {
         try {
-          const parsed = JSON.parse(quickAnalysis);
+          const parsed = JSON.parse(quickAnalysis as string);
           
           return {
             doctor: {
