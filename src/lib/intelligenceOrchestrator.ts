@@ -148,7 +148,7 @@ export async function orchestrateIntelligenceWorkflow(
         address: scrapedData?.contactInfo?.address,
         phone: scrapedData?.contactInfo?.phone,
         email: scrapedData?.contactInfo?.email,
-        services: scrapedData?.services,
+        services: scrapedData?.practiceInfo?.specialties,
         about: scrapedData?.description
       },
       sources: [{
@@ -170,9 +170,9 @@ export async function orchestrateIntelligenceWorkflow(
     
     console.log(`✅ Intelligence extracted in ${step2Time}ms: ${dataPoints} data points`);
     if (scrapedData) {
-      console.log(`   Tech Stack: ${Object.keys(scrapedData.techStack).filter(k => scrapedData.techStack[k as keyof typeof scrapedData.techStack]).length} technologies`);
-      console.log(`   Services: ${scrapedData.services.length}`);
-      console.log(`   Social Media: ${Object.keys(scrapedData.socialMedia).filter(k => scrapedData.socialMedia[k as keyof typeof scrapedData.socialMedia]).length} platforms`);
+      console.log(`   Dental Tech: ${Object.keys(scrapedData.dentalTechnology).filter(k => scrapedData.dentalTechnology[k as keyof typeof scrapedData.dentalTechnology]).length} technologies`);
+      console.log(`   Specialties: ${scrapedData.practiceInfo?.specialties?.length || 0}`);
+      console.log(`   Procedures: ${Object.keys(scrapedData.dentalProcedures).filter(k => scrapedData.dentalProcedures[k as keyof typeof scrapedData.dentalProcedures]).length + Object.keys(scrapedData.aestheticProcedures).filter(k => scrapedData.aestheticProcedures[k as keyof typeof scrapedData.aestheticProcedures]).length} total`);
     }
     
     // ========== STEP 3: PRODUCT-DOCTOR FUSION & CONTENT GENERATION ==========
@@ -270,25 +270,24 @@ function generateKeyInsights(
     insights.push(`👥 ${scrapedData.practiceInfo.teamSize}-member team`);
   }
   
-  if (scrapedData.services.length > 0) {
-    insights.push(`🦷 ${scrapedData.services.length} services offered`);
+  if (scrapedData.practiceInfo?.specialties?.length) {
+    insights.push(`🦷 ${scrapedData.practiceInfo.specialties.length} specialties offered`);
   }
   
-  // Tech insights
-  if (scrapedData.techStack.cms) {
-    insights.push(`💻 Using ${scrapedData.techStack.cms}`);
+  // Medical Tech insights
+  const dentalTechCount = Object.values(scrapedData.dentalTechnology).filter(v => v).length;
+  if (dentalTechCount > 0) {
+    insights.push(`💻 ${dentalTechCount} dental technologies in use`);
   }
   
-  // Social insights
-  const socialPlatforms = Object.keys(scrapedData.socialMedia)
-    .filter(k => scrapedData.socialMedia[k as keyof typeof scrapedData.socialMedia]);
-  if (socialPlatforms.length > 0) {
-    insights.push(`📱 Active on ${socialPlatforms.length} social platforms`);
+  const aestheticDeviceCount = Object.values(scrapedData.aestheticDevices).filter(v => v).length;
+  if (aestheticDeviceCount > 0) {
+    insights.push(`✨ ${aestheticDeviceCount} aesthetic devices available`);
   }
   
-  // Pain points
-  if (scrapedData.painPoints?.length) {
-    insights.push(`🎯 ${scrapedData.painPoints.length} improvement opportunities identified`);
+  // Missing opportunities
+  if (scrapedData.missingProcedures?.length) {
+    insights.push(`🎯 ${scrapedData.missingProcedures.length} improvement opportunities identified`);
   }
   
   return insights;
@@ -306,32 +305,24 @@ function countDataPoints(scrapedData: ScrapedWebsiteData | null): number {
   if (scrapedData.title) count++;
   if (scrapedData.description) count++;
   
-  // Services & technologies
-  count += scrapedData.services.length;
-  count += scrapedData.technologies.length;
+  // Medical procedures
+  count += Object.values(scrapedData.dentalProcedures).filter(v => v).length;
+  count += Object.values(scrapedData.aestheticProcedures).filter(v => v).length;
+  
+  // Medical technology
+  count += Object.values(scrapedData.dentalTechnology).filter(v => v).length;
+  count += Object.values(scrapedData.aestheticDevices).filter(v => v).length;
+  count += Object.values(scrapedData.implantSystems).filter(v => v).length;
+  count += Object.values(scrapedData.injectableBrands).filter(v => v).length;
   
   // Contact info
   count += Object.values(scrapedData.contactInfo).filter(v => v).length;
   
-  // Social media
-  count += Object.values(scrapedData.socialMedia).filter(v => v).length;
-  
-  // Staff & testimonials
-  count += scrapedData.staff.length;
-  count += scrapedData.testimonials.length;
-  
-  // Tech stack
-  count += Object.values(scrapedData.techStack).filter(v => v).length;
-  
   // Practice info
   count += Object.values(scrapedData.practiceInfo).filter(v => v).length;
   
-  // Recent content
-  if (scrapedData.recentContent.blogPosts) count += scrapedData.recentContent.blogPosts.length;
-  if (scrapedData.recentContent.news) count += scrapedData.recentContent.news.length;
-  
-  // Pain points & advantages
-  count += (scrapedData.painPoints?.length || 0);
+  // Competitive intelligence
+  count += (scrapedData.missingProcedures?.length || 0);
   count += (scrapedData.competitiveAdvantages?.length || 0);
   
   return count;
@@ -391,8 +382,8 @@ export function formatOrchestrationSummary(result: OrchestrationResult): string 
     sections.push(`📊 Intelligence: ${result.intelligence.dataPoints} data points`);
     if (result.intelligence.websiteData) {
       const data = result.intelligence.websiteData;
-      sections.push(`   Tech Stack: ${data.techStack.cms || 'Not detected'}`);
-      sections.push(`   Services: ${data.services.slice(0, 3).join(', ')}`);
+      sections.push(`   Dental Tech: ${Object.keys(data.dentalTechnology).filter(k => data.dentalTechnology[k as keyof typeof data.dentalTechnology]).length} devices`);
+      sections.push(`   Specialties: ${data.practiceInfo?.specialties?.slice(0, 3).join(', ') || 'Not detected'}`);
       sections.push(`   Team Size: ${data.practiceInfo?.teamSize || 'Unknown'}`);
     }
   }

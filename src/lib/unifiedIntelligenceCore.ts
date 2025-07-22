@@ -388,51 +388,51 @@ function generateMedicalInsights(scrapedData: any, productName: string): string[
 /**
  * Generate opportunities based on practice data
  */
-function generateOpportunities(scrapedData: any, productName: string): string[] {
-  const opportunities: string[] = [];
-  
-  if (!scrapedData.techStack?.practiceManagement) {
-    opportunities.push('Opportunity to modernize practice management');
-  }
-  
-  if (productName.includes('YOMI') && !scrapedData.services?.some((s: string) => 
-    s.toLowerCase().includes('robot') || s.toLowerCase().includes('guided'))) {
-    opportunities.push('No robotic surgery offerings - YOMI would be differentiator');
-  }
-  
-  return opportunities;
-}
+// function generateOpportunities(scrapedData: any, productName: string): string[] {
+//   const opportunities: string[] = [];
+//   
+//   if (!scrapedData.techStack?.practiceManagement) {
+//     opportunities.push('Opportunity to modernize practice management');
+//   }
+//   
+//   if (productName.includes('YOMI') && !scrapedData.services?.some((s: string) => 
+//     s.toLowerCase().includes('robot') || s.toLowerCase().includes('guided'))) {
+//     opportunities.push('No robotic surgery offerings - YOMI would be differentiator');
+//   }
+//   
+//   return opportunities;
+// }
 
 /**
  * Identify pain points from practice data
  */
-function identifyPainPoints(scrapedData: any): string[] {
-  const painPoints: string[] = [];
-  
-  if (!scrapedData.onlineBooking) {
-    painPoints.push('No online booking system detected');
-  }
-  
-  if (!scrapedData.socialMedia?.instagram && !scrapedData.socialMedia?.facebook) {
-    painPoints.push('Limited social media presence');
-  }
-  
-  return painPoints;
-}
+// function identifyPainPoints(scrapedData: any): string[] {
+//   const painPoints: string[] = [];
+//   
+//   if (!scrapedData.onlineBooking) {
+//     painPoints.push('No online booking system detected');
+//   }
+//   
+//   if (!scrapedData.socialMedia?.instagram && !scrapedData.socialMedia?.facebook) {
+//     painPoints.push('Limited social media presence');
+//   }
+//   
+//   return painPoints;
+// }
 
 /**
  * Identify competitive advantages
  */
-function identifyAdvantages(scrapedData: any): string[] {
-  const advantages: string[] = [];
-  
-  if (scrapedData.reviews?.average >= 4.5) {
-    advantages.push(`High patient satisfaction (${scrapedData.reviews.average}/5)`);
-  }
-  
-  if (scrapedData.teamMembers?.length > 10) {
-    advantages.push('Large, established team');
-  }
-  
-  return advantages;
-}
+// function identifyAdvantages(scrapedData: any): string[] {
+//   const advantages: string[] = [];
+//   
+//   if (scrapedData.reviews?.average >= 4.5) {
+//     advantages.push(`High patient satisfaction (${scrapedData.reviews.average}/5)`);
+//   }
+//   
+//   if (scrapedData.teamMembers?.length > 10) {
+//     advantages.push('Large, established team');
+//   }
+//   
+//   return advantages;
+// }

@@ -170,7 +170,7 @@ export async function scrapePracticeWebsite(url: string, productName?: string): 
     }
     
     // Extract practice info
-    const practiceInfo = extractPracticeInfo(data, fullText);
+    const practiceInfo = extractPracticeInfo(fullText);
     
     // Identify missing procedures (opportunities)
     const missingProcedures = identifyMissingProcedures(dentalProcedures, aestheticProcedures);
@@ -496,7 +496,7 @@ function extractInjectableBrands(content: string): ScrapedWebsiteData['injectabl
 /**
  * Extract practice information from website content
  */
-function extractPracticeInfo(data: any, content: string): ScrapedWebsiteData['practiceInfo'] {
+function extractPracticeInfo(content: string): ScrapedWebsiteData['practiceInfo'] {
   return {
     doctorNames: extractStaffNames(content),
     specialties: extractSpecialties(content),
@@ -541,7 +541,7 @@ function extractCompetitiveAdvantages(
   if (dentalTechnology.cbct && dentalTechnology.itero) {
     advantages.push('Advanced imaging suite (CBCT + iTero)');
   }
-  if (dentalTechnology.guidedSurgery || dentalProcedures.guidedSurgery) {
+  if (dentalProcedures.guidedSurgery) {
     advantages.push('Guided surgery capabilities');
   }
   

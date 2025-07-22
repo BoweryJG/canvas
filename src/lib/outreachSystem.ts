@@ -70,7 +70,7 @@ export async function generatePersonalizedOutreach(
   // Use new medical intelligence if available
   const scrapedData = (researchData as any).scrapedWebsiteData;
   const medicalContext = scrapedData ? buildMedicalOutreachContext(scrapedData, scanResult.product) : buildResearchContext(researchData);
-  const scanContext = buildScanContext(scanResult);
+  // const scanContext = buildScanContext(scanResult); // Available if needed
   
   const prompt = `Generate a believable cold ${channel} ${templateType} for medical device sales. This must NOT sound like spam.
 
@@ -394,9 +394,9 @@ function buildResearchContext(researchData: ResearchData): string {
 PRACTICE: ${researchData.practiceInfo.name || 'Unknown'}
 LOCATION: ${researchData.practiceInfo.address || 'Unknown'}
 PROCEDURES: ${researchData.practiceInfo.services?.join(', ') || 'Unknown'}
-TECHNOLOGY: ${researchData.practiceInfo.technologies?.join(', ') || 'Unknown'}
+TECHNOLOGY: ${researchData.practiceInfo.technology?.join(', ') || 'Unknown'}
 SPECIALTIES: ${researchData.practiceInfo.specialties?.join(', ') || 'Unknown'}
-STAFF SIZE: ${researchData.practiceInfo.teamSize || 'Unknown'}
+STAFF SIZE: ${researchData.practiceInfo.staff || 'Unknown'}
 CONFIDENCE: ${researchData.confidenceScore}%
 SOURCES: ${researchData.sources.length} verified sources
   `.trim();
@@ -475,37 +475,37 @@ function determineProductCategory(productName: string): 'dental' | 'aesthetic' |
   return 'both';
 }
 
-function buildScanContext(scanResult: EnhancedScanResult): string {
-  return `
-DOCTOR: ${scanResult.doctor}
-PRODUCT: ${scanResult.product}
-ALIGNMENT SCORE: ${scanResult.score}%
-RESEARCH QUALITY: ${scanResult.researchQuality}
-FACT-BASED: ${scanResult.factBased ? 'Yes' : 'No'}
-KEY INSIGHTS: ${scanResult.insights.join(', ')}
-  `.trim();
-}
+// function buildScanContext(scanResult: EnhancedScanResult): string {
+//   return `
+// DOCTOR: ${scanResult.doctor}
+// PRODUCT: ${scanResult.product}
+// ALIGNMENT SCORE: ${scanResult.score}%
+// RESEARCH QUALITY: ${scanResult.researchQuality}
+// FACT-BASED: ${scanResult.factBased ? 'Yes' : 'No'}
+// KEY INSIGHTS: ${scanResult.insights.join(', ')}
+//   `.trim();
+// }
 
-function generateFallbackContent(scanResult: EnhancedScanResult, channel: string): string {
-  const templates = {
-    email: `Dear Dr. ${scanResult.doctor},
-
-I hope this email finds you well. Based on my research of your practice, I believe ${scanResult.product} could provide significant value to your operations.
-
-Our analysis shows a ${scanResult.score}% alignment between your practice needs and our solution's capabilities.
-
-Would you be open to a brief 15-minute conversation to explore this opportunity?
-
-Best regards,
-[Your Name]`,
-    
-    sms: `Dr. ${scanResult.doctor}, ${scanResult.product} shows ${scanResult.score}% fit for your practice. Quick call to discuss? [Your Name]`,
-    
-    linkedin: `Hello Dr. ${scanResult.doctor}, I've been researching innovative solutions for practices like yours. ${scanResult.product} shows strong potential for your operations. Would you be open to connecting?`
-  };
-  
-  return templates[channel as keyof typeof templates] || templates.email;
-}
+// function generateFallbackContent(scanResult: EnhancedScanResult, channel: string): string {
+//   const templates = {
+//     email: `Dear Dr. ${scanResult.doctor},
+// 
+// I hope this email finds you well. Based on my research of your practice, I believe ${scanResult.product} could provide significant value to your operations.
+// 
+// Our analysis shows a ${scanResult.score}% alignment between your practice needs and our solution's capabilities.
+// 
+// Would you be open to a brief 15-minute conversation to explore this opportunity?
+// 
+// Best regards,
+// [Your Name]`,
+//     
+//     sms: `Dr. ${scanResult.doctor}, ${scanResult.product} shows ${scanResult.score}% fit for your practice. Quick call to discuss? [Your Name]`,
+//     
+//     linkedin: `Hello Dr. ${scanResult.doctor}, I've been researching innovative solutions for practices like yours. ${scanResult.product} shows strong potential for your operations. Would you be open to connecting?`
+//   };
+//   
+//   return templates[channel as keyof typeof templates] || templates.email;
+// }
 
 /**
  * Generate believable subject line
@@ -608,20 +608,20 @@ function generateBelievableOutreach(
   };
 }
 
-function generateFallbackOutreach(
-  scanResult: EnhancedScanResult, 
-  _templateType: string, 
-  channel: string
-): PersonalizedOutreach {
-  return {
-    subject: `${scanResult.product} Opportunity - ${scanResult.score}% Practice Fit`,
-    content: generateFallbackContent(scanResult, channel),
-    personalizations: ['Practice-specific research', 'Technology alignment'],
-    researchInsights: ['High practice fit score', 'Efficiency opportunity'],
-    urgencyScore: Math.floor(scanResult.score / 10),
-    expectedResponse: 'Professional consideration'
-  };
-}
+// function generateFallbackOutreach(
+//   scanResult: EnhancedScanResult, 
+//   _templateType: string, 
+//   channel: string
+// ): PersonalizedOutreach {
+//   return {
+//     subject: `${scanResult.product} Opportunity - ${scanResult.score}% Practice Fit`,
+//     content: generateFallbackContent(scanResult, channel),
+//     personalizations: ['Practice-specific research', 'Technology alignment'],
+//     researchInsights: ['High practice fit score', 'Efficiency opportunity'],
+//     urgencyScore: Math.floor(scanResult.score / 10),
+//     expectedResponse: 'Professional consideration'
+//   };
+// }
 
 async function sendEmailFallback(_to: string, _subject: string, _content: string) {
   // EmailJS or other client-side email service integration

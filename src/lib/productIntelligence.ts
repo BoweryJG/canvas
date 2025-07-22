@@ -54,10 +54,10 @@ export async function generateProductIntelligence(
   // Calculate match score based on practice characteristics
   const matchScore = calculateMatchScore(product, practiceData, scrapedData);
   
-  // Identify integration opportunities with their tech stack
+  // Identify integration opportunities with their medical technology
   const integrationOpportunities = identifyIntegrationOpportunities(
     product,
-    scrapedData?.techStack
+    scrapedData
   );
   
   // Calculate ROI based on practice size and specialty
@@ -70,7 +70,7 @@ export async function generateProductIntelligence(
   // Identify competitive advantages
   const competitiveAdvantages = await identifyCompetitiveAdvantages(
     product,
-    scrapedData?.painPoints || [],
+    scrapedData?.missingProcedures || [],
     scrapedData?.competitiveAdvantages || []
   );
   
@@ -122,33 +122,34 @@ function calculateMatchScore(
     score += 20;
   }
   
-  // Service match - do they already offer related services?
-  if (scrapedData?.services) {
-    const relatedServices = scrapedData.services.filter(service => 
+  // Procedure match - do they already offer related procedures?
+  if (scrapedData?.practiceInfo?.specialties) {
+    const relatedSpecialties = scrapedData.practiceInfo.specialties.filter(specialty => 
       product.keywords?.some(keyword => 
-        service.toLowerCase().includes(keyword.toLowerCase())
+        specialty.toLowerCase().includes(keyword.toLowerCase())
       )
     );
-    if (relatedServices.length > 0) {
+    if (relatedSpecialties.length > 0) {
       score += 15; // They understand the space
     }
   }
   
-  // Pain point match
-  if (scrapedData?.painPoints) {
-    // Check if product addresses any pain points
-    if (scrapedData.painPoints.includes('No online appointment scheduling') && 
-        product.name.toLowerCase().includes('scheduling')) {
-      score += 20;
-    }
-    if (scrapedData.painPoints.includes('No patient portal') && 
-        product.name.toLowerCase().includes('portal')) {
-      score += 20;
+  // Missing procedure opportunities
+  if (scrapedData?.missingProcedures) {
+    // Check if product addresses missing procedures
+    const productRelevantMissing = scrapedData.missingProcedures.filter(missing => 
+      product.keywords?.some(keyword => 
+        missing.toLowerCase().includes(keyword.toLowerCase())
+      )
+    );
+    if (productRelevantMissing.length > 0) {
+      score += 20; // High opportunity for expansion
     }
   }
   
-  // Technology readiness
-  if (scrapedData?.techStack?.cms && scrapedData.techStack.cms !== 'Static HTML') {
+  // Technology readiness - check dental tech adoption
+  const dentalTechCount = scrapedData ? Object.values(scrapedData.dentalTechnology).filter(v => v).length : 0;
+  if (dentalTechCount > 3) {
     score += 10; // They're tech-savvy
   }
   
@@ -168,31 +169,31 @@ function calculateMatchScore(
  */
 function identifyIntegrationOpportunities(
   product: DentalProcedure | AestheticProcedure,
-  techStack?: ScrapedWebsiteData['techStack']
+  scrapedData?: ScrapedWebsiteData
 ): string[] {
   const opportunities: string[] = [];
   
-  if (!techStack) {
-    return ['Seamless integration with existing systems'];
+  if (!scrapedData) {
+    return ['Seamless integration with existing medical systems'];
   }
   
-  // CMS integrations
-  if (techStack.cms === 'WordPress') {
-    opportunities.push('Direct WordPress plugin integration available');
-  } else if (techStack.cms === 'Squarespace') {
-    opportunities.push('Squarespace widget for easy embedding');
+  // Dental technology integrations
+  if (scrapedData.dentalTechnology.cbct) {
+    opportunities.push('Direct CBCT integration for surgical planning');
+  }
+  if (scrapedData.dentalTechnology.itero) {
+    opportunities.push('iTero digital impression compatibility');
+  }
+  if (scrapedData.dentalTechnology.cad_cam) {
+    opportunities.push('CAD/CAM workflow integration available');
   }
   
-  // Analytics integrations
-  if (techStack.analytics?.includes('Google Analytics')) {
-    opportunities.push('Full Google Analytics event tracking included');
+  // Aesthetic device integrations
+  if (scrapedData.aestheticDevices.fraxel) {
+    opportunities.push('Fraxel laser integration for enhanced treatments');
   }
-  
-  // Marketing integrations
-  if (techStack.marketing?.includes('Mailchimp')) {
-    opportunities.push('Native Mailchimp integration for patient communications');
-  } else if (techStack.marketing?.includes('HubSpot')) {
-    opportunities.push('HubSpot CRM sync for seamless lead management');
+  if (scrapedData.aestheticDevices.coolSculpting) {
+    opportunities.push('CoolSculpting protocol optimization');
   }
   
   // Generic opportunities based on product type
@@ -361,16 +362,17 @@ function generatePersonalizedBenefits(
     }
   }
   
-  // Tech stack benefits
-  if (scrapedData?.techStack?.cms) {
-    benefits.push(`Works perfectly with your ${scrapedData.techStack.cms} website`);
+  // Medical technology benefits
+  const dentalTechCount = scrapedData ? Object.values(scrapedData.dentalTechnology).filter(v => v).length : 0;
+  if (dentalTechCount > 0) {
+    benefits.push(`Integrates with your existing ${dentalTechCount} dental technologies`);
   }
   
   // Team-specific benefits
-  if (scrapedData?.staff?.length) {
-    benefits.push(`Reduces workload for your ${scrapedData.staff.length}-member team`);
-    if (scrapedData.staff[0]) {
-      benefits.push(`Gives Dr. ${scrapedData.staff[0]} more time for patient care`);
+  if (scrapedData?.practiceInfo?.teamSize) {
+    benefits.push(`Reduces workload for your ${scrapedData.practiceInfo.teamSize}-member team`);
+    if (scrapedData.practiceInfo.doctorNames?.[0]) {
+      benefits.push(`Gives Dr. ${scrapedData.practiceInfo.doctorNames[0]} more time for patient care`);
     }
   }
   
@@ -379,15 +381,15 @@ function generatePersonalizedBenefits(
     benefits.push(`Proven success with practices in ${practiceData.practiceInfo.address}`);
   }
   
-  // Service-specific benefits
-  if (scrapedData?.services?.length) {
-    const topService = scrapedData.services[0];
-    benefits.push(`Especially powerful for ${topService} procedures`);
+  // Specialty-specific benefits
+  if (scrapedData?.practiceInfo?.specialties?.length) {
+    const topSpecialty = scrapedData.practiceInfo.specialties[0];
+    benefits.push(`Especially powerful for ${topSpecialty} procedures`);
   }
   
-  // Recent content benefits
-  if (scrapedData?.recentContent?.blogPosts?.length) {
-    benefits.push(`Supports your content marketing efforts with automated sharing`);
+  // Competitive advantages benefits
+  if (scrapedData?.competitiveAdvantages?.length) {
+    benefits.push(`Enhances your existing competitive advantages`);
   }
   
   return benefits.slice(0, 6); // Return top 6 benefits
@@ -421,11 +423,12 @@ function createObjectionHandlers(
   });
   
   // Tech complexity objection
-  if (scrapedData?.techStack?.cms) {
+  const dentalTechCount = scrapedData ? Object.values(scrapedData.dentalTechnology).filter(v => v).length : 0;
+  if (dentalTechCount > 0) {
     handlers.push({
       objection: "We're not tech-savvy enough",
-      response: `You're already successfully using ${scrapedData.techStack.cms}, which shows you can handle modern technology. 
-                ${product.name} is even easier to use and integrates directly with your existing system.`
+      response: `You're already successfully using ${dentalTechCount} dental technologies, which shows you can handle modern equipment. 
+                ${product.name} is even easier to use and integrates with your current systems.`
     });
   } else {
     handlers.push({
@@ -443,11 +446,11 @@ function createObjectionHandlers(
   });
   
   // Status quo objection
-  if (scrapedData?.painPoints?.length) {
+  if (scrapedData?.missingProcedures?.length) {
     handlers.push({
       objection: "Our current system works fine",
-      response: `I noticed your website ${scrapedData.painPoints[0].toLowerCase()}. 
-                ${product.name} addresses this directly while preserving what's already working well for you.`
+      response: `I noticed your practice could expand into ${scrapedData.missingProcedures[0].toLowerCase()}. 
+                ${product.name} addresses this opportunity while preserving what's already working well for you.`
     });
   }
   

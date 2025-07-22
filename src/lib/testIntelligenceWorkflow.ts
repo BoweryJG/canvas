@@ -124,10 +124,10 @@ export async function testSingleDoctor(
     console.log('\n📊 EXTRACTED INTELLIGENCE:');
     const data = result.intelligence.websiteData;
     console.log(`Title: ${data.title}`);
-    console.log(`Services: ${data.services.length} found`);
-    console.log(`Tech Stack: ${JSON.stringify(data.techStack, null, 2)}`);
-    console.log(`Social Media: ${JSON.stringify(data.socialMedia, null, 2)}`);
-    console.log(`Pain Points: ${data.painPoints?.join(', ') || 'None identified'}`);
+    console.log(`Specialties: ${data.practiceInfo?.specialties?.length || 0} found`);
+    console.log(`Dental Tech: ${JSON.stringify(data.dentalTechnology, null, 2)}`);
+    console.log(`Aesthetic Devices: ${JSON.stringify(data.aestheticDevices, null, 2)}`);
+    console.log(`Missing Procedures: ${data.missingProcedures?.join(', ') || 'None identified'}`);
     console.log(`Team Size: ${data.practiceInfo?.teamSize || 'Unknown'}`);
   }
   
