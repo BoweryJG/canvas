@@ -258,21 +258,46 @@ export class SalesRepReportGenerator {
     this.doc.setFont('helvetica', 'normal');
     this.doc.text('Strategic Sales Intelligence', this.pageWidth / 2, 85, { align: 'center' });
 
-    // Report title
+    // Dynamic report title with rep name, doctor name, product, and date
     this.currentY = 180;
     this.doc.setTextColor(0, 0, 0);
-    this.doc.setFontSize(36);
-    this.doc.setFont('helvetica', 'bold');
-    this.doc.text('EXECUTIVE STRATEGY BRIEF', this.pageWidth / 2, this.currentY, { align: 'center' });
-
-    // Practice name and score - add null safety
-    this.currentY += 60;
     this.doc.setFontSize(24);
-    this.doc.setTextColor(...this.hexToRgb(this.brandColors.primary));
+    this.doc.setFont('helvetica', 'bold');
+    
+    // Extract clean doctor name
     const doctorName = scanResult.doctor || 'Healthcare Professional';
-    this.doc.text(doctorName, this.pageWidth / 2, this.currentY, { align: 'center' });
+    const cleanDoctorName = doctorName.replace(/^Dr\.?\s*/i, '');
+    
+    // Generate dynamic title
+    const dynamicTitle = `${options.productName || 'Product'} Impact Report`;
+    this.doc.text(dynamicTitle.toUpperCase(), this.pageWidth / 2, this.currentY, { align: 'center' });
+    
+    // Add subtitle with doctor name and date
+    this.currentY += 35;
+    this.doc.setFontSize(18);
+    this.doc.setFont('helvetica', 'normal');
+    this.doc.setTextColor(...this.hexToRgb(this.brandColors.primary));
+    this.doc.text(`for Dr. ${cleanDoctorName}`, this.pageWidth / 2, this.currentY, { align: 'center' });
+    
+    // Add date and rep info
+    this.currentY += 25;
+    this.doc.setFontSize(14);
+    this.doc.setTextColor(100, 100, 100);
+    const reportDate = new Date().toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    this.doc.text(`Prepared by ${options.salesRepName} • ${reportDate}`, this.pageWidth / 2, this.currentY, { align: 'center' });
 
+    // Practice info and score
     this.currentY += 40;
+    this.doc.setFontSize(16);
+    this.doc.setTextColor(...this.hexToRgb(this.brandColors.primary));
+    const practiceName = researchData.practiceInfo?.name || `${cleanDoctorName} Medical Practice`;
+    this.doc.text(practiceName, this.pageWidth / 2, this.currentY, { align: 'center' });
+
+    this.currentY += 30;
     this.doc.setFontSize(18);
     this.doc.setTextColor(100, 100, 100);
     const score = scanResult.score || 0;
@@ -650,17 +675,20 @@ export class SalesRepReportGenerator {
     const reportTitle = title || 'Sales Report';
     this.doc.text(reportTitle, this.pageWidth / 2, this.currentY, { align: 'center' });
 
-    // Doctor and practice info
-    this.currentY += 50;
-    this.doc.setFontSize(20);
-    this.doc.setTextColor(...this.hexToRgb(this.brandColors.primary));
+    // Product and doctor info
+    this.currentY += 40;
     const doctorName = scanResult.doctor || 'Healthcare Professional';
-    this.doc.text(doctorName, this.pageWidth / 2, this.currentY, { align: 'center' });
+    const cleanDoctorName = doctorName.replace(/^Dr\.?\s*/i, '');
+    
+    this.doc.setFontSize(18);
+    this.doc.setTextColor(...this.hexToRgb(this.brandColors.primary));
+    this.doc.text(`${options.productName} for Dr. ${cleanDoctorName}`, this.pageWidth / 2, this.currentY, { align: 'center' });
 
-    this.currentY += 30;
+    this.currentY += 25;
     this.doc.setFontSize(14);
     this.doc.setTextColor(100, 100, 100);
-    this.doc.text(researchData.practiceInfo?.name || `${scanResult.doctor} Medical Practice`, this.pageWidth / 2, this.currentY, { align: 'center' });
+    const practiceName = researchData.practiceInfo?.name || `${cleanDoctorName} Medical Practice`;
+    this.doc.text(practiceName, this.pageWidth / 2, this.currentY, { align: 'center' });
 
     // Key metrics summary
     this.currentY += 60;
@@ -670,8 +698,13 @@ export class SalesRepReportGenerator {
     this.currentY = this.pageHeight - 100;
     this.doc.setTextColor(100, 100, 100);
     this.doc.setFontSize(12);
-    this.doc.text(`Prepared by: ${options.salesRepName}`, this.pageWidth / 2, this.currentY, { align: 'center' });
-    this.doc.text(`Date: ${new Date().toLocaleDateString()}`, this.pageWidth / 2, this.currentY + 20, { align: 'center' });
+    const reportDate = new Date().toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    this.doc.text(`Prepared by: ${options.salesRepName} | ${options.companyName}`, this.pageWidth / 2, this.currentY, { align: 'center' });
+    this.doc.text(`Date: ${reportDate}`, this.pageWidth / 2, this.currentY + 20, { align: 'center' });
   }
 
   private addInitialOutreachSummary(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
@@ -1044,15 +1077,30 @@ export class SalesRepReportGenerator {
   private setupDocument(scanResult: EnhancedScanResult, options: SalesRepReportOptions, subtitle: string): void {
     const reportType = options.reportType || 'sales_report';
     const doctorName = scanResult.doctor || 'Healthcare Professional';
+    const cleanDoctorName = doctorName.replace(/^Dr\.?\s*/i, '');
     const salesRepName = options.salesRepName || 'Sales Representative';
     const companyName = options.companyName || 'Company';
+    const productName = options.productName || 'Product';
+    const reportDate = new Date().toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+    
+    // Create dynamic title based on report type
+    let documentTitle = '';
+    if (reportType === 'mckinsey_executive') {
+      documentTitle = `${productName} Impact Report for Dr. ${cleanDoctorName} - ${reportDate}`;
+    } else {
+      documentTitle = `${reportType.replace(/_/g, ' ').toUpperCase()} - Dr. ${cleanDoctorName} - ${reportDate}`;
+    }
     
     this.doc.setProperties({
-      title: `${(reportType || 'sales_report').replace('_', ' ').toUpperCase()} - ${doctorName}`,
-      subject: subtitle,
+      title: documentTitle,
+      subject: `${subtitle} - ${salesRepName}`,
       author: salesRepName,
       creator: companyName,
-      keywords: `sales, report, ${doctorName}, ${reportType}`
+      keywords: `sales, report, ${doctorName}, ${productName}, ${reportType}`
     });
   }
 

@@ -277,46 +277,92 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
     try {
       console.log('Generating comprehensive PDF intelligence brief...');
       
-      // Create fallback research data if not available
+      // Get unified and scraped data for fallback
+      const unifiedFallbackData = deepScanResults?.unified;
+      const scrapedFallbackData = unifiedFallbackData?.scrapedWebsiteData;
+      
+      // Create intelligent fallback research data using all available data sources
       const fallbackResearchData = researchData || {
-        doctorName: scanResult.doctor || 'Healthcare Professional',
+        doctorName: scanResult.doctor || 
+                    scanData?.doctor || 
+                    deepScanResults?.doctorName || 
+                    'Healthcare Professional',
         practiceInfo: {
-          name: `${scanResult.doctor || 'Healthcare Professional'} Medical Practice`,
-          address: 'Practice Location',
-          phone: 'Contact Information',
-          website: 'Practice Website',
-          specialties: ['Medical Practice'],
-          services: ['Healthcare Services'],
-          technology: [],
-          staff: 5,
-          established: '2020'
+          name: scanData?.practiceInfo?.name ||
+                deepScanResults?.practiceInfo?.name ||
+                `${scanResult.doctor || 'Healthcare Professional'} Medical Practice`,
+          address: scanData?.location ||
+                   scanResult.location ||
+                   deepScanResults?.address ||
+                   'Practice Location',
+          phone: scanData?.phone ||
+                 'Contact Information',
+          website: scanData?.website ||
+                   deepScanResults?.website ||
+                   'Practice Website',
+          specialties: scanData?.specialties ||
+                       (scanResult.specialty ? [scanResult.specialty] : ['Medical Practice']),
+          services: scanData?.services ||
+                    deepScanResults?.services ||
+                    ['Healthcare Services'],
+          technology: scanData?.technology ||
+                      deepScanResults?.technology ||
+                      [],
+          staff: scanData?.staff ||
+                 deepScanResults?.staffCount ||
+                 5,
+          established: scanData?.established ||
+                       '2020'
         },
         credentials: {
-          medicalSchool: 'Medical School',
-          residency: 'Residency Training',
-          boardCertifications: ['Board Certified'],
-          yearsExperience: 10,
-          hospitalAffiliations: ['Hospital Affiliation']
+          medicalSchool: scanData?.medicalSchool ||
+                         'Medical School',
+          residency: scanData?.residency ||
+                     'Residency Training',
+          boardCertifications: scanData?.certifications ||
+                               ['Board Certified'],
+          yearsExperience: scanData?.experience ||
+                           10,
+          hospitalAffiliations: scanData?.affiliations ||
+                                ['Hospital Affiliation']
         },
-        reviews: {
-          averageRating: 4.5,
-          totalReviews: 25,
-          commonPraise: ['Professional', 'Knowledgeable'],
-          commonConcerns: [],
-          recentFeedback: ['Excellent care']
-        },
-        businessIntel: {
-          practiceType: 'Private Practice',
-          patientVolume: 'Medium',
-          marketPosition: 'Established',
-          recentNews: [],
-          growthIndicators: ['Growing Practice'],
-          technologyStack: ['Modern Equipment'],
-          specialty: 'General Practice'
-        },
-        sources: [],
-        confidenceScore: 75,
-        completedAt: new Date().toISOString()
+        reviews: scanData?.reviews ||
+                 deepScanResults?.reviews || {
+                   averageRating: scanResult.score ? scanResult.score / 20 : 4.0,
+                   totalReviews: 0,
+                   commonPraise: [],
+                   commonConcerns: [],
+                   recentFeedback: []
+                 },
+        businessIntel: scanData?.businessIntel ||
+                       deepScanResults?.businessIntel || {
+                         practiceType: scrapedFallbackData?.practiceInfo?.practiceType || 
+                                       scanData?.practiceType || 
+                                       'Medical Practice',
+                         patientVolume: scanData?.patientVolume || 'Not Available',
+                         marketPosition: scanData?.marketPosition || 'Not Available',
+                         recentNews: scrapedFallbackData?.recentNews || [],
+                         growthIndicators: scrapedFallbackData?.competitiveAdvantages || 
+                                           scanData?.growthIndicators || 
+                                           [],
+                         technologyStack: unifiedFallbackData?.intelligence?.practiceInfo?.technologies || 
+                                          scrapedFallbackData?.practiceInfo?.technologies || 
+                                          scanData?.technology || 
+                                          deepScanResults?.technology || 
+                                          [],
+                         specialty: scanResult.specialty || 
+                                    'Healthcare'
+                       },
+        sources: scanData?.sources ||
+                 deepScanResults?.sources ||
+                 [],
+        confidenceScore: scanData?.confidenceScore ||
+                         instantIntel?.confidenceScore ||
+                         deepScanResults?.confidenceScore ||
+                         (scanResult.score || 0),
+        completedAt: scanData?.completedAt ||
+                     deepScanResults?.completedAt ||
+                     new Date().toISOString()
       };
       
       // Pass the REAL data to the PDF generator
@@ -425,6 +471,10 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       console.log('scanResult.specialty:', scanResult.specialty);
       console.log('scanResult.location:', scanResult.location);
       
+      // Get unified and scraped data for fallback
+      const unifiedFallbackData = deepScanResults?.unified;
+      const scrapedFallbackData = unifiedFallbackData?.scrapedWebsiteData;
+      
       // If we have real data, use it intelligently instead of fallback
       const intelligentResearchData = researchData || {
         doctorName: scanResult.doctor || 'Healthcare Professional',
@@ -446,25 +496,43 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
           yearsExperience: 10,
           hospitalAffiliations: ['Hospital Affiliation']
         },
-        reviews: {
-          averageRating: 4.5,
-          totalReviews: 25,
-          commonPraise: ['Professional', 'Knowledgeable'],
-          commonConcerns: [],
-          recentFeedback: ['Excellent care']
-        },
-        businessIntel: {
-          practiceType: 'Private Practice',
-          patientVolume: 'Medium',
-          marketPosition: 'Established',
-          recentNews: [],
-          growthIndicators: ['Growing Practice'],
-          technologyStack: ['Modern Equipment'],
-          specialty: 'General Practice'
-        },
-        sources: [],
-        confidenceScore: 75,
-        completedAt: new Date().toISOString()
+        reviews: scanData?.reviews ||
+                 deepScanResults?.reviews || {
+                   averageRating: scanResult.score ? scanResult.score / 20 : 4.0,
+                   totalReviews: 0,
+                   commonPraise: [],
+                   commonConcerns: [],
+                   recentFeedback: []
+                 },
+        businessIntel: scanData?.businessIntel ||
+                       deepScanResults?.businessIntel || {
+                         practiceType: scrapedFallbackData?.practiceInfo?.practiceType || 
+                                       scanData?.practiceType || 
+                                       'Medical Practice',
+                         patientVolume: scanData?.patientVolume || 'Not Available',
+                         marketPosition: scanData?.marketPosition || 'Not Available',
+                         recentNews: scrapedFallbackData?.recentNews || [],
+                         growthIndicators: scrapedFallbackData?.competitiveAdvantages || 
+                                           scanData?.growthIndicators || 
+                                           [],
+                         technologyStack: unifiedFallbackData?.intelligence?.practiceInfo?.technologies || 
+                                          scrapedFallbackData?.practiceInfo?.technologies || 
+                                          scanData?.technology || 
+                                          deepScanResults?.technology || 
+                                          [],
+                         specialty: scanResult.specialty || 
+                                    'Healthcare'
+                       },
+        sources: scanData?.sources ||
+                 deepScanResults?.sources ||
+                 [],
+        confidenceScore: scanData?.confidenceScore ||
+                         instantIntel?.confidenceScore ||
+                         deepScanResults?.confidenceScore ||
+                         (scanResult.score || 0),
+        completedAt: scanData?.completedAt ||
+                     deepScanResults?.completedAt ||
+                     new Date().toISOString()
       };
       
       console.log('📊 FINAL DATA BEING SENT TO REPORT:', intelligentResearchData);
@@ -549,19 +617,37 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       console.log('instantIntel:', instantIntel);
       console.log('salesRepInfo:', salesRepInfo);
       
-      // Create intelligent research data instead of generic fallback
+      // Use unified intelligence data if available for non-generic reports
+      const unifiedData = deepScanResults?.unified;
+      const scrapedData = unifiedData?.scrapedWebsiteData;
+      
+      // Create intelligent research data using actual scraped data
       const intelligentSalesResearchData = researchData || {
         doctorName: scanResult.doctor || 'Healthcare Professional',
         practiceInfo: {
-          name: `${scanResult.doctor || 'Healthcare Professional'} Medical Practice`,
-          address: 'Practice Location',
-          phone: 'Contact Information',
-          website: 'Practice Website',
-          specialties: ['Medical Practice'],
-          services: ['Healthcare Services'],
-          technology: [],
-          staff: 5,
-          established: '2020'
+          name: unifiedData?.intelligence?.practiceInfo?.name || 
+                scrapedData?.title ||
+                `${scanResult.doctor || 'Healthcare Professional'} Medical Practice`,
+          address: unifiedData?.discovery?.address?.full || 
+                   scanData?.location || 
+                   'Practice Location',
+          phone: scanData?.phone || 'Contact Information',
+          website: unifiedData?.discovery?.practiceWebsite || 
+                   scrapedData?.url || 
+                   'Practice Website',
+          specialties: unifiedData?.intelligence?.practiceInfo?.services || 
+                       scanData?.specialties || 
+                       ['Medical Practice'],
+          services: unifiedData?.intelligence?.practiceInfo?.services || 
+                    scrapedData?.practiceInfo?.services || 
+                    ['Healthcare Services'],
+          technology: unifiedData?.intelligence?.practiceInfo?.technologies || 
+                      scrapedData?.practiceInfo?.technologies || 
+                      [],
+          staff: scrapedData?.practiceInfo?.teamSize || 
+                 scanData?.staff || 
+                 5,
+          established: scanData?.established || '2020'
         },
         credentials: {
           medicalSchool: 'Medical School',
@@ -570,25 +656,43 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
           yearsExperience: 10,
           hospitalAffiliations: ['Hospital Affiliation']
         },
-        reviews: {
-          averageRating: 4.5,
-          totalReviews: 25,
-          commonPraise: ['Professional', 'Knowledgeable'],
-          commonConcerns: [],
-          recentFeedback: ['Excellent care']
-        },
-        businessIntel: {
-          practiceType: 'Private Practice',
-          patientVolume: 'Medium',
-          marketPosition: 'Established',
-          recentNews: [],
-          growthIndicators: ['Growing Practice'],
-          technologyStack: ['Modern Equipment'],
-          specialty: 'General Practice'
-        },
-        sources: [],
-        confidenceScore: 75,
-        completedAt: new Date().toISOString()
+        reviews: scanData?.reviews ||
+                 deepScanResults?.reviews || {
+                   averageRating: scanResult.score ? scanResult.score / 20 : 4.0,
+                   totalReviews: 0,
+                   commonPraise: [],
+                   commonConcerns: [],
+                   recentFeedback: []
+                 },
+        businessIntel: scanData?.businessIntel ||
+                       deepScanResults?.businessIntel || {
+                         practiceType: scrapedData?.practiceInfo?.practiceType || 
+                                       scanData?.practiceType || 
+                                       'Medical Practice',
+                         patientVolume: scanData?.patientVolume || 'Not Available',
+                         marketPosition: scanData?.marketPosition || 'Not Available',
+                         recentNews: scrapedData?.recentNews || [],
+                         growthIndicators: scrapedData?.competitiveAdvantages || 
+                                           scanData?.growthIndicators || 
+                                           [],
+                         technologyStack: unifiedData?.intelligence?.practiceInfo?.technologies || 
+                                          scrapedData?.practiceInfo?.technologies || 
+                                          scanData?.technology || 
+                                          deepScanResults?.technology || 
+                                          [],
+                         specialty: scanResult.specialty || 
+                                    'Healthcare'
+                       },
+        sources: scanData?.sources ||
+                 deepScanResults?.sources ||
+                 [],
+        confidenceScore: scanData?.confidenceScore ||
+                         instantIntel?.confidenceScore ||
+                         deepScanResults?.confidenceScore ||
+                         (scanResult.score || 0),
+        completedAt: scanData?.completedAt ||
+                     deepScanResults?.completedAt ||
+                     new Date().toISOString()
       };
       
       // Ensure all salesRepInfo properties exist with fallbacks

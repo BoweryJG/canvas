@@ -6,6 +6,7 @@ import SimpleCinematicScan from '../components/SimpleCinematicScan';
 import DeepIntelligenceScan from '../components/DeepIntelligenceScan';
 import EnhancedActionSuite from '../components/EnhancedActionSuite';
 import EnhancedChatLauncher from '../components/EnhancedChatLauncher';
+import DoctorAddressCard from '../components/DoctorAddressCard';
 import { useAuth } from '../auth/AuthContext';
 import { checkUserCredits } from '../lib/creditManager';
 
@@ -150,6 +151,18 @@ const CanvasHomePremium: React.FC = () => {
             px: 2,
             background: 'linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%)'
           }}>
+            {/* Show doctor address card if available */}
+            {deepScanResults?.unified?.discovery?.address && (
+              <Box sx={{ maxWidth: 800, mx: 'auto', mb: 3 }}>
+                <DoctorAddressCard
+                  doctorName={scanData?.doctorName || 'Unknown Doctor'}
+                  address={deepScanResults.unified.discovery.address}
+                  practiceName={deepScanResults.unified.discovery.organizationName || deepScanResults.unified.intelligence?.practiceInfo?.name}
+                  website={deepScanResults.unified.discovery.practiceWebsite}
+                  verified={true}
+                />
+              </Box>
+            )}
             <EnhancedActionSuite
               scanResult={{
                 doctor: deepScanResults?.enhanced?.doctor || deepScanResults?.basic?.doctor || scanData?.doctorName || 'Unknown Doctor',

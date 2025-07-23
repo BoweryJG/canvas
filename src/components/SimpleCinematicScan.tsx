@@ -134,11 +134,16 @@ export default function SimpleCinematicScan({ doctorName, productName, location,
             unified: unifiedResults,  // Full unified results
             basic: {
               confidence: score,
-              doctor: { name: doctorName, location: location || 'Unknown' },
+              doctor: { 
+                name: doctorName, 
+                location: location || 'Unknown',
+                address: unifiedResults.discovery.address // Include NPI address
+              },
               practice: { 
                 name: unifiedResults.intelligence.practiceInfo.name || `${doctorName} Practice`, 
                 verified: unifiedResults.discovery.practiceWebsite !== null,
-                website: unifiedResults.discovery.practiceWebsite
+                website: unifiedResults.discovery.practiceWebsite,
+                address: unifiedResults.discovery.address // Include here too
               }
             },
             enhanced: {

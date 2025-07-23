@@ -16,6 +16,13 @@ export interface UnifiedIntelligenceResult {
     confidence: number;
     organizationName?: string;
     npiData?: any;
+    address?: {
+      street: string;
+      city: string;
+      state: string;
+      zip?: string;
+      full: string;
+    };
     rejectedSites?: string[];
     discoveryMethod: string;
   };
@@ -48,6 +55,9 @@ export interface UnifiedIntelligenceResult {
     intelligence: number;
     total: number;
   };
+  
+  // Raw scraped data for reports
+  scrapedWebsiteData?: any;
 }
 
 /**
@@ -183,12 +193,19 @@ export async function gatherUnifiedIntelligence(
       };
     }
     
-    // Update discovery results
+    // Update discovery results with address
     result.discovery = {
       practiceWebsite: aiAnalysis.practiceWebsites?.[0]?.url || null,
       confidence: aiAnalysis.practiceWebsites?.[0]?.confidence || 0,
       organizationName,
       npiData,
+      address: npiAddress ? {
+        street: npiAddress,
+        city: npiCity,
+        state: npiState,
+        zip: '',
+        full: `${npiAddress}, ${npiCity}, ${npiState}`
+      } : undefined,
       rejectedSites: aiAnalysis.rejectedSites?.map((r: any) => r.url) || [],
       discoveryMethod: 'ai-powered'
     };
@@ -248,7 +265,7 @@ export async function gatherUnifiedIntelligence(
         };
         
         // Store the scraped website data for use in reports and outreach
-        (result as any).scrapedWebsiteData = scrapedData;
+        result.scrapedWebsiteData = scrapedData;
         
         // Update instant results with real data
         result.instant = {

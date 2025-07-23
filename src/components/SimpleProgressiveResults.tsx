@@ -108,7 +108,11 @@ export default function SimpleProgressiveResults({ doctorName, userTier, onUpgra
   };
   
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ 
+      p: { xs: 2, sm: 3 },
+      maxWidth: '100%',
+      overflowX: 'hidden'
+    }}>
       {sections.map((section, index) => (
         <motion.div
           key={section.id}
@@ -117,12 +121,23 @@ export default function SimpleProgressiveResults({ doctorName, userTier, onUpgra
           transition={{ delay: index * 0.1 }}
         >
           <Card sx={{ 
-            mb: 2, 
+            mb: { xs: 1.5, sm: 2 }, 
             background: 'linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%)',
-            border: '1px solid #00ffc6'
+            border: '1px solid #00ffc6',
+            borderRadius: { xs: '8px', sm: '12px' }
           }}>
-            <CardContent>
-              <Typography variant="h6" sx={{ color: '#fff', mb: 2 }}>
+            <CardContent sx={{ 
+              p: { xs: 2, sm: 3 },
+              '&:last-child': { pb: { xs: 2, sm: 3 } }
+            }}>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  color: '#fff', 
+                  mb: 2,
+                  fontSize: { xs: '1.1rem', sm: '1.25rem' }
+                }}
+              >
                 {section.title}
               </Typography>
               
@@ -143,10 +158,24 @@ export default function SimpleProgressiveResults({ doctorName, userTier, onUpgra
                 <Box sx={{ color: '#fff' }}>
                   {Object.entries(getRealData()[section.id as keyof ReturnType<typeof getRealData>] || {}).map(([key, value]) => (
                     <Box key={key} sx={{ mb: 1 }}>
-                      <Typography variant="caption" sx={{ color: '#00ffc6', textTransform: 'uppercase' }}>
+                      <Typography 
+                        variant="caption" 
+                        sx={{ 
+                          color: '#00ffc6', 
+                          textTransform: 'uppercase',
+                          fontSize: { xs: '0.7rem', sm: '0.75rem' }
+                        }}
+                      >
                         {key}
                       </Typography>
-                      <Typography variant="body1">
+                      <Typography 
+                        variant="body1"
+                        sx={{
+                          wordBreak: 'break-word',
+                          overflowWrap: 'break-word',
+                          fontSize: { xs: '0.9rem', sm: '1rem' }
+                        }}
+                      >
                         {value}
                       </Typography>
                     </Box>
@@ -172,7 +201,11 @@ export default function SimpleProgressiveResults({ doctorName, userTier, onUpgra
             position: 'relative',
             overflow: 'hidden'
           }}>
-            <CardContent sx={{ p: 4, textAlign: 'center' }}>
+            <CardContent sx={{ 
+              p: { xs: 3, sm: 4 }, 
+              textAlign: 'center',
+              '&:last-child': { pb: { xs: 3, sm: 4 } }
+            }}>
               <AutoAwesome sx={{ fontSize: 48, color: '#00ffc6', mb: 2 }} />
               <Typography variant="h5" sx={{ color: '#fff', mb: 2, fontWeight: 700 }}>
                 Unlock Full Canvas Intelligence
@@ -181,10 +214,37 @@ export default function SimpleProgressiveResults({ doctorName, userTier, onUpgra
                 Sign up to save your research, access deeper insights, and leverage AI-powered sales strategies
               </Typography>
               
-              <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mb: 3 }}>
-                <Chip icon={<TrendingUp />} label="Unlimited Scans" sx={{ color: '#00ffc6' }} />
-                <Chip icon={<Lock />} label="Save Research" sx={{ color: '#00ffc6' }} />
-                <Chip icon={<AutoAwesome />} label="AI Agents" sx={{ color: '#00ffc6' }} />
+              <Box sx={{ 
+                display: 'flex', 
+                gap: { xs: 1, sm: 2 }, 
+                justifyContent: 'center', 
+                mb: 3,
+                flexWrap: 'wrap'
+              }}>
+                <Chip 
+                  icon={<TrendingUp />} 
+                  label="Unlimited Scans" 
+                  sx={{ 
+                    color: '#00ffc6',
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  }} 
+                />
+                <Chip 
+                  icon={<Lock />} 
+                  label="Save Research" 
+                  sx={{ 
+                    color: '#00ffc6',
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  }} 
+                />
+                <Chip 
+                  icon={<AutoAwesome />} 
+                  label="AI Agents" 
+                  sx={{ 
+                    color: '#00ffc6',
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  }} 
+                />
               </Box>
               
               <Button

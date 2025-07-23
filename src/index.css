@@ -1376,3 +1376,129 @@ button:focus-visible {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Mobile Responsive Reports Grid */
+@media (max-width: 768px) {
+  .reports-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+    padding: 12px 0;
+  }
+
+  .sales-reports-grid {
+    gap: 10px;
+  }
+
+  /* Ensure buttons are touch-friendly on mobile */
+  .reports-grid button,
+  .sales-reports-grid button,
+  .sales-report-btn {
+    min-height: 48px;
+    font-size: 14px;
+    padding: 12px 16px;
+  }
+
+  /* Action suite tabs responsive */
+  .action-tabs {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .action-tabs button {
+    flex: 1 1 auto;
+    min-width: 100px;
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  /* Reports category responsive */
+  .reports-category {
+    padding: 16px;
+  }
+
+  .reports-category h4 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  /* Tab content responsive */
+  .tab-content {
+    padding: 16px;
+  }
+
+  /* Contact form responsive */
+  .contact-info-form {
+    gap: 12px;
+  }
+
+  .contact-info-form input {
+    font-size: 16px !important; /* Prevent zoom on iOS */
+    padding: 12px;
+  }
+
+  /* Sales rep form responsive */
+  .sales-rep-form input {
+    font-size: 16px !important;
+    padding: 12px;
+  }
+}
+
+/* Extra small mobile screens */
+@media (max-width: 480px) {
+  .reports-grid,
+  .sales-reports-grid {
+    padding: 8px 0;
+  }
+
+  .action-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .action-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .action-tabs button {
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  /* Make cards stack vertically on very small screens */
+  .scan-result-card,
+  .research-card {
+    max-width: 100%;
+    margin: 0 auto 16px;
+  }
+}
+
+/* Progressive Results Mobile Optimization */
+@media (max-width: 768px) {
+  /* SimpleProgressiveResults mobile styles */
+  .MuiCard-root {
+    margin-bottom: 12px !important;
+  }
+
+  .MuiCardContent-root {
+    padding: 16px !important;
+  }
+
+  /* Ensure proper text wrapping */
+  .MuiTypography-body1 {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  /* Progress bar adjustments */
+  .MuiLinearProgress-root {
+    margin-bottom: 12px;
+  }
+
+  /* Make chips stack on mobile */
+  .MuiChip-root {
+    margin: 4px;
+    font-size: 12px;
+  }
+}
