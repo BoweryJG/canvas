@@ -2,7 +2,7 @@ import { Handler } from '@netlify/functions';
 
 const BRAVE_API_KEY = process.env.BRAVE_API_KEY || 'BSAe5JOYNgM9vHXnme_VZ1BQKBVkuv-';
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (event) => {
   // Enable CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',

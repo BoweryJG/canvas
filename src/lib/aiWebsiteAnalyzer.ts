@@ -27,7 +27,7 @@ export interface WebsiteAnalysisResult {
  * Analyze search results using Claude 4 Opus to find actual practice websites
  */
 export async function analyzeWebsitesWithClaude4Opus(
-  searchResults: any[],
+  searchResults: Array<{ url: string; title?: string; description?: string }>,
   doctorName: string,
   organizationName?: string,
   specialty?: string,
@@ -159,7 +159,7 @@ IMPORTANT:
  * Fallback analysis using pattern matching if AI is unavailable
  */
 function fallbackWebsiteAnalysis(
-  searchResults: any[],
+  searchResults: Array<{ url: string; title?: string; description?: string }>,
   _doctorName: string,
   organizationName?: string,
   lastName?: string

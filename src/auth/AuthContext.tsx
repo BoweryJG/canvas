@@ -7,7 +7,7 @@ import type { Session } from '@supabase/supabase-js';
 interface AuthContextType extends AuthState {
   signInWithProvider: (provider: AuthProviderType, options?: SignInOptions) => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string, metadata?: any) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, metadata?: Record<string, unknown>) => Promise<void>;
   signOut: () => Promise<void>;
   refreshSession: () => Promise<void>;
   subscription?: User['subscription'];
@@ -130,7 +130,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             error: null,
           });
         }
-      } catch (error: any) {
+      } catch (error) {
         console.error('Auth initialization error:', error);
         if (mounted) {
           // Don't treat auth errors as fatal - allow public access
@@ -196,7 +196,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log(`AuthContext - using redirect URL: ${redirectUrl}`);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: provider as any,
+        provider: provider as 'google' | 'github' | 'facebook',
         options: {
           redirectTo: options?.redirectTo || redirectUrl,
           scopes: options?.scopes,
@@ -213,7 +213,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // OAuth should redirect browser to provider
       console.log('AuthContext - OAuth initiated, browser should redirect');
-    } catch (error: any) {
+    } catch (error) {
       console.error('AuthContext - signInWithProvider error:', error);
       setState(prev => ({ 
         ...prev, 
@@ -243,7 +243,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         error: null,
       }));
       
-    } catch (error: any) {
+    } catch (error) {
       setState(prev => ({ 
         ...prev, 
         loading: false, 
@@ -279,7 +279,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         error: null,
       }));
       
-    } catch (error: any) {
+    } catch (error) {
       setState(prev => ({ 
         ...prev, 
         loading: false, 
@@ -303,7 +303,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         error: null,
       });
       
-    } catch (error: any) {
+    } catch (error) {
       setState(prev => ({ 
         ...prev, 
         loading: false, 
@@ -323,7 +323,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         session: mapSession(data.session),
         error: null,
       }));
-    } catch (error: any) {
+    } catch (error) {
       setState(prev => ({ 
         ...prev, 
         error: { message: error.message } 

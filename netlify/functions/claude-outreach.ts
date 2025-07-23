@@ -3,7 +3,7 @@ import { Handler } from '@netlify/functions';
 // Claude AI API configuration
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (event) => {
   // Enable CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -49,7 +49,7 @@ export const handler: Handler = async (event, context) => {
     let requestData;
     try {
       requestData = JSON.parse(prompt);
-    } catch (parseError) {
+    } catch (error) {
       // If prompt is not JSON, use it as a simple string
       requestData = { messages: [{ role: 'user', content: prompt }], temperature: 0.3, max_tokens: 1500 };
     }

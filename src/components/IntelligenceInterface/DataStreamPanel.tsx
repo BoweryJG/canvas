@@ -6,7 +6,7 @@ interface DataStreamPanelProps {
   scanStage: string;
 }
 
-const DataStreamPanel: React.FC<DataStreamPanelProps> = ({ progress: _, scanStage: __ }) => {
+const DataStreamPanel: React.FC<DataStreamPanelProps> = () => {
   const dataStreams = [
     { id: 'npi', label: 'NPI Registry', color: '#00D4FF', delay: 0 },
     { id: 'practice', label: 'Practice Info', color: '#00FFE1', delay: 0.5 },

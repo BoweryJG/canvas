@@ -121,7 +121,7 @@ function AppContent() {
     return () => {
       clearInterval(cleanupInterval);
     };
-  }, []);
+  }, [navigate]);
 
   console.log('App: About to render main app content');
   
@@ -129,7 +129,7 @@ function AppContent() {
     <ErrorBoundary>
       <AuthLoadingWrapper>
         {/* DEBUG: Temporarily disable onboarding */}
-        {false && showOnboarding && (
+        {showOnboarding && (
           <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
         )}
         <ConnectionStatus />

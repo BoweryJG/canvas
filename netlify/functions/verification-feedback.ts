@@ -67,7 +67,7 @@ export const handler: Handler = async (event, context) => {
 
   try {
     const feedback: VerificationFeedback = JSON.parse(event.body || '{}');
-    const { verificationId, feedbackType, corrections, userConfirmedData } = feedback;
+    const { verificationId, feedbackType, userConfirmedData } = feedback;
 
     if (!verificationId || !feedbackType) {
       return {
@@ -88,7 +88,7 @@ export const handler: Handler = async (event, context) => {
     }
 
     // Generate insights from the feedback
-    const insights = generateInsights(feedback, learningResults);
+    const insights = generateInsights(feedback);
 
     return {
       statusCode: 200,
@@ -288,7 +288,7 @@ async function storePracticeWebsite(data: {
   console.log(`✅ Stored verified practice website: ${data.practiceName} -> ${data.website}`);
 }
 
-function generateInsights(feedback: VerificationFeedback, learningResults: any): any {
+function generateInsights(feedback: VerificationFeedback): any {
   const insights = {
     feedbackType: feedback.feedbackType,
     keyLearnings: [],

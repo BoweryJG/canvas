@@ -42,7 +42,7 @@ export const useRequireAuth = (redirectTo: string = '/login') => {
  */
 export const useUserProfile = (userId?: string) => {
   const { user } = useAuth();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   
@@ -64,8 +64,8 @@ export const useUserProfile = (userId?: string) => {
           
         if (error) throw error;
         setProfile(data);
-      } catch (err: any) {
-        setError(err);
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Unknown error'));
       } finally {
         setLoading(false);
       }

@@ -15,7 +15,7 @@ interface ComprehensiveVerificationRequest {
 interface VerificationSource {
   type: 'npi' | 'web' | 'social' | 'practice';
   confidence: number;
-  data: any;
+  data: unknown;
   timestamp: string;
 }
 
@@ -56,7 +56,7 @@ interface ComprehensiveVerificationResult {
   } | null;
 }
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -196,7 +196,17 @@ async function verifyThroughNPI(
   doctorName: string, 
   providedNPI?: string,
   location?: string
-): Promise<any> {
+): Promise<{
+  npi?: string;
+  fullName?: string;
+  credential?: string;
+  specialty?: string;
+  organizationName?: string;
+  location?: string | null;
+  phone?: string;
+  address?: string;
+  exactMatch?: boolean;
+} | null> {
   try {
     const searchParams = new URLSearchParams();
     
@@ -240,8 +250,8 @@ async function verifyThroughNPI(
     
     if (bestMatch) {
       const basic = bestMatch.basic || {};
-      const address = bestMatch.addresses?.find((a: any) => a.address_purpose === 'LOCATION') || {};
-      const taxonomy = bestMatch.taxonomies?.find((t: any) => t.primary) || {};
+      const address = bestMatch.addresses?.find((a) => a.address_purpose === 'LOCATION') || {};
+      const taxonomy = bestMatch.taxonomies?.find((t) => t.primary) || {};
 
       return {
         npi: bestMatch.number,
@@ -268,7 +278,13 @@ async function findPracticeWebsite(params: {
   practiceName?: string;
   location?: string;
   previousSearchTerms?: string[];
-}): Promise<any> {
+}): Promise<{
+  practiceName: string | null;
+  website: string | null;
+  domain: string | null;
+  confidence: number;
+  indicators: string[];
+} | null> {
   try {
     // Call our practice finder function
     const practiceFinderUrl = process.env.URL 
@@ -317,7 +333,10 @@ async function verifyWebPresence(params: {
   doctorName: string;
   practiceName?: string;
   location?: string;
-}): Promise<any> {
+}): Promise<{
+  primaryWebsite?: { url: string };
+  [key: string]: unknown;
+} | null> {
   try {
     // Call our doctor verification function
     const verificationUrl = process.env.URL 
@@ -355,7 +374,15 @@ async function verifyWebPresence(params: {
 async function verifySocialMedia(params: {
   doctorName: string;
   practiceName?: string;
-}): Promise<any> {
+}): Promise<{
+  profiles: Array<{
+    platform: string;
+    url: string;
+    title: string;
+    verified: boolean;
+  }>;
+  confidence: number;
+} | null> {
   try {
     const BRAVE_API_KEY = process.env.BRAVE_API_KEY || 'BSAe5JOYNgM9vHXnme_VZ1BQKBVkuv-';
     
@@ -383,13 +410,13 @@ async function verifySocialMedia(params: {
     const results = data.web?.results || [];
 
     const socialProfiles = results
-      .filter((r: any) => {
+      .filter((r: { url: string }) => {
         const domain = new URL(r.url).hostname;
         return ['facebook.com', 'instagram.com', 'linkedin.com'].some(social => 
           domain.includes(social)
         );
       })
-      .map((r: any) => ({
+      .map((r: { url: string; title: string }) => ({
         platform: extractSocialPlatform(r.url),
         url: r.url,
         title: r.title,
@@ -398,7 +425,7 @@ async function verifySocialMedia(params: {
 
     return {
       profiles: socialProfiles,
-      confidence: socialProfiles.some((p: any) => p.verified) ? 70 : 40
+      confidence: socialProfiles.some((p) => p.verified) ? 70 : 40
     };
   } catch (error) {
     console.error('Social media verification error:', error);
@@ -406,7 +433,7 @@ async function verifySocialMedia(params: {
   }
 }
 
-function compileVerificationResults(params: any): ComprehensiveVerificationResult {
+function compileVerificationResults(params: Record<string, unknown>): ComprehensiveVerificationResult {
   const {
     verificationId,
     doctorName,
@@ -419,7 +446,7 @@ function compileVerificationResults(params: any): ComprehensiveVerificationResul
   } = params;
 
   // Calculate overall confidence
-  const confidenceScores = verificationSources.map(s => s.confidence);
+  const confidenceScores = (verificationSources as VerificationSource[]).map(s => s.confidence);
   const overallConfidence = confidenceScores.length > 0
     ? Math.round(confidenceScores.reduce((a, b) => a + b, 0) / confidenceScores.length)
     : 0;
@@ -431,7 +458,7 @@ function compileVerificationResults(params: any): ComprehensiveVerificationResul
     verificationStatus = 'verified';
   } else if (overallConfidence >= 65) {
     verificationStatus = 'likely';
-  } else if (overallConfidence < 30 && verificationSources.length > 2) {
+  } else if (overallConfidence < 30 && (verificationSources as VerificationSource[]).length > 2) {
     verificationStatus = 'suspicious';
   }
 
@@ -450,7 +477,7 @@ function compileVerificationResults(params: any): ComprehensiveVerificationResul
     websiteVerified: practiceSearchData?.confidence > 80 || false,
     phone: npiData?.phone,
     address: npiData?.address,
-    socialMedia: socialMediaData?.profiles?.map((p: any) => ({
+    socialMedia: socialMediaData?.profiles?.map((p) => ({
       platform: p.platform,
       url: p.url,
       verified: p.verified
@@ -494,8 +521,13 @@ function compileVerificationResults(params: any): ComprehensiveVerificationResul
   };
 }
 
-function generateRecommendations(params: any): string[] {
-  const { verificationStatus, overallConfidence, verificationFlags, practice } = params;
+function generateRecommendations(params: Record<string, unknown>): string[] {
+  const { verificationStatus, verificationFlags, practice } = params as {
+    verificationStatus: string;
+    overallConfidence: number;
+    verificationFlags: Record<string, boolean>;
+    practice: { website?: string; name?: string };
+  };
   const recommendations: string[] = [];
 
   if (verificationStatus === 'verified') {
@@ -527,8 +559,12 @@ function generateRecommendations(params: any): string[] {
   return recommendations;
 }
 
-function generateUserConfirmation(params: any): any {
-  const { verificationStatus, practice, verificationSources } = params;
+function generateUserConfirmation(params: Record<string, unknown>): { question: string; options: string[] } | null {
+  const { verificationStatus, practice, verificationSources } = params as {
+    verificationStatus: string;
+    practice: { name?: string; websiteVerified?: boolean };
+    verificationSources: VerificationSource[];
+  };
 
   if (verificationStatus === 'verified') {
     return null; // No confirmation needed
@@ -564,7 +600,7 @@ function generateVerificationId(): string {
   return `verify_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
-function findBestNPIMatch(results: any[], doctorName: string, location?: string): any {
+function findBestNPIMatch(results: Array<{ basic?: { first_name?: string; last_name?: string }; addresses?: Array<{ city?: string }> }>, doctorName: string, location?: string): { basic?: { first_name?: string; last_name?: string; credential?: string; organization_name?: string }; number?: string; addresses?: Array<{ address_purpose?: string; city?: string; state?: string; telephone_number?: string; address_1?: string }>; taxonomies?: Array<{ primary?: boolean; desc?: string }> } | null {
   let bestMatch = null;
   let bestScore = 0;
 
@@ -576,7 +612,7 @@ function findBestNPIMatch(results: any[], doctorName: string, location?: string)
     
     // Boost score if location matches
     if (location && result.addresses) {
-      const hasLocationMatch = result.addresses.some((addr: any) => 
+      const hasLocationMatch = result.addresses.some((addr) => 
         addr.city?.toLowerCase().includes(location.toLowerCase()) ||
         location.toLowerCase().includes(addr.city?.toLowerCase())
       );

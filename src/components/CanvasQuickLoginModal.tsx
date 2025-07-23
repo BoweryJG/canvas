@@ -28,8 +28,8 @@ export const CanvasQuickLoginModal: React.FC<CanvasQuickLoginModalProps> = ({
       await signInWithEmail(email, password);
       onSuccess?.();
       onClose();
-    } catch (err: any) {
-      setLocalError(err.message || 'Authentication failed');
+    } catch (err) {
+      setLocalError(err instanceof Error ? err.message : 'Authentication failed');
     } finally {
       setLocalLoading(false);
     }
@@ -44,8 +44,8 @@ export const CanvasQuickLoginModal: React.FC<CanvasQuickLoginModalProps> = ({
         redirectTo: window.location.href
       });
       // OAuth will redirect, so we don't need to handle success here
-    } catch (err: any) {
-      setLocalError(err.message || 'Authentication failed');
+    } catch (err) {
+      setLocalError(err instanceof Error ? err.message : 'Authentication failed');
       setLocalLoading(false);
     }
   };

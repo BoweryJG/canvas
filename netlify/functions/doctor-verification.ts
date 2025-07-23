@@ -65,7 +65,7 @@ interface DoctorVerificationRequest {
   specialty?: string;
 }
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -177,7 +177,13 @@ export const handler: Handler = async (event, context) => {
   }
 };
 
-async function performWebSearch(query: string): Promise<any[]> {
+interface WebSearchResult {
+  url: string;
+  title?: string;
+  description?: string;
+}
+
+async function performWebSearch(query: string): Promise<WebSearchResult[]> {
   const BRAVE_API_KEY = process.env.BRAVE_API_KEY || 'BSAe5JOYNgM9vHXnme_VZ1BQKBVkuv-';
   
   const searchUrl = new URL('https://api.search.brave.com/res/v1/web/search');
@@ -201,7 +207,7 @@ async function performWebSearch(query: string): Promise<any[]> {
 }
 
 async function analyzeSearchResult(
-  result: any,
+  result: WebSearchResult,
   context: {
     doctorName: string;
     practiceName?: string;

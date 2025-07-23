@@ -280,7 +280,7 @@ async function findAndAnalyzePracticeWebsite(
           console.log(`Found practice website with query "${query}":`, practiceUrl);
           
           // Add search results as sources
-          (results?.web?.results || []).slice(0, 5).forEach((result: any) => {
+          (results?.web?.results || []).slice(0, 5).forEach((result: { url?: string; title?: string; description?: string }) => {
             sources.push({
               url: result.url || '',
               title: result.title || '',
@@ -340,7 +340,7 @@ async function findAndAnalyzePracticeWebsite(
   };
 }
 
-function extractPracticeWebsite(results: any[], doctor: Doctor): string {
+function extractPracticeWebsite(results: Array<{ url?: string; title?: string; description?: string }>, doctor: Doctor): string {
   // First pass - look for Pure Dental specifically
   for (const result of results) {
     const url = result.url || '';
@@ -450,14 +450,14 @@ async function gatherComprehensiveReviews(
   );
   
   // Process all review results
-  let doctorReviewData = {
+  const doctorReviewData = {
     rating: undefined as number | undefined,
     count: 0,
     sources: [] as string[],
     highlights: [] as string[]
   };
   
-  let practiceReviewData = {
+  const practiceReviewData = {
     rating: undefined as number | undefined,
     count: 0,
     sources: [] as string[],
@@ -579,14 +579,14 @@ function calculateCombinedRating(
 async function analyzeLocalCompetition(
   doctor: Doctor,
   sources: ResearchSource[]
-): Promise<any[]> {
+): Promise<Array<{ url?: string; title: string; rating?: number; rating_count?: number; distance?: number }>> {
   try {
     const query = `${doctor.specialty} near ${doctor.city}, ${doctor.state}`;
     const localResults = await callBraveLocalSearch(query, 10);
     
     if (localResults?.results) {
       // Add competitors as sources
-      localResults.results.slice(0, 5).forEach((biz: any) => {
+      localResults.results.slice(0, 5).forEach((biz: { url?: string; title: string; rating?: number; rating_count?: number; distance?: number }) => {
         sources.push({
           url: biz.url || `local-${biz.title}`,
           title: `${biz.title} (Competitor)`,
@@ -612,7 +612,17 @@ async function analyzeProductFit(
   websiteIntel: WebsiteIntelligence,
   reviewData: ReviewData,
   sources: ResearchSource[]
-): Promise<any> {
+): Promise<{
+  productInfo?: {
+    name: string;
+    benefits: string[];
+    features: string[];
+  };
+  competitorAnalysis?: {
+    competitors: string[];
+    marketInsights: string[];
+  };
+}> {
   // Search for product-specific information
   try {
     const productSearch = await callBraveSearch(

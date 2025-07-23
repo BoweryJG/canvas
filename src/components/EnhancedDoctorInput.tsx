@@ -27,7 +27,12 @@ export const EnhancedDoctorInput: React.FC<EnhancedDoctorInputProps> = ({
   });
   
   const [showVerification, setShowVerification] = useState(false);
-  const [verificationData, setVerificationData] = useState<any>(null);
+  const [verificationData, setVerificationData] = useState<{
+    website?: string;
+    practice?: string;
+    confidence?: number;
+    sources?: Array<{ name: string; url: string; type: string }>;
+  } | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedFromAutocomplete, setSelectedFromAutocomplete] = useState(false);
 
@@ -117,7 +122,17 @@ export const EnhancedDoctorInput: React.FC<EnhancedDoctorInputProps> = ({
   };
 
   // Handle verification confirmation
-  const handleVerificationConfirm = (verifiedProfile: any) => {
+  const handleVerificationConfirm = (verifiedProfile: {
+    name: string;
+    location?: string;
+    specialty?: string;
+    website?: string;
+    practice?: string;
+    confidence: number;
+    npi?: string;
+    additionalInfo?: string;
+    sources?: Array<{ name: string; url: string; type: string }>;
+  }) => {
     setShowVerification(false);
     onDoctorConfirmed({
       name: verifiedProfile.name || manualEntry.doctorName,

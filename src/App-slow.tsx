@@ -3,9 +3,9 @@ import IntegratedCanvasExperience from './components/IntegratedCanvasExperience'
 import { AuthProvider } from './auth'
 import { performAIScan } from './lib/ai'
 import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon } from './components/Icons'
-// @ts-ignore
+// @ts-expect-error
 import EnhancedActionSuite from './components/EnhancedActionSuite'
-// @ts-ignore
+// @ts-expect-error
 import { saveScan, getScanHistory } from './lib/supabaseOperations'
 import NavBar from './components/NavBar'
 import ResearchPanel from './components/ResearchPanel'
@@ -32,7 +32,7 @@ function App() {
   const [isScanning, setIsScanning] = useState(false)
   const [scanResult, setScanResult] = useState<ScanResult | null>(null)
   const [scanStage, setScanStage] = useState('')
-  const [scanHistory, setScanHistory] = useState<any[]>([])
+  const [scanHistory, setScanHistory] = useState<ScanResult[]>([])
   const [showHistory, setShowHistory] = useState(false)
   const [researchData, setResearchData] = useState<ResearchData | null>(null)
   const [isResearching, setIsResearching] = useState(false)

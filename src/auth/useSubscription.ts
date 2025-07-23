@@ -137,7 +137,7 @@ export const useSubscription = () => {
   };
   
   // Track usage
-  const trackUsage = async (action: string, metadata?: any) => {
+  const trackUsage = async (action: string, metadata?: Record<string, unknown>) => {
     if (!user?.id) return;
     
     try {

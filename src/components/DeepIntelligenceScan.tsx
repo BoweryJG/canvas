@@ -28,7 +28,7 @@ export default function DeepIntelligenceScan({
   const [foundWebsite, setFoundWebsite] = useState<string | null>(null);
   
   useEffect(() => {
-    let mounted = true;
+    const mounted = { value: true };
     
     async function runDeepScan() {
       try {
@@ -45,7 +45,7 @@ export default function DeepIntelligenceScan({
         
         // Phase 2: Website discovery (15-30%)
         setTimeout(() => {
-          if (!mounted) return;
+          if (!mounted.value) return;
           setScanStage('Discovering Practice Website...');
           setProgress(25);
           if (deepResults?.website) {
@@ -55,21 +55,21 @@ export default function DeepIntelligenceScan({
         
         // Phase 3: Content extraction (30-50%)
         setTimeout(() => {
-          if (!mounted) return;
+          if (!mounted.value) return;
           setScanStage(foundWebsite ? 'Extracting Website Content...' : 'Searching Multiple Sources...');
           setProgress(45);
         }, 1600);
         
         // Phase 4: Intelligence analysis (50-75%)
         setTimeout(() => {
-          if (!mounted) return;
+          if (!mounted.value) return;
           setScanStage('Building Comprehensive Profile...');
           setProgress(70);
         }, 2400);
         
         // Phase 5: Final synthesis (75-100%)
         setTimeout(() => {
-          if (!mounted) return;
+          if (!mounted.value) return;
           setScanStage('Finalizing Intelligence Report...');
           setProgress(90);
           
@@ -80,7 +80,7 @@ export default function DeepIntelligenceScan({
         
         // Complete scan
         setTimeout(() => {
-          if (!mounted) return;
+          if (!mounted.value) return;
           setProgress(100);
           setScanStage('Deep Intelligence Complete');
           
@@ -101,7 +101,7 @@ export default function DeepIntelligenceScan({
           };
           
           setTimeout(() => {
-            if (!mounted) return;
+            if (!mounted.value) return;
             setIsScanning(false);
             onComplete?.(finalResults);
           }, 1000);
@@ -123,7 +123,7 @@ export default function DeepIntelligenceScan({
     runDeepScan();
     
     return () => {
-      mounted = false;
+      mounted.value = false;
     };
   }, [doctorName, location, basicScanResults, onComplete]);
   

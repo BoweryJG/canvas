@@ -41,7 +41,7 @@ class SubscriptionService {
       throw new Error('Failed to fetch RepX plans');
     } catch (error) {
       console.error('Error fetching RepX plans:', error);
-      throw error;
+      throw new Error(`Failed to fetch RepX plans: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -69,7 +69,7 @@ class SubscriptionService {
       throw new Error('Failed to create checkout session');
     } catch (error) {
       console.error('Error creating checkout session:', error);
-      throw error;
+      throw new Error(`Failed to create checkout session: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -118,7 +118,7 @@ class SubscriptionService {
       throw new Error('Failed to cancel subscription');
     } catch (error) {
       console.error('Error canceling subscription:', error);
-      throw error;
+      throw new Error(`Failed to cancel subscription: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

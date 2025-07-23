@@ -4,13 +4,13 @@ interface ApiConfig {
   maxRetries?: number;
   retryDelay?: number;
   timeout?: number;
-  fallbackData?: any;
+  fallbackData?: unknown;
   cacheKey?: string;
   cacheDuration?: number;
 }
 
 interface CachedResponse {
-  data: any;
+  data: unknown;
   timestamp: number;
 }
 
@@ -23,7 +23,7 @@ const isCacheValid = (timestamp: number, duration: number): boolean => {
 };
 
 // Save to localStorage for persistence
-const saveToLocalStorage = (key: string, data: any) => {
+const saveToLocalStorage = (key: string, data: unknown) => {
   try {
     localStorage.setItem(`canvas_cache_${key}`, JSON.stringify({
       data,
@@ -35,7 +35,7 @@ const saveToLocalStorage = (key: string, data: any) => {
 };
 
 // Load from localStorage
-const loadFromLocalStorage = (key: string, duration: number): any | null => {
+const loadFromLocalStorage = (key: string, duration: number): unknown | null => {
   try {
     const stored = localStorage.getItem(`canvas_cache_${key}`);
     if (stored) {
@@ -171,7 +171,7 @@ export function clearApiCache() {
  */
 export async function preloadCriticalData() {
   // This can be called on app start to ensure critical data is cached
-  const criticalEndpoints: Array<{ key: string; fetch: () => Promise<any> }> = [
+  const criticalEndpoints: Array<{ key: string; fetch: () => Promise<unknown> }> = [
     // Add your critical endpoints here
     // Example: { key: 'procedures', fetch: () => fetchProcedures() }
   ];

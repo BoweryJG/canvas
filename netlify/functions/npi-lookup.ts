@@ -1,6 +1,6 @@
 import { Handler } from '@netlify/functions';
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -30,8 +30,8 @@ export const handler: Handler = async (event, context) => {
     const terms = search.trim().split(/\s+/);
     
     // Extract name and location parts
-    let nameTerms: string[] = [];
-    let locationTerms: string[] = [];
+    const nameTerms: string[] = [];
+    const locationTerms: string[] = [];
     let foundLocation = false;
     
     // Location keywords for Buffalo area
@@ -78,7 +78,7 @@ export const handler: Handler = async (event, context) => {
     }
     
     // For dental specialties, include taxonomy codes
-    let taxonomyParams: Record<string, string> = {};
+    const taxonomyParams: Record<string, string> = {};
     if (searchLower.includes('oral surgeon') || searchLower.includes('oral surgery')) {
       taxonomyParams['taxonomy_description'] = 'Oral';
     } else if (searchLower.includes('dentist') || searchLower.includes('dental')) {
@@ -142,14 +142,52 @@ export const handler: Handler = async (event, context) => {
     ];
     
     // Transform and filter results
-    let doctors = (data.results || []).map((result: any) => {
+    interface NPIResult {
+      number: string;
+      basic?: {
+        first_name?: string;
+        last_name?: string;
+        credential?: string;
+        organization_name?: string;
+      };
+      addresses?: Array<{
+        address_purpose?: string;
+        address_1?: string;
+        city?: string;
+        state?: string;
+        postal_code?: string;
+        telephone_number?: string;
+      }>;
+      taxonomies?: Array<{
+        primary?: boolean;
+        desc?: string;
+      }>;
+    }
+
+    interface Doctor {
+      npi: string;
+      displayName: string;
+      firstName: string;
+      lastName: string;
+      credential: string;
+      specialty: string;
+      city: string;
+      state: string;
+      fullAddress: string;
+      phone: string;
+      organizationName: string;
+      isPriority?: boolean;
+      relevanceScore?: number;
+    }
+
+    let doctors = (data.results || []).map((result: NPIResult): Doctor => {
       const basic = result.basic || {};
       // Prefer location address over mailing address
-      const locationAddress = result.addresses?.find((a: any) => a.address_purpose === 'LOCATION') || {};
-      const mailingAddress = result.addresses?.find((a: any) => a.address_purpose === 'MAILING') || {};
+      const locationAddress = result.addresses?.find((a) => a.address_purpose === 'LOCATION') || {};
+      const mailingAddress = result.addresses?.find((a) => a.address_purpose === 'MAILING') || {};
       const address = locationAddress.address_1 ? locationAddress : mailingAddress;
       
-      const taxonomy = result.taxonomies?.find((t: any) => t.primary) || {};
+      const taxonomy = result.taxonomies?.find((t) => t.primary) || {};
       
       // Format name properly
       const formattedFirstName = basic.first_name
@@ -179,7 +217,7 @@ export const handler: Handler = async (event, context) => {
     });
     
     // Calculate relevance scores and filter
-    doctors = doctors.map((doctor: any) => {
+    doctors = doctors.map((doctor) => {
       let score = 0;
       const specialtyLower = doctor.specialty.toLowerCase();
       
@@ -221,10 +259,10 @@ export const handler: Handler = async (event, context) => {
     });
     
     // Sort by relevance score (highest first)
-    doctors.sort((a: any, b: any) => b.relevanceScore - a.relevanceScore);
+    doctors.sort((a, b) => (b.relevanceScore || 0) - (a.relevanceScore || 0));
     
     // Remove non-relevant results if we have enough priority ones
-    const priorityDoctors = doctors.filter((d: any) => d.isPriority);
+    const priorityDoctors = doctors.filter((d) => d.isPriority);
     if (priorityDoctors.length >= 5) {
       doctors = priorityDoctors;
     }
@@ -233,7 +271,7 @@ export const handler: Handler = async (event, context) => {
     doctors = doctors.slice(0, 20);
     
     // Remove internal scoring fields before returning
-    doctors = doctors.map((d: any) => {
+    doctors = doctors.map((d) => {
       const { isPriority, relevanceScore, ...cleanDoctor } = d;
       return cleanDoctor;
     });
@@ -244,12 +282,12 @@ export const handler: Handler = async (event, context) => {
       body: JSON.stringify(doctors)
     };
 
-  } catch (error: any) {
-    console.error('[NPI Lookup] Error:', error.message || error);
-    console.error('[NPI Lookup] Stack:', error.stack);
+  } catch (error) {
+    console.error('[NPI Lookup] Error:', error instanceof Error ? error.message : error);
+    console.error('[NPI Lookup] Stack:', error instanceof Error ? error.stack : 'No stack trace');
     
     // Handle timeout specifically
-    if (error.name === 'AbortError') {
+    if (error instanceof Error && error.name === 'AbortError') {
       return {
         statusCode: 504,
         headers,

@@ -33,8 +33,8 @@ export async function generatePersonalizedEmail(
   _salesRepName: string,
   _companyName: string,
   procedure?: DentalProcedure | AestheticProcedure,
-  scrapedWebsiteData?: any,
-  productIntelligence?: any
+  scrapedWebsiteData?: Record<string, unknown>,
+  productIntelligence?: Record<string, unknown>
 ): Promise<{ subject: string; body: string; preheader?: string }> {
   const insights = researchData.enhancedInsights;
   const website = researchData.sources.find(s => s.type === 'practice_website')?.url || researchData.practiceInfo?.website;
@@ -175,8 +175,8 @@ export async function generatePersonalizedSMS(
   productName: string,
   researchData: ResearchData,
   salesRepName: string,
-  scrapedWebsiteData?: any,
-  productIntelligence?: any
+  scrapedWebsiteData?: Record<string, unknown>,
+  productIntelligence?: Record<string, unknown>
 ): Promise<{ message: string; followUp?: string }> {
   // Pick the most impactful detail for SMS
   let specificDetail = '';
@@ -231,7 +231,13 @@ Also generate follow-up SMS (160 chars) that references their specific pain poin
 function generateFallbackEmail(
   doctorName: string,
   productName: string,
-  insights: any
+  insights: {
+    specialty?: string;
+    location?: string;
+    painPoints?: string[];
+    procedures?: string[];
+    equipmentUsed?: string[];
+  } | null
 ): string {
   return `Dear Dr. ${doctorName},
 
@@ -267,8 +273,8 @@ export async function generateMultiChannelCampaign(
   salesRepName: string,
   companyName: string,
   procedure?: DentalProcedure | AestheticProcedure,
-  scrapedWebsiteData?: any,
-  productIntelligence?: any
+  scrapedWebsiteData?: Record<string, unknown>,
+  productIntelligence?: Record<string, unknown>
 ): Promise<GeneratedContent> {
   // Generate all content in parallel with enhanced data
   const [email, sms] = await Promise.all([

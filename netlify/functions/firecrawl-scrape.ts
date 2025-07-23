@@ -2,7 +2,7 @@ import { Handler } from '@netlify/functions';
 
 const FIRECRAWL_API_KEY = process.env.FIRECRAWL_API_KEY || 'fc-fef78fc8b3514610a1ef2bd048d7d13d';
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (event) => {
   // Enable CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',

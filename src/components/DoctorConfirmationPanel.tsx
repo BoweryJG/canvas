@@ -26,7 +26,13 @@ interface DoctorConfirmationProps {
       score: number;
       insights: string[];
     };
-    basic: any;
+    basic: {
+      firstName?: string;
+      lastName?: string;
+      specialty?: string;
+      location?: string;
+      npi?: string;
+    };
   };
   onGoDeeper: () => void;
   onSearchAgain: () => void;

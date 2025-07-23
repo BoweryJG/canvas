@@ -39,15 +39,39 @@ interface EnhancedActionSuiteProps {
   scanResult: EnhancedScanResult;
   researchData?: ResearchData;
   instantIntel?: InstantIntelligence;
-  deepScanResults?: any;
-  scanData?: any;
+  deepScanResults?: {
+    unified?: unknown;
+    technology?: unknown;
+    reviews?: unknown;
+    businessIntel?: unknown;
+    sources?: unknown;
+    completedAt?: Date;
+    confidenceScore?: number;
+  };
+  scanData?: {
+    technology?: unknown;
+    reviews?: unknown;
+    businessIntel?: unknown;
+    sources?: unknown;
+    completedAt?: Date;
+    confidenceScore?: number;
+    practiceType?: string;
+    established?: string;
+    phone?: string;
+    location?: string;
+    staff?: unknown;
+    specialties?: string[];
+    patientVolume?: string;
+    marketPosition?: string;
+    growthIndicators?: unknown;
+  };
 }
 
 /**
  * Generate dynamic report name based on product
  */
 function generateDynamicReportName(productName: string, doctorName: string): string {
-  const safeDoctorName = String(((doctorName as any)?.name || doctorName) || 'Unknown Doctor');
+  const safeDoctorName = String((typeof doctorName === 'object' && doctorName && 'name' in doctorName ? doctorName.name : doctorName) || 'Unknown Doctor');
   const cleanDoctorName = safeDoctorName.replace(/^Dr\.?\s*/i, '');
   return `${productName} Impact Report for Dr. ${cleanDoctorName}`;
 }

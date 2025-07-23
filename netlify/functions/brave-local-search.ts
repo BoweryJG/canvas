@@ -1,6 +1,6 @@
 import { Handler } from '@netlify/functions';
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -87,7 +87,35 @@ export const handler: Handler = async (event, context) => {
   }
 };
 
-function generateMockLocalResults(query: string): any {
+interface BraveLocalResult {
+  title: string;
+  address: {
+    streetAddress: string;
+    addressLocality: string;
+    addressRegion: string;
+    postalCode: string;
+  };
+  phone: string;
+  rating: number;
+  rating_count: number;
+  reviews: Array<{ rating: number; text: string }>;
+  description: string;
+  distance: number;
+  categories: string[];
+  hours: Record<string, string>;
+  url: string;
+  priceRange: string;
+}
+
+interface MockLocalResults {
+  results: BraveLocalResult[];
+  query: {
+    original: string;
+    location_used: string;
+  };
+}
+
+function generateMockLocalResults(query: string): MockLocalResults {
   const isDoctor = query.toLowerCase().includes('dr') || query.toLowerCase().includes('doctor');
   const location = extractLocation(query);
   

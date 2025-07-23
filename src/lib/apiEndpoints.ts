@@ -22,7 +22,7 @@ const CacheKeys = {
 };
 
 // Simple in-memory cache
-const apiCache = new Map<string, { data: any; timestamp: number }>();
+const apiCache = new Map<string, { data: unknown; timestamp: number }>();
 const CACHE_TTL = 300000; // 5 minutes
 
 async function cachedApiCall<T>(
@@ -137,7 +137,7 @@ export async function callPerplexitySearch(query: string, userId?: string) {
 /**
  * Firecrawl API integration via Netlify function
  */
-export async function callFirecrawlScrape(url: string, options: any = {}, userId?: string) {
+export async function callFirecrawlScrape(url: string, options: Record<string, unknown> = {}, userId?: string) {
   return withGlobalRateLimit(globalFirecrawlLimiter, 'firecrawl', userId, async () => {
     try {
       console.log(`🕷️ Firecrawl scraping: ${url}`);

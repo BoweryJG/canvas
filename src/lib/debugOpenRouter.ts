@@ -40,5 +40,5 @@ export async function debugOpenRouter() {
 
 // Add to window for easy testing in console
 if (typeof window !== 'undefined') {
-  (window as any).debugOpenRouter = debugOpenRouter;
+  (window as { debugOpenRouter?: typeof debugOpenRouter }).debugOpenRouter = debugOpenRouter;
 }

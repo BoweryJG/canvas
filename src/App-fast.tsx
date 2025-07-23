@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { getInstantResults, getQuickSearchResults } from './lib/instantResults'
 import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon } from './components/Icons'
-// @ts-ignore
+// @ts-expect-error
 import EnhancedActionSuite from './components/EnhancedActionSuite'
 import NavBar from './components/NavBar'
 import ResearchPanel from './components/ResearchPanel'
@@ -46,7 +46,7 @@ function App() {
       try {
         const betterResult = await getQuickSearchResults(doctor, product);
         setScanResult(betterResult);
-      } catch (error) {
+      } catch {
         console.log('Using instant results');
       }
       setIsScanning(false);
@@ -236,7 +236,7 @@ function App() {
 
           {/* Action Suite */}
           <EnhancedActionSuite 
-            scanResult={scanResult as any} 
+            scanResult={scanResult} 
             researchData={undefined}
           />
         </div>

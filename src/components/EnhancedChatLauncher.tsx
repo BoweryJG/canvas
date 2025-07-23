@@ -340,7 +340,7 @@ const EnhancedChatLauncher: React.FC = () => {
               {agents.map((agent, index) => (
                 <AgentCard
                   key={agent.id}
-                  style={{ '--agent-color': agent.accentColor } as any}
+                  style={{ '--agent-color': agent.accentColor } as React.CSSProperties}
                   onClick={() => handleAgentSelect(agent.id)}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}

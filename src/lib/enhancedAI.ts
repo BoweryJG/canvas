@@ -246,7 +246,7 @@ Base recommendations on FACTS from research, not general assumptions.`
       insights: strategyData.insights || [],
       salesBrief: strategyData.salesBrief || ""
     };
-  } catch (parseError) {
+  } catch {
     console.warn('Strategy JSON parse failed, using fallback');
     return {
       score: 65,

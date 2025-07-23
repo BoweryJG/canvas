@@ -7,7 +7,7 @@ interface CategoryDisplayProps {
   scanStage: string;
 }
 
-const CategoryDisplay: React.FC<CategoryDisplayProps> = ({ categories, progress: _, scanStage: __ }) => {
+const CategoryDisplay: React.FC<CategoryDisplayProps> = ({ categories }) => {
   const categoryData = [
     { name: 'Medical Credentials', icon: '🏥', confidence: 92 },
     { name: 'Practice Information', icon: '🏢', confidence: 88 },

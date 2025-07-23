@@ -115,7 +115,7 @@ export async function performAIScan(doctorName: string, productName: string): Pr
       score = parsed.score || score;
       salesBrief = parsed.brief || salesBrief;
       insights = parsed.insights || insights;
-    } catch (parseError) {
+    } catch {
       console.log('Using fallback analysis structure');
     }
 

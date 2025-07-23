@@ -37,7 +37,17 @@ interface Props {
   website?: string;
   practice?: string;
   confidence?: number;
-  onConfirm: (verifiedProfile: any) => void;
+  onConfirm: (verifiedProfile: {
+    name: string;
+    location?: string;
+    specialty?: string;
+    website?: string;
+    practice?: string;
+    confidence: number;
+    npi?: string;
+    additionalInfo?: string;
+    sources?: Array<{ name: string; url: string; type: string }>;
+  }) => void;
   onReject: () => void;
 }
 
@@ -53,7 +63,17 @@ export default function DoctorVerification({
   onReject 
 }: Props) {
   const [loading, setLoading] = useState(false); // Changed: no loading if we already have data
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<{
+    name: string;
+    location?: string;
+    specialty?: string;
+    website?: string;
+    practice?: string;
+    confidence: number;
+    npi?: string;
+    additionalInfo?: string;
+    sources?: Array<{ name: string; url: string; type: string }>;
+  } | null>(null);
   const [error, setError] = useState(false);
   const [showDetails, setShowDetails] = useState(true); // Changed: always show details
 

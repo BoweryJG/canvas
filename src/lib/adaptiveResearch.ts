@@ -267,7 +267,7 @@ export async function adaptiveResearch(
 async function scrapeWebsiteIfNeeded(
   url: string,
   sources: ResearchSource[]
-): Promise<any> {
+): Promise<{ markdown?: string; metadata?: { title?: string; description?: string } } | null> {
   try {
     const scraped = await cachedApiCall(
       websiteCache,
@@ -296,7 +296,7 @@ async function gatherTargetedReviews(
   doctor: Doctor,
   strategy: ResearchStrategy,
   sources: ResearchSource[]
-): Promise<{ count: number; data: any }> {
+): Promise<{ count: number; data: { googleReviews?: number; yelpReviews?: number; healthgrades?: number; sources?: Array<{ site: string; rating: number; count: number }> } }> {
   // Only search review sites if focus areas suggest it's important
   const reviewSites = strategy.focusAreas.includes('patient_satisfaction') 
     ? ['healthgrades', 'zocdoc', 'google reviews', 'yelp']
@@ -331,7 +331,7 @@ async function performFocusedSearch(
   query: string,
   label: string,
   sources: ResearchSource[]
-): Promise<any> {
+): Promise<{ markdown?: string; metadata?: { title?: string; description?: string } } | null> {
   const result = await callBraveSearch(query);
   
   if (result?.web?.results?.length > 0) {
@@ -353,7 +353,7 @@ async function analyzeCompetitors(
   _product: string,
   knownCompetitors: string[],
   sources: ResearchSource[]
-): Promise<any> {
+): Promise<{ markdown?: string; metadata?: { title?: string; description?: string } } | null> {
   const competitorSearches = knownCompetitors.map(comp =>
     callBraveSearch(`"${doctor.organizationName || doctor.displayName}" "${comp}"`)
   );
@@ -382,14 +382,14 @@ async function analyzeCompetitors(
 function calculateAdaptiveConfidence(
   sources: ResearchSource[],
   strategy: ResearchStrategy,
-  synthesis: any
-): { score: number; factors: any } {
+  synthesis: unknown
+): { score: number; factors: Record<string, unknown> } {
   let score = 80; // Start at 80% - we always have NPI verified data
   const factors = {
     sourcesFound: sources.length,
     websiteAnalyzed: strategy.websiteUrl && !strategy.skipWebsiteScrape,
     reviewsFound: sources.some(s => s.type === 'review_site'),
-    competitorsIdentified: synthesis.competition?.currentVendors?.length > 0,
+    competitorsIdentified: (synthesis as { competition?: { currentVendors?: unknown[] } })?.competition?.currentVendors?.length > 0,
     strategyAlignment: strategy.focusAreas.length > 0,
     keyQuestionsAnswered: 0,
     npiVerified: true // Always true when we use NPI data

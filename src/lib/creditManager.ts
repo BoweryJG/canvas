@@ -5,17 +5,17 @@ export interface CreditCheckResult {
   error?: string;
 }
 
-export async function checkUserCredits(_userId: string): Promise<CreditCheckResult> {
+export async function checkUserCredits(): Promise<CreditCheckResult> {
   console.log('Skipping credit database checks - using default credits');
   return { hasCredits: true, creditsRemaining: 100 };
 }
 
-export async function deductCredit(_userId: string): Promise<boolean> {
+export async function deductCredit(): Promise<boolean> {
   console.log('Skipping credit deduction - using default credits');
   return true;
 }
 
-export async function getUserCredits(_userId: string): Promise<number> {
+export async function getUserCredits(): Promise<number> {
   console.log('Skipping credit query - returning default credits');
   return 100;
 }

@@ -50,7 +50,7 @@ export const sanitizeInput = (input: string): string => {
 };
 
 // Validate API responses
-export const validateApiResponse = (response: any, schema: any): boolean => {
+export const validateApiResponse = (response: unknown, schema: Record<string, unknown>): boolean => {
   // Basic schema validation
   if (!response || typeof response !== 'object') {
     return false;
@@ -225,7 +225,7 @@ export const validationSchemas = {
     message: 'Invalid email format'
   },
   phone: {
-    pattern: /^[\d\s\-\.\(\)]+$/,
+    pattern: /^[\d\s\-.()]+$/,
     message: 'Invalid phone number format'
   },
   url: {

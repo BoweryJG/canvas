@@ -19,11 +19,11 @@ export interface AgentContext {
   procedure?: {
     name: string;
     type: string;
-    details?: any;
+    details?: unknown;
   };
   doctors?: NPIDoctorInfo[];
-  conversationHistory?: any[];
-  userProfile?: any;
+  conversationHistory?: Array<{ role: string; content: string; timestamp?: string }>;
+  userProfile?: Record<string, unknown>;
 }
 
 /**
@@ -137,7 +137,7 @@ function getDoctorSalesFocus(doctor: NPIDoctorInfo): string {
 export function processMessageForInsights(
   message: string, 
   doctors: NPIDoctorInfo[]
-): Array<{action: string, title: string, message: string, data: any}> {
+): Array<{action: string, title: string, message: string, data: unknown}> {
   const insights = [];
   const lowerMessage = message.toLowerCase();
 

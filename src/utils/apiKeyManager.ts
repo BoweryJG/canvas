@@ -186,7 +186,18 @@ class ApiKeyManager {
   /**
    * Get statistics for all API keys
    */
-  getStats(provider?: string): any {
+  getStats(provider?: string): {
+    provider: string;
+    totalKeys: number;
+    activeKeys: number;
+    currentIndex: number;
+    keys: Array<{
+      usageCount: number;
+      lastUsed?: number;
+      isActive: boolean;
+      rateLimited: boolean;
+    }>;
+  } | Record<string, unknown> | null {
     if (provider) {
       const providerKeys = this.keys.get(provider);
       if (!providerKeys) return null;
@@ -206,7 +217,7 @@ class ApiKeyManager {
     }
     
     // Return stats for all providers
-    const stats: any = {};
+    const stats: Record<string, unknown> = {};
     this.keys.forEach((_keys, provider) => {
       stats[provider] = this.getStats(provider);
     });
@@ -229,7 +240,10 @@ class ApiKeyManager {
    * Load state from localStorage
    */
   private loadFromStorage() {
-    const state = DataManager.load<any>('api_keys', { encrypt: true });
+    const state = DataManager.load<{
+      keys: Array<[string, ApiKey[]]>;
+      currentIndex: Array<[string, number]>;
+    }>('api_keys', { encrypt: true });
     if (state) {
       this.keys = new Map(state.keys);
       this.currentIndex = new Map(state.currentIndex);
@@ -264,14 +278,15 @@ export async function apiCallWithRotation<T>(
     
     try {
       return await apiFunction(apiKey);
-    } catch (error: any) {
+    } catch (error: unknown) {
       attempts++;
       
       // Check if it's a rate limit or auth error
-      if (error.response?.status === 429) {
+      const errorWithResponse = error as { response?: { status?: number } };
+      if (errorWithResponse.response?.status === 429) {
         const resetAt = Date.now() + 60000; // Default 1 minute
         apiKeyManager.markRateLimited(provider, resetAt);
-      } else if (error.response?.status === 401 || error.response?.status === 403) {
+      } else if (errorWithResponse.response?.status === 401 || errorWithResponse.response?.status === 403) {
         // Deactivate invalid key
         apiKeyManager.deactivateKey(provider, apiKey.substring(0, 8));
       }

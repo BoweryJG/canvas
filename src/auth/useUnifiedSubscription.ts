@@ -128,7 +128,7 @@ export const useUnifiedSubscription = () => {
       }
 
       return { allowed: true, limit, used };
-    } catch (error) {
+    } catch {
       return { allowed: false, reason: 'Failed to check limits' };
     }
   };
@@ -139,7 +139,7 @@ export const useUnifiedSubscription = () => {
   };
 
   // Track usage for unified system
-  const trackUsage = async (action: 'calls' | 'emails' | 'canvas_scans', metadata?: any) => {
+  const trackUsage = async (action: 'calls' | 'emails' | 'canvas_scans', metadata?: Record<string, unknown>) => {
     if (!user?.id || !usage) return;
 
     try {
