@@ -72,11 +72,11 @@
   50% { transform: scale(1.02); opacity: 0.2; }
 }
 
-/* 4-Point Luxury Screws - Micro Style matching navbar */
+/* 4-Point Luxury Screws - Tiny Cartier Style matching navbar */
 .signup-modal .screw {
   position: absolute;
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
   background: radial-gradient(circle at 35% 35%, 
     #e0e0e0 0%, 
     #b8b8b8 15%, 

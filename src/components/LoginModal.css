@@ -125,11 +125,11 @@
     50% { transform: scale(1.02); opacity: 0.2; }
 }
 
-/* 4-Point Luxury Screws - Micro Style matching navbar */
+/* 4-Point Luxury Screws - Tiny Cartier Style matching navbar */
 .login-modal .screw {
     position: absolute;
-    width: 6px;
-    height: 6px;
+    width: 4px;
+    height: 4px;
     background: radial-gradient(circle at 35% 35%, 
         #e0e0e0 0%, 
         #b8b8b8 15%, 
@@ -345,8 +345,8 @@
 
 .social-btn {
     width: 100%;
-    padding: 14px 20px;
-    border-radius: 12px;
+    padding: 10px 16px;
+    border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(10px);
@@ -355,18 +355,18 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     font-family: 'Inter', sans-serif;
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 500;
     text-decoration: none;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     white-space: nowrap;
     text-overflow: ellipsis;
-    min-height: 50px;
+    min-height: 44px;
     max-width: 100%;
     box-sizing: border-box;
 }
