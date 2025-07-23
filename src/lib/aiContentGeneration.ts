@@ -44,33 +44,39 @@ export async function generatePersonalizedEmail(
   
   if (scrapedWebsiteData) {
     // Recent blog post reference
-    if (scrapedWebsiteData.recentContent?.blogPosts?.[0]) {
-      wowFactors.push(`I enjoyed your recent post about "${scrapedWebsiteData.recentContent.blogPosts[0].title}"`);
+    const recentContent = scrapedWebsiteData.recentContent as any;
+    if (recentContent?.blogPosts?.[0]?.title) {
+      wowFactors.push(`I enjoyed your recent post about "${recentContent.blogPosts[0].title}"`);
     }
     
     // Team member reference
-    if (scrapedWebsiteData.staff?.[1]) { // Skip first (usually the main doctor)
-      wowFactors.push(`Your team member ${scrapedWebsiteData.staff[1]} seems fantastic`);
+    const staff = scrapedWebsiteData.staff as any;
+    if (staff?.[1]) { // Skip first (usually the main doctor)
+      wowFactors.push(`Your team member ${staff[1]} seems fantastic`);
     }
     
     // Tech stack reference
-    if (scrapedWebsiteData.techStack?.cms) {
-      wowFactors.push(`I noticed you're using ${scrapedWebsiteData.techStack.cms} - great choice for flexibility`);
+    const techStack = scrapedWebsiteData.techStack as any;
+    if (techStack?.cms) {
+      wowFactors.push(`I noticed you're using ${techStack.cms} - great choice for flexibility`);
     }
     
     // Social media reference
-    if (scrapedWebsiteData.socialMedia?.instagram && scrapedWebsiteData.socialMedia?.instagramFollowers) {
-      wowFactors.push(`Your Instagram engagement is impressive (${scrapedWebsiteData.socialMedia.instagramFollowers} followers!)`);
+    const socialMedia = scrapedWebsiteData.socialMedia as any;
+    if (socialMedia?.instagram && socialMedia?.instagramFollowers) {
+      wowFactors.push(`Your Instagram engagement is impressive (${socialMedia.instagramFollowers} followers!)`);
     }
     
     // Award reference
-    if (scrapedWebsiteData.practiceInfo?.awards?.[0]) {
-      wowFactors.push(`Congratulations on ${scrapedWebsiteData.practiceInfo.awards[0]}`);
+    const practiceInfo = scrapedWebsiteData.practiceInfo as any;
+    if (practiceInfo?.awards?.[0]) {
+      wowFactors.push(`Congratulations on ${practiceInfo.awards[0]}`);
     }
     
     // Service they're proud of
-    if (scrapedWebsiteData.services?.[0]) {
-      wowFactors.push(`Your ${scrapedWebsiteData.services[0]} service page really stands out`);
+    const services = scrapedWebsiteData.services as any;
+    if (services?.[0]) {
+      wowFactors.push(`Your ${services[0]} service page really stands out`);
     }
   }
   
@@ -79,25 +85,25 @@ export async function generatePersonalizedEmail(
 
 WEBSITE INTELLIGENCE:
 - Website: ${website}
-- CMS: ${scrapedWebsiteData?.techStack?.cms || 'Unknown'}
-- Analytics: ${scrapedWebsiteData?.techStack?.analytics?.join(', ') || 'None detected'}
-- Marketing Tools: ${scrapedWebsiteData?.techStack?.marketing?.join(', ') || 'None detected'}
-- Team Size: ${scrapedWebsiteData?.practiceInfo?.teamSize || 'Unknown'}
-- Services: ${scrapedWebsiteData?.services?.slice(0, 3).join(', ') || 'Unknown'}
-- Recent Blog: ${scrapedWebsiteData?.recentContent?.blogPosts?.[0]?.title || 'No recent posts'}
-- Social Media: ${Object.keys(scrapedWebsiteData?.socialMedia || {}).filter(k => scrapedWebsiteData.socialMedia[k]).join(', ') || 'None'}
+- CMS: ${(scrapedWebsiteData as any)?.techStack?.cms || 'Unknown'}
+- Analytics: ${(scrapedWebsiteData as any)?.techStack?.analytics?.join(', ') || 'None detected'}
+- Marketing Tools: ${(scrapedWebsiteData as any)?.techStack?.marketing?.join(', ') || 'None detected'}
+- Team Size: ${(scrapedWebsiteData as any)?.practiceInfo?.teamSize || 'Unknown'}
+- Services: ${(scrapedWebsiteData as any)?.services?.slice(0, 3).join(', ') || 'Unknown'}
+- Recent Blog: ${(scrapedWebsiteData as any)?.recentContent?.blogPosts?.[0]?.title || 'No recent posts'}
+- Social Media: ${Object.keys((scrapedWebsiteData as any)?.socialMedia || {}).filter(k => (scrapedWebsiteData as any)?.socialMedia?.[k]).join(', ') || 'None'}
 
 PAIN POINTS DISCOVERED:
-${scrapedWebsiteData?.painPoints?.join('\n') || 'None identified'}
+${(scrapedWebsiteData as any)?.painPoints?.join('\n') || 'None identified'}
 
 COMPETITIVE ADVANTAGES:
-${scrapedWebsiteData?.competitiveAdvantages?.join('\n') || 'None identified'}
+${(scrapedWebsiteData as any)?.competitiveAdvantages?.join('\n') || 'None identified'}
 
 PRODUCT INTELLIGENCE:
 - Match Score: ${productIntelligence?.matchScore || 'N/A'}%
-- ROI Timeline: ${productIntelligence?.roiCalculation?.timeToROI || 'N/A'}
-- Integration: ${productIntelligence?.integrationOpportunities?.[0] || 'Seamless'}
-- Key Benefit: ${productIntelligence?.personalizedBenefits?.[0] || 'Improved efficiency'}
+- ROI Timeline: ${(productIntelligence as any)?.roiCalculation?.timeToROI || 'N/A'}
+- Integration: ${(productIntelligence as any)?.integrationOpportunities?.[0] || 'Seamless'}
+- Key Benefit: ${(productIntelligence as any)?.personalizedBenefits?.[0] || 'Improved efficiency'}
 
 WOW FACTOR REFERENCES (pick 1-2 that feel most natural):
 ${wowFactors.join('\n') || 'None available'}
@@ -180,22 +186,22 @@ export async function generatePersonalizedSMS(
 ): Promise<{ message: string; followUp?: string }> {
   // Pick the most impactful detail for SMS
   let specificDetail = '';
-  if (scrapedWebsiteData?.practiceInfo?.teamSize) {
-    specificDetail = `your ${scrapedWebsiteData.practiceInfo.teamSize}-person team`;
-  } else if (scrapedWebsiteData?.services?.[0]) {
-    specificDetail = `your ${scrapedWebsiteData.services[0]} patients`;
-  } else if (scrapedWebsiteData?.techStack?.cms) {
-    specificDetail = `practices using ${scrapedWebsiteData.techStack.cms}`;
+  if ((scrapedWebsiteData as any)?.practiceInfo?.teamSize) {
+    specificDetail = `your ${(scrapedWebsiteData as any).practiceInfo.teamSize}-person team`;
+  } else if ((scrapedWebsiteData as any)?.services?.[0]) {
+    specificDetail = `your ${(scrapedWebsiteData as any).services[0]} patients`;
+  } else if ((scrapedWebsiteData as any)?.techStack?.cms) {
+    specificDetail = `practices using ${(scrapedWebsiteData as any).techStack.cms}`;
   }
   
   const prompt = `Generate a personalized SMS for Dr. ${doctorName} that shows deep knowledge of their practice.
 
 SPECIFIC DETAILS:
 - Practice website: ${researchData.sources.find(s => s.type === 'practice_website')?.url || 'Not found'}
-- Team size: ${scrapedWebsiteData?.practiceInfo?.teamSize || 'Unknown'}
-- Top service: ${scrapedWebsiteData?.services?.[0] || 'General'}
-- CMS: ${scrapedWebsiteData?.techStack?.cms || 'Unknown'}
-- ROI timeline: ${productIntelligence?.roiCalculation?.timeToROI || 'Quick'}
+- Team size: ${(scrapedWebsiteData as any)?.practiceInfo?.teamSize || 'Unknown'}
+- Top service: ${(scrapedWebsiteData as any)?.services?.[0] || 'General'}
+- CMS: ${(scrapedWebsiteData as any)?.techStack?.cms || 'Unknown'}
+- ROI timeline: ${(productIntelligence as any)?.roiCalculation?.timeToROI || 'Quick'}
 - Specific detail: ${specificDetail || 'your practice'}
 
 REQUIREMENTS:
@@ -205,7 +211,7 @@ REQUIREMENTS:
 4. Natural, not salesy
 5. Sign with -${salesRepName}
 
-Also generate follow-up SMS (160 chars) that references their specific pain point: ${scrapedWebsiteData?.painPoints?.[0] || 'efficiency'}`;
+Also generate follow-up SMS (160 chars) that references their specific pain point: ${(scrapedWebsiteData as any)?.painPoints?.[0] || 'efficiency'}`;
 
   try {
     const response = await callPerplexityResearch(prompt, 'search');
@@ -243,8 +249,8 @@ function generateFallbackEmail(
 
 I noticed your ${insights?.specialty || 'practice'} in ${insights?.location || 'your area'} and wanted to share how ${productName} is helping similar practices ${insights?.painPoints?.[0] ? `address ${insights.painPoints[0]}` : 'improve patient outcomes and efficiency'}.
 
-${insights?.technologyStack?.current?.[0] 
-  ? `Since you're already using ${insights.technologyStack.current[0]}, ${productName} integrates seamlessly to enhance your existing workflow.`
+${(insights as any)?.technologyStack?.current?.[0] 
+  ? `Since you're already using ${(insights as any).technologyStack.current[0]}, ${productName} integrates seamlessly to enhance your existing workflow.`
   : `${productName} offers a modern solution that's easy to implement and delivers immediate ROI.`}
 
 Would you be open to a brief 15-minute call to explore if this could benefit your practice?
@@ -300,18 +306,18 @@ export async function generateMultiChannelCampaign(
   
   // LinkedIn with specific references
   let linkedin;
-  if (scrapedWebsiteData?.socialMedia?.linkedin || researchData.sources.some(s => s.url.includes('linkedin'))) {
+  if ((scrapedWebsiteData as any)?.socialMedia?.linkedin || researchData.sources.some(s => s.url.includes('linkedin'))) {
     // Create hyper-personalized LinkedIn messages
-    const connectionDetail = scrapedWebsiteData?.recentContent?.blogPosts?.[0] 
-      ? `Enjoyed your post on ${scrapedWebsiteData.recentContent.blogPosts[0].title}` 
-      : scrapedWebsiteData?.practiceInfo?.awards?.[0]
-      ? `Impressed by ${scrapedWebsiteData.practiceInfo.awards[0]}`
+    const connectionDetail = (scrapedWebsiteData as any)?.recentContent?.blogPosts?.[0] 
+      ? `Enjoyed your post on ${(scrapedWebsiteData as any).recentContent.blogPosts[0].title}` 
+      : (scrapedWebsiteData as any)?.practiceInfo?.awards?.[0]
+      ? `Impressed by ${(scrapedWebsiteData as any).practiceInfo.awards[0]}`
       : `Helping ${researchData.enhancedInsights?.specialty || 'healthcare'} leaders like you`;
     
-    const messageDetail = productIntelligence?.roiCalculation?.timeToROI
-      ? `${productName} delivers ROI in ${productIntelligence.roiCalculation.timeToROI} for practices like yours`
-      : scrapedWebsiteData?.painPoints?.[0]
-      ? `${productName} specifically addresses ${scrapedWebsiteData.painPoints[0].toLowerCase()}`
+    const messageDetail = (productIntelligence as any)?.roiCalculation?.timeToROI
+      ? `${productName} delivers ROI in ${(productIntelligence as any).roiCalculation.timeToROI} for practices like yours`
+      : (scrapedWebsiteData as any)?.painPoints?.[0]
+      ? `${productName} specifically addresses ${(scrapedWebsiteData as any).painPoints[0].toLowerCase()}`
       : `${productName} is transforming practices in ${researchData.practiceInfo?.address || 'your area'}`;
     
     linkedin = {

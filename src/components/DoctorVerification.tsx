@@ -43,6 +43,7 @@ interface Props {
     specialty?: string;
     website?: string;
     practice?: string;
+    phone?: string;
     confidence: number;
     npi?: string;
     additionalInfo?: string;
@@ -69,6 +70,7 @@ export default function DoctorVerification({
     specialty?: string;
     website?: string;
     practice?: string;
+    phone?: string;
     confidence: number;
     npi?: string;
     additionalInfo?: string;

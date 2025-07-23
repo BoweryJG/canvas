@@ -35,7 +35,7 @@ async function cachedApiCall<T>(
   const cached = apiCache.get(fullKey);
   
   if (cached && Date.now() - cached.timestamp < ttl) {
-    return cached.data;
+    return cached.data as T;
   }
   
   const data = await apiCall();

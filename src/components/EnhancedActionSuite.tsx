@@ -36,42 +36,18 @@ import { type SubscriptionTier } from '../types/magicLink';
 import MetallicScrew from './PremiumComponents/MetallicScrew';
 
 interface EnhancedActionSuiteProps {
-  scanResult: EnhancedScanResult;
+  scanResult: EnhancedScanResult | any;
   researchData?: ResearchData;
   instantIntel?: InstantIntelligence;
-  deepScanResults?: {
-    unified?: unknown;
-    technology?: unknown;
-    reviews?: unknown;
-    businessIntel?: unknown;
-    sources?: unknown;
-    completedAt?: Date;
-    confidenceScore?: number;
-  };
-  scanData?: {
-    technology?: unknown;
-    reviews?: unknown;
-    businessIntel?: unknown;
-    sources?: unknown;
-    completedAt?: Date;
-    confidenceScore?: number;
-    practiceType?: string;
-    established?: string;
-    phone?: string;
-    location?: string;
-    staff?: unknown;
-    specialties?: string[];
-    patientVolume?: string;
-    marketPosition?: string;
-    growthIndicators?: unknown;
-  };
+  deepScanResults?: any;
+  scanData?: any;
 }
 
 /**
  * Generate dynamic report name based on product
  */
 function generateDynamicReportName(productName: string, doctorName: string): string {
-  const safeDoctorName = String((typeof doctorName === 'object' && doctorName && 'name' in doctorName ? doctorName.name : doctorName) || 'Unknown Doctor');
+  const safeDoctorName = String((typeof doctorName === 'object' && doctorName && 'name' in doctorName ? (doctorName as any).name : doctorName) || 'Unknown Doctor');
   const cleanDoctorName = safeDoctorName.replace(/^Dr\.?\s*/i, '');
   return `${productName} Impact Report for Dr. ${cleanDoctorName}`;
 }
@@ -113,7 +89,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
   const [contactInfo, setContactInfo] = useState({
     email: '',
     phone: '',
-    preferredName: scanResult.doctor
+    preferredName: typeof scanResult.doctor === 'string' ? scanResult.doctor : scanResult.doctor?.name || 'Unknown Doctor'
   });
   
   // Sales rep information
@@ -144,7 +120,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         content: {
           subject: '',
           content: instantIntel.outreachTemplates.sms,
-          personalizations: [scanResult.doctor],
+          personalizations: [typeof scanResult.doctor === 'string' ? scanResult.doctor : scanResult.doctor?.name || 'Unknown Doctor'],
           researchInsights: [],
           urgencyScore: 8,
           expectedResponse: 'Quick response'

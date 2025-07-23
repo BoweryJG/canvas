@@ -28,9 +28,15 @@ export const EnhancedDoctorInput: React.FC<EnhancedDoctorInputProps> = ({
   
   const [showVerification, setShowVerification] = useState(false);
   const [verificationData, setVerificationData] = useState<{
+    name?: string;
+    specialty?: string;
+    location?: string;
     website?: string;
     practice?: string;
     confidence?: number;
+    npi?: string;
+    address?: string;
+    phone?: string;
     sources?: Array<{ name: string; url: string; type: string }>;
   } | null>(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -94,7 +100,7 @@ export const EnhancedDoctorInput: React.FC<EnhancedDoctorInputProps> = ({
           website: verificationResult.verifiedWebsite,
           practice: verificationResult.practiceName,
           confidence: verificationResult.confidence,
-          sources: verificationResult.sources
+          sources: verificationResult.sources.map(s => ({ name: s.type, url: s.url, type: s.type }))
         });
         setShowVerification(true);
       } else {
@@ -141,8 +147,8 @@ export const EnhancedDoctorInput: React.FC<EnhancedDoctorInputProps> = ({
       website: verifiedProfile.website,
       practice: verifiedProfile.practice,
       npi: verifiedProfile.npi || verificationData?.npi,
-      phone: verifiedProfile.phone || verificationData?.phone,
-      address: verifiedProfile.address || verificationData?.address
+      phone: (verifiedProfile as any).phone || verificationData?.phone || '',
+      address: (verifiedProfile as any).address || verificationData?.address || ''
     });
   };
 
@@ -165,7 +171,7 @@ export const EnhancedDoctorInput: React.FC<EnhancedDoctorInputProps> = ({
   if (showVerification && verificationData) {
     return (
       <DoctorVerification
-        doctorName={verificationData.name}
+        doctorName={verificationData.name || 'Unknown Doctor'}
         location={verificationData.location}
         onConfirm={handleVerificationConfirm}
         onReject={handleVerificationReject}

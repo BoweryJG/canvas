@@ -72,7 +72,7 @@ const CanvasHomePremium: React.FC = () => {
   useEffect(() => {
     const loadCredits = async () => {
       if (user) {
-        const creditCheck = await checkUserCredits(user.id);
+        const creditCheck = await checkUserCredits();
         setCreditsRemaining(creditCheck.creditsRemaining);
       }
     };

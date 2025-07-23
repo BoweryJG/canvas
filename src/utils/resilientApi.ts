@@ -72,7 +72,7 @@ export async function resilientApiCall<T>(
     const cached = responseCache.get(cacheKey);
     if (cached && isCacheValid(cached.timestamp, cacheDuration)) {
       console.log(`Cache hit for ${cacheKey}`);
-      return cached.data;
+      return cached.data as T;
     }
 
     // Check localStorage cache
@@ -80,7 +80,7 @@ export async function resilientApiCall<T>(
     if (stored) {
       console.log(`LocalStorage cache hit for ${cacheKey}`);
       responseCache.set(cacheKey, { data: stored, timestamp: Date.now() });
-      return stored;
+      return stored as T;
     }
   }
 
@@ -91,14 +91,14 @@ export async function resilientApiCall<T>(
     // Try to get any cached version (even expired)
     if (cacheKey) {
       const cached = responseCache.get(cacheKey);
-      if (cached) return cached.data;
+      if (cached) return cached.data as T;
       
       const stored = loadFromLocalStorage(cacheKey, Infinity);
-      if (stored) return stored;
+      if (stored) return stored as T;
     }
     
     if (fallbackData !== undefined) {
-      return fallbackData;
+      return fallbackData as T;
     }
     
     throw new Error('No internet connection and no cached data available');
@@ -131,20 +131,20 @@ export async function resilientApiCall<T>(
       const cached = responseCache.get(cacheKey);
       if (cached) {
         console.warn('Using stale cache due to API failure');
-        return cached.data;
+        return cached.data as T;
       }
       
       const stored = loadFromLocalStorage(cacheKey, Infinity);
       if (stored) {
         console.warn('Using stale localStorage cache due to API failure');
-        return stored;
+        return stored as T;
       }
     }
     
     // Use fallback data if available
     if (fallbackData !== undefined) {
       console.warn('Using fallback data');
-      return fallbackData;
+      return fallbackData as T;
     }
     
     throw error;

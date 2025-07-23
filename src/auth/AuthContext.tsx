@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from './supabase';
 // Cross-domain auth removed - local auth only
-import type { User, AuthSession, AuthState, AuthProvider as AuthProviderType, SignInOptions } from './types';
+import type { User, AuthSession, AuthState, AuthError, AuthProvider as AuthProviderType, SignInOptions } from './types';
 import type { Session } from '@supabase/supabase-js';
 
 interface AuthContextType extends AuthState {
@@ -218,7 +218,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setState(prev => ({ 
         ...prev, 
         loading: false, 
-        error: { message: error.message } 
+        error: { message: error instanceof Error ? error.message : 'Unknown error' } as AuthError 
       }));
       throw error;
     }
@@ -247,7 +247,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setState(prev => ({ 
         ...prev, 
         loading: false, 
-        error: { message: error.message } 
+        error: { message: error instanceof Error ? error.message : 'Unknown error' } as AuthError 
       }));
       throw error;
     }
@@ -283,7 +283,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setState(prev => ({ 
         ...prev, 
         loading: false, 
-        error: { message: error.message } 
+        error: { message: error instanceof Error ? error.message : 'Unknown error' } as AuthError 
       }));
       throw error;
     }
@@ -307,7 +307,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setState(prev => ({ 
         ...prev, 
         loading: false, 
-        error: { message: error.message } 
+        error: { message: error instanceof Error ? error.message : 'Unknown error' } as AuthError 
       }));
       throw error;
     }
@@ -326,7 +326,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       setState(prev => ({ 
         ...prev, 
-        error: { message: error.message } 
+        error: { message: error instanceof Error ? error.message : 'Unknown error' } as AuthError 
       }));
       throw error;
     }

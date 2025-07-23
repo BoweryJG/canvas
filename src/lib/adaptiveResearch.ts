@@ -192,7 +192,7 @@ export async function adaptiveResearch(
       );
       
       progress?.updateStep?.('competition', 'completed', 
-        `${competitorData.competitors.length} competitors analyzed`);
+        `${(competitorData as any)?.competitors?.length || 0} competitors analyzed`);
     }
     
     // Step 5: Sequential Thinking Guided Synthesis
@@ -324,7 +324,7 @@ async function gatherTargetedReviews(
     }
   });
   
-  return { count: totalReviews, data: reviews };
+  return { count: totalReviews, data: { sources: reviews } };
 }
 
 async function performFocusedSearch(
@@ -376,7 +376,7 @@ async function analyzeCompetitors(
     });
   }
   
-  return { competitors };
+  return { competitors } as any;
 }
 
 function calculateAdaptiveConfidence(
@@ -389,7 +389,7 @@ function calculateAdaptiveConfidence(
     sourcesFound: sources.length,
     websiteAnalyzed: strategy.websiteUrl && !strategy.skipWebsiteScrape,
     reviewsFound: sources.some(s => s.type === 'review_site'),
-    competitorsIdentified: (synthesis as { competition?: { currentVendors?: unknown[] } })?.competition?.currentVendors?.length > 0,
+    competitorsIdentified: (synthesis as any)?.competition?.currentVendors?.length > 0,
     strategyAlignment: strategy.focusAreas.length > 0,
     keyQuestionsAnswered: 0,
     npiVerified: true // Always true when we use NPI data
@@ -414,10 +414,10 @@ function calculateAdaptiveConfidence(
   score += Math.min(answeredQuestions * 1.5, 8);
   
   // Award points for sales brief quality
-  if (synthesis.salesBrief && synthesis.salesBrief.length > 100) score += 3;
+  if ((synthesis as any)?.salesBrief && (synthesis as any).salesBrief.length > 100) score += 3;
   
   // Bonus for tech stack match (yomi relevance)
-  if (synthesis.technologyStack?.current?.some((tech: string) => 
+  if ((synthesis as any)?.technologyStack?.current?.some((tech: string) => 
     tech.toLowerCase().includes('cbct') || 
     tech.toLowerCase().includes('implant') ||
     tech.toLowerCase().includes('surgical'))) {

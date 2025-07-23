@@ -3,9 +3,7 @@ import IntegratedCanvasExperience from './components/IntegratedCanvasExperience'
 import { AuthProvider } from './auth'
 import { performAIScan } from './lib/ai'
 import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon } from './components/Icons'
-// @ts-expect-error
 import EnhancedActionSuite from './components/EnhancedActionSuite'
-// @ts-expect-error
 import { saveScan, getScanHistory } from './lib/supabaseOperations'
 import NavBar from './components/NavBar'
 import ResearchPanel from './components/ResearchPanel'
@@ -201,17 +199,17 @@ function App() {
           <h3>🕐 SCAN HISTORY</h3>
           <div className="history-list">
             {scanHistory.map((scan, index) => (
-              <div key={scan.id || index} className="history-item">
+              <div key={index} className="history-item">
                 <div className="history-header">
-                  <span className="doctor-name">Dr. {scan.doctor_name}</span>
+                  <span className="doctor-name">Dr. {scan.doctor}</span>
                   <span className={`score ${scan.score >= 80 ? 'high-value' : ''}`}>
                     {scan.score}%
                   </span>
                 </div>
                 <div className="history-details">
-                  <span className="product-name">{scan.product_name}</span>
+                  <span className="product-name">{scan.product}</span>
                   <span className="scan-date">
-                    {new Date(scan.created_at).toLocaleDateString()}
+                    {new Date().toLocaleDateString()}
                   </span>
                 </div>
                 <button 
@@ -323,7 +321,7 @@ function App() {
 
           {/* Enhanced Action Suite */}
           <EnhancedActionSuite 
-            scanResult={scanResult as any} 
+            scanResult={scanResult} 
             researchData={researchData || undefined}
           />
         </div>

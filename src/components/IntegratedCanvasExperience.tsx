@@ -116,7 +116,7 @@ export default function IntegratedCanvasExperience() {
   useEffect(() => {
     const loadCredits = async () => {
       if (user) {
-        const creditCheck = await checkUserCredits(user.id);
+        const creditCheck = await checkUserCredits();
         setCreditsRemaining(creditCheck.creditsRemaining);
       }
     };
@@ -134,7 +134,7 @@ export default function IntegratedCanvasExperience() {
     }
     
     // For authenticated users, check credits
-    const creditCheck = await checkUserCredits(user.id);
+    const creditCheck = await checkUserCredits();
     setCreditsRemaining(creditCheck.creditsRemaining);
     
     if (!creditCheck.hasCredits) {
@@ -144,7 +144,7 @@ export default function IntegratedCanvasExperience() {
     }
     
     // Deduct credit and start scan
-    const deducted = await deductCredit(user.id);
+    const deducted = await deductCredit();
     if (!deducted) {
       setCreditError('Failed to process scan. Please try again.');
       setShowCreditAlert(true);

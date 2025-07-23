@@ -613,6 +613,9 @@ async function analyzeProductFit(
   reviewData: ReviewData,
   sources: ResearchSource[]
 ): Promise<{
+  productName?: string;
+  fitScore?: number;
+  opportunities?: string[];
   productInfo?: {
     name: string;
     benefits: string[];
@@ -650,7 +653,7 @@ async function analyzeProductFit(
     };
   } catch (error) {
     console.log('Product analysis failed:', error);
-    return { productName: product, fitScore: 70 };
+    return { productName: product, fitScore: 70, opportunities: [] };
   }
 }
 

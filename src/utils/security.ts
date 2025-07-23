@@ -56,16 +56,19 @@ export const validateApiResponse = (response: unknown, schema: Record<string, un
     return false;
   }
   
+  const responseObj = response as Record<string, unknown>;
+  
   for (const key in schema) {
-    if (schema[key].required && !(key in response)) {
+    const schemaField = schema[key] as { required?: boolean; type?: string };
+    if (schemaField?.required && !(key in responseObj)) {
       console.error(`Missing required field: ${key}`);
       return false;
     }
     
-    if (key in response && schema[key].type) {
-      const actualType = Array.isArray(response[key]) ? 'array' : typeof response[key];
-      if (actualType !== schema[key].type) {
-        console.error(`Invalid type for ${key}: expected ${schema[key].type}, got ${actualType}`);
+    if (key in responseObj && schemaField?.type) {
+      const actualType = Array.isArray(responseObj[key]) ? 'array' : typeof responseObj[key];
+      if (actualType !== schemaField.type) {
+        console.error(`Invalid type for ${key}: expected ${schemaField.type}, got ${actualType}`);
         return false;
       }
     }

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { getInstantResults, getQuickSearchResults } from './lib/instantResults'
 import { TargetSightIcon, DoctorTargetIcon, ProductScanIcon, TacticalBriefIcon } from './components/Icons'
-// @ts-expect-error
 import EnhancedActionSuite from './components/EnhancedActionSuite'
 import NavBar from './components/NavBar'
 import ResearchPanel from './components/ResearchPanel'
@@ -236,7 +235,7 @@ function App() {
 
           {/* Action Suite */}
           <EnhancedActionSuite 
-            scanResult={scanResult} 
+            scanResult={scanResult as any} 
             researchData={undefined}
           />
         </div>
