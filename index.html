@@ -10,50 +10,11 @@
     <meta property="og:title" content="Canvas | Precision Provider Intelligence" />
     <meta property="og:description" content="From NPI data to closed deals in minutes" />
     <meta name="description" content="Canvas - Precision provider intelligence platform transforming medical device sales through AI-powered insights" />
-    <!-- Chrome-specific loading screen fix -->
-    <style>
-      @media screen and (-webkit-min-device-pixel-ratio:0) {
-        /* Chrome-specific CSS */
-        #initial-loader {
-          transition: opacity 0.1s ease-out !important;
-        }
-        .chrome-hide-loader #initial-loader {
-          opacity: 0 !important;
-          pointer-events: none !important;
-          display: none !important;
-        }
-      }
-      
-      /* iPad Chrome specific fix */
-      @media screen and (max-width: 1024px) and (-webkit-min-device-pixel-ratio:0) {
-        #initial-loader {
-          display: none !important;
-          visibility: hidden !important;
-        }
-      }
-    </style>
     <!-- URL Debugger - DISABLED TO STOP CONSOLE SPAM -->
     <!-- <script src="/url-debugger.js"></script> -->
   </head>
   <body>
-    <div id="root">
-      <!-- Loading state while React initializes -->
-      <div id="initial-loader" style="
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
-        color: white;
-        font-family: system-ui, -apple-system, sans-serif;
-      ">
-        <div style="text-align: center;">
-          <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
-          <h1 style="margin: 0 0 0.5rem 0; font-size: 2rem; font-weight: 800;">CANVAS</h1>
-          <p style="margin: 0; opacity: 0.7; font-weight: 400;">Loading Provider Intelligence...</p>
-        </div>
-      </div>
-    </div>
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
