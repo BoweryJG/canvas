@@ -78,7 +78,7 @@ export const MagicLinkSender: React.FC<MagicLinkSenderProps> = ({
     }
   };
   
-  const detectUserEmailProvider = (email?: string): any => {
+  const detectUserEmailProvider = (email?: string): 'gmail' | 'outlook' | 'default' => {
     if (!email) return 'default';
     const domain = email.split('@')[1]?.toLowerCase();
     

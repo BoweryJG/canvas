@@ -32,15 +32,14 @@ export const DoctorAutocompleteDebug: React.FC<DoctorAutocompleteDebugProps> = (
   const [networkError, setNetworkError] = useState<string | null>(null);
 
   // Add debug message
-  const addDebug = (message: string) => {
+  const addDebug = useCallback((message: string) => {
     const timestamp = new Date().toLocaleTimeString();
     setDebugInfo(prev => [...prev, `[${timestamp}] ${message}`]);
     console.log(`🔍 DEBUG: ${message}`);
-  };
+  }, []);
 
   // Debounced search function
-  const searchDoctors = useCallback(
-    debounce(async (searchTerm: string) => {
+  const searchDoctors = useCallback(async (searchTerm: string) => {
       addDebug(`searchDoctors called with: "${searchTerm}"`);
       
       if (searchTerm.length < 3) {
@@ -83,15 +82,19 @@ export const DoctorAutocompleteDebug: React.FC<DoctorAutocompleteDebugProps> = (
         setLoading(false);
         addDebug('API call completed');
       }
-    }, 300),
-    []
+  }, [addDebug]);
+
+  // Create debounced version
+  const debouncedSearchDoctors = useCallback(
+    debounce(searchDoctors, 300),
+    [searchDoctors]
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     addDebug(`Input changed to: "${value}"`);
     setSearch(value);
-    searchDoctors(value);
+    debouncedSearchDoctors(value);
   };
 
   const handleSelect = (doctor: Doctor) => {

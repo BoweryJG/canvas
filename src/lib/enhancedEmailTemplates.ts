@@ -50,11 +50,77 @@ export function generateEnhancedEmailCampaign(
 /**
  * Initial outreach with product market context
  */
+interface DoctorIntel {
+  practiceProfile?: {
+    notableFeatures?: string[];
+  };
+  executiveSummary?: string;
+  competitivePosition?: {
+    marketRank?: string;
+    vulnerabilities?: string[];
+  };
+  buyingSignals?: string[];
+  painPoints?: string[];
+  salesStrategy?: {
+    objectionHandlers?: Record<string, string>;
+    timing?: string;
+  };
+  budgetIndicators?: {
+    purchaseTimeframe?: string;
+  };
+}
+
+interface ProductIntel {
+  localInsights?: {
+    socialProof?: string[];
+    topAdopter?: string;
+    caseStudies?: string[];
+    referenceCustomers?: string[];
+  };
+  competitiveLandscape?: {
+    differentiators?: string[];
+    marketShare?: number;
+    topCompetitors?: string[];
+    vsCompetitors?: boolean;
+  };
+  marketData?: {
+    awareness?: number;
+    roi?: {
+      low?: number;
+      high?: number;
+      timeframe?: string;
+    };
+    typicalResults?: string;
+    limitedTimeOffers?: string[];
+    recentAdopters?: string;
+    pricingRange?: {
+      high: number;
+      low: number;
+    };
+    primaryBenefit?: string;
+    adoptionRate?: number;
+  };
+  implementationData?: {
+    timeframe?: string;
+  };
+}
+
+interface CombinedStrategy {
+  messagingStrategy?: {
+    primaryHook?: string;
+    urgencyTrigger?: string;
+    valueProps?: string[];
+  };
+  closingStrategy?: {
+    finalHook?: string;
+  };
+}
+
 function generateInitialOutreach(
   scanResult: EnhancedScanResult,
-  doctorIntel: any,
-  productIntel: any,
-  combinedStrategy: any,
+  doctorIntel: DoctorIntel,
+  productIntel: ProductIntel,
+  combinedStrategy: CombinedStrategy,
   salesRep: SalesRepInfo
 ): EmailCampaign {
   const practiceInsight = doctorIntel.practiceProfile?.notableFeatures?.[0] || 
@@ -105,9 +171,9 @@ P.S. ${combinedStrategy.messagingStrategy?.urgencyTrigger || `I have insights on
  */
 function generateFollowUp(
   scanResult: EnhancedScanResult,
-  doctorIntel: any,
-  productIntel: any,
-  combinedStrategy: any,
+  doctorIntel: DoctorIntel,
+  productIntel: ProductIntel,
+  combinedStrategy: CombinedStrategy,
   salesRep: SalesRepInfo
 ): EmailCampaign {
   const painPoint = doctorIntel.painPoints?.[0] || 
@@ -159,9 +225,9 @@ P.S. ${productIntel.marketData?.limitedTimeOffers?.[0] || `I can also share excl
  */
 function generateClosing(
   scanResult: EnhancedScanResult,
-  doctorIntel: any,
-  productIntel: any,
-  combinedStrategy: any,
+  doctorIntel: DoctorIntel,
+  productIntel: ProductIntel,
+  combinedStrategy: CombinedStrategy,
   salesRep: SalesRepInfo
 ): EmailCampaign {
   const competitorThreat = productIntel.competitiveLandscape?.marketShare > 30 ?
@@ -214,8 +280,8 @@ P.S. ${combinedStrategy.closingStrategy?.finalHook || `After this, I won't reach
  */
 function generateSubjectLine(
   scanResult: EnhancedScanResult,
-  doctorIntel: any,
-  productIntel: any,
+  doctorIntel: DoctorIntel,
+  productIntel: ProductIntel,
   type: 'initial' | 'follow_up' | 'closing'
 ): string {
   const subjectStrategies = {
@@ -248,7 +314,7 @@ function generateSubjectLine(
 /**
  * Calculate urgency score
  */
-function urgencyScore(productIntel: any): number {
+function urgencyScore(productIntel: ProductIntel): number {
   let score = 50;
   
   if (productIntel.marketData?.limitedTimeOffers?.length > 0) score += 20;
@@ -261,8 +327,16 @@ function urgencyScore(productIntel: any): number {
 /**
  * Generate SMS with product intelligence
  */
+interface ScanResultSMS {
+  doctor: string;
+  city?: string;
+  state?: string;
+  specialty?: string;
+  product: string;
+}
+
 export function generateEnhancedSMS(
-  scanResult: any,
+  scanResult: ScanResultSMS,
   researchData?: ResearchData
 ): string {
   const productIntel = researchData?.productIntelligence || {};
@@ -282,8 +356,12 @@ export function generateEnhancedSMS(
 /**
  * Generate LinkedIn message with intelligence
  */
+interface ScanResultLinkedIn extends ScanResultSMS {
+  salesRep?: string;
+}
+
 export function generateEnhancedLinkedIn(
-  scanResult: any,
+  scanResult: ScanResultLinkedIn,
   researchData?: ResearchData
 ): string {
   const productIntel = researchData?.productIntelligence || {};
@@ -312,7 +390,7 @@ ${salesRepName}`;
  * Generate WhatsApp message
  */
 export function generateEnhancedWhatsApp(
-  scanResult: any,
+  scanResult: ScanResultLinkedIn,
   researchData?: ResearchData
 ): string {
   const productIntel = researchData?.productIntelligence || {};

@@ -57,7 +57,7 @@ export interface SocialMediaProfile {
 export interface VerificationSource {
   type: 'npi' | 'web' | 'social' | 'practice';
   confidence: number;
-  data: any;
+  data: Record<string, unknown>;
   timestamp: string;
 }
 

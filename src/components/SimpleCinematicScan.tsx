@@ -8,11 +8,40 @@ import { motion } from 'framer-motion';
 import { gatherUnifiedIntelligence } from '../lib/unifiedIntelligenceCore';
 import { IntelligenceInterface } from './IntelligenceInterface';
 
+interface ScanResults {
+  discovery?: {
+    practiceWebsite?: string | null;
+    confidence?: number;
+    discoveryMethod?: string;
+  };
+  intelligence?: {
+    practiceInfo?: {
+      name?: string;
+      services?: unknown[];
+      technologies?: unknown[];
+    };
+    insights?: unknown[];
+    opportunities?: unknown[];
+    painPoints?: unknown[];
+    competitiveAdvantage?: unknown[];
+  };
+  instant?: {
+    summary?: string;
+    keyPoints?: string[];
+    confidence?: number;
+  };
+  timingMs?: {
+    discovery?: number;
+    intelligence?: number;
+    total?: number;
+  };
+}
+
 interface Props {
   doctorName: string;
   productName: string;
   location?: string;
-  onComplete?: (results: any) => void;
+  onComplete?: (results: ScanResults) => void;
 }
 
 export default function SimpleCinematicScan({ doctorName, productName, location, onComplete }: Props) {
@@ -99,7 +128,7 @@ export default function SimpleCinematicScan({ doctorName, productName, location,
         }, 3200);
         
         // Get actual results with error handling from UNIFIED system
-        let unifiedResults: any;
+        let unifiedResults: ScanResults;
         try {
           unifiedResults = await scanPromise;
           console.log('✅ Unified Intelligence Results:', unifiedResults);

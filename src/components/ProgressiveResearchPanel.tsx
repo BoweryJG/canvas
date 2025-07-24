@@ -2,11 +2,26 @@ import { useState, useEffect } from 'react';
 import { ProgressiveResearchEngine, type ResearchProgress } from '../lib/progressiveResearch';
 import { Brain, Clock, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 
+interface ResearchData {
+  doctorName: string;
+  productName: string;
+  score: number;
+  insights: string[];
+  sources: Array<{ url: string; [key: string]: unknown }>;
+  practiceInfo: Record<string, unknown>;
+  competitiveIntel: {
+    technology?: unknown;
+    [key: string]: unknown;
+  };
+  outreachStrategy: Record<string, unknown>;
+  reviews?: unknown;
+}
+
 interface ProgressiveResearchPanelProps {
   doctorName: string;
   productName: string;
   location?: string;
-  onComplete?: (data: any) => void;
+  onComplete?: (data: ResearchData) => void;
 }
 
 export function ProgressiveResearchPanel({
@@ -26,7 +41,7 @@ export function ProgressiveResearchPanel({
       setProgress(progress);
     });
 
-    engine.on('complete', (data: any) => {
+    engine.on('complete', (data: ResearchData) => {
       setIsComplete(true);
       onComplete?.(data);
     });

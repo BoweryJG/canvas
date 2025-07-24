@@ -96,15 +96,19 @@ ${scrapedData.missingProcedures?.map(missing => `• ${missing}`).join('\n') || 
 /**
  * Generate Product Impact Report (replaces McKinsey Executive Report)
  */
+interface ResearchDataWithScraped extends ResearchData {
+  scrapedWebsiteData?: ScrapedWebsiteData;
+}
+
 export async function generateProductImpactReport(
   scanResult: EnhancedScanResult,
-  researchData: ResearchData,
+  researchData: ResearchDataWithScraped,
   salesRepName: string,
   companyName: string,
   productName: string
 ): Promise<Blob> {
   // Get the scraped website data from the unified intelligence
-  const scrapedData = (researchData as any).scrapedWebsiteData as ScrapedWebsiteData;
+  const scrapedData = researchData.scrapedWebsiteData;
   const productCategory = getProductCategory(productName);
   const reportTitle = generateReportTitle(productName, scanResult.doctor);
   
@@ -122,7 +126,7 @@ Practice Analysis Score: ${scanResult.score}%
 
 EXECUTIVE SUMMARY
 -----------------
-This impact analysis evaluates how ${productName} will specifically benefit Dr. ${String(((scanResult.doctor as any)?.name || scanResult.doctor) || 'Unknown Doctor').replace(/^Dr\.?\s*/i, '')}'s practice based on comprehensive website intelligence and current capabilities assessment.
+This impact analysis evaluates how ${productName} will specifically benefit Dr. ${String(scanResult.doctor || 'Unknown Doctor').replace(/^Dr\.?\s*/i, '')}'s practice based on comprehensive website intelligence and current capabilities assessment.
 
 Practice Alignment Score: ${scanResult.score}%
 Implementation Readiness: ${scanResult.score > 80 ? 'HIGH' : scanResult.score > 60 ? 'MEDIUM' : 'DEVELOPING'}

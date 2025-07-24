@@ -99,11 +99,18 @@ export async function gatherProductIntelligence(
   }
 }
 
+interface MarketData {
+  marketSize: unknown;
+  competitors: unknown;
+  adoption: unknown;
+  pricing: unknown;
+}
+
 async function gatherMarketData(
   product: string,
   location: { city: string; state: string },
   specialty?: string
-): Promise<any> {
+): Promise<MarketData> {
   const queries = [
     // General market research
     `"${product}" dental market size pricing ${location.state}`,
@@ -130,10 +137,15 @@ async function gatherMarketData(
   };
 }
 
+interface CompetitionData {
+  localAdopters: unknown;
+  competitorProducts: unknown;
+}
+
 async function analyzeLocalCompetition(
   product: string,
   location: { city: string; state: string }
-): Promise<any> {
+): Promise<CompetitionData> {
   // Search for local practices using this product
   const localQuery = `"${product}" dental practices near ${location.city}, ${location.state}`;
   const localResults = await callBraveLocalSearch(localQuery, 20);
@@ -148,10 +160,17 @@ async function analyzeLocalCompetition(
   };
 }
 
+interface LocalInsightsData {
+  socialPosts: unknown;
+  caseStudies: unknown;
+  societyMentions: unknown;
+  recentNews: unknown;
+}
+
 async function gatherLocalInsights(
   product: string,
   location: { city: string; state: string }
-): Promise<any> {
+): Promise<LocalInsightsData> {
   const queries = [
     // Recent social media posts
     `"${product}" dental ${location.city} site:facebook.com OR site:instagram.com OR site:linkedin.com`,
@@ -181,9 +200,9 @@ async function gatherLocalInsights(
 async function synthesizeProductIntelligence(
   product: string,
   location: { city: string; state: string },
-  marketData: any,
-  competitiveData: any,
-  localInsights: any
+  marketData: MarketData,
+  competitiveData: CompetitionData,
+  localInsights: LocalInsightsData
 ): Promise<ProductIntelligence> {
   const prompt = `You are a medical device/product market intelligence expert. Analyze this comprehensive data about ${product} in ${location.city}, ${location.state} and create actionable intelligence.
 
@@ -271,10 +290,26 @@ function createBasicProductIntelligence(
 /**
  * Combine doctor and product intelligence for ultimate personalization
  */
+interface DoctorIntel {
+  doctorName: string;
+  location: string;
+  [key: string]: unknown;
+}
+
+interface CombinedIntelligence {
+  personalizedPitch: string;
+  competitiveEdge: string;
+  priceContext: string;
+  localProof: SocialPost[];
+  anticipatedObjections: string[];
+  urgencyAngle: boolean;
+  [key: string]: unknown;
+}
+
 export function combineIntelligence(
-  doctorIntel: any,
+  doctorIntel: DoctorIntel,
   productIntel: ProductIntelligence
-): any {
+): CombinedIntelligence {
   return {
     // Doctor-specific + product-specific insights
     personalizedPitch: `Dr. ${doctorIntel.doctorName}, ${productIntel.competitiveLandscape.topCompetitors.length > 0 

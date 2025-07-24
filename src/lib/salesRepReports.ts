@@ -1,4 +1,3 @@
-// @ts-nocheck
 import jsPDF from 'jspdf';
 import { type EnhancedScanResult } from './enhancedAI';
 import { type ResearchData } from './webResearch';
@@ -37,6 +36,12 @@ export interface OutreachLevel {
   urgencyFactor: number;
 }
 
+interface BrandColors {
+  primary: string;
+  secondary: string;
+  accent: string;
+}
+
 export class SalesRepReportGenerator {
   private doc: jsPDF;
   private currentY: number;
@@ -45,9 +50,9 @@ export class SalesRepReportGenerator {
   private margin: number;
   private lineHeight: number;
   private pageCount: number;
-  private brandColors: any;
+  private brandColors: BrandColors;
 
-  constructor(brandColors?: any) {
+  constructor(brandColors?: BrandColors) {
     this.doc = new jsPDF('portrait', 'pt', 'letter');
     this.pageWidth = this.doc.internal.pageSize.getWidth();
     this.pageHeight = this.doc.internal.pageSize.getHeight();
@@ -86,7 +91,7 @@ export class SalesRepReportGenerator {
       }
     } catch (error) {
       console.error('Sales rep report generation error:', error);
-      throw new Error(`Failed to generate sales rep report: ${error.message}`);
+      throw new Error(`Failed to generate sales rep report: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

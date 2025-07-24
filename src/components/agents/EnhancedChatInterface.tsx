@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../../auth/AuthContext';
+import { useAuth } from '../../auth/useAuth';
 import { io, Socket } from 'socket.io-client';
 import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
@@ -15,17 +15,31 @@ import {
 } from '../../lib/doctorDetection';
 import type { NPIDoctorInfo, DoctorMention } from '../../lib/doctorDetection';
 
+interface MessageMetadata {
+  doctors?: NPIDoctorInfo[];
+  doctorMentions?: DoctorMention[];
+  sources?: string[];
+  confidence?: number;
+  reasoning?: string;
+  suggestions?: string[];
+  [key: string]: unknown;
+}
+
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
   isStreaming?: boolean;
-  metadata?: {
-    doctors?: NPIDoctorInfo[];
-    doctorMentions?: DoctorMention[];
-    [key: string]: any;
-  };
+  metadata?: MessageMetadata;
+}
+
+interface AgentPersonality {
+  tone: string;
+  expertise: string[];
+  traits: string[];
+  communicationStyle?: string;
+  specializations?: string[];
 }
 
 interface Agent {
@@ -33,7 +47,7 @@ interface Agent {
   name: string;
   avatar_url?: string;
   specialty: string[];
-  personality: any;
+  personality: AgentPersonality;
 }
 
 interface Conversation {
@@ -208,7 +222,7 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   // Update conversation context with doctor info
-  const updateConversationContext = (context: any) => {
+  const updateConversationContext = (context: { doctors?: NPIDoctorInfo[] }) => {
     if (!currentConversation) return;
     
     socket?.emit('conversation:updateContext', {
@@ -323,7 +337,7 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
-  const sendMessage = async (content: string, metadata?: any) => {
+  const sendMessage = async (content: string, metadata?: MessageMetadata) => {
     if (!currentConversation || !socket || !content.trim()) return;
 
     // Detect doctors in user message

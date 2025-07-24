@@ -19,7 +19,7 @@ interface VerificationResult {
     url: string;
     type: 'directory' | 'website' | 'review';
   }>;
-  rawData: any; // Store raw search data for later synthesis
+  rawData: unknown[]; // Store raw search data for later synthesis
 }
 
 export async function verifyDoctor(doctorName: string, location?: string): Promise<VerificationResult> {
@@ -37,7 +37,7 @@ export async function verifyDoctor(doctorName: string, location?: string): Promi
   if (profile.confidence > 70 && profile.website) {
     try {
       await enhanceWithWebsiteData(profile);
-    } catch (error) {
+    } catch {
       console.log('Website enhancement failed, using search data only');
     }
   }
@@ -45,7 +45,7 @@ export async function verifyDoctor(doctorName: string, location?: string): Promi
   return profile;
 }
 
-function extractVerificationData(results: any[], doctorName: string, location?: string): VerificationResult {
+function extractVerificationData(results: unknown[], doctorName: string, location?: string): VerificationResult {
   const profile: VerificationResult = {
     name: doctorName,
     specialty: '',

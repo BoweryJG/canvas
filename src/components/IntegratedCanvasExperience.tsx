@@ -15,6 +15,7 @@ import { CanvasMainSearch } from './CanvasMainSearch';
 import { useAuth } from '../auth';
 import { checkUserCredits, deductCredit } from '../lib/creditManager';
 import AuthModal from './AuthModal';
+import { type UnifiedIntelligenceResult } from '../lib/unifiedIntelligenceCore';
 
 const GradientBackground = styled(Box)`
   position: fixed;
@@ -108,7 +109,7 @@ export default function IntegratedCanvasExperience() {
   const [creditError, setCreditError] = useState('');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [useNewInterface] = useState(true); // Default to new interface
-  const [scanResults, setScanResults] = useState<any>(null); // Store scan results
+  const [scanResults, setScanResults] = useState<UnifiedIntelligenceResult | null>(null);
   const { user } = useAuth();
   const userTier = user?.subscription?.tier || 'free';
   

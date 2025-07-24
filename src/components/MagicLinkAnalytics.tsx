@@ -45,6 +45,37 @@ import { getShareAnalytics, revokeMagicLink } from '../lib/magicLinkGenerator';
 import { type MagicLink, type SubscriptionTier, MAGIC_LINK_CONFIGS } from '../types/magicLink';
 import { formatDistanceToNow } from 'date-fns';
 
+interface MagicLinkAnalyticsEvent {
+  event_type: 'view' | 'download';
+  created_at: string;
+  ip?: string;
+  user_agent?: string;
+}
+
+interface MagicLinkWithAnalytics {
+  id: string;
+  doctor_name: string;
+  created_at: string;
+  expires_at: string;
+  revoked_at?: string;
+  views: number;
+  downloads: number;
+  tier: SubscriptionTier;
+  custom_message?: string;
+  magic_link_analytics?: MagicLinkAnalyticsEvent[];
+}
+
+interface AnalyticsData {
+  links: MagicLinkWithAnalytics[];
+  totalViews: number;
+  totalDownloads: number;
+  activeLinks: number;
+  topPerformingLink: MagicLinkWithAnalytics | null;
+  viewsByDay: Record<string, number>;
+}
+
+type TimeFilter = '7d' | '30d' | '90d' | 'all';
+
 interface Props {
   userId: string;
   userTier: SubscriptionTier;
@@ -119,7 +150,7 @@ export default function MagicLinkAnalytics({ userId, userTier }: Props) {
   const [loading, setLoading] = useState(true);
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [activeTab, setActiveTab] = useState(0);
-  const [timeFilter, setTimeFilter] = useState<'7d' | '30d' | 'all'>('30d');
+  const [timeFilter, setTimeFilter] = useState<TimeFilter>('30d');
   const [showRevokeDialog, setShowRevokeDialog] = useState(false);
   const [linkToRevoke, setLinkToRevoke] = useState<string | null>(null);
   
@@ -144,30 +175,30 @@ export default function MagicLinkAnalytics({ userId, userTier }: Props) {
                           timeFilter === '30d' ? 30 * 24 * 60 * 60 * 1000 :
                           Infinity;
       
-      const filteredLinks = links.filter((link: any) => {
+      const filteredLinks = links.filter((link: MagicLinkWithAnalytics) => {
         const createdAt = new Date(link.created_at);
         return (now.getTime() - createdAt.getTime()) <= timeFilterMs;
       });
       
       // Calculate metrics
-      const totalViews = filteredLinks.reduce((sum: number, link: any) => sum + (link.views || 0), 0);
-      const totalDownloads = filteredLinks.reduce((sum: number, link: any) => sum + (link.downloads || 0), 0);
-      const activeLinks = filteredLinks.filter((link: any) => 
+      const totalViews = filteredLinks.reduce((sum: number, link: MagicLinkWithAnalytics) => sum + (link.views || 0), 0);
+      const totalDownloads = filteredLinks.reduce((sum: number, link: MagicLinkWithAnalytics) => sum + (link.downloads || 0), 0);
+      const activeLinks = filteredLinks.filter((link: MagicLinkWithAnalytics) => 
         new Date(link.expires_at) > now && !link.revoked_at
       ).length;
       
       // Find top performing link
-      const topPerformingLink = filteredLinks.reduce((top: any, link: any) => 
+      const topPerformingLink = filteredLinks.reduce((top: MagicLinkWithAnalytics | null, link: MagicLinkWithAnalytics) => 
         (link.views || 0) > (top?.views || 0) ? link : top
       , null);
       
       // Create views by day data
       const viewsByDay: { [key: string]: number } = {};
-      filteredLinks.forEach((link: any) => {
+      filteredLinks.forEach((link: MagicLinkWithAnalytics) => {
         if (link.magic_link_analytics) {
           link.magic_link_analytics
-            .filter((event: any) => event.event_type === 'view')
-            .forEach((event: any) => {
+            .filter((event: MagicLinkAnalyticsEvent) => event.event_type === 'view')
+            .forEach((event: MagicLinkAnalyticsEvent) => {
               const date = new Date(event.created_at).toLocaleDateString();
               viewsByDay[date] = (viewsByDay[date] || 0) + 1;
             });
@@ -282,7 +313,7 @@ export default function MagicLinkAnalytics({ userId, userTier }: Props) {
             <FormControl size="small" sx={{ minWidth: 120 }}>
               <Select
                 value={timeFilter}
-                onChange={(e) => setTimeFilter(e.target.value as any)}
+                onChange={(e) => setTimeFilter(e.target.value as TimeFilter)}
                 sx={{ bgcolor: 'rgba(255,255,255,0.05)' }}
               >
                 <MenuItem value="7d">Last 7 days</MenuItem>
@@ -457,12 +488,12 @@ export default function MagicLinkAnalytics({ userId, userTier }: Props) {
             </TableHead>
             <TableBody>
               {analyticsData?.links
-                .filter((link: any) => {
+                .filter((link: MagicLinkWithAnalytics) => {
                   if (activeTab === 0) return true;
                   const isActive = new Date(link.expires_at) > new Date() && !link.revoked_at;
                   return activeTab === 1 ? isActive : !isActive;
                 })
-                .map((link: any) => (
+                .map((link: MagicLinkWithAnalytics) => (
                   <LinkRow key={link.id}>
                     <TableCell>
                       <Typography sx={{ fontWeight: 600 }}>

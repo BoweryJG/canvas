@@ -8,7 +8,7 @@ interface ResearchProgress {
   stage: 'idle' | 'instant' | 'basic' | 'enhanced' | 'deep' | 'complete';
   percentComplete: number;
   currentAction: string;
-  data: any;
+  data: Record<string, unknown>;
   timeElapsed: number;
   estimatedTimeRemaining: number;
 }
@@ -19,7 +19,7 @@ export const EnhancedResearchPanel: React.FC = () => {
   const [researchProgress, setResearchProgress] = useState<ResearchProgress | null>(null);
   const [researchEngine] = useState(() => new ProgressiveResearchEngine());
   
-  const handleResearchSubmit = async (formData: any) => {
+  const handleResearchSubmit = async (formData: Record<string, unknown>) => {
     setIsResearching(true);
     
     // If we have NPI data, do enhanced research first
@@ -44,12 +44,12 @@ export const EnhancedResearchPanel: React.FC = () => {
       setResearchProgress(progress);
     });
     
-    researchEngine.on('complete', (finalData: any) => {
+    researchEngine.on('complete', (finalData: Record<string, unknown>) => {
       setIsResearching(false);
       console.log('Research complete!', finalData);
     });
     
-    researchEngine.on('error', (error: any) => {
+    researchEngine.on('error', (error: Error) => {
       setIsResearching(false);
       console.error('Research failed:', error);
     });

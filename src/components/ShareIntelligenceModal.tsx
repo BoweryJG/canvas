@@ -37,10 +37,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MAGIC_LINK_CONFIGS, type SubscriptionTier, type MagicLink } from '../types/magicLink';
 import { generateMagicLink } from '../lib/magicLinkGenerator';
 
+interface ReportData {
+  scanResult: Record<string, unknown>;
+  researchData?: Record<string, unknown>;
+  deepScanResults?: Record<string, unknown>;
+  scanData?: Record<string, unknown>;
+  instantIntel?: Record<string, unknown>;
+}
+
 interface Props {
   open: boolean;
   onClose: () => void;
-  reportData: any;
+  reportData: ReportData;
   doctorName: string;
   userTier: SubscriptionTier;
   userId: string;

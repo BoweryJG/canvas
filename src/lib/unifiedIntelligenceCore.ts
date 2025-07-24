@@ -9,13 +9,24 @@ import { analyzeWebsitesWithClaude4Opus } from './aiWebsiteAnalyzer';
 import { scrapePracticeWebsite } from './firecrawlWebScraper';
 import { searchDoctorsByName } from './npiLookup';
 
+interface NPIData {
+  organizationName?: string;
+  specialty?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  phone?: string;
+  [key: string]: string | undefined;
+}
+
 export interface UnifiedIntelligenceResult {
   // Step 1: Discovery
   discovery: {
     practiceWebsite: string | null;
     confidence: number;
     organizationName?: string;
-    npiData?: any;
+    npiData?: NPIData;
     address?: {
       street: string;
       city: string;
@@ -34,7 +45,7 @@ export interface UnifiedIntelligenceResult {
       services: string[];
       technologies: string[];
       teamSize?: number;
-      socialMedia?: any;
+      socialMedia?: Record<string, string | number>;
     };
     insights: string[];
     opportunities: string[];
@@ -57,7 +68,24 @@ export interface UnifiedIntelligenceResult {
   };
   
   // Raw scraped data for reports
-  scrapedWebsiteData?: any;
+  scrapedWebsiteData?: ScrapedWebsiteData;
+}
+
+interface ScrapedWebsiteData {
+  title?: string;
+  dentalProcedures?: Record<string, boolean>;
+  aestheticProcedures?: Record<string, boolean>;
+  dentalTechnology?: Record<string, boolean>;
+  aestheticDevices?: Record<string, boolean>;
+  implantSystems?: Record<string, boolean>;
+  injectableBrands?: Record<string, boolean>;
+  practiceInfo?: {
+    teamSize?: number;
+    [key: string]: unknown;
+  };
+  missingProcedures?: string[];
+  competitiveAdvantages?: string[];
+  [key: string]: unknown;
 }
 
 /**
@@ -107,7 +135,7 @@ export async function gatherUnifiedIntelligence(
     const discoveryStart = Date.now();
     
     // 1a. NPI Lookup for accurate data
-    let npiData = null;
+    let npiData: NPIData | null = null;
     let organizationName = '';
     let specialty = '';
     let npiLocation = '';
@@ -150,7 +178,12 @@ export async function gatherUnifiedIntelligence(
     );
     
     // 1c. Execute searches and collect results
-    const allSearchResults: any[] = [];
+    interface BraveSearchResult {
+      url: string;
+      title?: string;
+      description?: string;
+    }
+    const allSearchResults: BraveSearchResult[] = [];
     const seenUrls = new Set<string>();
     
     for (const query of searchQueries) {
@@ -173,7 +206,11 @@ export async function gatherUnifiedIntelligence(
     console.log(`📊 Found ${allSearchResults.length} unique results`);
     
     // 1d. Use Claude 4 Opus to find the REAL practice website
-    let aiAnalysis: any = null;
+    let aiAnalysis: {
+      practiceWebsites?: Array<{ url: string; confidence: number }>;
+      rejectedSites?: Array<{ url: string; reason: string }>;
+      analysisConfidence?: number;
+    } | null = null;
     try {
       aiAnalysis = await analyzeWebsitesWithClaude4Opus(
         allSearchResults,
@@ -206,7 +243,7 @@ export async function gatherUnifiedIntelligence(
         zip: '',
         full: `${npiAddress}, ${npiCity}, ${npiState}`
       } : undefined,
-      rejectedSites: aiAnalysis.rejectedSites?.map((r: any) => r.url) || [],
+      rejectedSites: aiAnalysis.rejectedSites?.map((r) => r.url) || [],
       discoveryMethod: 'ai-powered'
     };
     
@@ -368,7 +405,7 @@ function buildPrioritizedSearchQueries(
 /**
  * Generate medical insights based on scraped data and product
  */
-function generateMedicalInsights(scrapedData: any, productName: string): string[] {
+function generateMedicalInsights(scrapedData: ScrapedWebsiteData, productName: string): string[] {
   const insights: string[] = [];
   
   // Technology insights

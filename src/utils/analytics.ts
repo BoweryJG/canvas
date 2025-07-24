@@ -254,7 +254,15 @@ class AnalyticsManager {
   /**
    * Get analytics summary
    */
-  getAnalyticsSummary(): any {
+  getAnalyticsSummary(): {
+    totalSessions: number;
+    totalPageViews: number;
+    totalEvents: number;
+    averageSessionDuration: number;
+    eventsByCategory: Record<string, number>;
+    topPages: Array<{ page: string; views: number }>;
+    errorRate: number;
+  } {
     const sessions = DataManager.load<UserSession[]>('analytics_sessions', { compress: true }) || [];
     
     if (this.currentSession) {
@@ -334,6 +342,6 @@ export function useAnalytics() {
 // Declare gtag for TypeScript
 declare global {
   interface Window {
-    gtag?: (...args: any[]) => void;
+    gtag?: (...args: unknown[]) => void;
   }
 }

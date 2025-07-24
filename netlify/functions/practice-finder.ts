@@ -25,7 +25,7 @@ interface PracticeResult {
   indicators: string[];
 }
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -96,7 +96,7 @@ export const handler: Handler = async (event, context) => {
     });
 
     // Extract practice name if not provided
-    const detectedPracticeName = extractPracticeName(uniqueResults, searchTerms);
+    const detectedPracticeName = extractPracticeName(uniqueResults);
 
     // Find the most likely practice website
     const primaryPractice = uniqueResults.find(r => r.isPracticeWebsite) || uniqueResults[0];
@@ -241,7 +241,7 @@ async function executePracticeSearch(
 }
 
 function analyzePracticeResult(
-  result: any,
+  result: Record<string, unknown>,
   context: { knownPracticeName?: string; location?: string },
   strategy: PracticeSearchStrategy
 ): PracticeResult {
@@ -419,7 +419,7 @@ function deduplicateResults(results: PracticeResult[]): PracticeResult[] {
   return Array.from(seen.values());
 }
 
-function extractPracticeName(results: PracticeResult[], searchTerms?: string): string | null {
+function extractPracticeName(results: PracticeResult[]): string | null {
   // Look for common practice name patterns in results
   const practiceNames = new Map<string, number>();
   

@@ -42,7 +42,15 @@ export async function streamlinedResearch(
     
     // Extract website URL from search results
     let websiteUrl = null;
-    let practiceInfo: any = {
+    interface PracticeInfo {
+      phone?: string;
+      address?: string;
+      specialty?: string;
+      currentTechnology?: string[];
+      [key: string]: unknown;
+    }
+    
+    const practiceInfo: PracticeInfo = {
       phone: doctor.phone,
       address: doctor.fullAddress,
       specialty: doctor.specialty
@@ -52,7 +60,12 @@ export async function streamlinedResearch(
       const results = practiceSearch.web.results;
       
       // Find practice website
-      websiteUrl = results.find((r: any) => 
+      interface SearchResult {
+        url?: string;
+        description?: string;
+      }
+      
+      websiteUrl = results.find((r: SearchResult) => 
         r.url && 
         !r.url.includes('healthgrades') && 
         !r.url.includes('vitals.com') &&
@@ -60,7 +73,7 @@ export async function streamlinedResearch(
       )?.url;
       
       // Extract any additional info from snippets
-      results.forEach((result: any) => {
+      results.forEach((result: SearchResult) => {
         if (result.description) {
           // Extract phone if found
           const phoneMatch = result.description.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
@@ -187,7 +200,34 @@ export async function streamlinedResearch(
   }
 }
 
-async function generateComprehensiveAnalysis(context: any) {
+interface AnalysisContext {
+  doctor: {
+    name: string;
+    location: string;
+    organization?: string;
+    npi?: string;
+    [key: string]: unknown;
+  };
+  product: {
+    name: string;
+    details?: unknown;
+  };
+  websiteInsights?: string | null;
+  searchResults?: string;
+}
+
+interface AnalysisResult {
+  practiceInfo?: Record<string, unknown>;
+  businessIntel?: Record<string, unknown>;
+  technologyStack?: Record<string, unknown>;
+  marketPosition?: Record<string, unknown>;
+  buyingSignals?: string[];
+  approachStrategy?: Record<string, unknown>;
+  painPoints?: string[];
+  salesBrief?: Record<string, unknown>;
+}
+
+async function generateComprehensiveAnalysis(context: AnalysisContext): Promise<AnalysisResult> {
   const prompt = `
 You are an expert medical sales intelligence analyst. Generate comprehensive, personalized sales intelligence.
 

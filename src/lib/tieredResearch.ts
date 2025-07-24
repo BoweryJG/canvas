@@ -14,6 +14,24 @@ export interface TierConfig {
   timeEstimate: string;
 }
 
+interface SearchResult {
+  url: string;
+  title: string;
+  description?: string;
+}
+
+interface ScrapedData {
+  markdown?: string;
+  title?: string;
+  [key: string]: unknown;
+}
+
+interface AnalysisResult {
+  score?: number;
+  insights?: string[];
+  [key: string]: unknown;
+}
+
 export const RESEARCH_TIERS: Record<ResearchTier, TierConfig> = {
   instant: {
     name: "Instant Intel",
@@ -214,17 +232,17 @@ export async function standardResearch(doctorName: string, productName: string, 
 /**
  * Helper functions
  */
-function selectBestUrls(results: any[], limit: number): string[] {
+function selectBestUrls(results: SearchResult[], limit: number): string[] {
   const urls = [];
   const seen = new Set();
   
   // Prioritize: medical directories, practice websites, review sites
   const priorities = [
-    (r: any) => r.url.includes('healthgrades.com'),
-    (r: any) => r.url.includes('webmd.com'),
-    (r: any) => r.url.includes('zocdoc.com'),
-    (r: any) => r.title.toLowerCase().includes('practice'),
-    (r: any) => r.title.toLowerCase().includes('clinic')
+    (r) => r.url.includes('healthgrades.com'),
+    (r) => r.url.includes('webmd.com'),
+    (r) => r.url.includes('zocdoc.com'),
+    (r) => r.title.toLowerCase().includes('practice'),
+    (r) => r.title.toLowerCase().includes('clinic')
   ];
   
   for (const priority of priorities) {
@@ -237,7 +255,7 @@ function selectBestUrls(results: any[], limit: number): string[] {
     }
   }
   
-  // Fill remaining slots with any results
+  // Fill remaining slots with remaining results
   for (const result of results) {
     if (urls.length >= limit) break;
     if (!seen.has(result.url)) {
@@ -275,7 +293,7 @@ function calculateQuickScore(content: string, _productName: string): number {
   return Math.max(0, Math.min(100, score));
 }
 
-function extractBasicInfo(scrapedData: any, searchResults: any): any {
+function extractBasicInfo(scrapedData: ScrapedData, searchResults: SearchResult[]): Record<string, unknown> {
   return {
     name: searchResults.web?.results?.[0]?.title || 'Unknown',
     url: searchResults.web?.results?.[0]?.url || null,
@@ -284,7 +302,7 @@ function extractBasicInfo(scrapedData: any, searchResults: any): any {
   };
 }
 
-function calculateDetailedScore(analysis: any, _productName: string): number {
+function calculateDetailedScore(analysis: AnalysisResult, _productName: string): number {
   // More sophisticated scoring based on AI analysis
   const content = analysis.choices?.[0]?.message?.content || '';
   let score = 60;
@@ -298,7 +316,7 @@ function calculateDetailedScore(analysis: any, _productName: string): number {
   return Math.max(0, Math.min(100, score));
 }
 
-function parseDetailedInsights(_analysis: any): string[] {
+function parseDetailedInsights(_analysis: AnalysisResult): string[] {
   // In production, this would parse the structured AI response
   return [
     'Practice assessment complete',
@@ -307,7 +325,7 @@ function parseDetailedInsights(_analysis: any): string[] {
   ];
 }
 
-function buildPracticeProfile(sources: any[], _searchResults: any): any {
+function buildPracticeProfile(sources: string[], _searchResults: SearchResult[]): Record<string, unknown> {
   // Aggregate data from multiple sources
   return {
     sources: sources.length,
@@ -319,7 +337,7 @@ function buildPracticeProfile(sources: any[], _searchResults: any): any {
   };
 }
 
-function parseCompetitiveIntel(_analysis: any): any {
+function parseCompetitiveIntel(_analysis: AnalysisResult): Record<string, unknown> {
   return {
     summary: 'Competitive analysis complete',
     advantages: [],
@@ -328,7 +346,7 @@ function parseCompetitiveIntel(_analysis: any): any {
   };
 }
 
-function parseOutreachStrategy(_analysis: any): any {
+function parseOutreachStrategy(_analysis: AnalysisResult): Record<string, unknown> {
   return {
     bestChannel: 'Email',
     bestTime: 'Tuesday-Thursday morning',
@@ -337,7 +355,7 @@ function parseOutreachStrategy(_analysis: any): any {
   };
 }
 
-function calculateAdvancedScore(sources: any[], _productName: string): number {
+function calculateAdvancedScore(sources: string[], _productName: string): number {
   // Complex scoring based on multiple data points
   let score = 70;
   score += sources.length * 2;

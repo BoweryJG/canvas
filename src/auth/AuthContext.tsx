@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from './supabase';
 // Cross-domain auth removed - local auth only
 import type { User, AuthSession, AuthState, AuthError, AuthProvider as AuthProviderType, SignInOptions } from './types';
 import type { Session } from '@supabase/supabase-js';
 
-interface AuthContextType extends AuthState {
+export interface AuthContextType extends AuthState {
   signInWithProvider: (provider: AuthProviderType, options?: SignInOptions) => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string, metadata?: Record<string, unknown>) => Promise<void>;
@@ -14,7 +14,7 @@ interface AuthContextType extends AuthState {
   isAdmin: boolean;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -99,7 +99,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           error: timeoutError
         }));
         
-        const { data: { session }, error } = result as { data: { session: any }, error: any };
+        const { data: { session }, error } = result as { data: { session: Session | null }, error: AuthError | null };
         
         // If we get a refresh token error, clear auth and continue as public
         if (error && error.message?.includes('Refresh Token')) {
@@ -256,7 +256,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const signUpWithEmail = useCallback(async (
     email: string, 
     password: string, 
-    metadata?: any
+    metadata?: Record<string, unknown>
   ) => {
     setState(prev => ({ ...prev, loading: true, error: null }));
     
@@ -348,10 +348,3 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};

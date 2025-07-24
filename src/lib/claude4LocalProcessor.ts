@@ -3,6 +3,73 @@
  * Advanced integration for using Claude 4 through local instances
  */
 
+// Type definitions for intelligence responses
+interface PracticeProfile {
+  size: string;
+  patientVolume: string;
+  yearsInBusiness: number;
+  technologyLevel: string;
+  notableFeatures: string[];
+}
+
+interface TechnologyStack {
+  current: string[];
+  recentAdditions: string[];
+  gaps: string[];
+}
+
+interface MarketPosition {
+  ranking: string;
+  reputation: string;
+  differentiators: string[];
+}
+
+interface Competition {
+  currentVendors: string[];
+  recentPurchases: string[];
+}
+
+interface ApproachStrategy {
+  bestTiming: string;
+  preferredChannel: string;
+  keyMessage: string;
+  avoidTopics: string[];
+}
+
+interface DecisionMakers {
+  primary: string;
+  influencers: string[];
+}
+
+interface BudgetIndicators {
+  estimatedRevenue: string;
+  technologyBudget: string;
+  purchaseTimeframe: string;
+}
+
+interface IntelligenceResponse {
+  practiceProfile: PracticeProfile;
+  technologyStack: TechnologyStack;
+  marketPosition: MarketPosition;
+  buyingSignals: string[];
+  competition: Competition;
+  approachStrategy: ApproachStrategy;
+  decisionMakers: DecisionMakers;
+  painPoints: string[];
+  budgetIndicators: BudgetIndicators;
+  salesBrief: string;
+}
+
+interface PremiumIntelligenceResponse extends IntelligenceResponse {
+  additionalInsights: {
+    practiceWebsite: string;
+    socialMedia: string;
+    communityInvolvement: string;
+    staffDetails: string;
+    patientDemographics: string;
+  };
+}
+
 interface Claude4ProcessorConfig {
   mode: 'openrouter' | 'local-api' | 'claude-code' | 'mock';
   endpoint?: string;
@@ -44,7 +111,7 @@ export class Claude4LocalProcessor {
     prompt: string,
     doctorName: string,
     product: string
-  ): Promise<any> {
+  ): Promise<IntelligenceResponse> {
     console.log(`🧠 Processing intelligence for ${doctorName} with ${this.config.mode}`);
     
     switch (this.config.mode) {
@@ -63,20 +130,20 @@ export class Claude4LocalProcessor {
     }
   }
   
-  private async processViaOpenRouter(prompt: string): Promise<any> {
+  private async processViaOpenRouter(prompt: string): Promise<IntelligenceResponse> {
     const { callClaude } = await import('./apiEndpoints');
     // Try Claude 4 Opus first, then fall back to Claude 3.5 Sonnet
     try {
       const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
       return JSON.parse(response);
-    } catch (error) {
+    } catch {
       console.log('Claude 4 Opus not available, using Claude 3.5 Sonnet');
       const response = await callClaude(prompt, 'claude-3.5-sonnet-20241022');
       return JSON.parse(response);
     }
   }
   
-  private async processViaLocalAPI(prompt: string): Promise<any> {
+  private async processViaLocalAPI(prompt: string): Promise<IntelligenceResponse> {
     if (!this.config.endpoint) {
       throw new Error('Local API endpoint not configured');
     }
@@ -98,14 +165,14 @@ export class Claude4LocalProcessor {
       throw new Error(`Local API error: ${response.status}`);
     }
     
-    return await response.json();
+    return await response.json() as IntelligenceResponse;
   }
   
   private async processViaClaudeCode(
     prompt: string, 
     doctorName: string,
     product: string
-  ): Promise<any> {
+  ): Promise<PremiumIntelligenceResponse> {
     // Log the prompt for manual processing if needed
     console.log('📋 Claude Code Processing Request:');
     console.log('='.repeat(80));
@@ -119,7 +186,7 @@ export class Claude4LocalProcessor {
   private async generateMockIntelligence(
     doctorName: string,
     product: string
-  ): Promise<any> {
+  ): Promise<IntelligenceResponse> {
     // Simulate processing delay
     if (this.config.mockDelay) {
       await new Promise(resolve => setTimeout(resolve, this.config.mockDelay));
@@ -189,7 +256,7 @@ export class Claude4LocalProcessor {
   private generatePremiumMockIntelligence(
     doctorName: string,
     product: string
-  ): Promise<any> {
+  ): Promise<PremiumIntelligenceResponse> {
     // Even more detailed mock for Claude Code mode
     const basicIntel = this.generateMockIntelligence(doctorName, product);
     

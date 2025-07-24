@@ -49,7 +49,7 @@ export const handler: Handler = async (event) => {
     let requestData;
     try {
       requestData = JSON.parse(prompt);
-    } catch (error) {
+    } catch {
       // If prompt is not JSON, use it as a simple string
       requestData = { messages: [{ role: 'user', content: prompt }], temperature: 0.3, max_tokens: 1500 };
     }

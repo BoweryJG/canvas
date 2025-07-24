@@ -3,6 +3,19 @@
  * Reduces duplicate API calls and improves performance
  */
 
+// Type definitions for cache content
+interface NPILookupResult {
+  [key: string]: unknown;
+}
+
+interface ResearchResult {
+  [key: string]: unknown;
+}
+
+interface ProductInfo {
+  [key: string]: unknown;
+}
+
 interface CacheEntry<T> {
   data: T;
   timestamp: number;
@@ -103,9 +116,9 @@ export class SimpleCache<T> {
 }
 
 // Create singleton instances for different cache types
-export const npiCache = new SimpleCache<any>(10); // 10 minute TTL for NPI lookups
-export const researchCache = new SimpleCache<any>(30); // 30 minute TTL for research results
-export const productCache = new SimpleCache<any>(60); // 60 minute TTL for product info
+export const npiCache = new SimpleCache<NPILookupResult>(10); // 10 minute TTL for NPI lookups
+export const researchCache = new SimpleCache<ResearchResult>(30); // 30 minute TTL for research results
+export const productCache = new SimpleCache<ProductInfo>(60); // 60 minute TTL for product info
 
 /**
  * Helper to create a cache key from multiple parts
@@ -122,17 +135,17 @@ export function createCacheKey(...parts: (string | number | undefined)[]): strin
  */
 export function withCache<T>(
   cache: SimpleCache<T>,
-  keyGenerator: (...args: any[]) => string,
+  keyGenerator: (...args: unknown[]) => string,
   ttlMinutes?: number
 ) {
   return function (
-    _target: any,
+    _target: unknown,
     propertyKey: string,
     descriptor: PropertyDescriptor
   ) {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: unknown[]) {
       const cacheKey = keyGenerator(...args);
       
       // Check cache first

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Typography, Paper, Alert, CircularProgress } from '@mui/material';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../auth/useAuth';
 import { supabase } from '../auth/supabase';
 
 const AuthTest: React.FC = () => {

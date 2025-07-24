@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from './AuthContext';
+import { useAuth } from './useAuth';
 import { subscriptionService, type UnifiedSubscription } from '../services/subscriptionService';
 
 interface UnifiedUsage {
@@ -79,8 +79,8 @@ export const useUnifiedSubscription = () => {
   };
 
   // Check if user has access to RepX features
-  const hasRepXAccess = (feature: 'calls' | 'emails' | 'canvas_scans'): boolean => {
-    return subscriptionService.hasRepXAccess(currentSubscription.tier, feature);
+  const hasRepXAccess = (): boolean => {
+    return subscriptionService.hasRepXAccess(currentSubscription.tier);
   };
 
   // Create checkout for RepX subscription
@@ -177,8 +177,8 @@ export const useUnifiedSubscription = () => {
     // Convenience flags
     isFreeTier: currentSubscription.tier === 'free',
     hasCanvasAccess: currentSubscription.tier !== 'free',
-    hasRepXCalling: hasRepXAccess('calls'),
-    hasRepXEmail: hasRepXAccess('emails'),
+    hasRepXCalling: hasRepXAccess(),
+    hasRepXEmail: hasRepXAccess(),
 
     // Unified service access
     subscriptionService

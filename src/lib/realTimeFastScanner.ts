@@ -5,18 +5,25 @@
 import { EventEmitter } from 'events';
 import { optimizedResearch } from './optimizedResearch';
 
+interface Source {
+  url: string;
+  title: string;
+  type: string;
+  confidence: number;
+}
+
 export interface RealTimeScanResult {
   stage: 'initial' | 'basic' | 'enhanced' | 'complete';
   doctorName: string;
   confidence: number;
   summary: string;
   keyPoints: string[];
-  sources: any[];
+  sources: Source[];
   realData: {
-    practiceInfo?: any;
-    reviews?: any;
-    websites?: any;
-    ratings?: any;
+    practiceInfo?: Record<string, unknown>;
+    reviews?: Record<string, unknown>;
+    websites?: Record<string, unknown>;
+    ratings?: Record<string, unknown>;
   };
   timeElapsed: number;
 }
@@ -146,7 +153,7 @@ export class RealTimeFastScanner extends EventEmitter {
     }
   }
 
-  private emitCompleteResults(doctorName: string, realData: any) {
+  private emitCompleteResults(doctorName: string, realData: Record<string, unknown>) {
     const result: RealTimeScanResult = {
       stage: 'complete',
       doctorName,
@@ -168,7 +175,7 @@ export class RealTimeFastScanner extends EventEmitter {
     this.emit('result', result);
   }
 
-  private emitEnhancedFromCache(doctorName: string, cachedData: any) {
+  private emitEnhancedFromCache(doctorName: string, cachedData: Record<string, unknown>) {
     const result: RealTimeScanResult = {
       stage: 'enhanced',
       doctorName,

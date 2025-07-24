@@ -6,14 +6,35 @@ import { useState, useEffect } from 'react';
 import { Box, Typography, Card, CardContent, LinearProgress, Button, Chip } from '@mui/material';
 import { motion } from 'framer-motion';
 import { Lock, AutoAwesome, TrendingUp } from '@mui/icons-material';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../auth/useAuth';
 import { useNavigate } from 'react-router-dom';
+
+interface ScanStageData {
+  confidence?: number;
+  stage?: string;
+  source?: string;
+  summary?: string;
+  keyPoints?: string[];
+  verification?: {
+    practiceName?: string;
+    verifiedWebsite?: string;
+    verificationMethod?: string;
+    confidence: number;
+    suggestedConfirmation?: string;
+  };
+}
+
+interface ScanData {
+  instant?: ScanStageData;
+  basic?: ScanStageData;
+  enhanced?: ScanStageData;
+}
 
 interface Props {
   doctorName: string;
   userTier: string;
   onUpgradeClick: () => void;
-  scanData?: any; // Real scan results
+  scanData?: ScanData;
 }
 
 export default function SimpleProgressiveResults({ doctorName, userTier, onUpgradeClick, scanData }: Props) {

@@ -126,7 +126,7 @@ const generateGmailLink = (params: any): string => {
  * Outlook web compose link
  */
 const generateOutlookLink = (params: any): string => {
-  let url = 'https://outlook.live.com/mail/0/deeplink/compose?';
+  const url = 'https://outlook.live.com/mail/0/deeplink/compose?';
   
   const queryParams = [];
   if (params.to) queryParams.push(`to=${encodeForUrl(params.to)}`);
@@ -142,7 +142,7 @@ const generateOutlookLink = (params: any): string => {
  * Yahoo mail compose link
  */
 const generateYahooLink = (params: any): string => {
-  let url = 'https://compose.mail.yahoo.com/?';
+  const url = 'https://compose.mail.yahoo.com/?';
   
   const queryParams = [];
   if (params.to) queryParams.push(`to=${encodeForUrl(params.to)}`);
@@ -163,7 +163,7 @@ const generateAppleMailLink = generateMailtoLink;
  * Universal mailto link
  */
 function generateMailtoLink(params: any): string {
-  let mailto = `mailto:${params.to || ''}?`;
+  const mailto = `mailto:${params.to || ''}?`;
   
   const queryParams = [];
   if (params.subject) queryParams.push(`subject=${encodeForUrl(params.subject)}`);

@@ -36,18 +36,18 @@ import { type SubscriptionTier } from '../types/magicLink';
 import MetallicScrew from './PremiumComponents/MetallicScrew';
 
 interface EnhancedActionSuiteProps {
-  scanResult: EnhancedScanResult | any;
+  scanResult: EnhancedScanResult | Record<string, unknown>;
   researchData?: ResearchData;
   instantIntel?: InstantIntelligence;
-  deepScanResults?: any;
-  scanData?: any;
+  deepScanResults?: Record<string, unknown>;
+  scanData?: Record<string, unknown>;
 }
 
 /**
  * Generate dynamic report name based on product
  */
 function generateDynamicReportName(productName: string, doctorName: string): string {
-  const safeDoctorName = String((typeof doctorName === 'object' && doctorName && 'name' in doctorName ? (doctorName as any).name : doctorName) || 'Unknown Doctor');
+  const safeDoctorName = String((typeof doctorName === 'object' && doctorName && 'name' in doctorName ? (doctorName as { name: string }).name : doctorName) || 'Unknown Doctor');
   const cleanDoctorName = safeDoctorName.replace(/^Dr\.?\s*/i, '');
   return `${productName} Impact Report for Dr. ${cleanDoctorName}`;
 }
@@ -98,6 +98,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
     company: 'Your Company',
     product: 'Your Product'
   });
+
   
   // Determine user tier (you would get this from user subscription data)
   const getUserTier = (): SubscriptionTier => {
@@ -398,7 +399,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         link.href = url;
         
         // Safer filename generation
-        const doctorName = String(((scanResult.doctor as any)?.name || scanResult.doctor) || 'Unknown-Doctor').replace(/[^a-zA-Z0-9]/g, '-');
+        const doctorName = String(((scanResult.doctor as { name?: string })?.name || scanResult.doctor) || 'Unknown-Doctor').replace(/[^a-zA-Z0-9]/g, '-');
         const filename = `canvas-intelligence-${doctorName}-${new Date().toISOString().split('T')[0]}.pdf`;
         link.download = filename;
         
@@ -452,7 +453,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         error: error instanceof Error ? error.message : 'Failed to generate PDF' 
       });
     }
-  }, [scanResult, researchData]);
+  }, [scanResult, researchData, deepScanResults, instantIntel?.confidenceScore, scanData]);
 
   /**
    * Generate Deep Research Report (20+ pages)
@@ -559,7 +560,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
-      const filename = `deep-research-${String(((scanResult.doctor as any)?.name || scanResult.doctor) || 'Unknown-Doctor').replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+      const filename = `deep-research-${String(((scanResult.doctor as { name?: string })?.name || scanResult.doctor) || 'Unknown-Doctor').replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
       link.download = filename;
       
       console.log('Deep Research download link created:', link.href);
@@ -589,7 +590,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         error: error instanceof Error ? error.message : 'Failed to generate deep research report' 
       });
     }
-  }, [scanResult, researchData]);
+  }, [scanResult, researchData, deepScanResults?.businessIntel, deepScanResults?.completedAt, deepScanResults?.confidenceScore, deepScanResults?.reviews, deepScanResults?.sources, deepScanResults?.technology, deepScanResults?.unified, instantIntel, scanData?.businessIntel, scanData?.completedAt, scanData?.confidenceScore, scanData?.growthIndicators, scanData?.marketPosition, scanData?.patientVolume, scanData?.practiceType, scanData?.reviews, scanData?.sources, scanData?.technology]);
 
   /**
    * Generate Sales Rep Reports
@@ -772,7 +773,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         link.href = url;
         
         // Safer filename generation
-        const doctorName = String(((scanResult.doctor as any)?.name || scanResult.doctor) || 'Unknown-Doctor').replace(/[^a-zA-Z0-9]/g, '-');
+        const doctorName = String(((scanResult.doctor as { name?: string })?.name || scanResult.doctor) || 'Unknown-Doctor').replace(/[^a-zA-Z0-9]/g, '-');
         const filename = `sales-report-${reportType}-${doctorName}-${new Date().toISOString().split('T')[0]}.pdf`;
         link.download = filename;
         
@@ -872,7 +873,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         error: error instanceof Error ? error.message : 'Failed to sync to CRM' 
       });
     }
-  }, [scanResult, researchData, crmConfigs, emailState.content]);
+  }, [scanResult, researchData, crmConfigs, emailState.content, deepScanResults?.businessIntel, deepScanResults?.completedAt, deepScanResults?.confidenceScore, deepScanResults?.reviews, deepScanResults?.sources, deepScanResults?.technology, deepScanResults?.unified, instantIntel, scanData?.businessIntel, scanData?.completedAt, scanData?.confidenceScore, scanData?.established, scanData?.growthIndicators, scanData?.location, scanData?.marketPosition, scanData?.patientVolume, scanData?.phone, scanData?.practiceType, scanData?.reviews, scanData?.sources, scanData?.specialties, scanData?.staff, scanData?.technology]);
 
   /**
    * Handle CRM configuration changes

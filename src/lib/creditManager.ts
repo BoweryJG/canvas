@@ -20,7 +20,7 @@ export async function getUserCredits(): Promise<number> {
   return 100;
 }
 
-export async function addCredits(_userId: string, _credits: number): Promise<boolean> {
+export async function addCredits(): Promise<boolean> {
   console.log('Skipping credit addition - using default credits');
   return true;
 }

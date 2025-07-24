@@ -147,8 +147,8 @@ export const EnhancedDoctorInput: React.FC<EnhancedDoctorInputProps> = ({
       website: verifiedProfile.website,
       practice: verifiedProfile.practice,
       npi: verifiedProfile.npi || verificationData?.npi,
-      phone: (verifiedProfile as any).phone || verificationData?.phone || '',
-      address: (verifiedProfile as any).address || verificationData?.address || ''
+      phone: (verifiedProfile as { phone?: string }).phone || verificationData?.phone || '',
+      address: (verifiedProfile as { address?: string }).address || verificationData?.address || ''
     });
   };
 

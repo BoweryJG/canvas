@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from './AuthContext';
+import { useAuth } from './useAuth';
 import { supabase } from './supabase';
 // import type { User } from './types';
 

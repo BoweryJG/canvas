@@ -11,8 +11,13 @@ export interface ResearchJob {
   progress: number;
   estimatedTime?: number;
   pollUrl?: string;
-  data?: any;
+  data?: unknown;
   fromCache?: boolean;
+}
+
+interface StageResult {
+  status: string;
+  result: unknown;
 }
 
 export interface JobStatus {
@@ -20,23 +25,29 @@ export interface JobStatus {
   status: string;
   progress: number;
   stages: {
-    website: { status: string; result: any };
-    reviews: { status: string; result: any };
-    competition: { status: string; result: any };
-    synthesis: { status: string; result: any };
+    website: StageResult;
+    reviews: StageResult;
+    competition: StageResult;
+    synthesis: StageResult;
   };
   elapsedTime: number;
   updates: string[];
-  data?: any;
-  confidence?: any;
+  data?: unknown;
+  confidence?: unknown;
   error?: string;
 }
 
 /**
  * Start a new research job on the backend
  */
+interface DoctorData {
+  displayName?: string;
+  npi?: string;
+  [key: string]: unknown;
+}
+
 export async function startResearchJob(
-  doctor: any,
+  doctor: DoctorData,
   product: string,
   userId?: string
 ): Promise<ResearchJob> {
@@ -85,11 +96,16 @@ export async function getJobStatus(jobId: string): Promise<JobStatus> {
 /**
  * Stream job updates via Server-Sent Events
  */
+interface StreamUpdate {
+  type: 'progress' | 'final' | 'error';
+  [key: string]: unknown;
+}
+
 export function streamJobUpdates(
   jobId: string,
-  onUpdate: (update: any) => void,
-  onComplete: (result: any) => void,
-  onError: (error: any) => void
+  onUpdate: (update: StreamUpdate) => void,
+  onComplete: (result: StreamUpdate) => void,
+  onError: (error: Error | StreamUpdate) => void
 ): () => void {
   const eventSource = new EventSource(
     `${RENDER_BACKEND_URL}/api/research/${jobId}/stream`
@@ -159,12 +175,18 @@ export async function pollUntilComplete(
 /**
  * High-level research function that handles the full flow
  */
+interface ProgressUpdate {
+  progress: number;
+  stage: string;
+  message: string;
+}
+
 export async function conductResearch(
-  doctor: any,
+  doctor: DoctorData,
   product: string,
   userId?: string,
-  onProgress?: (update: any) => void
-): Promise<any> {
+  onProgress?: (update: ProgressUpdate) => void
+): Promise<unknown> {
   // Start the job
   const job = await startResearchJob(doctor, product, userId);
   
@@ -200,10 +222,10 @@ export async function conductResearch(
  * Batch research for multiple doctors
  */
 export async function batchResearch(
-  doctors: any[],
+  doctors: DoctorData[],
   product: string,
   userId?: string
-): Promise<Map<string, any>> {
+): Promise<Map<string, unknown>> {
   const results = new Map();
   
   // Start all jobs in parallel
@@ -239,7 +261,8 @@ export async function batchResearch(
   
   // Build results map
   completions.forEach(({ doctor, data, error }) => {
-    results.set(doctor.npi, { data, error });
+    const npi = doctor.npi || 'unknown';
+    results.set(npi, { data, error });
   });
   
   return results;

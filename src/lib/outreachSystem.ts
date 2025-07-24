@@ -6,6 +6,35 @@
 import { type EnhancedScanResult } from './enhancedAI';
 import { type ResearchData } from './webResearch';
 
+// Extended research data type to include scraped website data
+interface ExtendedResearchData extends ResearchData {
+  scrapedWebsiteData?: {
+    content: string;
+    services: string[];
+    technology: string[];
+    specialties: string[];
+    [key: string]: unknown;
+  };
+}
+
+// Doctor info type for outreach
+interface DoctorInfo {
+  name?: string;
+  [key: string]: unknown;
+}
+
+interface ScrapedData {
+  content: string;
+  services: string[];
+  technology: string[];
+  specialties: string[];
+  dentalProcedures?: Record<string, boolean>;
+  dentalTechnology?: Record<string, boolean>;
+  aestheticProcedures?: Record<string, boolean>;
+  aestheticDevices?: Record<string, boolean>;
+  [key: string]: unknown;
+}
+
 export interface OutreachTemplate {
   id: string;
   name: string;
@@ -68,7 +97,7 @@ export async function generatePersonalizedOutreach(
   const { callClaudeOutreach } = await import('./apiEndpoints');
   
   // Use new medical intelligence if available
-  const scrapedData = (researchData as any).scrapedWebsiteData;
+  const scrapedData = (researchData as ExtendedResearchData).scrapedWebsiteData;
   const medicalContext = scrapedData ? buildMedicalOutreachContext(scrapedData, scanResult.product) : buildResearchContext(researchData);
   // const scanContext = buildScanContext(scanResult); // Available if needed
   
@@ -152,7 +181,7 @@ export async function createCampaignSequence(
         id: step.id,
         day: step.day,
         time: step.time,
-        type: step.channel as any,
+        type: step.channel as 'email' | 'sms' | 'call',
         templateId: step.id,
         conditions: step.triggers
       })),
@@ -173,7 +202,7 @@ export async function createCampaignSequence(
     id: 'initial-email',
     name: 'Research-Based Introduction',
     type: 'email',
-    urgency: intensity as any,
+    urgency: intensity as OutreachTemplate['urgency'],
     subject: initialEmail.subject,
     content: initialEmail.content,
     variables: ['doctorName', 'practiceName', 'technology', 'specialties'],
@@ -217,7 +246,7 @@ export async function createCampaignSequence(
     id: 'value-followup',
     name: 'ROI-Focused Follow-up',
     type: 'email',
-    urgency: intensity as any,
+    urgency: intensity as OutreachTemplate['urgency'],
     subject: followupEmail.subject,
     content: followupEmail.content,
     variables: ['roi_data', 'case_studies', 'implementation_timeline'],
@@ -405,7 +434,7 @@ SOURCES: ${researchData.sources.length} verified sources
 /**
  * Build medical context from scraped website data for outreach
  */
-function buildMedicalOutreachContext(scrapedData: any, productName: string): string {
+function buildMedicalOutreachContext(scrapedData: ScrapedData, productName: string): string {
   if (!scrapedData) return 'Medical data unavailable';
   
   const productCategory = determineProductCategory(productName);
@@ -527,7 +556,7 @@ function generateBelievableSubject(productName: string, doctorName: string): str
  */
 function generateBelievableFallback(
   scanResult: EnhancedScanResult, 
-  scrapedData: any,
+  scrapedData: ScrapedData | undefined,
   channel: string
 ): string {
   const productCategory = determineProductCategory(scanResult.product);
@@ -571,7 +600,7 @@ function generateBelievableFallback(
   }
   
   const templates = {
-    email: `Dr. ${String(((scanResult.doctor as any)?.name || scanResult.doctor) || 'Doctor').replace(/^Dr\.?\s*/i, '')},
+    email: `Dr. ${String(((scanResult.doctor as DoctorInfo)?.name || scanResult.doctor) || 'Doctor').replace(/^Dr\.?\s*/i, '')},
 
 ${credibilityHook} and thought ${scanResult.product} might be a good fit for your setup.
 
@@ -582,9 +611,9 @@ Would you be open to a brief conversation to discuss how this might work for you
 Best regards,
 [Your Name]`,
     
-    sms: `Dr. ${String(((scanResult.doctor as any)?.name || scanResult.doctor) || 'Doctor').replace(/^Dr\.?\s*/i, '')}, ${credibilityHook}. ${scanResult.product} could enhance your current setup. Quick call to discuss? [Your Name]`,
+    sms: `Dr. ${String(((scanResult.doctor as DoctorInfo)?.name || scanResult.doctor) || 'Doctor').replace(/^Dr\.?\s*/i, '')}, ${credibilityHook}. ${scanResult.product} could enhance your current setup. Quick call to discuss? [Your Name]`,
     
-    linkedin: `Hello Dr. ${String(((scanResult.doctor as any)?.name || scanResult.doctor) || 'Doctor').replace(/^Dr\.?\s*/i, '')}, ${credibilityHook}. ${scanResult.product} shows strong potential for practices like yours. Would you be open to connecting?`
+    linkedin: `Hello Dr. ${String(((scanResult.doctor as DoctorInfo)?.name || scanResult.doctor) || 'Doctor').replace(/^Dr\.?\s*/i, '')}, ${credibilityHook}. ${scanResult.product} shows strong potential for practices like yours. Would you be open to connecting?`
   };
   
   return templates[channel as keyof typeof templates] || templates.email;
@@ -595,7 +624,7 @@ Best regards,
  */
 function generateBelievableOutreach(
   scanResult: EnhancedScanResult,
-  scrapedData: any, 
+  scrapedData: ScrapedData | undefined, 
   _templateType: string, 
   channel: string
 ): PersonalizedOutreach {

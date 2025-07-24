@@ -11,11 +11,11 @@ interface IntelligenceGatheringResult {
   practiceWebsite: string;
   allSources: ResearchSource[];
   rawData: {
-    practiceInfo: any;
-    reviews: any;
-    marketPosition: any;
-    technology: any;
-    competition: any;
+    practiceInfo: Record<string, unknown>;
+    reviews: Record<string, unknown>;
+    marketPosition: Record<string, unknown>;
+    technology: Record<string, unknown>;
+    competition: Record<string, unknown>;
   };
 }
 
@@ -74,7 +74,7 @@ async function gatherAllIntelligence(doctor: Doctor, product: string): Promise<I
   
   // Optional: Use Perplexity for deep analysis (but it's just using Brave as fallback for now)
   let perplexityResults1 = null;
-  let perplexityResults2 = null;
+  const perplexityResults2 = null;
   
   try {
     perplexityResults1 = await callPerplexitySearch(`${doctorFullName} ${specialty} ${location} practice technology equipment`);
@@ -136,7 +136,7 @@ async function gatherAllIntelligence(doctor: Doctor, product: string): Promise<I
       url: 'perplexity-market',
       title: 'AI Analysis: Market Position',
       type: 'news_article',
-      content: (perplexityResults2 as any).answer || JSON.stringify(perplexityResults2),
+      content: (perplexityResults2 as { answer?: string }).answer || JSON.stringify(perplexityResults2),
       confidence: 85,
       lastUpdated: new Date().toISOString()
     });

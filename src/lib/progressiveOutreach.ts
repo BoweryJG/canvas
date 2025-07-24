@@ -86,8 +86,36 @@ export const OUTREACH_TIERS = {
 /**
  * Generate outreach based on available research data
  */
+interface ResearchData {
+  doctorName: string;
+  productName: string;
+  score?: number;
+  practiceInfo?: {
+    name?: string;
+    specialty?: string;
+    technology?: string[];
+  };
+  insights?: string[];
+  location?: string;
+  reviews?: {
+    highlight?: string;
+    commonPraise?: string[];
+  };
+  competitiveIntel?: {
+    trigger?: string;
+    focus?: string;
+  };
+  profile?: {
+    communicationStyle?: string;
+    primaryMotivator?: string;
+    triggerWords?: string[];
+    decisionStyle?: string;
+    preferredNextStep?: string;
+  };
+}
+
 export async function generateProgressiveOutreach(
-  researchData: any,
+  researchData: ResearchData,
   researchProgress: number,
   requestedTier?: OutreachTier
 ): Promise<OutreachMaterial> {
@@ -110,7 +138,7 @@ export async function generateProgressiveOutreach(
 /**
  * Generic Outreach - Available immediately with basic data
  */
-function generateGenericOutreach(data: any): OutreachMaterial {
+function generateGenericOutreach(data: ResearchData): OutreachMaterial {
   const { doctorName, productName } = data;
   
   return {
@@ -155,7 +183,7 @@ Best regards,
 /**
  * Pro Outreach - Available after basic research (35% complete)
  */
-async function generateProOutreach(data: any): Promise<OutreachMaterial> {
+async function generateProOutreach(data: ResearchData): Promise<OutreachMaterial> {
   const { doctorName, productName, score, practiceInfo, insights } = data;
   
   // Use one AI call to personalize based on practice data
@@ -222,7 +250,7 @@ Create a professional but personalized email that references specific practice d
 /**
  * Genius Outreach - Available after enhanced research (65% complete)
  */
-async function generateGeniusOutreach(data: any): Promise<OutreachMaterial> {
+async function generateGeniusOutreach(data: ResearchData): Promise<OutreachMaterial> {
   const { 
     doctorName, 
     productName, 
@@ -323,7 +351,16 @@ function determineAvailableTier(
   }
 }
 
-function generateProFallback(data: any): any {
+interface ProFallbackResult {
+  subject: string;
+  emailContent: string;
+  followUpSequence: Array<{ day: number; subject: string; content: string }>;
+  personalizations: string[];
+  confidence: number;
+  talkingPoints: string[];
+}
+
+function generateProFallback(data: ResearchData): ProFallbackResult {
   return {
     subject: `${data.productName} - Tailored for ${data.practiceInfo?.specialty || 'Your Specialty'}`,
     emailContent: `Dear Dr. ${data.doctorName},
@@ -348,7 +385,7 @@ Best regards,
   };
 }
 
-function personalizFollowUp(data: any, touchNumber: number): string {
+function personalizFollowUp(data: ResearchData, touchNumber: number): string {
   const templates = {
     1: `Dr. ${data.doctorName}, I wanted to follow up on my previous email about ${data.productName}. Given your practice's focus on ${data.practiceInfo?.specialty || 'quality care'}, I think you'd find our approach particularly relevant...`,
     2: `Hi Dr. ${data.doctorName}, I noticed your practice ${data.practiceInfo?.technology ? `uses ${data.practiceInfo.technology[0]}` : 'values efficiency'}. ${data.productName} integrates seamlessly with similar systems. Quick question - what's your biggest workflow challenge right now?`,
@@ -358,7 +395,7 @@ function personalizFollowUp(data: any, touchNumber: number): string {
   return templates[touchNumber as keyof typeof templates] || templates[1];
 }
 
-function generateCallScript(data: any, tier: 'pro' | 'genius'): string {
+function generateCallScript(data: ResearchData, tier: 'pro' | 'genius'): string {
   if (tier === 'genius') {
     return `GENIUS CALL SCRIPT for Dr. ${data.doctorName}
 
@@ -387,12 +424,18 @@ KEY POINTS:
 • Integration simplicity`;
 }
 
-function generateSmsTemplate(data: any): string {
+function generateSmsTemplate(data: ResearchData): string {
   return `Dr. ${data.doctorName}, following up on ${data.productName}. Based on your practice's ${data.competitiveIntel?.focus || 'needs'}, 
 I have a specific insight to share. Worth a quick call? [Your Name]`;
 }
 
-function generateGeniusEmail(data: any, profile: any): string {
+interface Profile {
+  triggerWords?: string[];
+  decisionStyle?: string;
+  preferredNextStep?: string;
+}
+
+function generateGeniusEmail(data: ResearchData, profile: Profile): string {
   return `[Genius-level personalized email based on deep research and psychological profiling]
 
 Subject line uses trigger words: ${profile.triggerWords?.join(', ')}
@@ -401,7 +444,7 @@ Body leverages: ${profile.decisionStyle} decision-making style
 Close uses: ${profile.preferredNextStep || 'low-pressure invitation'}`;
 }
 
-function generateGeniusSequence(_data: any, _profile: any): any[] {
+function generateGeniusSequence(_data: ResearchData, _profile: Profile): Array<{ day: number; subject: string; content: string }> {
   return [
     { day: 1, subject: 'LinkedIn connection', content: 'Personalized LinkedIn message...' },
     { day: 3, subject: 'Email follow-up', content: 'Reference LinkedIn view...' },

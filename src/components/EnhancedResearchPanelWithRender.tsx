@@ -9,6 +9,57 @@ interface StageInfo {
   color: string;
 }
 
+interface FormData {
+  doctorName: string;
+  credential: string;
+  specialty: string;
+  location: string;
+  practiceName: string;
+  phone: string;
+  address: string;
+  npi: string;
+  productName: string;
+  verifiedWebsite?: string;
+}
+
+interface BuyingSignal {
+  signal: string;
+  urgency: 'high' | 'medium' | 'low';
+  evidence: string;
+  relevanceToProduct: string;
+}
+
+interface ApproachStrategy {
+  bestChannel?: {
+    primary: string;
+  };
+  messaging?: {
+    opener: string;
+  };
+  valueProps?: string[];
+}
+
+interface ActionStep {
+  step: number;
+  action: string;
+  timing: string;
+}
+
+interface ResearchSynthesis {
+  executiveSummary: string;
+  buyingSignals?: BuyingSignal[];
+  approachStrategy?: ApproachStrategy;
+  actionPlan?: ActionStep[];
+}
+
+interface ResearchResult {
+  sources?: unknown[];
+  confidence?: {
+    score: number;
+  };
+  synthesis?: ResearchSynthesis;
+}
+
 const STAGE_INFO: Record<string, StageInfo> = {
   website: { icon: <Globe className="w-5 h-5" />, label: 'Finding Practice Website', color: 'text-blue-600' },
   reviews: { icon: <TrendingUp className="w-5 h-5" />, label: 'Gathering Reviews', color: 'text-purple-600' },
@@ -18,10 +69,10 @@ const STAGE_INFO: Record<string, StageInfo> = {
 
 export const EnhancedResearchPanelWithRender: React.FC = () => {
   const { runResearch, researchProgress, backendHealthy } = useRenderBackend();
-  const [researchResult, setResearchResult] = useState<any>(null);
+  const [researchResult, setResearchResult] = useState<ResearchResult | null>(null);
   const [showResults, setShowResults] = useState(false);
 
-  const handleResearchSubmit = async (formData: any) => {
+  const handleResearchSubmit = async (formData: FormData) => {
     setResearchResult(null);
     setShowResults(false);
     
@@ -211,7 +262,7 @@ export const EnhancedResearchPanelWithRender: React.FC = () => {
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-3">🎯 Buying Signals</h3>
                       <div className="space-y-3">
-                        {researchResult.synthesis.buyingSignals.map((signal: any, idx: number) => (
+                        {researchResult.synthesis.buyingSignals.map((signal: BuyingSignal, idx: number) => (
                           <div key={idx} className="bg-green-50 border border-green-200 rounded-lg p-4">
                             <div className="flex justify-between items-start mb-2">
                               <p className="font-medium text-green-900">{signal.signal}</p>
@@ -261,7 +312,7 @@ export const EnhancedResearchPanelWithRender: React.FC = () => {
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-3">🚀 Action Plan</h3>
                       <div className="space-y-3">
-                        {researchResult.synthesis.actionPlan.map((step: any, idx: number) => (
+                        {researchResult.synthesis.actionPlan.map((step: ActionStep, idx: number) => (
                           <div key={idx} className="flex gap-4">
                             <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold">
                               {step.step}

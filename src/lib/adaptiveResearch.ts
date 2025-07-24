@@ -6,6 +6,24 @@
 import { type Doctor } from '../components/DoctorAutocomplete';
 import { type ResearchSource } from './webResearch';
 import { type ExtendedResearchData } from './types/research';
+
+// Type definitions for adaptive research
+interface CompetitorData {
+  competitors: Array<{
+    name: string;
+    distance: string;
+    rating: number;
+    [key: string]: unknown;
+  }>;
+}
+
+interface SynthesisResult {
+  salesBrief?: string;
+  technologyStack?: {
+    current?: string[];
+  };
+  [key: string]: unknown;
+}
 import { callBraveSearch, callFirecrawlScrape } from './apiEndpoints';
 import { analyzeInitialResults, synthesizeWithSequentialGuidance } from './sequentialThinkingResearch';
 import type { ResearchStrategy } from './sequentialThinkingResearch';
@@ -192,7 +210,7 @@ export async function adaptiveResearch(
       );
       
       progress?.updateStep?.('competition', 'completed', 
-        `${(competitorData as any)?.competitors?.length || 0} competitors analyzed`);
+        `${(competitorData as CompetitorData)?.competitors?.length || 0} competitors analyzed`);
     }
     
     // Step 5: Sequential Thinking Guided Synthesis
@@ -376,20 +394,20 @@ async function analyzeCompetitors(
     });
   }
   
-  return { competitors } as any;
+  return { competitors } as CompetitorData;
 }
 
 function calculateAdaptiveConfidence(
   sources: ResearchSource[],
   strategy: ResearchStrategy,
-  synthesis: unknown
+  synthesis: SynthesisResult
 ): { score: number; factors: Record<string, unknown> } {
   let score = 80; // Start at 80% - we always have NPI verified data
   const factors = {
     sourcesFound: sources.length,
     websiteAnalyzed: strategy.websiteUrl && !strategy.skipWebsiteScrape,
     reviewsFound: sources.some(s => s.type === 'review_site'),
-    competitorsIdentified: (synthesis as any)?.competition?.currentVendors?.length > 0,
+    competitorsIdentified: (synthesis as SynthesisResult & { competition?: { currentVendors?: string[] } })?.competition?.currentVendors?.length > 0,
     strategyAlignment: strategy.focusAreas.length > 0,
     keyQuestionsAnswered: 0,
     npiVerified: true // Always true when we use NPI data
@@ -414,10 +432,10 @@ function calculateAdaptiveConfidence(
   score += Math.min(answeredQuestions * 1.5, 8);
   
   // Award points for sales brief quality
-  if ((synthesis as any)?.salesBrief && (synthesis as any).salesBrief.length > 100) score += 3;
+  if (synthesis?.salesBrief && synthesis.salesBrief.length > 100) score += 3;
   
   // Bonus for tech stack match (yomi relevance)
-  if ((synthesis as any)?.technologyStack?.current?.some((tech: string) => 
+  if (synthesis?.technologyStack?.current?.some((tech: string) => 
     tech.toLowerCase().includes('cbct') || 
     tech.toLowerCase().includes('implant') ||
     tech.toLowerCase().includes('surgical'))) {

@@ -18,6 +18,8 @@ interface SEOReportModalProps {
   userId?: string;
 }
 
+type TabKey = 'overview' | 'technical' | 'local' | 'competitors' | 'keywords';
+
 export const SEOReportModal: React.FC<SEOReportModalProps> = ({
   open,
   onClose,
@@ -30,7 +32,7 @@ export const SEOReportModal: React.FC<SEOReportModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<SEOAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'technical' | 'local' | 'competitors' | 'keywords'>('overview');
+  const [activeTab, setActiveTab] = useState<TabKey>('overview');
 
   const runAnalysis = async () => {
     setLoading(true);
@@ -235,7 +237,7 @@ export const SEOReportModal: React.FC<SEOReportModalProps> = ({
                 ].map(tab => (
                   <button
                     key={tab.key}
-                    onClick={() => setActiveTab(tab.key as any)}
+                    onClick={() => setActiveTab(tab.key as TabKey)}
                     style={{
                       padding: '10px 20px',
                       background: activeTab === tab.key 

@@ -3,7 +3,7 @@
  * Category-defining verification flow
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   Box, 
   Card, 
@@ -28,6 +28,12 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { smartVerifyDoctor } from '../lib/smartDoctorVerification';
 import { analyzePracticeWebsite } from '../lib/practiceWebsiteDetector';
+
+interface VerificationSource {
+  name: string;
+  url: string;
+  type: string;
+}
 
 interface Props {
   doctorName: string;
@@ -97,9 +103,9 @@ export default function DoctorVerification({
       // Only perform verification if we don't have data
       performVerification();
     }
-  }, [doctorName, location, website, practice]);
+  }, [doctorName, location, website, practice, confidence, npi, specialty, generateAdditionalInfo, performVerification]);
 
-  const generateAdditionalInfo = () => {
+  const generateAdditionalInfo = useCallback(() => {
     if (!website) {
       return "We couldn't find a practice website. Please confirm if this is the correct doctor.";
     }
@@ -118,9 +124,9 @@ export default function DoctorVerification({
     } else {
       return `Found online presence. We'll gather more information during research.`;
     }
-  };
+  }, [website, practice, doctorName]);
 
-  const performVerification = async () => {
+  const performVerification = useCallback(async () => {
     setLoading(true);
     setError(false);
     
@@ -149,7 +155,7 @@ export default function DoctorVerification({
         sources: smartResult.sources?.map(s => ({
           name: s.type === 'practice' ? 'Practice Website' : s.type,
           url: s.url,
-          type: s.type as any
+          type: s.type
         })) || []
       });
       
@@ -170,7 +176,7 @@ export default function DoctorVerification({
     } finally {
       setLoading(false);
     }
-  };
+  }, [doctorName, location, specialty, practice, website, confidence, npi, generateAdditionalInfo]);
 
   const handleConfirm = () => {
     if (profile) {
@@ -449,7 +455,7 @@ export default function DoctorVerification({
                   VERIFIED FROM {profile.sources.length} SOURCES
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  {profile.sources.map((source: any, i: number) => (
+                  {profile.sources.map((source: VerificationSource, i: number) => (
                     <Chip 
                       key={i}
                       label={source.name}

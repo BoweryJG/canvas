@@ -15,6 +15,70 @@ import { gatherProductIntelligence, combineIntelligence } from './productProcedu
 import type { Doctor } from '../components/DoctorAutocomplete';
 import type { ResearchData, ResearchSource } from './webResearch';
 
+// Type definitions for streamlined intelligence
+interface BraveSearchResult {
+  url: string;
+  title: string;
+  description: string;
+}
+
+interface LocalCompetitor {
+  title: string;
+  rating: number;
+  rating_count: number;
+  distance: string;
+  address: string;
+  url?: string;
+  priceRange?: string;
+}
+
+interface LocalCompetitorResults {
+  results: LocalCompetitor[];
+}
+
+interface SearchData {
+  sources: ResearchSource[];
+  practiceWebsite: string;
+}
+
+interface SynthesisResult {
+  executiveSummary: string;
+  opportunityScore: number;
+  scoringRationale?: string;
+  practiceProfile: {
+    size: string;
+    patientVolume?: string;
+    yearsInBusiness?: number;
+    technologyLevel?: string;
+    notableFeatures: string[];
+  };
+  competitivePosition: {
+    marketRank: string;
+    strengths: string[];
+    vulnerabilities: string[];
+    differentiators: string[];
+  };
+  buyingSignals: string[];
+  painPoints: string[];
+  salesStrategy: {
+    perfectPitch: string;
+    channel?: string;
+    timing?: string;
+    valueProps?: string[];
+    objectionHandlers?: Record<string, string>;
+  };
+  decisionMakers?: {
+    primary: string;
+    influencers: string[];
+  };
+  budgetIndicators?: {
+    estimatedRevenue: string;
+    techBudget: string;
+    purchaseTimeframe: string;
+  };
+  actionItems?: string[];
+}
+
 interface StreamlinedProgressCallback {
   updateStep: (stepId: string, status: 'pending' | 'active' | 'completed' | 'found', result?: string) => void;
   updateSources: (count: number) => void;
@@ -43,7 +107,7 @@ export async function gatherStreamlinedDoctorIntelligence(
   // Initialize progress
   steps.forEach(step => progress?.updateStep(step.id, 'pending'));
   
-  let searchData: any = null;
+  let searchData: SearchData | null = null;
   
   try {
     // Phase 1: Gather all data with Brave
@@ -230,7 +294,7 @@ async function gatherBraveIntelligence(
 async function gatherLocalCompetitors(
   doctor: Doctor,
   progress?: StreamlinedProgressCallback
-): Promise<any> {
+): Promise<LocalCompetitorResults> {
   try {
     const query = `${doctor.specialty} near ${doctor.city}, ${doctor.state}`;
     const results = await callBraveLocalSearch(query, 20);
@@ -249,12 +313,12 @@ async function gatherLocalCompetitors(
 }
 
 async function synthesizeWithClaude4Opus(
-  searchData: any,
-  productIntel: any,
-  localCompetitors: any,
+  searchData: SearchData,
+  productIntel: unknown,
+  localCompetitors: LocalCompetitorResults,
   doctor: Doctor,
   product: string
-): Promise<any> {
+): Promise<SynthesisResult> {
   const prompt = `You are an elite medical sales intelligence analyst using Claude 4's advanced capabilities. Create ULTRA-SPECIFIC, ACTIONABLE intelligence.
 
 DOCTOR PROFILE:
@@ -265,7 +329,7 @@ DOCTOR PROFILE:
 - Website: ${searchData.practiceWebsite || 'Not found'}
 
 WEB INTELLIGENCE (${searchData.sources.length} sources):
-${searchData.sources.slice(0, 20).map((s: any) => `- ${s.title}: ${s.content?.substring(0, 150)}...`).join('\n')}
+${searchData.sources.slice(0, 20).map((s: ResearchSource) => `- ${s.title}: ${s.content?.substring(0, 150)}...`).join('\n')}
 
 PRODUCT MARKET INTELLIGENCE for ${product}:
 ${productIntel ? `- Market Awareness: ${productIntel.marketData?.awareness || 'Unknown'}/100
@@ -276,7 +340,7 @@ ${productIntel ? `- Market Awareness: ${productIntel.marketData?.awareness || 'U
 - Local Barriers: ${productIntel.localInsights?.barriers?.join(', ') || 'None identified'}` : 'Product intelligence unavailable'}
 
 LOCAL DENTAL PRACTICES (${localCompetitors?.results?.length || 0} found):
-${localCompetitors?.results?.slice(0, 5).map((c: any) => 
+${localCompetitors?.results?.slice(0, 5).map((c: LocalCompetitor) => 
   `- ${c.title}: ${c.rating}/5 (${c.rating_count} reviews), ${c.distance}mi away, ${c.priceRange || '$$$'}`
 ).join('\n') || 'No competitor data'}
 
@@ -355,10 +419,10 @@ Return JSON with these fields:
 }
 
 function createStreamlinedResearchData(
-  searchData: any,
-  productIntel: any,
-  localCompetitors: any,
-  synthesis: any,
+  searchData: SearchData,
+  productIntel: unknown,
+  localCompetitors: LocalCompetitorResults,
+  synthesis: SynthesisResult,
   doctor: Doctor
 ): ResearchData {
   // Combine all sources
@@ -366,7 +430,7 @@ function createStreamlinedResearchData(
   
   // Add local competitors as sources
   if (localCompetitors?.results) {
-    localCompetitors.results.forEach((comp: any, index: number) => {
+    localCompetitors.results.forEach((comp: LocalCompetitor, index: number) => {
       allSources.push({
         url: comp.url || `local-competitor-${index}`,
         title: `${comp.title} (Local Competitor)`,
@@ -435,7 +499,7 @@ function createStreamlinedResearchData(
 }
 
 // Helper functions
-function findPracticeWebsite(results: any[], doctor: Doctor): string {
+function findPracticeWebsite(results: BraveSearchResult[], doctor: Doctor): string {
   const directoryDomains = ['ada.org', 'healthgrades.com', 'zocdoc.com', 'vitals.com', 'yelp.com', 'sharecare.com', 'npidb.org', 'npino.com', 'ratemds.com', 'wellness.com'];
   
   for (const result of results) {
@@ -464,7 +528,7 @@ function findPracticeWebsite(results: any[], doctor: Doctor): string {
   return '';
 }
 
-function determineSourceType(result: any): ResearchSource['type'] {
+function determineSourceType(result: BraveSearchResult): ResearchSource['type'] {
   const url = result.url?.toLowerCase() || '';
   const title = result.title?.toLowerCase() || '';
   
@@ -485,11 +549,20 @@ function estimateStaffSize(size?: string): number {
   return size && typeof size === 'string' ? (sizeMap[size.toLowerCase()] || 10) : 10;
 }
 
-function createDefaultSynthesis(doctor: Doctor, product: string): any {
+function createDefaultSynthesis(doctor: Doctor, product: string): SynthesisResult {
   return {
     executiveSummary: `${doctor.displayName} operates a ${doctor.specialty} practice in ${doctor.city}. Consider ${product} for their needs.`,
     opportunityScore: 50,
-    practiceProfile: { size: 'Unknown' },
+    practiceProfile: { 
+      size: 'Unknown',
+      notableFeatures: []
+    },
+    competitivePosition: {
+      marketRank: 'Unknown',
+      strengths: [],
+      vulnerabilities: [],
+      differentiators: []
+    },
     buyingSignals: [],
     painPoints: [],
     salesStrategy: {

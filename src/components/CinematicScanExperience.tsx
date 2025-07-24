@@ -3,7 +3,7 @@
  * Combines dramatic visual storytelling with progressive data loading
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence, useSpring } from 'framer-motion';
 import { Box, Typography, Button } from '@mui/material';
 import { 
@@ -131,7 +131,7 @@ const ReportPaper = styled(motion.div)`
 interface Props {
   doctorName: string;
   location?: string;
-  onComplete?: (data: any) => void;
+  onComplete?: (data: Record<string, unknown>) => void;
 }
 
 export default function CinematicScanExperience({ doctorName, location }: Props) {
@@ -151,12 +151,7 @@ export default function CinematicScanExperience({ doctorName, location }: Props)
   // Matrix rain characters
   const matrixChars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
   
-  useEffect(() => {
-    // Start the cinematic experience
-    startScan();
-  }, []);
-  
-  const startScan = () => {
+  const startScan = useCallback(() => {
     // Subscribe to scan results
     realTimeScanner.on('result', handleScanResult);
     
@@ -176,7 +171,12 @@ export default function CinematicScanExperience({ doctorName, location }: Props)
       realTimeScanner.removeListener('result', handleScanResult);
       realTimeScanner.stop();
     };
-  };
+  }, [doctorName, location, subscription?.tier]);
+
+  useEffect(() => {
+    // Start the cinematic experience
+    startScan();
+  }, [startScan]);
   
   const handleScanResult = (result: RealTimeScanResult) => {
     setScanResult(result);

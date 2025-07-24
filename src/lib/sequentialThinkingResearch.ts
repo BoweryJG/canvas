@@ -326,12 +326,12 @@ function extractKeyQuestions(thought: string): string[] {
  * Synthesize research with Sequential Thinking guidance
  */
 export async function synthesizeWithSequentialGuidance(
-  researchData: any,
+  researchData: Record<string, unknown>,
   strategy: ResearchStrategy,
   doctor: Doctor,
   product: string,
-  productIntelligence?: any
-): Promise<any> {
+  productIntelligence?: Record<string, unknown>
+): Promise<Record<string, unknown>> {
   // Use Sequential Thinking to identify the most important insights
   const synthesisPlan = await callSequentialThinking({
     thought: `Research complete for ${doctor.displayName} selling ${product}.

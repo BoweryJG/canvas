@@ -2,13 +2,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
 
+interface MessageMetadata {
+  sources?: string[];
+  confidence?: number;
+  reasoning?: string;
+  suggestions?: string[];
+  [key: string]: unknown;
+}
+
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
   isStreaming?: boolean;
-  metadata?: any;
+  metadata?: MessageMetadata;
 }
 
 interface DemoAgent {

@@ -355,7 +355,7 @@ function generatePersonalizedBenefits(
       benefits.push(`Seamlessly integrates with ${domain}'s existing patient flow`);
     } catch {
       // Fallback if URL parsing fails
-      const websiteName = (scrapedData as any).website.replace(/^https?:\/\//, '').split('/')[0];
+      const websiteName = (scrapedData as ScrapedDataWithWebsite).website!.replace(/^https?:\/\//, '').split('/')[0];
       if (websiteName) {
         benefits.push(`Seamlessly integrates with ${websiteName}'s existing patient flow`);
       }
@@ -476,7 +476,7 @@ export function generateValueProposition(
       proposition += `perfectly complementing ${hostname}'s digital presence. `;
     } catch {
       // Fallback if URL parsing fails
-      const websiteName = (scrapedData as any).website.replace(/^https?:\/\//, '').split('/')[0];
+      const websiteName = (scrapedData as ScrapedDataWithWebsite).website!.replace(/^https?:\/\//, '').split('/')[0];
       if (websiteName) {
         proposition += `perfectly complementing ${websiteName}'s digital presence. `;
       }

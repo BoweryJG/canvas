@@ -192,6 +192,12 @@ export async function orchestrateIntelligenceWorkflow(
     const procedure = await findProcedureByName(productName);
     
     // Generate hyper-personalized content
+    interface ResearchDataLike {
+      enhancedInsights: DeepIntelligenceResult;
+      practiceInfo: Record<string, unknown>;
+      sources: Array<{ url: string; type: string; relevance: number }>;
+    }
+    
     const generatedContent = await generateMultiChannelCampaign(
       doctorName,
       productName,
@@ -199,7 +205,7 @@ export async function orchestrateIntelligenceWorkflow(
         enhancedInsights: deepInsights,
         practiceInfo: deepInsights.practiceInfo || {},
         sources: deepInsights.sources
-      } as any,
+      } as ResearchDataLike,
       salesRepInfo?.name || 'Sales Rep',
       salesRepInfo?.company || 'Company',
       procedure || undefined,

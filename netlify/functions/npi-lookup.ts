@@ -272,6 +272,7 @@ export const handler: Handler = async (event) => {
     
     // Remove internal scoring fields before returning
     doctors = doctors.map((d) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { isPriority, relevanceScore, ...cleanDoctor } = d;
       return cleanDoctor;
     });

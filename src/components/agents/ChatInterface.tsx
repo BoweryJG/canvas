@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../../auth/AuthContext';
+import { useAuth } from '../../auth/useAuth';
 import { io, Socket } from 'socket.io-client';
 import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';

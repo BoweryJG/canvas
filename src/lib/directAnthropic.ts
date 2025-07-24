@@ -89,7 +89,7 @@ export async function callAnthropicInsteadOfOpenRouter(
   prompt: string, 
   model: string = 'anthropic/claude-3.5-sonnet',
   userId?: string
-): Promise<any> {
+): Promise<string> {
   // Map OpenRouter model names to Anthropic model names
   const modelMap: Record<string, string> = {
     'anthropic/claude-3.5-sonnet': 'claude-3-5-sonnet-20241022',

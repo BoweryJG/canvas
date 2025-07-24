@@ -12,10 +12,41 @@ import {
 } from 'lucide-react';
 import { generateProgressiveOutreach, getOutreachCapabilities, OUTREACH_TIERS } from '../lib/progressiveOutreach';
 
+interface ResearchData {
+  businessName?: string;
+  contactInfo?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+  };
+  businessIntel?: {
+    industry?: string;
+    size?: string;
+    location?: string;
+  };
+  technology?: Record<string, unknown>;
+  competitors?: unknown[];
+  painPoints?: string[];
+}
+
+interface FollowUpMessage {
+  day: number;
+  subject: string;
+  content?: string;
+}
+
+interface OutreachMaterial {
+  subject: string;
+  emailContent: string;
+  personalizations?: string[];
+  followUpSequence?: FollowUpMessage[];
+  confidence: number;
+}
+
 interface OutreachPanelProps {
-  researchData: any;
+  researchData: ResearchData;
   researchProgress: number;
-  onGenerateOutreach?: (tier: string, material: any) => void;
+  onGenerateOutreach?: (tier: string, material: OutreachMaterial) => void;
 }
 
 export function ProgressiveOutreachPanel({ 
@@ -24,7 +55,7 @@ export function ProgressiveOutreachPanel({
   onGenerateOutreach 
 }: OutreachPanelProps) {
   const [selectedTier, setSelectedTier] = useState<'generic' | 'pro' | 'genius'>('generic');
-  const [generatedMaterial, setGeneratedMaterial] = useState<any>(null);
+  const [generatedMaterial, setGeneratedMaterial] = useState<OutreachMaterial | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [capabilities] = useState(() => getOutreachCapabilities(researchProgress));
 
@@ -102,7 +133,7 @@ export function ProgressiveOutreachPanel({
           return (
             <div
               key={card.id}
-              onClick={() => isAvailable && handleGenerateOutreach(card.id as any)}
+              onClick={() => isAvailable && handleGenerateOutreach(card.id as 'generic' | 'pro' | 'genius')}
               className={`
                 relative rounded-lg border-2 p-4 cursor-pointer transition-all
                 ${isAvailable 
@@ -223,7 +254,7 @@ export function ProgressiveOutreachPanel({
                   Follow-up Sequence
                 </h5>
                 <div className="space-y-2">
-                  {generatedMaterial.followUpSequence.map((followUp: any, i: number) => (
+                  {generatedMaterial.followUpSequence.map((followUp: FollowUpMessage, i: number) => (
                     <div key={i} className="flex items-center space-x-3 text-sm">
                       <span className="text-gray-500">Day {followUp.day}:</span>
                       <span className="text-gray-700">{followUp.subject}</span>

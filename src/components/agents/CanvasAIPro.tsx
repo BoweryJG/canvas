@@ -1,4 +1,36 @@
 import React, { useState, useEffect, useRef } from 'react';
+
+// Speech Recognition type declarations
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: () => void;
+  start(): void;
+  stop(): void;
+}
+
+interface SpeechRecognitionEvent {
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { 
   Box, 
@@ -30,7 +62,7 @@ import {
   ViewInAr,
   BubbleChart
 } from '@mui/icons-material';
-import { useAuth } from '../../auth/AuthContext';
+import { useAuth } from '../../auth/useAuth';
 import { searchDoctorsByName } from '../../lib/npiLookup';
 
 // Real-time data visualization component
@@ -106,12 +138,21 @@ interface Message {
   type: 'user' | 'ai';
   content: string;
   timestamp: Date;
-  data?: any;
+  data?: Record<string, unknown>;
   visualization?: string;
 }
 
+// Insight card component interface
+interface InsightCardProps {
+  title: string;
+  value: string;
+  trend?: string;
+  icon: React.ReactNode;
+  color: string;
+}
+
 // Insight card component
-const InsightCard = ({ title, value, trend, icon, color }: any) => (
+const InsightCard = ({ title, value, trend, icon, color }: InsightCardProps) => (
   <motion.div
     whileHover={{ scale: 1.02, y: -2 }}
     whileTap={{ scale: 0.98 }}
@@ -160,23 +201,23 @@ export const CanvasAIPro: React.FC = () => {
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [activeContext, setActiveContext] = useState<any>(null);
+  const [activeContext, setActiveContext] = useState<Record<string, unknown> | null>(null);
   const [showDataViz, setShowDataViz] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   // Initialize speech recognition
   useEffect(() => {
     if ('webkitSpeechRecognition' in window) {
-      const recognition = new (window as any).webkitSpeechRecognition();
+      const recognition = new (window as Window & { webkitSpeechRecognition: new () => SpeechRecognition }).webkitSpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = 'en-US';
       
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
         const transcript = Array.from(event.results)
-          .map((result: any) => result[0])
-          .map((result: any) => result.transcript)
+          .map((result: SpeechRecognitionResult) => result[0])
+          .map((result: SpeechRecognitionAlternative) => result.transcript)
           .join('');
         
         setInput(transcript);
@@ -243,7 +284,7 @@ export const CanvasAIPro: React.FC = () => {
   };
 
   // Process AI query with Canvas integration
-  const processAIQuery = async (query: string, context: any) => {
+  const processAIQuery = async (query: string, context: Record<string, unknown> | null) => {
     // Detect intent
     const lowerQuery = query.toLowerCase();
     

@@ -235,7 +235,7 @@ function App() {
 
           {/* Action Suite */}
           <EnhancedActionSuite 
-            scanResult={scanResult as any} 
+            scanResult={scanResult} 
             researchData={undefined}
           />
         </div>

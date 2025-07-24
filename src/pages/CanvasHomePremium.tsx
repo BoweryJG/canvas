@@ -7,7 +7,7 @@ import DeepIntelligenceScan from '../components/DeepIntelligenceScan';
 import EnhancedActionSuite from '../components/EnhancedActionSuite';
 import EnhancedChatLauncher from '../components/EnhancedChatLauncher';
 import DoctorAddressCard from '../components/DoctorAddressCard';
-import { useAuth } from '../auth/AuthContext';
+import { useAuth } from '../auth/useAuth';
 import { checkUserCredits } from '../lib/creditManager';
 
 // Premium gradient background with RepSpheres styling
@@ -60,10 +60,25 @@ const MainContainer = styled(Box)`
   }
 `;
 
+interface ScanData {
+  doctorName: string;
+  product: string;
+  location?: string;
+}
+
+interface ScanResults {
+  research?: unknown;
+  instantIntel?: unknown;
+  instant?: unknown;
+  intelligence?: unknown;
+  discovery?: unknown;
+  [key: string]: unknown;
+}
+
 const CanvasHomePremium: React.FC = () => {
   const [stage, setStage] = useState<'input' | 'scanning-basic' | 'scanning-deep' | 'campaigns'>('input');
-  const [scanData, setScanData] = useState<any>(null);
-  const [deepScanResults, setDeepScanResults] = useState<any>(null);
+  const [scanData, setScanData] = useState<ScanData | null>(null);
+  const [deepScanResults, setDeepScanResults] = useState<ScanResults | null>(null);
   const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
   const [creditError] = useState('');
   
@@ -86,7 +101,7 @@ const CanvasHomePremium: React.FC = () => {
     setStage('scanning-basic');
   };
   
-  const handleBasicScanComplete = (results: any) => {
+  const handleBasicScanComplete = (results: ScanResults) => {
     console.log('handleBasicScanComplete called with results:', results);
     
     // Store scan results - our unified system already did everything!
@@ -99,7 +114,7 @@ const CanvasHomePremium: React.FC = () => {
   
   
   
-  const handleDeepScanComplete = (results: any) => {
+  const handleDeepScanComplete = (results: ScanResults) => {
     console.log('handleDeepScanComplete called with results:', results);
     console.log('handleDeepScanComplete: results.research:', results?.research);
     console.log('handleDeepScanComplete: results.instantIntel:', results?.instantIntel);

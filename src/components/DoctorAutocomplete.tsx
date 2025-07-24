@@ -41,8 +41,7 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // Debounced search function
-  const searchDoctors = useCallback(
-    debounce(async (searchTerm: string) => {
+  const searchDoctors = useCallback(async (searchTerm: string) => {
       if (searchTerm.length < 3) {
         setSuggestions([]);
         return;
@@ -114,15 +113,19 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
       } finally {
         setLoading(false);
       }
-    }, 300),
-    []
+  }, []);
+
+  // Create debounced version
+  const debouncedSearchDoctors = useCallback(
+    debounce(searchDoctors, 300),
+    [searchDoctors]
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     console.log('🔍 Input changed:', value);
     setSearch(value);
-    searchDoctors(value);
+    debouncedSearchDoctors(value);
   };
 
   const handleSelect = (doctor: Doctor) => {

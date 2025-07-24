@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from './AuthContext';
+import { useAuth } from './useAuth';
 
 interface LoginFormProps {
   onSuccess?: () => void;

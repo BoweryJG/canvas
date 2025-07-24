@@ -27,7 +27,7 @@ import {
   CloudSync as LiveIcon
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
-import { useAuth } from '../../auth/AuthContext';
+import { useAuth } from '../../auth/useAuth';
 import AgentAvatar from './AgentAvatar';
 import ContextualInsights from './ContextualInsights';
 import StrategyBuilder from './StrategyBuilder';

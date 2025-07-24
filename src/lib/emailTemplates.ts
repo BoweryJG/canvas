@@ -25,7 +25,7 @@ export const generateEmailFromScanResult = (
   // Use enhanced templates if research data is available
   if (researchData?.productIntelligence || researchData?.enhancedInsights) {
     return generateEnhancedEmailCampaign({
-      scanResult: scanResult as any,
+      scanResult: scanResult,
       researchData,
       salesRep: salesRepInfo,
       type: emailType

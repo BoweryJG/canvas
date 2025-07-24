@@ -15,16 +15,43 @@ interface ProgressCallback {
   updateStage: (stage: string) => void;
 }
 
+interface LocalCompetitor {
+  title: string;
+  address: string;
+  rating: number;
+  rating_count: number;
+  phone?: string;
+  distance?: string;
+  categories?: string[];
+  url?: string;
+}
+
+interface LocalCompetitorsResponse {
+  results: LocalCompetitor[];
+}
+
+interface BraveSearchResult {
+  url: string;
+  title: string;
+  description: string;
+}
+
+interface BraveSearchResponse {
+  web?: {
+    results: BraveSearchResult[];
+  };
+}
+
 interface IntelligenceGatheringResult {
   practiceWebsite: string;
   allSources: ResearchSource[];
-  localCompetitors?: any;
+  localCompetitors?: LocalCompetitorsResponse;
   rawData: {
-    practiceInfo: any;
-    reviews: any;
-    marketPosition: any;
-    technology: any;
-    competition: any;
+    practiceInfo: BraveSearchResponse;
+    reviews: BraveSearchResponse;
+    marketPosition: BraveSearchResponse;
+    technology: BraveSearchResponse;
+    competition: BraveSearchResponse;
   };
 }
 
@@ -42,10 +69,14 @@ export async function gatherComprehensiveDoctorIntelligenceWithProgress(
   // Import and use the unified system
   const { unifiedCanvasResearch } = await import('./unifiedCanvasResearch');
   
+  interface DoctorWithWebsite extends Doctor {
+    practiceWebsite?: string;
+    website?: string;
+  }
   const result = await unifiedCanvasResearch(doctor, product, {
     mode: 'legacy', // Keep legacy mode for backward compatibility
     progress,
-    existingWebsite: (doctor as any).practiceWebsite || (doctor as any).website
+    existingWebsite: (doctor as DoctorWithWebsite).practiceWebsite || (doctor as DoctorWithWebsite).website
   });
   
   if (result.legacy) {
@@ -63,7 +94,7 @@ export async function gatherComprehensiveDoctorIntelligenceWithProgress(
     const { gatherStreamlinedDoctorIntelligence } = await import('./streamlinedDoctorIntelligence');
     
     // Check if we have a pre-discovered website from NPI research
-    const existingWebsite = (doctor as any).practiceWebsite || (doctor as any).website;
+    const existingWebsite = (doctor as Doctor & { practiceWebsite?: string; website?: string }).practiceWebsite || (doctor as Doctor & { practiceWebsite?: string; website?: string }).website;
     
     return gatherStreamlinedDoctorIntelligence(doctor, product, progress, existingWebsite);
   }
@@ -247,7 +278,7 @@ async function gatherAllIntelligenceWithProgress(
     progress.updateStep('localcompetitors', 'found', `${localCompetitors.results.length} local competitors`);
     
     // Add local competitors as sources
-    localCompetitors.results.forEach((business: any, index: number) => {
+    localCompetitors.results.forEach((business: LocalCompetitor, index: number) => {
       allSources.push({
         url: business.url || `local-business-${index}`,
         title: business.title || 'Local Competitor',
@@ -320,12 +351,54 @@ async function gatherAllIntelligenceWithProgress(
   };
 }
 
+interface SynthesisResult {
+  practiceProfile: {
+    size: string;
+    patientVolume?: string;
+    yearsInBusiness?: number;
+    technologyLevel: string;
+    notableFeatures: string[];
+  };
+  technologyStack: {
+    current: string[];
+    recentAdditions: string[];
+    gaps: string[];
+  };
+  marketPosition: {
+    ranking: string;
+    reputation: string;
+    differentiators: string[];
+  };
+  buyingSignals: string[];
+  competition: {
+    currentVendors: string[];
+    recentPurchases: string[];
+  };
+  approachStrategy: {
+    bestTiming: string;
+    preferredChannel: string;
+    keyMessage: string;
+    avoidTopics: string[];
+  };
+  decisionMakers: {
+    primary: string;
+    influencers: string[];
+  };
+  painPoints: string[];
+  budgetIndicators: {
+    estimatedRevenue: string;
+    technologyBudget: string;
+    purchaseTimeframe: string;
+  };
+  salesBrief: string;
+}
+
 async function synthesizeWithClaude4Opus(
   data: IntelligenceGatheringResult,
   doctor: Doctor,
   product: string,
-  localCompetitors?: any
-): Promise<any> {
+  localCompetitors?: LocalCompetitorsResponse
+): Promise<SynthesisResult> {
   const prompt = `You are an elite medical sales intelligence analyst. Analyze this comprehensive research about ${doctor.displayName} and create SPECIFIC, ACTIONABLE intelligence.
 
 DOCTOR PROFILE:
@@ -339,7 +412,7 @@ RESEARCH SOURCES (${data.allSources.length} total):
 ${data.allSources.slice(0, 30).map(s => `- ${s.title}: ${s.content?.substring(0, 200)}...`).join('\n')}
 
 LOCAL COMPETITOR ANALYSIS:
-${localCompetitors?.results?.slice(0, 5).map((c: any) => 
+${localCompetitors?.results?.slice(0, 5).map((c: LocalCompetitor) => 
   `- ${c.title}: Rating ${c.rating}/5 (${c.rating_count} reviews), ${c.distance}mi away`
 ).join('\n') || 'No local competitor data available'}
 
@@ -423,7 +496,7 @@ Format as JSON with these exact fields:
 }
 
 // Helper functions
-function findPracticeWebsite(results: any[], doctor: Doctor): string {
+function findPracticeWebsite(results: BraveSearchResult[], doctor: Doctor): string {
   const directoryDomains = ['ada.org', 'healthgrades.com', 'zocdoc.com', 'vitals.com', 'yelp.com'];
   
   for (const result of results) {
@@ -446,7 +519,7 @@ function findPracticeWebsite(results: any[], doctor: Doctor): string {
   return '';
 }
 
-function determineSourceType(result: any): ResearchSource['type'] {
+function determineSourceType(result: BraveSearchResult): ResearchSource['type'] {
   const url = result.url?.toLowerCase() || '';
   const title = result.title?.toLowerCase() || '';
   
@@ -467,7 +540,7 @@ function determineSourceType(result: any): ResearchSource['type'] {
 
 function createEnhancedResearchData(
   intelligenceData: IntelligenceGatheringResult,
-  insights: any,
+  insights: SynthesisResult,
   doctor: Doctor
 ): ResearchData {
   // Calculate final confidence
@@ -513,12 +586,44 @@ function createEnhancedResearchData(
   };
 }
 
-function createDefaultInsights(doctor: Doctor, product: string): any {
+function createDefaultInsights(doctor: Doctor, product: string): SynthesisResult {
   return {
-    practiceProfile: { size: 'Unknown' },
-    technologyStack: { current: [], gaps: [] },
+    practiceProfile: { 
+      size: 'Unknown',
+      technologyLevel: 'Unknown',
+      notableFeatures: []
+    },
+    technologyStack: { 
+      current: [], 
+      recentAdditions: [],
+      gaps: [] 
+    },
+    marketPosition: {
+      ranking: 'Unknown',
+      reputation: 'Unknown', 
+      differentiators: []
+    },
     buyingSignals: [],
+    competition: {
+      currentVendors: [],
+      recentPurchases: []
+    },
+    approachStrategy: {
+      bestTiming: 'Business hours',
+      preferredChannel: 'email',
+      keyMessage: `Introduction to ${product}`,
+      avoidTopics: []
+    },
+    decisionMakers: {
+      primary: doctor.displayName,
+      influencers: []
+    },
     painPoints: [],
+    budgetIndicators: {
+      estimatedRevenue: 'Unknown',
+      technologyBudget: 'Unknown',
+      purchaseTimeframe: 'Unknown'
+    },
     salesBrief: `Contact ${doctor.displayName} about ${product}.`
   };
 }

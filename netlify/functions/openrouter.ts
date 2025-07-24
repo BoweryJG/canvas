@@ -5,7 +5,7 @@ const requestLog: Map<string, number[]> = new Map();
 const MAX_REQUESTS_PER_MINUTE = 20;
 const WINDOW_MS = 60 * 1000;
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',

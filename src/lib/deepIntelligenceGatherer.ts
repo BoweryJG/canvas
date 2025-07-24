@@ -30,7 +30,7 @@ export interface DeepIntelligenceResult {
 export async function deepIntelligenceGather(
   doctorName: string,
   location?: string,
-  _basicResults?: any,
+  _basicResults?: unknown,
   specialty?: string,
   practiceName?: string,
   npi?: string
@@ -134,11 +134,31 @@ export async function deepIntelligenceGather(
 
 // Removed unused helper functions
 
+interface ScrapedData {
+  title?: string;
+  structuredData?: {
+    name?: string;
+    address?: string;
+    telephone?: string;
+    email?: string;
+  };
+  content?: string;
+}
+
+interface PracticeInfo {
+  name?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  services?: string[];
+  about?: string;
+}
+
 /**
  * Extract practice information from scraped data
  */
-function extractPracticeInfo(scrapedData: any): any {
-  const info: any = {
+function extractPracticeInfo(scrapedData: ScrapedData): PracticeInfo {
+  const info: PracticeInfo = {
     name: scrapedData.title || 'Medical Practice',
     services: [],
     about: ''
@@ -181,7 +201,7 @@ function extractPracticeInfo(scrapedData: any): any {
  */
 function buildIntelligenceSummary(
   doctorName: string, 
-  practiceInfo: any, 
+  practiceInfo: PracticeInfo | undefined, 
   website: string
 ): string {
   const practiceName = practiceInfo?.name || 'the practice';
@@ -195,7 +215,7 @@ function buildIntelligenceSummary(
 /**
  * Generate key intelligence points
  */
-function generateKeyPoints(practiceInfo: any, website: string): string[] {
+function generateKeyPoints(practiceInfo: PracticeInfo | undefined, website: string): string[] {
   const points = ['✅ Official practice website verified'];
   
   if (practiceInfo?.name) {

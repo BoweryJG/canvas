@@ -100,7 +100,7 @@ interface ResultSection {
   icon: React.ReactNode;
   status: 'pending' | 'loading' | 'complete' | 'locked';
   progress?: number;
-  data?: any;
+  data?: Record<string, unknown>;
   tier: string;
   deliveryTime: number;
   priority: number;
@@ -215,7 +215,7 @@ export default function ProgressiveResultsDisplay({ userTier, onUpgradeClick }: 
   }, []);
   
   const generateMockData = (sectionId: string) => {
-    const mockData: Record<string, any> = {
+    const mockData: Record<string, Record<string, unknown>> = {
       basic_profile: {
         name: 'Dr. Gregory White',
         specialty: 'General Dentistry',

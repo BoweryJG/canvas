@@ -1,10 +1,17 @@
 import { Handler } from '@netlify/functions';
 
+// Email attachment interface
+interface EmailAttachment {
+  content: string;
+  name: string;
+  type: string;
+}
+
 // Email provider configurations
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY || 'SG.demo-key';
 const RESEND_API_KEY = process.env.RESEND_API_KEY || 'resend-demo-key';
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (event) => {
   // Enable CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -94,7 +101,7 @@ async function sendWithSendGrid(
   content: string, 
   from: string, 
   fromName: string, 
-  attachments: any[]
+  attachments: EmailAttachment[]
 ) {
   try {
     const emailData = {
@@ -152,7 +159,7 @@ async function sendWithResend(
   content: string, 
   from: string, 
   fromName: string, 
-  attachments: any[]
+  attachments: EmailAttachment[]
 ) {
   try {
     const emailData = {

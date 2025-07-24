@@ -11,8 +11,8 @@ import { IntelligenceInterface } from './IntelligenceInterface';
 interface Props {
   doctorName: string;
   location?: string;
-  basicScanResults?: any;
-  onComplete?: (results: any) => void;
+  basicScanResults?: Record<string, unknown>;
+  onComplete?: (results: Record<string, unknown>) => void;
 }
 
 export default function DeepIntelligenceScan({ 
@@ -29,6 +29,7 @@ export default function DeepIntelligenceScan({
   
   useEffect(() => {
     const mounted = { value: true };
+    let discoveredWebsite: string | null = null;
     
     async function runDeepScan() {
       try {
@@ -49,6 +50,7 @@ export default function DeepIntelligenceScan({
           setScanStage('Discovering Practice Website...');
           setProgress(25);
           if (deepResults?.website) {
+            discoveredWebsite = deepResults.website;
             setFoundWebsite(deepResults.website);
           }
         }, 800);
@@ -56,7 +58,7 @@ export default function DeepIntelligenceScan({
         // Phase 3: Content extraction (30-50%)
         setTimeout(() => {
           if (!mounted.value) return;
-          setScanStage(foundWebsite ? 'Extracting Website Content...' : 'Searching Multiple Sources...');
+          setScanStage(discoveredWebsite ? 'Extracting Website Content...' : 'Searching Multiple Sources...');
           setProgress(45);
         }, 1600);
         

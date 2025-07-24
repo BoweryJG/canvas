@@ -5,6 +5,18 @@
 
 import type { ResearchData, ResearchSource } from './webResearch';
 
+interface SearchResult {
+  url: string;
+  title: string;
+  description?: string;
+}
+
+interface CategorizedUrl {
+  url: string;
+  title: string;
+  confidence: number;
+}
+
 /**
  * Optimized research orchestrator - reduces API calls by 60%
  */
@@ -32,7 +44,7 @@ export async function conductOptimizedResearch(doctorName: string, location?: st
           sources.push({
             url: topUrl.url,
             title: topUrl.title,
-            type: category as any,
+            type: category as ResearchSource['type'],
             content: scrapedData.markdown || scrapedData.content || '',
             confidence: calculateConfidence(category),
             lastUpdated: new Date().toISOString()
@@ -54,7 +66,7 @@ export async function conductOptimizedResearch(doctorName: string, location?: st
       sources.push({
         url: 'perplexity-analysis',
         title: 'AI Deep Analysis',
-        type: 'perplexity_analysis' as any,
+        type: 'medical_directory' as ResearchSource['type'],
         content: perplexityResult.choices[0].message.content,
         confidence: 90,
         lastUpdated: new Date().toISOString()
@@ -84,8 +96,8 @@ export async function conductOptimizedResearch(doctorName: string, location?: st
 /**
  * Categorize URLs by type for smart selection
  */
-function categorizeUrls(results: any[]): Record<string, any[]> {
-  const categories: Record<string, any[]> = {
+function categorizeUrls(results: SearchResult[]): Record<string, CategorizedUrl[]> {
+  const categories: Record<string, CategorizedUrl[]> = {
     practice_website: [],
     medical_directory: [],
     review_site: [],
@@ -138,10 +150,10 @@ function calculateOverallConfidence(sources: ResearchSource[]): number {
 
 async function structureResearchData(sources: ResearchSource[], doctorName: string): Promise<Partial<ResearchData>> {
   // Extract structured data from sources
-  const practiceInfo: any = {};
-  const credentials: any = {};
-  const reviews: any = {};
-  const businessIntel: any = {};
+  const practiceInfo: Record<string, unknown> = {};
+  const credentials: Record<string, unknown> = {};
+  const reviews: Record<string, unknown> = {};
+  const businessIntel: Record<string, unknown> = {};
   
   for (const source of sources) {
     // Basic extraction logic - in production this would use AI

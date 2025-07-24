@@ -25,10 +25,42 @@ interface LearningPattern {
   examples: string[];
 }
 
+// Processing results interface
+interface ProcessingResults {
+  patternsUpdated: number;
+  newPatternsCreated: number;
+  confidenceAdjustments: string[];
+}
+
+// Feedback insights interface
+interface FeedbackInsights {
+  feedbackType: string;
+  keyLearnings: string[];
+  patternStrength: 'weak' | 'moderate' | 'strong';
+  recommendedActions: string[];
+}
+
+// Learning summary interface
+interface LearningSummary {
+  totalPatterns: number;
+  averageConfidence: number;
+  topPatternTypes: Record<string, number>;
+  mostSuccessful: Array<{
+    pattern: string;
+    confidence: number;
+    usage: number;
+  }>;
+  needsImprovement: Array<{
+    pattern: string;
+    confidence: number;
+    failureRate: number;
+  }>;
+}
+
 // In a real implementation, this would be stored in a database
 const learningPatterns: Map<string, LearningPattern> = new Map();
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -115,8 +147,8 @@ export const handler: Handler = async (event, context) => {
   }
 };
 
-async function processVerificationFeedback(feedback: VerificationFeedback): Promise<any> {
-  const results = {
+async function processVerificationFeedback(feedback: VerificationFeedback): Promise<ProcessingResults> {
+  const results: ProcessingResults = {
     patternsUpdated: 0,
     newPatternsCreated: 0,
     confidenceAdjustments: []
@@ -288,8 +320,8 @@ async function storePracticeWebsite(data: {
   console.log(`✅ Stored verified practice website: ${data.practiceName} -> ${data.website}`);
 }
 
-function generateInsights(feedback: VerificationFeedback): any {
-  const insights = {
+function generateInsights(feedback: VerificationFeedback): FeedbackInsights {
+  const insights: FeedbackInsights = {
     feedbackType: feedback.feedbackType,
     keyLearnings: [],
     patternStrength: 'weak',
@@ -356,8 +388,8 @@ function generateImprovementSuggestions(feedback: VerificationFeedback): string[
   return suggestions;
 }
 
-function generateLearningSummary(patterns: LearningPattern[]): any {
-  const summary = {
+function generateLearningSummary(patterns: LearningPattern[]): LearningSummary {
+  const summary: LearningSummary = {
     totalPatterns: patterns.length,
     averageConfidence: 0,
     topPatternTypes: {},

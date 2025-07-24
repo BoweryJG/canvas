@@ -3,6 +3,43 @@
  * Properly weights NPI verification, source count, and data quality
  */
 
+// Type definitions for confidence scoring
+interface WebsiteIntel {
+  url?: string;
+  crawled?: boolean;
+  content?: string;
+  services?: string[];
+  technology?: string[];
+  philosophy?: string;
+}
+
+interface ReviewData {
+  totalReviews?: number;
+  combinedRating?: number;
+  doctorReviews?: {
+    highlights?: string[];
+  };
+}
+
+interface Synthesis {
+  buyingSignals?: string[];
+  practiceProfile?: {
+    size?: string;
+  };
+  marketPosition?: string;
+  approachStrategy?: {
+    keyMessage?: string;
+  };
+}
+
+interface Source {
+  [key: string]: unknown;
+}
+
+interface Competitor {
+  [key: string]: unknown;
+}
+
 export interface ConfidenceFactors {
   npiVerified: boolean;
   sourceCount: number;
@@ -130,11 +167,11 @@ export function calculateEnhancedConfidence(factors: ConfidenceFactors): Confide
  */
 export function extractConfidenceFactors(
   npiVerified: boolean,
-  websiteIntel: any,
-  reviewData: any,
-  sources: any[],
-  synthesis: any,
-  competitors: any[]
+  websiteIntel: WebsiteIntel | null,
+  reviewData: ReviewData | null,
+  sources: Source[],
+  synthesis: Synthesis | null,
+  competitors: Competitor[]
 ): ConfidenceFactors {
   return {
     npiVerified,
@@ -149,9 +186,9 @@ export function extractConfidenceFactors(
 }
 
 function determinePracticeDataQuality(
-  websiteIntel: any,
-  reviewData: any,
-  synthesis: any
+  websiteIntel: WebsiteIntel | null,
+  reviewData: ReviewData | null,
+  synthesis: Synthesis | null
 ): 'high' | 'medium' | 'low' {
   let qualityScore = 0;
   

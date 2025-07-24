@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../auth';
 import { supabase } from '../auth/supabase';
 import Box from '@mui/material/Box';
@@ -35,13 +35,7 @@ export const CRMBCCSettings: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info', text: string } | null>(null);
 
-  useEffect(() => {
-    if (user) {
-      loadBccEmail();
-    }
-  }, [user]);
-
-  const loadBccEmail = async () => {
+  const loadBccEmail = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('user_settings')
@@ -63,7 +57,13 @@ export const CRMBCCSettings: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      loadBccEmail();
+    }
+  }, [user, loadBccEmail]);
 
   const handleSave = async () => {
     if (!user) return;

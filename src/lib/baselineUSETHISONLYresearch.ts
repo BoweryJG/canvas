@@ -40,6 +40,26 @@ interface WebsiteIntelligence {
   philosophy?: string;
 }
 
+interface SearchResult {
+  url?: string;
+  title?: string;
+  description?: string;
+}
+
+interface Competitor {
+  name: string;
+  url?: string;
+  type?: string;
+  description?: string;
+}
+
+interface ProductFit {
+  relevance: number;
+  pain_points?: string[];
+  opportunities?: string[];
+  insights?: string[];
+}
+
 interface ReviewData {
   doctorReviews: {
     rating?: number;
@@ -634,7 +654,7 @@ async function analyzeProductFit(
     );
     
     if (productSearch?.web?.results) {
-      productSearch.web.results.forEach((result: any) => {
+      productSearch.web.results.forEach((result: SearchResult) => {
         sources.push({
           url: result.url || '',
           title: result.title || '',
@@ -709,10 +729,10 @@ async function synthesizeIntelligence(
   product: string,
   websiteIntel: WebsiteIntelligence,
   reviewData: ReviewData,
-  competitors: any[],
-  productFit: any,
+  competitors: Competitor[],
+  productFit: ProductFit,
   sources: ResearchSource[]
-): Promise<any> {
+): Promise<Record<string, unknown>> {
   // Try cache first
   const cacheKey = CacheKeys.synthesis(doctor.npi, product);
   

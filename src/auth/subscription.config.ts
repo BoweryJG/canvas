@@ -225,7 +225,7 @@ export const getSubscriptionTier = (tierName: string): SubscriptionTier => {
 };
 
 export const canAccessFeature = (
-  subscription: any,
+  subscription: { tier?: string } | null,
   feature: keyof SubscriptionTier['limits']
 ): boolean => {
   const tier = getSubscriptionTier(subscription?.tier || 'free');

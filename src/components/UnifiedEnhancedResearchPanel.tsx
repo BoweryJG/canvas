@@ -3,11 +3,44 @@ import { MagicResearchForm } from './MagicResearchForm';
 import { useUnifiedResearch } from '../lib/useUnifiedResearch';
 import { type Doctor } from './DoctorAutocomplete';
 
+interface FormData {
+  doctorName: string;
+  credential: string;
+  specialty: string;
+  location: string;
+  practiceName: string;
+  phone: string;
+  address: string;
+  npi: string;
+  productName: string;
+  verifiedWebsite?: string;
+}
+
+interface StrategyUsed {
+  focusAreas: string[];
+  skipReasons?: Record<string, string | boolean>;
+}
+
+interface EnhancedResearchResult {
+  confidenceScore: number;
+  salesBrief?: string;
+  buyingSignals?: string[];
+  painPoints?: string[];
+  strategyUsed?: StrategyUsed;
+  doctorName: string;
+  practiceInfo: Record<string, unknown>;
+  credentials: Record<string, unknown>;
+  reviews: Record<string, unknown>;
+  businessIntel: Record<string, unknown>;
+  sources: Array<{ url: string; [key: string]: unknown }>;
+  completedAt: string;
+}
+
 export const UnifiedEnhancedResearchPanel: React.FC = () => {
   const { isResearching, progress, result, error, startResearch, reset } = useUnifiedResearch();
   const [showResults, setShowResults] = useState(false);
 
-  const handleResearchSubmit = async (formData: any) => {
+  const handleResearchSubmit = async (formData: FormData) => {
     try {
       // Convert form data to Doctor type
       const doctor: Doctor = {
@@ -62,6 +95,7 @@ export const UnifiedEnhancedResearchPanel: React.FC = () => {
   };
 
   if (showResults && result) {
+    const enhancedResult = result as EnhancedResearchResult;
     return (
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-4xl mx-auto">
@@ -81,7 +115,7 @@ export const UnifiedEnhancedResearchPanel: React.FC = () => {
               <div className="flex justify-between items-center">
                 <span className="text-lg font-semibold">Confidence Score</span>
                 <span className="text-3xl font-bold text-blue-600">
-                  {result.confidenceScore}%
+                  {enhancedResult.confidenceScore}%
                 </span>
               </div>
               {progress?.strategy && (
@@ -92,31 +126,31 @@ export const UnifiedEnhancedResearchPanel: React.FC = () => {
             </div>
 
             {/* Sales Brief */}
-            {(result as any).salesBrief && (
+            {enhancedResult.salesBrief && (
               <div className="mb-6 p-4 bg-green-50 rounded-lg">
                 <h3 className="font-semibold mb-2">Sales Brief</h3>
-                <p className="text-gray-700">{(result as any).salesBrief}</p>
+                <p className="text-gray-700">{enhancedResult.salesBrief}</p>
               </div>
             )}
 
             {/* Key Insights */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              {(result as any).buyingSignals && (result as any).buyingSignals.length > 0 && (
+              {enhancedResult.buyingSignals && enhancedResult.buyingSignals.length > 0 && (
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <h4 className="font-semibold mb-2">Buying Signals</h4>
                   <ul className="list-disc list-inside text-sm text-gray-700">
-                    {(result as any).buyingSignals.map((signal: string, idx: number) => (
+                    {enhancedResult.buyingSignals.map((signal: string, idx: number) => (
                       <li key={idx}>{signal}</li>
                     ))}
                   </ul>
                 </div>
               )}
 
-              {(result as any).painPoints && (result as any).painPoints.length > 0 && (
+              {enhancedResult.painPoints && enhancedResult.painPoints.length > 0 && (
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <h4 className="font-semibold mb-2">Pain Points</h4>
                   <ul className="list-disc list-inside text-sm text-gray-700">
-                    {(result as any).painPoints.map((pain: string, idx: number) => (
+                    {enhancedResult.painPoints.map((pain: string, idx: number) => (
                       <li key={idx}>{pain}</li>
                     ))}
                   </ul>
@@ -125,18 +159,18 @@ export const UnifiedEnhancedResearchPanel: React.FC = () => {
             </div>
 
             {/* Strategy Details */}
-            {(result as any).strategyUsed && (
+            {enhancedResult.strategyUsed && (
               <div className="p-4 bg-purple-50 rounded-lg">
                 <h4 className="font-semibold mb-2">Research Strategy Used</h4>
                 <p className="text-sm text-gray-700">
-                  Focus Areas: {(result as any).strategyUsed.focusAreas.join(', ')}
+                  Focus Areas: {enhancedResult.strategyUsed.focusAreas.join(', ')}
                 </p>
-                {(result as any).strategyUsed.skipReasons && (
+                {enhancedResult.strategyUsed.skipReasons && (
                   <div className="mt-2 text-xs text-gray-600">
-                    {Object.entries((result as any).strategyUsed.skipReasons)
+                    {Object.entries(enhancedResult.strategyUsed.skipReasons)
                       .filter(([_, reason]) => reason)
                       .map(([area, reason]) => (
-                        <div key={area}>Skipped {area}: {reason as React.ReactNode}</div>
+                        <div key={area}>Skipped {area}: {String(reason)}</div>
                       ))}
                   </div>
                 )}

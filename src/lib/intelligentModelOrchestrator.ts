@@ -3,6 +3,57 @@
  * Strategically uses the best AI model for each task
  */
 
+import type { Doctor } from '../components/DoctorAutocomplete';
+
+interface LocalCompetitor {
+  title: string;
+  rating: number;
+  rating_count: number;
+  distance: string;
+  priceRange?: string;
+}
+
+interface LocalCompetitorResults {
+  results: LocalCompetitor[];
+}
+
+interface RealTimeIntelligence {
+  basicInfo: string | null;
+  technologyAnalysis: string | null;
+  comprehensiveAnalysis: string | null;
+  localCompetitors: LocalCompetitorResults | null;
+}
+
+interface ApproachStrategy {
+  channel: string;
+  timing: string;
+  opener: string;
+  valueProps: string[];
+}
+
+interface FinalSynthesis {
+  executiveSummary: string;
+  opportunityScore: number;
+  scoringRationale: string;
+  perfectPitch: string;
+  keyInsights: string[];
+  approachStrategy: ApproachStrategy;
+  objectionHandling: Record<string, string>;
+}
+
+interface ProgressCallback {
+  updateStage: (stage: string) => void;
+  updateStep: (stepId: string, status: 'active' | 'completed', message?: string) => void;
+}
+
+interface OrchestrationResult {
+  realTimeData: RealTimeIntelligence;
+  medicalAnalysis: unknown;
+  finalSynthesis: FinalSynthesis;
+  processingTime: number;
+  modelsUsed: string[];
+}
+
 interface ModelCapabilities {
   realTimeData: boolean;
   deepReasoning: boolean;
@@ -91,7 +142,7 @@ export class IntelligentModelOrchestrator {
   /**
    * Phase 1: Real-time data gathering with local competitors
    */
-  async gatherRealTimeIntelligence(doctor: any, product: string) {
+  async gatherRealTimeIntelligence(doctor: Doctor, product: string): Promise<RealTimeIntelligence> {
     console.log('📡 Phase 1: Gathering real-time intelligence with Perplexity + Brave Local');
     
     // Perplexity queries
@@ -130,7 +181,7 @@ export class IntelligentModelOrchestrator {
   /**
    * Gather local competitor intelligence
    */
-  private async gatherLocalCompetitors(doctor: any) {
+  private async gatherLocalCompetitors(doctor: Doctor): Promise<LocalCompetitorResults | null> {
     const { callBraveLocalSearch } = await import('./apiEndpoints');
     try {
       const query = `${doctor.specialty} near ${doctor.city}, ${doctor.state}`;
@@ -146,7 +197,7 @@ export class IntelligentModelOrchestrator {
   /**
    * Phase 2: Deep medical analysis
    */
-  async analyzeMedicalContext(doctor: any, product: string, realTimeData: any) {
+  async analyzeMedicalContext(doctor: Doctor, product: string, realTimeData: RealTimeIntelligence): Promise<unknown> {
     console.log('🏥 Phase 2: Medical context analysis with GPT-4 Turbo');
     
     const prompt = `You are a medical device sales intelligence expert. Analyze this doctor and create a detailed profile:
@@ -160,7 +211,7 @@ REAL-TIME INTELLIGENCE:
 ${JSON.stringify(realTimeData, null, 2)}
 
 LOCAL COMPETITORS (${realTimeData.localCompetitors?.results?.length || 0} found):
-${realTimeData.localCompetitors?.results?.slice(0, 5).map((c: any) => 
+${realTimeData.localCompetitors?.results?.slice(0, 5).map((c: LocalCompetitor) => 
   `- ${c.title}: ${c.rating}/5 stars (${c.rating_count} reviews), ${c.distance}mi away, ${c.priceRange || '$$$'}`
 ).join('\n') || 'No local competitor data'}
 
@@ -183,7 +234,7 @@ Return as JSON.`;
   /**
    * Phase 3: Creative synthesis and personalization with Claude 4 Opus
    */
-  async synthesizeWithClaude4(doctor: any, product: string, allData: any) {
+  async synthesizeWithClaude4(doctor: Doctor, product: string, allData: { realTimeData: RealTimeIntelligence; medicalAnalysis: unknown }): Promise<FinalSynthesis> {
     console.log('✨ Phase 3: Premium synthesis with Claude 4 Opus');
     
     const prompt = `You are crafting ultra-premium sales intelligence using Claude 4's advanced capabilities. Synthesize all this research into SPECIFIC, ACTIONABLE intelligence:
@@ -236,7 +287,7 @@ Format as JSON with these fields:
           executiveSummary: `${doctor.displayName} presents a potential opportunity for ${product} based on available data.`,
           opportunityScore: 70,
           scoringRationale: "Score based on available practice information and market indicators",
-          perfectPitch: `Dr. ${doctor.displayName}, I've been researching practices in your area and believe ${product} could address some key challenges.`,
+          perfectPitch: `Dr. ${doctor.lastName}, I've been researching practices in your area and believe ${product} could address some key challenges.`,
           keyInsights: [
             "Practice shows potential for technology adoption",
             "Market conditions favor new solutions",
@@ -260,7 +311,7 @@ Format as JSON with these fields:
   /**
    * Master orchestration function
    */
-  async orchestrateIntelligenceGathering(doctor: any, product: string, progressCallback?: any) {
+  async orchestrateIntelligenceGathering(doctor: Doctor, product: string, progressCallback?: ProgressCallback): Promise<OrchestrationResult> {
     const startTime = Date.now();
     
     try {

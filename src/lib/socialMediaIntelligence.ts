@@ -79,7 +79,7 @@ export interface SocialMediaIntelligence {
 /**
  * Call Apify Actor through our backend
  */
-async function callApifyActor(actorId: string, input: any, waitForFinish = true): Promise<any> {
+async function callApifyActor(actorId: string, input: unknown, waitForFinish = true): Promise<unknown[]> {
   try {
     const response = await fetch(getApiEndpoint('apifyActor'), {
       method: 'POST',
@@ -131,7 +131,17 @@ export async function scrapeInstagramProfile(doctor: Doctor): Promise<SocialMedi
           resultsLimit: 12 // Last 12 posts
         });
         
-        const recentPosts = (postsData || []).map((post: any) => ({
+        interface PostData {
+          id: string;
+          url: string;
+          caption?: string;
+          timestamp: string;
+          likesCount?: number;
+          commentsCount?: number;
+          type?: string;
+        }
+        
+        const recentPosts = (postsData || []).map((post: PostData) => ({
           id: post.id,
           url: post.url,
           text: post.caption || '',
@@ -168,7 +178,20 @@ export async function scrapeInstagramProfile(doctor: Doctor): Promise<SocialMedi
 /**
  * Scrape Google Reviews for the practice
  */
-export async function scrapeGoogleReviews(doctor: Doctor): Promise<any> {
+interface GoogleReviewsResult {
+  totalReviews: number;
+  averageRating: number;
+  reviews: Array<{
+    text: string;
+    rating: number;
+    date: string;
+    reviewer: string;
+    responseFromOwner?: string;
+  }>;
+  insights: unknown;
+}
+
+export async function scrapeGoogleReviews(doctor: Doctor): Promise<GoogleReviewsResult | null> {
   try {
     const searchQuery = `${doctor.organizationName || doctor.displayName} ${doctor.city} ${doctor.state}`;
     
@@ -181,10 +204,18 @@ export async function scrapeGoogleReviews(doctor: Doctor): Promise<any> {
     if (results && results.length > 0) {
       const reviews = results[0].reviews || [];
       
+      interface ReviewData {
+        text: string;
+        stars: number;
+        publishedAtDate: string;
+        name: string;
+        responseFromOwnerText?: string;
+      }
+      
       return {
         totalReviews: results[0].totalScore,
         averageRating: results[0].averageRating,
-        reviews: reviews.map((r: any) => ({
+        reviews: reviews.map((r: ReviewData) => ({
           text: r.text,
           rating: r.stars,
           date: r.publishedAtDate,
@@ -258,7 +289,11 @@ function extractMentions(text: string): string[] {
   return (text.match(regex) || []).map(mention => mention.toLowerCase());
 }
 
-function calculateEngagementRate(profile: any, posts: SocialPost[]): number {
+interface ProfileWithFollowers {
+  followersCount?: number;
+}
+
+function calculateEngagementRate(profile: ProfileWithFollowers, posts: SocialPost[]): number {
   if (!posts.length || !profile.followersCount) return 0;
   
   const totalEngagement = posts.reduce((sum, post) => sum + post.likes + post.comments, 0);
@@ -267,7 +302,13 @@ function calculateEngagementRate(profile: any, posts: SocialPost[]): number {
   return Number(((avgEngagement / profile.followersCount) * 100).toFixed(2));
 }
 
-function analyzePostContent(post: any): SocialPost['insights'] {
+interface PostWithCaption {
+  caption?: string;
+  likesCount?: number;
+  commentsCount?: number;
+}
+
+function analyzePostContent(post: PostWithCaption): SocialPost['insights'] {
   const text = (post.caption || '').toLowerCase();
   
   // Simple sentiment analysis
@@ -294,7 +335,7 @@ function analyzePostContent(post: any): SocialPost['insights'] {
   return { sentiment, topics, engagement };
 }
 
-function generateInstagramInsights(_profile: any, posts: SocialPost[]): SocialMediaProfile['insights'] {
+function generateInstagramInsights(_profile: ProfileWithFollowers, posts: SocialPost[]): SocialMediaProfile['insights'] {
   // Calculate posting frequency
   const dateRange = posts.length > 1 ? 
     (Date.now() - posts[posts.length - 1].timestamp.getTime()) / (1000 * 60 * 60 * 24) : 30;

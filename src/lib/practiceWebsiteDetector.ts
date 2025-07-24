@@ -418,7 +418,7 @@ function analyzeOfficialSocialMedia(url: string, pageTitle?: string, doctorName?
  */
 function extractPracticeNameFromSocial(title: string): string {
   // Remove common social media suffixes
-  let practiceName = title
+  const practiceName = title
     .replace(/\s*[\|\-–—]\s*Facebook$/i, '')
     .replace(/\s*[\|\-–—]\s*Instagram$/i, '')
     .replace(/\s*\(@[^)]+\)$/i, '') // Remove Instagram handle

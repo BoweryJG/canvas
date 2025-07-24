@@ -5,11 +5,26 @@
 
 import { EventEmitter } from 'events';
 
+interface ResearchData {
+  doctorName: string;
+  productName: string;
+  score: number;
+  insights: string[];
+  sources: Array<{ url: string; [key: string]: unknown }>;
+  practiceInfo: Record<string, unknown>;
+  competitiveIntel: {
+    technology?: unknown;
+    [key: string]: unknown;
+  };
+  outreachStrategy: Record<string, unknown>;
+  reviews?: unknown;
+}
+
 export interface ResearchProgress {
   stage: 'instant' | 'basic' | 'enhanced' | 'deep' | 'complete';
   percentComplete: number;
   currentAction: string;
-  data: any;
+  data: ResearchData;
   timeElapsed: number;
   estimatedTimeRemaining: number;
   outreachAvailable: {
@@ -83,7 +98,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
   /**
    * Stage 1: Instant results using 1 AI call
    */
-  private async instantStage(data: any, location?: string, userId?: string) {
+  private async instantStage(data: ResearchData, location?: string, userId?: string) {
     this.emitProgress('instant', 5, 'Running instant AI analysis...', data);
     
     const { callPerplexityResearch } = await import('./apiEndpoints');
@@ -113,7 +128,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
   /**
    * Stage 2: Basic research with careful pacing
    */
-  private async basicStage(data: any, location?: string, userId?: string) {
+  private async basicStage(data: ResearchData, location?: string, userId?: string) {
     const { callBraveSearch, callFirecrawlScrape } = await import('./apiEndpoints');
     
     // Step 1: Primary search (15% complete)
@@ -162,12 +177,12 @@ export class ProgressiveResearchEngine extends EventEmitter {
   /**
    * Stage 3: Enhanced intelligence with strategic pacing
    */
-  private async enhancedStage(data: any, _location?: string, userId?: string) {
+  private async enhancedStage(data: ResearchData, _location?: string, userId?: string) {
     const { callFirecrawlScrape, callPerplexityResearch } = await import('./apiEndpoints');
     
     // Scrape reviews if found (45% complete)
     this.emitProgress('enhanced', 45, 'Deep diving into patient feedback...', data);
-    const reviewUrl = data.sources.find((s: any) => 
+    const reviewUrl = data.sources.find((s) => 
       s.url.includes('healthgrades') || s.url.includes('zocdoc')
     );
     
@@ -214,7 +229,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
   /**
    * Stage 4: Deep research with maximum pacing
    */
-  private async deepStage(data: any, _location?: string, userId?: string) {
+  private async deepStage(data: ResearchData, _location?: string, userId?: string) {
     const { callBraveSearch } = await import('./apiEndpoints');
     
     // News and publications (75% complete)
@@ -267,7 +282,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
     stage: ResearchProgress['stage'],
     percentComplete: number,
     currentAction: string,
-    data: any
+    data: ResearchData
   ) {
     const progress: ResearchProgress = {
       stage,
@@ -297,7 +312,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
     }
   }
   
-  private emitComplete(data: any) {
+  private emitComplete(data: ResearchData) {
     this.emit('complete', {
       ...data,
       researchDuration: Date.now() - this.startTime,
@@ -312,7 +327,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
     return Math.max(0, total - elapsed);
   }
   
-  private extractPracticeInfo(_scraped: any): any {
+  private extractPracticeInfo(_scraped: unknown): Record<string, unknown> {
     // Extract structured data from scraped content
     return {
       hasData: true,
@@ -320,47 +335,47 @@ export class ProgressiveResearchEngine extends EventEmitter {
     };
   }
   
-  private updateScore(currentScore: number, _data: any): number {
+  private updateScore(currentScore: number, _data: unknown): number {
     // Refine score based on new data
     return Math.min(100, currentScore + 10);
   }
   
-  private extractReviews(_reviewData: any): any {
+  private extractReviews(_reviewData: unknown): Record<string, unknown> {
     return {
       found: true,
       // Would parse actual reviews
     };
   }
   
-  private parseTechAnalysis(_analysis: any): any {
+  private parseTechAnalysis(_analysis: unknown): unknown {
     return {
       analyzed: true,
       // Would parse actual analysis
     };
   }
   
-  private parseCompetitive(_analysis: any): any {
+  private parseCompetitive(_analysis: unknown): Record<string, unknown> {
     return {
       complete: true,
       // Would parse actual competitive data
     };
   }
   
-  private refineScore(data: any): number {
+  private refineScore(data: ResearchData): number {
     let score = data.score;
     if (data.reviews?.found) score += 5;
     if (data.competitiveIntel?.technology) score += 5;
     return Math.min(100, score);
   }
   
-  private parseFinalAnalysis(_analysis: any): any {
+  private parseFinalAnalysis(_analysis: unknown): Record<string, unknown> {
     return {
       generated: true,
       // Would parse actual strategy
     };
   }
   
-  private calculateFinalScore(data: any): number {
+  private calculateFinalScore(data: ResearchData): number {
     // Sophisticated final scoring
     return Math.min(100, data.score + 10);
   }

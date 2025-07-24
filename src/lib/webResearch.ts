@@ -49,10 +49,10 @@ export interface ResearchData {
   confidenceScore: number;
   completedAt: string;
   linkedinUrl?: string;
-  enhancedInsights?: any; // Rich insights from Claude 4 synthesis
-  productIntelligence?: any; // Product/procedure market intelligence
-  combinedStrategy?: any; // Combined doctor+product strategy
-  superIntelligence?: any; // Advanced multi-model insights
+  enhancedInsights?: Record<string, unknown>; // Rich insights from Claude 4 synthesis
+  productIntelligence?: Record<string, unknown>; // Product/procedure market intelligence
+  combinedStrategy?: Record<string, unknown>; // Combined doctor+product strategy
+  superIntelligence?: Record<string, unknown>; // Advanced multi-model insights
   confidenceFactors?: string[]; // Transparency for confidence scoring
   confidenceBreakdown?: {
     npiPoints: number;
@@ -297,7 +297,7 @@ async function searchWithPerplexity(doctorName: string, location?: string): Prom
         sources.push({
           url: `https://perplexity.ai/search?q=${encodeURIComponent(query)}`,
           title: `Perplexity ${mode} - ${doctorName}`,
-          type: type as any,
+          type: type as ResearchSource['type'],
           content: result.choices[0].message.content,
           confidence: 85, // High confidence for AI-powered research
           lastUpdated: new Date().toISOString()
@@ -306,11 +306,15 @@ async function searchWithPerplexity(doctorName: string, location?: string): Prom
       
       // Add citations as additional sources
       if (result.citations?.length) {
-        result.citations.forEach((citation: any, index: number) => {
+        interface Citation {
+          url?: string;
+          title?: string;
+        }
+        result.citations.forEach((citation: Citation, index: number) => {
           sources.push({
             url: citation.url || `citation-${index}`,
             title: citation.title || `Citation ${index + 1}`,
-            type: 'perplexity_citation' as any,
+            type: 'medical_directory' as ResearchSource['type'],
             content: citation.text || citation.snippet || '',
             confidence: 80,
             lastUpdated: new Date().toISOString()
@@ -328,7 +332,13 @@ async function searchWithPerplexity(doctorName: string, location?: string): Prom
 /**
  * Brave Search API integration
  */
-async function braveSearch(query: string): Promise<any[]> {
+interface BraveSearchResult {
+  url?: string;
+  title?: string;
+  description?: string;
+}
+
+async function braveSearch(query: string): Promise<BraveSearchResult[]> {
   try {
     // Import our API endpoint handler
     const { callBraveSearch } = await import('./apiEndpoints');
@@ -401,7 +411,7 @@ async function consolidateResearchData(
 async function extractStructuredData(_doctorName: string, _sources: ResearchSource[]): Promise<Partial<ResearchData>> {
   try {
     // Combine all source content for analysis
-    // const combinedContent = _sources.map((source: any) => 
+    // const combinedContent = _sources.map((source: ResearchSource) => 
     //   `SOURCE: ${source.type} - ${source.title}\nCONTENT: ${source.content.slice(0, 2000)}\n---\n`
     // ).join('\n');
 
@@ -566,7 +576,11 @@ async function cacheResearchData(researchData: ResearchData): Promise<void> {
   }
 }
 
-function isResearchExpired(cachedData: any): boolean {
+interface CachedResearchData {
+  completedAt?: string;
+}
+
+function isResearchExpired(cachedData: CachedResearchData): boolean {
   if (!cachedData.expiry_date) return true;
   return new Date() > new Date(cachedData.expiry_date);
 }

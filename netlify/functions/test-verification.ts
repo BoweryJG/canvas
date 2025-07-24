@@ -3,7 +3,7 @@
 
 interface TestCase {
   name: string;
-  request: any;
+  request: Record<string, unknown>;
   expectedOutcome: string;
 }
 
@@ -67,7 +67,7 @@ async function runTests() {
   console.log("5. User feedback improves future verifications");
 }
 
-async function simulateVerification(request: any) {
+async function simulateVerification(request: Record<string, unknown>) {
   // In a real test, this would call the actual functions
   console.log(`   Request: ${JSON.stringify(request)}`);
   

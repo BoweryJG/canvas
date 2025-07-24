@@ -63,7 +63,7 @@ export interface DeviceInfo {
 }
 
 export interface ShareModalOptions {
-  reportData: any;
+  reportData: Record<string, unknown>;
   doctorName: string;
   userTier: SubscriptionTier;
   onShare: (link: MagicLink) => void;

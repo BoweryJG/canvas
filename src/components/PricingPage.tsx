@@ -23,7 +23,7 @@ const PricingPage: React.FC = () => {
 
     setLoading(tierName);
     try {
-      await redirectToCheckout(tierName as any, billingCycle);
+      await redirectToCheckout(tierName as keyof typeof SUBSCRIPTION_TIERS, billingCycle);
     } catch (error) {
       console.error('Error redirecting to checkout:', error);
       alert('Failed to redirect to checkout. Please try again.');

@@ -1,7 +1,55 @@
 import { supabase } from '../auth/supabase';
 
+// Type definitions for Supabase operations
+interface ScanResult {
+  doctor: string;
+  product: string;
+  score: number;
+  doctorProfile: Record<string, unknown>;
+  productIntel: Record<string, unknown>;
+  salesBrief: string;
+  insights: Record<string, unknown>;
+  scanDuration?: number;
+}
+
+interface ScanRecord {
+  id: string;
+  user_id: string | null;
+  doctor_name: string;
+  product_name: string;
+  score: number;
+  doctor_profile: Record<string, unknown>;
+  product_intel: Record<string, unknown>;
+  sales_brief: string;
+  insights: Record<string, unknown>;
+  scan_duration: number;
+  created_at: string;
+}
+
+interface DeepResearchData {
+  [key: string]: unknown;
+}
+
+interface ActionBreakdown {
+  [actionType: string]: number;
+}
+
+interface ScanAnalyticsData {
+  totalScans: number;
+  averageScore: number;
+  highValueTargets: number;
+  actionBreakdown: ActionBreakdown;
+  recentActivity: ScanRecord[];
+}
+
+interface OperationResult<T = unknown> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
 // Scan operations
-export async function saveScan(scanResult: any, userId: string | null = null) {
+export async function saveScan(scanResult: ScanResult, userId: string | null = null): Promise<OperationResult<ScanRecord>> {
   try {
     const { data, error } = await supabase
       .from('canvas_scans')
@@ -23,13 +71,13 @@ export async function saveScan(scanResult: any, userId: string | null = null) {
 
     if (error) throw error
     return { success: true, data }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error saving scan:', error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
   }
 }
 
-export async function getScanHistory(userId: string | null, limit = 50) {
+export async function getScanHistory(userId: string | null, limit = 50): Promise<OperationResult<ScanRecord[]>> {
   try {
     let query = supabase
       .from('canvas_scans')
@@ -47,13 +95,13 @@ export async function getScanHistory(userId: string | null, limit = 50) {
 
     if (error) throw error
     return { success: true, data }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error getting scan history:', error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
   }
 }
 
-export async function saveDeepResearch(scanId: string, deepResearchData: any) {
+export async function saveDeepResearch(scanId: string, deepResearchData: DeepResearchData): Promise<OperationResult> {
   try {
     const { data, error } = await supabase
       .from('canvas_deep_research')
@@ -68,13 +116,13 @@ export async function saveDeepResearch(scanId: string, deepResearchData: any) {
 
     if (error) throw error
     return { success: true, data }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error saving deep research:', error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
   }
 }
 
-export async function logScanAction(scanId: string, actionType: string, actionData = {}) {
+export async function logScanAction(scanId: string, actionType: string, actionData: Record<string, unknown> = {}): Promise<OperationResult> {
   try {
     const { data, error } = await supabase
       .from('canvas_scan_actions')
@@ -88,14 +136,14 @@ export async function logScanAction(scanId: string, actionType: string, actionDa
 
     if (error) throw error
     return { success: true, data }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error logging scan action:', error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
   }
 }
 
 // Analytics functions
-export async function getScanAnalytics(userId: string) {
+export async function getScanAnalytics(userId: string): Promise<OperationResult<ScanAnalyticsData>> {
   try {
     const { data: scans, error: scansError } = await supabase
       .from('canvas_scans')
@@ -121,15 +169,15 @@ export async function getScanAnalytics(userId: string) {
         totalScans: scans.length,
         averageScore: scans.reduce((acc, scan) => acc + scan.score, 0) / scans.length || 0,
         highValueTargets: scans.filter(scan => scan.score >= 80).length,
-        actionBreakdown: actions.reduce((acc: any, action) => {
+        actionBreakdown: actions.reduce((acc: ActionBreakdown, action) => {
           acc[action.action_type] = (acc[action.action_type] || 0) + 1
           return acc
         }, {}),
         recentActivity: scans.slice(0, 10)
       }
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error getting analytics:', error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
   }
 }

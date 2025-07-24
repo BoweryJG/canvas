@@ -8,18 +8,34 @@ import { callBraveSearch, callBraveLocalSearch } from './apiEndpoints';
 import type { Doctor } from '../components/DoctorAutocomplete';
 import type { ResearchData, ResearchSource } from './webResearch';
 
+interface OrchestrationData {
+  realTimeData?: unknown;
+  medicalAnalysis?: unknown;
+  finalSynthesis?: {
+    opportunityScore?: number;
+    perfectPitch?: string;
+    objectionHandling?: Record<string, string>;
+    [key: string]: unknown;
+  };
+}
+
 interface SuperIntelligenceResult {
-  orchestratedData: any;
+  orchestratedData: OrchestrationData;
   practiceWebsite: string;
   sources: ResearchSource[];
   confidence: number;
-  insights: any;
+  insights: Record<string, unknown>;
+}
+
+interface ProgressCallback {
+  updateStep: (step: string, status: string, message?: string) => void;
+  updateStage: (stage: string) => void;
 }
 
 export async function gatherSuperIntelligentDoctorResearch(
   doctor: Doctor,
   product: string,
-  progressCallback?: any
+  progressCallback?: ProgressCallback
 ): Promise<ResearchData> {
   console.log('🚀 SUPER INTELLIGENT research initiated for:', doctor.displayName);
   
@@ -75,7 +91,13 @@ export async function gatherSuperIntelligentDoctorResearch(
   }
 }
 
-function findActualPracticeWebsite(results: any[], doctor: Doctor): string {
+interface SearchResultItem {
+  url?: string;
+  title?: string;
+  description?: string;
+}
+
+function findActualPracticeWebsite(results: SearchResultItem[], doctor: Doctor): string {
   // Prioritize results that look like actual practice websites
   const practiceIndicators = [
     'dental', 'dds', 'dentistry', 'oral', 'surgery',
@@ -118,11 +140,33 @@ function findActualPracticeWebsite(results: any[], doctor: Doctor): string {
   return '';
 }
 
+interface BraveSearchResponse {
+  web?: {
+    results?: SearchResultItem[];
+  };
+}
+
+interface LocalCompetitor {
+  url?: string;
+  title?: string;
+  rating?: number;
+  rating_count?: number;
+  distance?: string;
+  address?: string;
+  phone?: string;
+  categories?: string[];
+  priceRange?: string;
+}
+
+interface LocalCompetitorResponse {
+  results?: LocalCompetitor[];
+}
+
 function processSuperIntelligence(
-  orchestratedData: any,
+  orchestratedData: OrchestrationData,
   practiceWebsite: string,
-  braveResults: any,
-  localCompetitors: any,
+  braveResults: BraveSearchResponse,
+  localCompetitors: LocalCompetitorResponse,
   _doctor: Doctor,
   _product: string
 ): SuperIntelligenceResult {
@@ -135,7 +179,7 @@ function processSuperIntelligence(
   const sources: ResearchSource[] = [];
   
   // Add Brave search results as sources
-  (braveResults?.web?.results || []).forEach((result: any, index: number) => {
+  (braveResults?.web?.results || []).forEach((result, index) => {
     sources.push({
       url: result.url || '',
       title: result.title || `Search Result ${index + 1}`,
@@ -148,7 +192,7 @@ function processSuperIntelligence(
   
   // Add local competitor data as sources
   if (localCompetitors?.results) {
-    localCompetitors.results.forEach((competitor: any, index: number) => {
+    localCompetitors.results.forEach((competitor, index) => {
       sources.push({
         url: competitor.url || `local-competitor-${index}`,
         title: `${competitor.title} (Local Competitor)`,

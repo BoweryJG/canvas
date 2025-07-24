@@ -2,7 +2,7 @@ import { Handler } from '@netlify/functions';
 
 const PERPLEXITY_API_KEY = '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';
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (event) => {
   // Enable CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',

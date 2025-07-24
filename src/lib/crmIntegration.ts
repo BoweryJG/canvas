@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { type EnhancedScanResult } from './enhancedAI';
 import { type ResearchData } from './webResearch';
 import { type PersonalizedOutreach } from './outreachSystem';

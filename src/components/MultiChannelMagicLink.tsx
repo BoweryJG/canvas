@@ -45,7 +45,7 @@ interface Channel {
   name: string;
   icon: React.ReactNode;
   color: string;
-  generateLink: (campaign: OutreachCampaign, doctor: any) => string;
+  generateLink: (campaign: OutreachCampaign, doctor: { name: string; email?: string; phone?: string; linkedinId?: string; linkedinUrl?: string; }) => string;
   available: boolean;
   requiresCopy?: boolean;
 }
@@ -173,7 +173,7 @@ export const MultiChannelMagicLink: React.FC<MultiChannelMagicLinkProps> = ({
     }
   ];
 
-  const detectUserEmailProvider = (email?: string): any => {
+  const detectUserEmailProvider = (email?: string): 'gmail' | 'outlook' | 'default' => {
     if (!email) return 'default';
     const domain = email.split('@')[1]?.toLowerCase();
     

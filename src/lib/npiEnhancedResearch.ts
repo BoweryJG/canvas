@@ -14,8 +14,67 @@ import { callClaude } from './apiEndpoints';
 import { type ResearchData, type ResearchSource } from './webResearch';
 import { type Doctor } from '../components/DoctorAutocomplete';
 
+// Interfaces for enhanced research data
+interface PracticeWebsiteData {
+  website: string;
+  phone: string;
+  email: string;
+  sources: ResearchSource[];
+}
+
+interface ReviewData {
+  averageRating?: number;
+  totalReviews: number;
+  commonPraise: string[];
+  commonConcerns: string[];
+  recentFeedback: string[];
+  sources: ResearchSource[];
+}
+
+interface CredentialsData {
+  credential: string;
+  specialty: string;
+  npi: string;
+  verified: boolean;
+  boardCertifications?: string[];
+  education?: string[];
+  sources?: ResearchSource[];
+}
+
+interface BusinessIntelData {
+  practiceType: string;
+  patientVolume: string;
+  marketPosition: string;
+  recentNews: string[];
+  growthIndicators: string[];
+  estimatedRevenue?: string;
+  techAdoption?: string;
+  sources?: ResearchSource[];
+}
+
+interface AdditionalInfoData {
+  technology: string[];
+  professionalActivities: string[];
+  recentNews: string[];
+}
+
+interface SynthesisData {
+  doctor: Doctor;
+  practiceWebsite: PracticeWebsiteData;
+  reviews: ReviewData;
+  credentials: CredentialsData;
+  businessIntel: BusinessIntelData;
+  additionalInfo: AdditionalInfoData;
+}
+
+interface SearchResult {
+  url?: string;
+  title?: string;
+  description?: string;
+}
+
 // Helper to safely parse AI JSON responses
-function parseAIResponse(response: any): any {
+function parseAIResponse(response: unknown): unknown {
   if (typeof response !== 'string') return response;
   
   // Clean markdown code blocks if present
@@ -83,7 +142,7 @@ export async function conductNPIEnhancedResearch(
   }
 }
 
-async function findPracticeWebsite(doctor: Doctor): Promise<any> {
+async function findPracticeWebsite(doctor: Doctor): Promise<PracticeWebsiteData> {
   // Build smart search query based on available information
   let searchQuery = '';
   
@@ -106,8 +165,8 @@ async function findPracticeWebsite(doctor: Doctor): Promise<any> {
   searchQuery = searchQueries[0] || `${doctor.displayName} ${doctor.city} ${doctor.state} dental practice website`;
   
   let practiceWebsite = '';
-  let practicePhone = doctor.phone || '';
-  let practiceEmail = '';
+  const practicePhone = doctor.phone || '';
+  const practiceEmail = '';
   
   try {
     // Execute the search
@@ -237,7 +296,7 @@ async function findPracticeWebsite(doctor: Doctor): Promise<any> {
   }
 }
 
-async function gatherReviews(doctor: Doctor): Promise<any> {
+async function gatherReviews(doctor: Doctor): Promise<ReviewData> {
   const searchQuery = `"${doctor.displayName}" "${doctor.city}" reviews rating patients`;
   
   try {
@@ -264,7 +323,7 @@ async function gatherReviews(doctor: Doctor): Promise<any> {
   }
 }
 
-async function validateCredentials(doctor: Doctor): Promise<any> {
+async function validateCredentials(doctor: Doctor): Promise<CredentialsData> {
   // NPI data already validates basic credentials
   const npiCredentials = {
     credential: doctor.credential,
@@ -294,7 +353,7 @@ async function validateCredentials(doctor: Doctor): Promise<any> {
   }
 }
 
-async function gatherBusinessIntelligence(doctor: Doctor): Promise<any> {
+async function gatherBusinessIntelligence(doctor: Doctor): Promise<BusinessIntelData> {
   const searchQuery = `"${doctor.displayName}" OR "${doctor.organizationName || ''}" "${doctor.city}" practice size technology equipment staff`;
   
   try {
@@ -314,7 +373,7 @@ async function gatherBusinessIntelligence(doctor: Doctor): Promise<any> {
   }
 }
 
-async function searchAdditionalInfo(doctor: Doctor): Promise<any> {
+async function searchAdditionalInfo(doctor: Doctor): Promise<AdditionalInfoData> {
   // Search for technology usage, recent news, professional activities
   const queries = [
     `"${doctor.displayName}" technology "uses" OR "implements" OR "adopts"`,
@@ -338,7 +397,7 @@ async function searchAdditionalInfo(doctor: Doctor): Promise<any> {
   }
 }
 
-async function analyzeReviewsWithAI(searchResults: any, doctor: Doctor): Promise<any> {
+async function analyzeReviewsWithAI(searchResults: unknown, doctor: Doctor): Promise<ReviewData> {
   const results = searchResults?.web?.results || searchResults || [];
   
   if (!results || results.length === 0) {
@@ -391,7 +450,7 @@ IMPORTANT: Respond with ONLY the JSON object, no explanations or other text.`;
   }
 }
 
-async function extractCredentialsWithAI(searchResults: any, doctor: Doctor, npiCredentials: any): Promise<any> {
+async function extractCredentialsWithAI(searchResults: unknown, doctor: Doctor, npiCredentials: CredentialsData): Promise<CredentialsData> {
   const results = searchResults?.web?.results || searchResults || [];
   
   const prompt = `
@@ -431,7 +490,7 @@ Return ONLY a JSON object with:
   }
 }
 
-async function analyzeBusinessDataWithAI(searchResults: any, doctor: Doctor): Promise<any> {
+async function analyzeBusinessDataWithAI(searchResults: unknown, doctor: Doctor): Promise<BusinessIntelData> {
   const results = searchResults?.web?.results || searchResults || [];
   
   const prompt = `
@@ -467,14 +526,14 @@ Return ONLY a JSON object with:
   }
 }
 
-async function synthesizeResearchData(data: any): Promise<ResearchData> {
+async function synthesizeResearchData(data: SynthesisData): Promise<ResearchData> {
   const sources: ResearchSource[] = [];
   
   // Add ALL sources from various searches
   
   // 1. Practice website sources
   if (data.practiceWebsite.sources && Array.isArray(data.practiceWebsite.sources)) {
-    sources.push(...data.practiceWebsite.sources.map((s: any) => ({
+    sources.push(...data.practiceWebsite.sources.map((s) => ({
       url: s.url || '',
       title: s.title || '',
       type: 'practice_website' as const,
@@ -486,7 +545,7 @@ async function synthesizeResearchData(data: any): Promise<ResearchData> {
   
   // 2. Review sources
   if (data.reviews.sources && Array.isArray(data.reviews.sources)) {
-    sources.push(...data.reviews.sources.map((s: any) => ({
+    sources.push(...data.reviews.sources.map((s) => ({
       url: s.url || '',
       title: s.title || '',
       type: 'review_site' as const,
@@ -498,7 +557,7 @@ async function synthesizeResearchData(data: any): Promise<ResearchData> {
   
   // 3. Credential sources (if we added them)
   if (data.credentials.sources && Array.isArray(data.credentials.sources)) {
-    sources.push(...data.credentials.sources.map((s: any) => ({
+    sources.push(...data.credentials.sources.map((s) => ({
       url: s.url || '',
       title: s.title || '',
       type: 'medical_directory' as const,
@@ -510,7 +569,7 @@ async function synthesizeResearchData(data: any): Promise<ResearchData> {
   
   // 4. Business intel sources
   if (data.businessIntel.sources && Array.isArray(data.businessIntel.sources)) {
-    sources.push(...data.businessIntel.sources.map((s: any) => ({
+    sources.push(...data.businessIntel.sources.map((s) => ({
       url: s.url || '',
       title: s.title || '',
       type: 'news_article' as const,
@@ -638,7 +697,7 @@ function estimateStaffSize(practiceSize: string): number {
   }
 }
 
-function extractTechnologyMentions(_results: any): string[] {
+function extractTechnologyMentions(_results: unknown): string[] {
   // Extract technology mentions from search results
   const mentions: string[] = [];
   
@@ -646,12 +705,12 @@ function extractTechnologyMentions(_results: any): string[] {
   return mentions;
 }
 
-function extractProfessionalActivities(_results: any): string[] {
+function extractProfessionalActivities(_results: unknown): string[] {
   // Extract speaking engagements, publications, etc.
   return [];
 }
 
-function extractRecentNews(_results: any): string[] {
+function extractRecentNews(_results: unknown): string[] {
   // Extract recent news and announcements
   return [];
 }

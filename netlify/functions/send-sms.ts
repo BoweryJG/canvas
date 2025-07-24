@@ -1,11 +1,27 @@
 import { Handler } from '@netlify/functions';
 
+// Twilio SMS status response interface
+interface TwilioMessage {
+  sid: string;
+  status: string;
+  price?: string;
+  direction: string;
+  from: string;
+  to: string;
+  body: string;
+  date_created: string;
+  date_updated: string;
+  date_sent?: string;
+  error_code?: string;
+  error_message?: string;
+}
+
 // Twilio configuration
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID || 'demo-account-sid';
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN || 'demo-auth-token';
 const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER || '+1234567890';
 
-export const handler: Handler = async (event, context) => {
+export const handler: Handler = async (event) => {
   // Enable CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -214,7 +230,7 @@ export async function sendWhatsAppMessage(
 /**
  * Get SMS delivery status
  */
-export async function getSMSStatus(messageId: string): Promise<any> {
+export async function getSMSStatus(messageId: string): Promise<TwilioMessage | null> {
   try {
     const credentials = Buffer.from(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`).toString('base64');
     

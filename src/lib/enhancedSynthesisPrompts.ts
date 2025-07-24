@@ -3,15 +3,78 @@
  * Generates actionable, specific insights instead of generic messages
  */
 
+import type { Doctor } from '../components/DoctorAutocomplete';
+
+interface WebsiteIntel {
+  url?: string;
+  crawled?: boolean;
+  services?: string[];
+  technology?: string[];
+  teamSize?: string;
+  philosophy?: string;
+}
+
+interface ReviewData {
+  doctorReviews: {
+    rating?: number;
+    count: number;
+    sources: string[];
+    highlights: string[];
+  };
+  practiceReviews: {
+    rating?: number;
+    count: number;
+  };
+  combinedRating?: number;
+  totalReviews: number;
+}
+
+interface Competitor {
+  title: string;
+  rating: number;
+  rating_count: number;
+  distance: number;
+}
+
+interface ProductFit {
+  fitScore: number;
+  opportunities?: string[];
+  barriers?: string[];
+}
+
+interface ProductIntelligence {
+  marketData?: {
+    awareness?: number;
+    pricingRange?: {
+      low?: number;
+      high?: number;
+    };
+  };
+  competitiveLandscape?: {
+    topCompetitors?: string[];
+  };
+  localInsights?: {
+    adoptionRate?: string;
+  };
+  messagingStrategy?: {
+    keyBenefits?: string[];
+  };
+}
+
+interface Source {
+  url: string;
+  type: string;
+}
+
 export const ENHANCED_SYNTHESIS_PROMPT = (
-  doctor: any,
+  doctor: Doctor,
   product: string,
-  websiteIntel: any,
-  reviewData: any,
-  competitors: any[],
-  productFit: any,
-  sources: any[],
-  productIntelligence?: any
+  websiteIntel: WebsiteIntel,
+  reviewData: ReviewData,
+  competitors: Competitor[],
+  productFit: ProductFit,
+  sources: Source[],
+  productIntelligence?: ProductIntelligence
 ) => `You are an elite medical sales intelligence analyst. Create a COMPREHENSIVE, ACTIONABLE sales brief.
 
 DOCTOR: ${doctor.displayName}, ${doctor.specialty}
@@ -65,9 +128,9 @@ Create a detailed JSON response following this EXACT structure:
     "patientVolume": "Estimate: <1000/1000-3000/3000-5000/5000+ based on reviews and size",
     "patientDemographics": "Infer from location and services",
     "technologyAdoption": "conservative/mainstream/progressive with SPECIFIC examples",
-    "currentSystems": ["List any technology/systems mentioned or inferred"],
+    "currentSystems": ["List technology/systems mentioned or inferred"],
     "decisionMakers": "Who likely makes purchasing decisions",
-    "expansionSignals": ["List any growth indicators: hiring, new services, locations, etc"]
+    "expansionSignals": ["List growth indicators: hiring, new services, locations, etc"]
   },
   
   "marketPosition": {
@@ -179,9 +242,22 @@ export const PRODUCT_SPECIFIC_PROMPTS: Record<string, string> = {
   dental: `Focus on: efficiency gains, patient satisfaction, technology adoption, competitive advantage`
 };
 
+interface PracticeInsights {
+  executiveSummary: string;
+  painPoints?: Array<{ issue: string }>;
+  buyingSignals?: Array<{ signal: string }>;
+  approachStrategy?: {
+    valueProps?: string[];
+  };
+  practiceProfile?: {
+    size?: string;
+    technologyAdoption?: string;
+  };
+}
+
 export const ENHANCED_EMAIL_PROMPT = (
   doctorName: string,
-  practiceInsights: any,
+  practiceInsights: PracticeInsights,
   product: string
 ) => `Create a SPECIFIC, PERSONALIZED email that will get a response.
 
@@ -203,7 +279,7 @@ Keep it under 150 words. Make every word count.`;
 
 export const FOLLOW_UP_SEQUENCE_PROMPT = (
   previousInteraction: string,
-  insights: any
+  insights: PracticeInsights
 ) => `Create a follow-up strategy based on no response to initial outreach.
 
 Previous approach: ${previousInteraction}
