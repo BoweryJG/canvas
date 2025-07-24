@@ -154,7 +154,18 @@ export async function getScanAnalytics(userId: string): Promise<OperationResult<
           acc[action.action_type] = (acc[action.action_type] || 0) + 1
           return acc
         }, {}),
-        recentActivity: scans.slice(0, 10)
+        recentActivity: scans.slice(0, 10).map(scan => ({
+          id: '',  // Supabase doesn't return id for select without explicit column
+          user_id: userId,
+          doctor_name: scan.doctor_name,
+          product_name: scan.product_name,
+          score: scan.score,
+          doctor_profile: {},
+          product_intel: {},
+          sales_brief: '',
+          insights: {},
+          created_at: scan.created_at
+        } as ScanRecord))
       }
     }
   } catch (error: unknown) {

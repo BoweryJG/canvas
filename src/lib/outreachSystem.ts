@@ -32,6 +32,8 @@ interface ScrapedData {
   dentalTechnology?: Record<string, boolean>;
   aestheticProcedures?: Record<string, boolean>;
   aestheticDevices?: Record<string, boolean>;
+  implantSystems?: Record<string, boolean>;
+  injectableBrands?: Record<string, boolean>;
   [key: string]: unknown;
 }
 
@@ -103,7 +105,7 @@ export async function generatePersonalizedOutreach(
   
   const prompt = `Generate a believable cold ${channel} ${templateType} for medical device sales. This must NOT sound like spam.
 
-DOCTOR: ${scanResult.doctor}
+DOCTOR: ${typeof scanResult.doctor === 'string' ? scanResult.doctor : (scanResult.doctor as DoctorInfo)?.name || 'Healthcare Professional'}
 PRODUCT: ${scanResult.product}
 PRACTICE INTELLIGENCE:
 ${medicalContext}
@@ -140,7 +142,7 @@ OUTPUT FORMAT:
     const result = JSON.parse(response.choices[0].message.content || '{}');
     
     return {
-      subject: result.subject || generateBelievableSubject(scanResult.product, scanResult.doctor),
+      subject: result.subject || generateBelievableSubject(scanResult.product, typeof scanResult.doctor === 'string' ? scanResult.doctor : (scanResult.doctor as DoctorInfo)?.name || 'Healthcare Professional'),
       content: result.content || generateBelievableFallback(scanResult, scrapedData, channel),
       personalizations: result.personalizations || [],
       researchInsights: result.researchInsights || [],
@@ -194,7 +196,8 @@ export async function createCampaignSequence(
   const sequence: CampaignStep[] = [];
   
   // Generate campaign based on scan score and research quality
-  const intensity = scanResult.score > 80 ? 'high' : scanResult.score > 60 ? 'medium' : 'low';
+  const score = scanResult.score || 0;
+  const intensity = score > 80 ? 'high' : score > 60 ? 'medium' : 'low';
   
   // Day 1: Initial outreach
   const initialEmail = await generatePersonalizedOutreach(scanResult, researchData, 'first_contact', 'email');
@@ -289,7 +292,7 @@ export async function createCampaignSequence(
   
   return {
     id: `campaign-${Date.now()}`,
-    doctorName: scanResult.doctor,
+    doctorName: typeof scanResult.doctor === 'string' ? scanResult.doctor : (scanResult.doctor as DoctorInfo)?.name || 'Healthcare Professional',
     productName: scanResult.product,
     templates,
     sequence,
@@ -442,16 +445,16 @@ function buildMedicalOutreachContext(scrapedData: ScrapedData, productName: stri
   
   if (productCategory === 'dental' || productCategory === 'both') {
     const dentalProcs = Object.entries(scrapedData.dentalProcedures || {})
-      .filter(([_, has]) => has)
-      .map(([proc, _]) => proc);
+      .filter(([, has]) => has)
+      .map(([proc]) => proc);
     
-    const implantSystems = Object.entries(scrapedData.implantSystems || {})
-      .filter(([_, has]) => has)
-      .map(([system, _]) => system);
+    const implantSystems = Object.entries((scrapedData as any).implantSystems || {})
+      .filter(([, has]) => has)
+      .map(([system]) => system);
     
     const dentalTech = Object.entries(scrapedData.dentalTechnology || {})
-      .filter(([_, has]) => has)
-      .map(([tech, _]) => tech);
+      .filter(([, has]) => has)
+      .map(([tech]) => tech);
     
     if (dentalProcs.length > 0 || implantSystems.length > 0 || dentalTech.length > 0) {
       context += `DENTAL PRACTICE DETAILS:
@@ -464,16 +467,16 @@ function buildMedicalOutreachContext(scrapedData: ScrapedData, productName: stri
   
   if (productCategory === 'aesthetic' || productCategory === 'both') {
     const aestheticProcs = Object.entries(scrapedData.aestheticProcedures || {})
-      .filter(([_, has]) => has)
-      .map(([proc, _]) => proc);
+      .filter(([, has]) => has)
+      .map(([proc]) => proc);
     
     const aestheticDevices = Object.entries(scrapedData.aestheticDevices || {})
-      .filter(([_, has]) => has)
-      .map(([device, _]) => device);
+      .filter(([, has]) => has)
+      .map(([device]) => device);
     
-    const injectables = Object.entries(scrapedData.injectableBrands || {})
-      .filter(([_, has]) => has)
-      .map(([brand, _]) => brand);
+    const injectables = Object.entries((scrapedData as any).injectableBrands || {})
+      .filter(([, has]) => has)
+      .map(([brand]) => brand);
     
     if (aestheticProcs.length > 0 || aestheticDevices.length > 0 || injectables.length > 0) {
       context += `AESTHETIC PRACTICE DETAILS:
@@ -506,7 +509,7 @@ function determineProductCategory(productName: string): 'dental' | 'aesthetic' |
 
 // function buildScanContext(scanResult: EnhancedScanResult): string {
 //   return `
-// DOCTOR: ${scanResult.doctor}
+// DOCTOR: ${typeof scanResult.doctor === 'string' ? scanResult.doctor : (scanResult.doctor as DoctorInfo)?.name || 'Healthcare Professional'}
 // PRODUCT: ${scanResult.product}
 // ALIGNMENT SCORE: ${scanResult.score}%
 // RESEARCH QUALITY: ${scanResult.researchQuality}
@@ -539,8 +542,8 @@ function determineProductCategory(productName: string): 'dental' | 'aesthetic' |
 /**
  * Generate believable subject line
  */
-function generateBelievableSubject(productName: string, doctorName: string): string {
-  const safeDoctorName = doctorName || 'Doctor';
+function generateBelievableSubject(productName: string, doctorName: string | DoctorInfo): string {
+  const safeDoctorName = typeof doctorName === 'string' ? doctorName : doctorName?.name || 'Doctor';
   const cleanName = safeDoctorName.replace(/^Dr\.?\s*/i, '');
   const subjects = [
     `${productName} integration for your practice`,
@@ -566,12 +569,12 @@ function generateBelievableFallback(
   if (scrapedData) {
     if (productCategory === 'dental') {
       const procedures = Object.entries(scrapedData.dentalProcedures || {})
-        .filter(([_, has]) => has)
-        .map(([proc, _]) => proc);
+        .filter(([, has]) => has)
+        .map(([proc]) => proc);
       
       const technology = Object.entries(scrapedData.dentalTechnology || {})
-        .filter(([_, has]) => has)
-        .map(([tech, _]) => tech);
+        .filter(([, has]) => has)
+        .map(([tech]) => tech);
       
       if (procedures.length > 0) {
         credibilityHook = `I noticed your practice offers ${procedures[0]}`;
@@ -580,12 +583,12 @@ function generateBelievableFallback(
       }
     } else if (productCategory === 'aesthetic') {
       const procedures = Object.entries(scrapedData.aestheticProcedures || {})
-        .filter(([_, has]) => has)
-        .map(([proc, _]) => proc);
+        .filter(([, has]) => has)
+        .map(([proc]) => proc);
       
       const devices = Object.entries(scrapedData.aestheticDevices || {})
-        .filter(([_, has]) => has)
-        .map(([device, _]) => device);
+        .filter(([, has]) => has)
+        .map(([device]) => device);
       
       if (procedures.length > 0) {
         credibilityHook = `I noticed you offer ${procedures[0]} treatments`;
@@ -600,7 +603,7 @@ function generateBelievableFallback(
   }
   
   const templates = {
-    email: `Dr. ${String(((scanResult.doctor as DoctorInfo)?.name || scanResult.doctor) || 'Doctor').replace(/^Dr\.?\s*/i, '')},
+    email: `Dr. ${String((((scanResult.doctor as unknown) as DoctorInfo)?.name || scanResult.doctor) || 'Doctor').replace(/^Dr\.?\s*/i, '')},
 
 ${credibilityHook} and thought ${scanResult.product} might be a good fit for your setup.
 
@@ -611,9 +614,9 @@ Would you be open to a brief conversation to discuss how this might work for you
 Best regards,
 [Your Name]`,
     
-    sms: `Dr. ${String(((scanResult.doctor as DoctorInfo)?.name || scanResult.doctor) || 'Doctor').replace(/^Dr\.?\s*/i, '')}, ${credibilityHook}. ${scanResult.product} could enhance your current setup. Quick call to discuss? [Your Name]`,
+    sms: `Dr. ${String((((scanResult.doctor as unknown) as DoctorInfo)?.name || scanResult.doctor) || 'Doctor').replace(/^Dr\.?\s*/i, '')}, ${credibilityHook}. ${scanResult.product} could enhance your current setup. Quick call to discuss? [Your Name]`,
     
-    linkedin: `Hello Dr. ${String(((scanResult.doctor as DoctorInfo)?.name || scanResult.doctor) || 'Doctor').replace(/^Dr\.?\s*/i, '')}, ${credibilityHook}. ${scanResult.product} shows strong potential for practices like yours. Would you be open to connecting?`
+    linkedin: `Hello Dr. ${String((((scanResult.doctor as unknown) as DoctorInfo)?.name || scanResult.doctor) || 'Doctor').replace(/^Dr\.?\s*/i, '')}, ${credibilityHook}. ${scanResult.product} shows strong potential for practices like yours. Would you be open to connecting?`
   };
   
   return templates[channel as keyof typeof templates] || templates.email;
@@ -629,7 +632,7 @@ function generateBelievableOutreach(
   channel: string
 ): PersonalizedOutreach {
   return {
-    subject: generateBelievableSubject(scanResult.product, scanResult.doctor),
+    subject: generateBelievableSubject(scanResult.product, typeof scanResult.doctor === 'string' ? scanResult.doctor : (scanResult.doctor as DoctorInfo)?.name || 'Healthcare Professional'),
     content: generateBelievableFallback(scanResult, scrapedData, channel),
     personalizations: ['Website research', 'Practice-specific details', 'Technology alignment'],
     researchInsights: ['Practice compatibility', 'Enhancement opportunity', 'Professional upgrade'],
@@ -653,12 +656,16 @@ function generateBelievableOutreach(
 //   };
 // }
 
-async function sendEmailFallback(_to: string, _subject: string, _content: string) {
+async function sendEmailFallback(to: string, subject: string, content: string) {
   // EmailJS or other client-side email service integration
+  // TODO: Implement EmailJS fallback
+  console.log('Fallback email not yet implemented for:', { to, subject, content });
   return { success: false, error: 'Fallback email not implemented' };
 }
 
 async function scheduleStep(campaignId: string, step: CampaignStep) {
   // Implement step scheduling logic
+  // TODO: Implement actual scheduling
   console.log(`Scheduling step ${step.id} for campaign ${campaignId}`);
+  return Promise.resolve();
 }

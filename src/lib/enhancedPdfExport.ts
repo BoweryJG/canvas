@@ -29,7 +29,7 @@ export class EnhancedPDFExporter {
    * Add Product Intelligence Section
    */
   addProductIntelligence(researchData: ResearchData, product: string): void {
-    const productIntel = researchData.productIntelligence as ProductIntelligence;
+    const productIntel = researchData.productIntelligence as unknown as ProductIntelligence;
     if (!productIntel) return;
 
     this.addSectionHeader(`${product.toUpperCase()} MARKET INTELLIGENCE`);
@@ -47,7 +47,7 @@ export class EnhancedPDFExporter {
       );
       if (productIntel.marketData.roi) {
         this.addMetric('Average ROI', 
-          `${productIntel.marketData.roi.min || 0}x - ${productIntel.marketData.roi.max || 0}x in ${productIntel.marketData.roi.average || '18 months'}`
+          `${productIntel.marketData.roi.min || '0'}x - ${productIntel.marketData.roi.max || '0'}x in ${productIntel.marketData.roi.average || '18 months'}`
         );
       }
     }
@@ -81,7 +81,7 @@ export class EnhancedPDFExporter {
         this.addBulletList('Common Barriers', productIntel.localInsights.barriers);
       }
       
-      if (productIntel.localInsights.socialProof?.length > 0) {
+      if (productIntel.localInsights.socialProof && productIntel.localInsights.socialProof.length > 0) {
         this.currentY += 15;
         this.doc.setFontSize(11);
         this.doc.setFont('helvetica', 'bold');
@@ -91,7 +91,7 @@ export class EnhancedPDFExporter {
         productIntel.localInsights.socialProof.slice(0, 2).forEach(proof => {
           this.doc.setFont('helvetica', 'italic');
           this.doc.setFontSize(10);
-          const lines = this.doc.splitTextToSize(`"${proof}"`, this.pageWidth - 2 * this.margin - 20);
+          const lines = this.doc.splitTextToSize(`"${proof.content}"`, this.pageWidth - 2 * this.margin - 20);
           lines.forEach((line: string) => {
             this.currentY += this.lineHeight;
             this.doc.text(line, this.margin + 20, this.currentY);
@@ -106,7 +106,20 @@ export class EnhancedPDFExporter {
    * Add Combined Strategy Section
    */
   addCombinedStrategy(researchData: ResearchData, _doctor: string, _product: string): void {
-    const combined = researchData.combinedStrategy;
+    const combined = researchData.combinedStrategy as {
+      perfectMatchScore?: number;
+      messagingStrategy?: {
+        primaryHook?: string;
+        valueProps?: string[];
+        urgencyTrigger?: string;
+      };
+      closingStrategy?: {
+        approach?: string;
+        timeline?: string;
+        decisionDrivers?: string[];
+      };
+      nextSteps?: string[];
+    };
     if (!combined) return;
 
     this.addSectionHeader('PERSONALIZED SALES STRATEGY');
@@ -132,7 +145,7 @@ export class EnhancedPDFExporter {
         this.addQuote('Primary Hook', combined.messagingStrategy.primaryHook);
       }
       
-      if (combined.messagingStrategy.valueProps?.length > 0) {
+      if (combined.messagingStrategy.valueProps && combined.messagingStrategy.valueProps.length > 0) {
         this.addBulletList('Value Propositions', combined.messagingStrategy.valueProps);
       }
       
@@ -155,17 +168,17 @@ export class EnhancedPDFExporter {
         this.addMetric('Expected Timeline', combined.closingStrategy.timeline);
       }
       
-      if (combined.closingStrategy.decisionDrivers?.length > 0) {
+      if (combined.closingStrategy.decisionDrivers && combined.closingStrategy.decisionDrivers.length > 0) {
         this.addBulletList('Key Decision Drivers', combined.closingStrategy.decisionDrivers);
       }
     }
     
     // Next Steps
-    if (combined.nextSteps?.length > 0) {
+    if (combined.nextSteps && combined.nextSteps.length > 0) {
       this.currentY += 20;
       this.addSubsectionHeader('Recommended Next Steps');
       
-      combined.nextSteps.forEach((step: any, index: number) => {
+      combined.nextSteps.forEach((step: string, index: number) => {
         this.currentY += 18;
         this.doc.setFontSize(11);
         this.doc.setFont('helvetica', 'normal');
@@ -185,15 +198,18 @@ export class EnhancedPDFExporter {
     this.addSectionHeader('EXECUTIVE SUMMARY');
     
     // Enhanced opportunity statement
-    const enhancedInsights = researchData.enhancedInsights;
-    const productIntel = researchData.productIntelligence as ProductIntelligence;
+    const enhancedInsights = researchData.enhancedInsights as {
+      executiveSummary?: string;
+      opportunityScore?: number;
+    };
+    const productIntel = researchData.productIntelligence as unknown as ProductIntelligence;
     
     if (enhancedInsights?.executiveSummary) {
       this.currentY += 20;
       this.doc.setFontSize(12);
       this.doc.setFont('helvetica', 'normal');
       const summaryLines = this.doc.splitTextToSize(
-        enhancedInsights.executiveSummary,
+        enhancedInsights.executiveSummary as string,
         this.pageWidth - 2 * this.margin
       );
       summaryLines.forEach((line: string) => {
@@ -228,12 +244,12 @@ export class EnhancedPDFExporter {
     this.currentY += boxHeight + 30;
     
     // Quick Wins
-    if (productIntel?.localInsights?.socialProof?.length > 0) {
+    if (productIntel?.localInsights?.socialProof && productIntel.localInsights.socialProof.length > 0) {
       this.addSubsectionHeader('Proven Success in Local Market');
       this.currentY += 15;
       this.doc.setFontSize(11);
       this.doc.setFont('helvetica', 'italic');
-      const proof = productIntel.localInsights.socialProof[0];
+      const proof = productIntel.localInsights.socialProof[0].content;
       const proofLines = this.doc.splitTextToSize(`"${proof}"`, this.pageWidth - 2 * this.margin - 20);
       proofLines.forEach((line: string) => {
         this.currentY += this.lineHeight;

@@ -130,7 +130,7 @@ export function streamJobUpdates(
   };
 
   eventSource.onerror = (error) => {
-    onError(error);
+    onError(error as unknown as Error);
     eventSource.close();
   };
 

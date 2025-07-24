@@ -11,7 +11,7 @@
  */
 
 import { callBraveSearch, callBraveLocalSearch, callClaude } from './apiEndpoints';
-import { gatherProductIntelligence, combineIntelligence } from './productProcedureIntelligence';
+import { gatherProductIntelligence, combineIntelligence, type ProductIntelligence } from './productProcedureIntelligence';
 import type { Doctor } from '../components/DoctorAutocomplete';
 import type { ResearchData, ResearchSource } from './webResearch';
 
@@ -301,8 +301,10 @@ async function gatherLocalCompetitors(
     
     if (results?.results?.length > 0) {
       progress?.updateStep('competitors', 'found', `${results.results.length} competitors`);
-      // Note: updateSources expects a total count, not a function
-      // We can't access the previous value, so we'll skip this update
+      // Note: updateSources expects a total count
+      if (progress?.updateSources) {
+        progress.updateSources(results.results.length);
+      }
     }
     
     return results;
@@ -332,12 +334,24 @@ WEB INTELLIGENCE (${searchData.sources.length} sources):
 ${searchData.sources.slice(0, 20).map((s: ResearchSource) => `- ${s.title}: ${s.content?.substring(0, 150)}...`).join('\n')}
 
 PRODUCT MARKET INTELLIGENCE for ${product}:
-${productIntel ? `- Market Awareness: ${productIntel.marketData?.awareness || 'Unknown'}/100
-- Price Range: $${productIntel.marketData?.pricingRange?.low || 0} - $${productIntel.marketData?.pricingRange?.high || 0}
-- Top Competitors: ${productIntel?.competitiveLandscape?.topCompetitors?.join(', ') || 'Unknown'}
-- Local Adoption: ${productIntel.localInsights?.adoptionRate || 'Unknown'}
-- Key Differentiators: ${productIntel?.competitiveLandscape?.differentiators?.join(', ') || 'None identified'}
-- Local Barriers: ${productIntel.localInsights?.barriers?.join(', ') || 'None identified'}` : 'Product intelligence unavailable'}
+${(() => {
+  if (!productIntel || typeof productIntel !== 'object') return 'Product intelligence unavailable';
+  const pi = productIntel as ProductIntelligence;
+  const lines = [];
+  if (pi.marketData) {
+    lines.push(`- Market Awareness: ${pi.marketData.awareness || 'Unknown'}/100`);
+    lines.push(`- Price Range: $${pi.marketData.pricingRange?.low || 0} - $${pi.marketData.pricingRange?.high || 0}`);
+  }
+  if (pi.competitiveLandscape) {
+    lines.push(`- Top Competitors: ${(pi.competitiveLandscape.topCompetitors || []).join(', ') || 'Unknown'}`);
+    lines.push(`- Key Differentiators: ${(pi.competitiveLandscape.differentiators || []).join(', ') || 'None identified'}`);
+  }
+  if (pi.localInsights) {
+    lines.push(`- Local Adoption: ${pi.localInsights.adoptionRate || 'Unknown'}`);
+    lines.push(`- Local Barriers: ${(pi.localInsights.barriers || []).join(', ') || 'None identified'}`);
+  }
+  return lines.length > 0 ? lines.join('\n') : 'Product intelligence unavailable';
+})()}
 
 LOCAL DENTAL PRACTICES (${localCompetitors?.results?.length || 0} found):
 ${localCompetitors?.results?.slice(0, 5).map((c: LocalCompetitor) => 
@@ -487,14 +501,14 @@ function createStreamlinedResearchData(
     sources: allSources,
     confidenceScore: Math.min(confidence, 100),
     completedAt: new Date().toISOString(),
-    enhancedInsights: synthesis,
+    enhancedInsights: synthesis as unknown as Record<string, unknown>,
     // Add product intelligence
-    productIntelligence: productIntel,
+    productIntelligence: productIntel as Record<string, unknown> | undefined,
     // Add combined doctor+product insights
-    combinedStrategy: combineIntelligence(
+    combinedStrategy: productIntel && typeof productIntel === 'object' && 'productName' in productIntel ? combineIntelligence(
       { doctorName: doctor.displayName, location: `${doctor.city}, ${doctor.state}` },
-      productIntel
-    )
+      productIntel as ProductIntelligence
+    ) as Record<string, unknown> : undefined
   };
 }
 

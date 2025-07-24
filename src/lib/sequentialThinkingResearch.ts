@@ -319,18 +319,39 @@ function extractKeyQuestions(thought: string): string[] {
     'What pain points do they have?'
   ];
   
-  return [...new Set([...questions, ...standardQuestions])];
+  return Array.from(new Set([...questions, ...standardQuestions]));
 }
 
 /**
  * Synthesize research with Sequential Thinking guidance
  */
+interface ProductIntelligence {
+  marketData?: {
+    awareness?: number;
+    pricingRange?: {
+      low?: number;
+      high?: number;
+    };
+  };
+  localInsights?: {
+    adoptionRate?: string;
+    barriers?: string[];
+  };
+  competitiveLandscape?: {
+    topCompetitors?: string[];
+    differentiators?: string[];
+  };
+  messagingStrategy?: {
+    keyBenefits?: string[];
+  };
+}
+
 export async function synthesizeWithSequentialGuidance(
   researchData: Record<string, unknown>,
   strategy: ResearchStrategy,
   doctor: Doctor,
   product: string,
-  productIntelligence?: Record<string, unknown>
+  productIntelligence?: ProductIntelligence
 ): Promise<Record<string, unknown>> {
   // Use Sequential Thinking to identify the most important insights
   const synthesisPlan = await callSequentialThinking({
@@ -343,8 +364,8 @@ ${productIntelligence ? `
 Product Intelligence for ${product}:
 - Market awareness: ${productIntelligence.marketData?.awareness || 'Unknown'}
 - Local adoption: ${productIntelligence.localInsights?.adoptionRate || 'Unknown'}
-- Top competitors: ${productIntelligence.competitiveLandscape?.topCompetitors?.slice(0, 3).join(', ') || 'Unknown'}
-- Key differentiators: ${productIntelligence.competitiveLandscape?.differentiators?.slice(0, 2).join(', ') || 'Unknown'}
+- Top competitors: ${(productIntelligence.competitiveLandscape?.topCompetitors || []).slice(0, 3).join(', ') || 'Unknown'}
+- Key differentiators: ${(productIntelligence.competitiveLandscape?.differentiators || []).slice(0, 2).join(', ') || 'Unknown'}
 ` : ''}
 What are the 3 most important insights for the sales team?`,
     thoughtNumber: 1,
@@ -373,18 +394,18 @@ Sales Approach Recommendation:
 ${salesApproach.thought}
 
 Research Summary:
-- Sources found: ${researchData.sources?.length || 0}
+- Sources found: ${(researchData.sources as any[])?.length || 0}
 - Doctor: ${doctor.displayName}, ${doctor.specialty}
 - Product: ${product}
-- Key findings: ${JSON.stringify(researchData.searchResults?.slice(0, 2) || [], null, 2).substring(0, 500)}...
+- Key findings: ${JSON.stringify((researchData.searchResults as any[])?.slice(0, 2) || [], null, 2).substring(0, 500)}...
 ${productIntelligence ? `
 Product Market Intelligence:
 - Market awareness score: ${productIntelligence.marketData?.awareness}/100
 - Price range in ${doctor.city}: $${productIntelligence.marketData?.pricingRange?.low || 0} - $${productIntelligence.marketData?.pricingRange?.high || 0}
-- Top local competitors: ${productIntelligence.competitiveLandscape?.topCompetitors?.join(', ') || 'Unknown'}
+- Top local competitors: ${(productIntelligence.competitiveLandscape?.topCompetitors || []).join(', ') || 'Unknown'}
 - Local adoption: ${productIntelligence.localInsights?.adoptionRate || 'Unknown'}
-- Key barriers: ${productIntelligence.localInsights?.barriers?.join(', ') || 'None identified'}
-- Product benefits: ${productIntelligence.messagingStrategy?.keyBenefits?.slice(0, 3).join(', ') || 'Standard benefits'}
+- Key barriers: ${(productIntelligence.localInsights?.barriers || []).join(', ') || 'None identified'}
+- Product benefits: ${(productIntelligence.messagingStrategy?.keyBenefits || []).slice(0, 3).join(', ') || 'Standard benefits'}
 ` : ''}
 Return ONLY this JSON structure (no explanations, no markdown, just JSON):
 {

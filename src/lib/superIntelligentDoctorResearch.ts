@@ -11,12 +11,7 @@ import type { ResearchData, ResearchSource } from './webResearch';
 interface OrchestrationData {
   realTimeData?: unknown;
   medicalAnalysis?: unknown;
-  finalSynthesis?: {
-    opportunityScore?: number;
-    perfectPitch?: string;
-    objectionHandling?: Record<string, string>;
-    [key: string]: unknown;
-  };
+  finalSynthesis?: unknown;
 }
 
 interface SuperIntelligenceResult {
@@ -214,12 +209,12 @@ function processSuperIntelligence(
   }
   
   // Add AI analysis as high-confidence sources
-  if (perplexityInsights?.basicInfo) {
+  if (perplexityInsights && typeof perplexityInsights === 'object' && 'basicInfo' in perplexityInsights) {
     sources.push({
       url: 'perplexity-realtime',
       title: 'AI Real-time Analysis',
       type: 'news_article',
-      content: JSON.stringify(perplexityInsights.basicInfo),
+      content: JSON.stringify((perplexityInsights as any).basicInfo),
       confidence: 85,
       lastUpdated: new Date().toISOString()
     });
@@ -252,7 +247,7 @@ function processSuperIntelligence(
   if (practiceWebsite) confidence += 15;
   if (sources.length > 10) confidence += 15;
   if (gpt4Analysis) confidence += 10;
-  if (claudeSynthesis?.opportunityScore) confidence += 10;
+  if (claudeSynthesis && typeof claudeSynthesis === 'object' && 'opportunityScore' in claudeSynthesis) confidence += 10;
   
   return {
     orchestratedData,
@@ -260,8 +255,8 @@ function processSuperIntelligence(
     sources,
     confidence: Math.min(confidence, 100),
     insights: {
-      ...gpt4Analysis,
-      ...claudeSynthesis,
+      ...(gpt4Analysis && typeof gpt4Analysis === 'object' ? gpt4Analysis : {}),
+      ...(claudeSynthesis && typeof claudeSynthesis === 'object' ? claudeSynthesis : {}),
       perplexityFindings: perplexityInsights
     }
   };
@@ -281,27 +276,27 @@ function createSuperResearchData(
       phone: doctor.phone,
       website: intelligence.practiceWebsite || undefined,
       specialties: [doctor.specialty],
-      services: insights.notableFeatures || [],
-      technology: insights.currentTechnology || [],
+      services: Array.isArray(insights.notableFeatures) ? insights.notableFeatures : [],
+      technology: Array.isArray(insights.currentTechnology) ? insights.currentTechnology : [],
       staff: insights.practiceSize === 'large' ? 50 : 
              insights.practiceSize === 'medium' ? 20 : 10,
-      established: insights.yearsInBusiness ? 
+      established: insights.yearsInBusiness && typeof insights.yearsInBusiness === 'number' ? 
         (new Date().getFullYear() - insights.yearsInBusiness).toString() : undefined
     },
     credentials: {
       boardCertifications: [doctor.specialty]
     },
     reviews: {
-      averageRating: insights.reputationScore ? insights.reputationScore / 2 : undefined,
-      commonPraise: insights.strengths || [],
-      commonConcerns: insights.painPoints || []
+      averageRating: insights.reputationScore && typeof insights.reputationScore === 'number' ? insights.reputationScore / 2 : undefined,
+      commonPraise: Array.isArray(insights.strengths) ? insights.strengths : [],
+      commonConcerns: Array.isArray(insights.painPoints) ? insights.painPoints : []
     },
     businessIntel: {
-      practiceType: insights.practiceSize || 'Unknown',
-      patientVolume: insights.patientVolume || 'Unknown',
-      marketPosition: insights.marketPosition || 'Unknown',
-      recentNews: insights.recentEvents || [],
-      growthIndicators: insights.growthSignals || []
+      practiceType: typeof insights.practiceSize === 'string' ? insights.practiceSize : 'Unknown',
+      patientVolume: typeof insights.patientVolume === 'string' ? insights.patientVolume : 'Unknown',
+      marketPosition: typeof insights.marketPosition === 'string' ? insights.marketPosition : 'Unknown',
+      recentNews: Array.isArray(insights.recentEvents) ? insights.recentEvents : [],
+      growthIndicators: Array.isArray(insights.growthSignals) ? insights.growthSignals : []
     },
     sources: intelligence.sources,
     confidenceScore: intelligence.confidence,
@@ -309,9 +304,9 @@ function createSuperResearchData(
     enhancedInsights: insights,
     // New super intelligence fields
     superIntelligence: {
-      opportunityScore: insights.opportunityScore || 75,
-      perfectPitch: insights.perfectPitch || '',
-      objectionHandlers: insights.objectionHandling || {},
+      opportunityScore: insights.opportunityScore && typeof insights.opportunityScore === 'number' ? insights.opportunityScore : 75,
+      perfectPitch: insights.perfectPitch && typeof insights.perfectPitch === 'string' ? insights.perfectPitch : '',
+      objectionHandlers: insights.objectionHandling && typeof insights.objectionHandling === 'object' ? insights.objectionHandling : {},
       modelData: {
         perplexity: intelligence.orchestratedData.realTimeData,
         gpt4: intelligence.orchestratedData.medicalAnalysis,

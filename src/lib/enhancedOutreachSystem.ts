@@ -7,6 +7,42 @@ import type { EnhancedScanResult } from './enhancedAI';
 import type { ResearchData } from './webResearch';
 import { generateEnhancedEmailCampaign, generateEnhancedSMS, generateEnhancedLinkedIn } from './enhancedEmailTemplates';
 
+// Define proper types for the nested objects
+interface ProductIntelligence {
+  marketData?: {
+    awareness?: number;
+    limitedTimeOffers?: string[];
+  };
+  competitiveLandscape?: {
+    marketShare?: number;
+    differentiators?: string[];
+    topCompetitors?: string[];
+    vsCompetitors?: string;
+  };
+  localInsights?: {
+    socialProof?: string[];
+    topAdopters?: string[];
+  };
+}
+
+interface EnhancedInsights {
+  salesStrategy?: {
+    timing?: string;
+  };
+  painPoints?: string[];
+  competitivePosition?: {
+    vulnerabilities?: string[];
+  };
+}
+
+interface CombinedStrategy {
+  perfectMatchScore?: number;
+  messagingStrategy?: {
+    valueProps?: string[];
+    urgencyTrigger?: string;
+  };
+}
+
 export interface ProductAwareCampaign {
   id: string;
   doctorName: string;
@@ -53,9 +89,9 @@ export async function createProductAwareCampaign(
   researchData: ResearchData,
   salesRepInfo: { name: string; company: string; product: string }
 ): Promise<ProductAwareCampaign> {
-  const productIntel = researchData.productIntelligence;
-  const doctorIntel = researchData.enhancedInsights;
-  const combinedStrategy = researchData.combinedStrategy;
+  const productIntel = researchData.productIntelligence as ProductIntelligence | undefined;
+  const doctorIntel = researchData.enhancedInsights as EnhancedInsights | undefined;
+  const combinedStrategy = researchData.combinedStrategy as CombinedStrategy | undefined;
   
   const sequence: CampaignStep[] = [];
   
@@ -79,7 +115,7 @@ export async function createProductAwareCampaign(
   });
   
   // Day 2: SMS if email opened but no reply
-  if (productIntel?.marketData?.awareness > 70) {
+  if (productIntel?.marketData?.awareness && productIntel.marketData.awareness > 70) {
     sequence.push({
       id: 'day2-sms',
       day: 2,
@@ -122,7 +158,7 @@ export async function createProductAwareCampaign(
   });
   
   // Day 10: Competitive intelligence share
-  if (productIntel?.competitiveLandscape?.topCompetitors?.length > 0) {
+  if (productIntel?.competitiveLandscape?.topCompetitors && productIntel.competitiveLandscape.topCompetitors.length > 0) {
     sequence.push({
       id: 'day10-competitive',
       day: 10,
@@ -207,7 +243,7 @@ function generateCompetitiveEmail(
   researchData: ResearchData,
   salesRep: { name: string; company: string; product: string }
 ): string {
-  const productIntel = researchData.productIntelligence;
+  const productIntel = researchData.productIntelligence as ProductIntelligence | undefined;
   const competitor = productIntel?.competitiveLandscape?.topCompetitors?.[0] || 'alternatives';
   
   return `Dr. ${scanResult.doctor.split(' ').pop()},
@@ -236,9 +272,10 @@ function generateBreakthroughEmail(
   researchData: ResearchData,
   salesRep: { name: string; company: string; product: string }
 ): string {
-  const doctorIntel = researchData.enhancedInsights;
-  const productIntel = researchData.productIntelligence;
-  const urgency = researchData.combinedStrategy?.messagingStrategy?.urgencyTrigger;
+  const doctorIntel = researchData.enhancedInsights as EnhancedInsights | undefined;
+  const productIntel = researchData.productIntelligence as ProductIntelligence | undefined;
+  const combinedStrategy = researchData.combinedStrategy as CombinedStrategy | undefined;
+  const urgency = combinedStrategy?.messagingStrategy?.urgencyTrigger;
   
   const urgencyMessage = urgency || ('Important update about ' + salesRep.product + ' availability in your area.');
   

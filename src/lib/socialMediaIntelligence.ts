@@ -79,7 +79,7 @@ export interface SocialMediaIntelligence {
 /**
  * Call Apify Actor through our backend
  */
-async function callApifyActor(actorId: string, input: unknown, waitForFinish = true): Promise<unknown[]> {
+async function callApifyActor(actorId: string, input: unknown, waitForFinish = true): Promise<any[]> {
   try {
     const response = await fetch(getApiEndpoint('apifyActor'), {
       method: 'POST',
@@ -123,7 +123,7 @@ export async function scrapeInstagramProfile(doctor: Doctor): Promise<SocialMedi
       });
       
       if (results && results.length > 0) {
-        const profile = results[0];
+        const profile = results[0] as any;
         
         // Get recent posts
         const postsData = await callApifyActor(APIFY_ACTORS.INSTAGRAM_POSTS, {
@@ -141,7 +141,7 @@ export async function scrapeInstagramProfile(doctor: Doctor): Promise<SocialMedi
           type?: string;
         }
         
-        const recentPosts = (postsData || []).map((post: PostData) => ({
+        const recentPosts = ((postsData || []) as PostData[]).map((post: PostData) => ({
           id: post.id,
           url: post.url,
           text: post.caption || '',
@@ -150,8 +150,8 @@ export async function scrapeInstagramProfile(doctor: Doctor): Promise<SocialMedi
           comments: post.commentsCount || 0,
           hashtags: extractHashtags(post.caption || ''),
           mentions: extractMentions(post.caption || ''),
-          mediaType: post.type === 'Video' ? 'video' : post.type === 'Sidecar' ? 'carousel' : 'photo',
-          insights: analyzePostContent(post)
+          mediaType: (post.type === 'Video' ? 'video' : post.type === 'Sidecar' ? 'carousel' : 'photo') as 'photo' | 'video' | 'carousel',
+          insights: analyzePostContent(post as PostWithCaption)
         }));
         
         return {
@@ -329,8 +329,10 @@ function analyzePostContent(post: PostWithCaption): SocialPost['insights'] {
   if (text.includes('community') || text.includes('event')) topics.push('community involvement');
   
   // Engagement level
-  const engagement = (post.likesCount + post.commentsCount * 2) > 100 ? 'high' :
-                    (post.likesCount + post.commentsCount * 2) > 50 ? 'medium' : 'low';
+  const likes = post.likesCount || 0;
+  const comments = post.commentsCount || 0;
+  const engagement = (likes + comments * 2) > 100 ? 'high' :
+                    (likes + comments * 2) > 50 ? 'medium' : 'low';
   
   return { sentiment, topics, engagement };
 }
@@ -440,7 +442,13 @@ function identifyOpportunities(profiles: SocialMediaProfile[], _doctor: Doctor):
   };
 }
 
-function analyzeReviews(reviews: any[]): any {
+interface ReviewData {
+  stars: number;
+  text: string;
+  responseFromOwner?: boolean;
+}
+
+function analyzeReviews(reviews: ReviewData[]): any {
   const sentiments = reviews.map(r => {
     if (r.stars >= 4) return 'positive';
     if (r.stars >= 3) return 'neutral';
@@ -448,7 +456,7 @@ function analyzeReviews(reviews: any[]): any {
   });
   
   const themes = [];
-  const allText = reviews.map(r => r.text.toLowerCase()).join(' ');
+  const allText = reviews.map((r: ReviewData) => r.text.toLowerCase()).join(' ');
   
   if (allText.includes('friendly') || allText.includes('nice')) themes.push('Friendly staff');
   if (allText.includes('clean') || allText.includes('modern')) themes.push('Clean facility');
@@ -462,6 +470,6 @@ function analyzeReviews(reviews: any[]): any {
       negative: sentiments.filter(s => s === 'negative').length
     },
     commonThemes: themes,
-    responseRate: reviews.filter(r => r.responseFromOwner).length / reviews.length
+    responseRate: reviews.filter((r: ReviewData) => r.responseFromOwner).length / reviews.length
   };
 }

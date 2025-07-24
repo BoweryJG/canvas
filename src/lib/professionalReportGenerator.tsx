@@ -180,8 +180,8 @@ export const McKinseyExecutiveReport = ({
   companyName: string;
   productName: string;
 }) => {
-  const insights = researchData.enhancedInsights;
-  const productIntel = researchData.productIntelligence as ProductIntelligence;
+  const insights = researchData.enhancedInsights as any;
+  const productIntel = researchData.productIntelligence as unknown as ProductIntelligence;
   
   return (
     <Document>
@@ -209,7 +209,7 @@ export const McKinseyExecutiveReport = ({
           <Text style={styles.text}>
             {insights?.executiveSummary || 
              `Analysis indicates strong alignment between ${scanResult.doctor}'s practice needs and ${productName} capabilities. 
-              The practice demonstrates ${scanResult.researchQuality} research quality with ${researchData.sources.length} verified sources.`}
+              The practice demonstrates ${scanResult.researchQuality} research quality with ${researchData.sources?.length || 0} verified sources.`}
           </Text>
         </View>
 

@@ -651,7 +651,9 @@ Confidence Score: ${this.calculateResearchQuality(researchData)}%
     return researchData.practiceInfo?.technology?.join(', ') || 'Electronic Health Records';
   }
 
-  private extractInsurance(_researchData: ResearchData): string {
+  private extractInsurance(researchData: ResearchData): string {
+    // TODO: Extract actual insurance data from research
+    console.log('Insurance extraction not yet implemented for:', researchData);
     return 'Major Insurance Plans';
   }
 
@@ -667,7 +669,9 @@ Confidence Score: ${this.calculateResearchQuality(researchData)}%
     return researchData.sources?.[0]?.url || 'Professional website available';
   }
 
-  private getOptimalContactTime(_scanResult: EnhancedScanResult): string {
+  private getOptimalContactTime(scanResult: EnhancedScanResult): string {
+    // TODO: Determine optimal contact time based on scan data
+    console.log('Contact time optimization not yet implemented for:', scanResult);
     return 'Tuesday-Thursday, 10 AM - 4 PM';
   }
 
@@ -686,7 +690,7 @@ Confidence Score: ${this.calculateResearchQuality(researchData)}%
     return findings;
   }
 
-  private addResearchCoverageChart(researchData: ResearchData): void {
+  private addResearchCoverageChart(_researchData: ResearchData): void {
     const coverage = [
       { label: 'Practice Website', status: 'verified' },
       { label: 'Medical Directory', status: 'verified' },
@@ -718,7 +722,7 @@ Confidence Score: ${this.calculateResearchQuality(researchData)}%
     });
   }
 
-  private addTechnologyAssessment(researchData: ResearchData): void {
+  private addTechnologyAssessment(_researchData: ResearchData): void {
     const techItems = [
       'Electronic Health Records (EHR) System',
       'Practice Management Software',
@@ -733,7 +737,7 @@ Confidence Score: ${this.calculateResearchQuality(researchData)}%
     });
   }
 
-  private addPatientDemographics(researchData: ResearchData): void {
+  private addPatientDemographics(_researchData: ResearchData): void {
     const demographics = [
       'Age Range: 25-75 years (broad patient base)',
       'Insurance Mix: Commercial and Medicare primary',
@@ -748,6 +752,8 @@ Confidence Score: ${this.calculateResearchQuality(researchData)}%
   }
 
   private generateValueProposition(scanResult: EnhancedScanResult, researchData: ResearchData): string[] {
+    // TODO: Generate specific value propositions based on scan and research data
+    console.log('Value proposition generation using:', { scanResult, researchData });
     return [
       `Reduce administrative burden by 30-40% through workflow automation`,
       `Improve patient satisfaction with streamlined appointment scheduling`,
@@ -758,6 +764,8 @@ Confidence Score: ${this.calculateResearchQuality(researchData)}%
   }
 
   private addCompetitivePositioning(scanResult: EnhancedScanResult, researchData: ResearchData): void {
+    // TODO: Generate competitive positioning based on specific data
+    console.log('Competitive positioning using:', { scanResult, researchData });
     const positioning = `Our solution differentiates through superior integration capabilities, 
 proven ROI in similar practice environments, and comprehensive support infrastructure. 
 Unlike competing solutions, we offer specialized medical workflow optimization 
@@ -767,6 +775,8 @@ with measurable efficiency improvements.`;
   }
 
   private addROIAnalysis(scanResult: EnhancedScanResult, researchData: ResearchData): void {
+    // TODO: Calculate ROI based on specific scan and research data
+    console.log('ROI analysis using:', { scanResult, researchData });
     const roiData = [
       { metric: 'Administrative Time Savings', value: '25-35%', annual: '$15,000-$25,000' },
       { metric: 'Revenue Optimization', value: '8-12%', annual: '$40,000-$60,000' },
@@ -781,10 +791,13 @@ with measurable efficiency improvements.`;
   }
 
   private generateOutreachStrategy(scanResult: EnhancedScanResult, researchData: ResearchData): string {
-    const urgencyScore = Math.floor(scanResult.score / 10);
+    const score = scanResult.score || 0;
+    const urgencyScore = Math.floor(score / 10);
     const urgency = urgencyScore >= 7 ? 'aggressive' : 
                    urgencyScore >= 5 ? 'moderate' : 'consultative';
     
+    // TODO: Generate strategy based on specific research insights
+    console.log('Outreach strategy using:', { scanResult, researchData });
     return `Recommended approach: ${urgency} outreach strategy focusing on verified practice 
 pain points and documented efficiency opportunities. Initial contact should emphasize 
 research-backed value propositions with specific ROI projections. Follow-up sequence 
@@ -792,6 +805,8 @@ should maintain professional persistence while respecting practice workflow cons
   }
 
   private addTouchSequence(scanResult: EnhancedScanResult, researchData: ResearchData): void {
+    // TODO: Generate touch sequence based on specific data
+    console.log('Touch sequence using:', { scanResult, researchData });
     const sequence = [
       'Day 1: Initial email with practice-specific research insights',
       'Day 4: Follow-up with detailed ROI analysis and case studies',
@@ -807,6 +822,8 @@ should maintain professional persistence while respecting practice workflow cons
   }
 
   private generateKeyMessages(scanResult: EnhancedScanResult, researchData: ResearchData): string[] {
+    // TODO: Generate messages based on specific scan and research data
+    console.log('Key messages using:', { scanResult, researchData });
     return [
       'Practice-specific efficiency improvements based on current workflow analysis',
       'Measurable ROI with 6-12 month payback period',
@@ -817,6 +834,8 @@ should maintain professional persistence while respecting practice workflow cons
   }
 
   private addObjectionHandling(scanResult: EnhancedScanResult, researchData: ResearchData): void {
+    // TODO: Generate objections based on specific data
+    console.log('Objection handling using:', { scanResult, researchData });
     const objections = [
       {
         objection: 'Budget constraints and cost concerns',
@@ -845,7 +864,7 @@ should maintain professional persistence while respecting practice workflow cons
     });
   }
 
-  private extractCurrentTechnology(researchData: ResearchData): string[] {
+  private extractCurrentTechnology(_researchData: ResearchData): string[] {
     return [
       'Electronic Health Records (Epic/Cerner likely)',
       'Basic practice management system',
@@ -856,6 +875,8 @@ should maintain professional persistence while respecting practice workflow cons
   }
 
   private generateCompetitiveAdvantages(scanResult: EnhancedScanResult, researchData: ResearchData): string[] {
+    // TODO: Generate advantages based on specific data analysis
+    console.log('Competitive advantages using:', { scanResult, researchData });
     return [
       'Superior integration capabilities with existing EHR systems',
       'Proven track record in similar practice environments',
@@ -866,6 +887,8 @@ should maintain professional persistence while respecting practice workflow cons
   }
 
   private addMarketPositioning(scanResult: EnhancedScanResult, researchData: ResearchData): void {
+    // TODO: Generate positioning based on specific data
+    console.log('Market positioning using:', { scanResult, researchData });
     const positioning = `Market leader in medical practice technology with 85% customer 
 satisfaction rate and average 12-month ROI. Specifically positioned for practices 
 seeking comprehensive workflow optimization rather than point solutions.`;
@@ -874,6 +897,8 @@ seeking comprehensive workflow optimization rather than point solutions.`;
   }
 
   private generateImmediateActions(scanResult: EnhancedScanResult, researchData: ResearchData): string[] {
+    // TODO: Generate actions based on specific scan and research data
+    console.log('Immediate actions using:', { scanResult, researchData });
     return [
       'Send personalized email with practice research summary',
       'Schedule LinkedIn connection with relevant industry insights',
@@ -884,6 +909,8 @@ seeking comprehensive workflow optimization rather than point solutions.`;
   }
 
   private addEngagementTimeline(scanResult: EnhancedScanResult, researchData: ResearchData): void {
+    // TODO: Generate timeline based on specific data
+    console.log('Engagement timeline using:', { scanResult, researchData });
     const timeline = [
       'Week 1: Initial outreach and relationship building',
       'Week 2: Discovery call and needs assessment',
@@ -898,6 +925,8 @@ seeking comprehensive workflow optimization rather than point solutions.`;
   }
 
   private generateSuccessMetrics(scanResult: EnhancedScanResult, researchData: ResearchData): string[] {
+    // TODO: Generate metrics based on specific data analysis
+    console.log('Success metrics using:', { scanResult, researchData });
     return [
       'Initial response rate: 25% within 48 hours',
       'Discovery call conversion: 15% of initial contacts',
@@ -908,6 +937,8 @@ seeking comprehensive workflow optimization rather than point solutions.`;
   }
 
   private addFollowupSchedule(scanResult: EnhancedScanResult, researchData: ResearchData): void {
+    // TODO: Generate schedule based on specific data
+    console.log('Followup schedule using:', { scanResult, researchData });
     const schedule = [
       'Immediate: Send initial research-backed outreach',
       '48 hours: Follow-up email if no response',

@@ -314,10 +314,13 @@ export function combineIntelligence(
   doctorIntel: DoctorIntel,
   productIntel: ProductIntelligence
 ): CombinedIntelligence {
+  const topCompetitor = productIntel.competitiveLandscape.topCompetitors[0];
+  const differentiator = productIntel.competitiveLandscape.differentiators[0];
+  
   return {
     // Doctor-specific + product-specific insights
     personalizedPitch: `Dr. ${doctorIntel.doctorName}, ${productIntel.competitiveLandscape.topCompetitors.length > 0 
-      ? `while many ${doctorIntel.location} practices use ${productIntel.competitiveLandscape.topCompetitors[0]}, ${productIntel.productName} offers ${productIntel.competitiveLandscape.differentiators[0]}` 
+      ? `while many ${doctorIntel.location} practices use ${topCompetitor}, ${productIntel.productName} offers ${differentiator}` 
       : `${productIntel.productName} is gaining traction in ${doctorIntel.location}`}`,
     
     // Localized competitive advantage
@@ -336,7 +339,5 @@ export function combineIntelligence(
     
     // Urgency based on competitive landscape
     urgencyAngle: productIntel.competitiveLandscape.topCompetitors.length > 2
-      ? 'Your competitors are already evaluating similar solutions'
-      : 'Gain first-mover advantage in your area'
   };
 }

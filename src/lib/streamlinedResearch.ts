@@ -117,7 +117,7 @@ export async function streamlinedResearch(
           );
           
           if (foundTech.length > 0) {
-            practiceInfo['currentTechnology'] = foundTech;
+            practiceInfo.currentTechnology = foundTech;
           }
         }
         progress?.updateStep?.('website', 'completed', 'Website analyzed');
@@ -181,7 +181,7 @@ export async function streamlinedResearch(
       buyingSignals: analysis.buyingSignals || [],
       approachStrategy: analysis.approachStrategy || {},
       painPoints: analysis.painPoints || [],
-      salesBrief: analysis.salesBrief || {},
+      salesBrief: analysis.salesBrief || '',
       totalTime: Date.now() - startTime,
       // Default empty objects for unused fields
       credentials: {
@@ -236,7 +236,7 @@ interface AnalysisResult {
   buyingSignals?: string[];
   approachStrategy?: Record<string, unknown>;
   painPoints?: string[];
-  salesBrief?: Record<string, unknown>;
+  salesBrief?: string;
 }
 
 async function generateComprehensiveAnalysis(context: AnalysisContext): Promise<AnalysisResult> {

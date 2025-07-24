@@ -20,6 +20,12 @@ interface SearchResult {
   description?: string;
 }
 
+interface SearchResultsWrapper {
+  web?: {
+    results?: SearchResult[];
+  };
+}
+
 interface ScrapedData {
   markdown?: string;
   title?: string;
@@ -29,6 +35,11 @@ interface ScrapedData {
 interface AnalysisResult {
   score?: number;
   insights?: string[];
+  choices?: Array<{
+    message?: {
+      content?: string;
+    };
+  }>;
   [key: string]: unknown;
 }
 
@@ -238,11 +249,11 @@ function selectBestUrls(results: SearchResult[], limit: number): string[] {
   
   // Prioritize: medical directories, practice websites, review sites
   const priorities = [
-    (r) => r.url.includes('healthgrades.com'),
-    (r) => r.url.includes('webmd.com'),
-    (r) => r.url.includes('zocdoc.com'),
-    (r) => r.title.toLowerCase().includes('practice'),
-    (r) => r.title.toLowerCase().includes('clinic')
+    (r: any) => r.url.includes('healthgrades.com'),
+    (r: any) => r.url.includes('webmd.com'),
+    (r: any) => r.url.includes('zocdoc.com'),
+    (r: any) => r.title.toLowerCase().includes('practice'),
+    (r: any) => r.title.toLowerCase().includes('clinic')
   ];
   
   for (const priority of priorities) {
@@ -293,7 +304,7 @@ function calculateQuickScore(content: string, _productName: string): number {
   return Math.max(0, Math.min(100, score));
 }
 
-function extractBasicInfo(scrapedData: ScrapedData, searchResults: SearchResult[]): Record<string, unknown> {
+function extractBasicInfo(scrapedData: ScrapedData | null, searchResults: SearchResultsWrapper): Record<string, unknown> {
   return {
     name: searchResults.web?.results?.[0]?.title || 'Unknown',
     url: searchResults.web?.results?.[0]?.url || null,
@@ -325,7 +336,7 @@ function parseDetailedInsights(_analysis: AnalysisResult): string[] {
   ];
 }
 
-function buildPracticeProfile(sources: string[], _searchResults: SearchResult[]): Record<string, unknown> {
+function buildPracticeProfile(sources: Array<{ url: string; content: string }>, _searchResults: SearchResultsWrapper): Record<string, unknown> {
   // Aggregate data from multiple sources
   return {
     sources: sources.length,
@@ -355,7 +366,7 @@ function parseOutreachStrategy(_analysis: AnalysisResult): Record<string, unknow
   };
 }
 
-function calculateAdvancedScore(sources: string[], _productName: string): number {
+function calculateAdvancedScore(sources: Array<{ url: string; content: string }>, _productName: string): number {
   // Complex scoring based on multiple data points
   let score = 70;
   score += sources.length * 2;

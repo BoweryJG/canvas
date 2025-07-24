@@ -39,6 +39,10 @@ interface CredentialsData {
   boardCertifications?: string[];
   education?: string[];
   sources?: ResearchSource[];
+  medicalSchool?: string | null;
+  residency?: string | null;
+  yearsExperience?: number | null;
+  hospitalAffiliations?: string[];
 }
 
 interface BusinessIntelData {
@@ -49,6 +53,8 @@ interface BusinessIntelData {
   growthIndicators: string[];
   estimatedRevenue?: string;
   techAdoption?: string;
+  technologyAdoption?: string;
+  practiceSize?: string;
   sources?: ResearchSource[];
 }
 
@@ -71,6 +77,12 @@ interface SearchResult {
   url?: string;
   title?: string;
   description?: string;
+}
+
+interface BraveSearchResponse {
+  web?: {
+    results?: SearchResult[];
+  };
 }
 
 // Helper to safely parse AI JSON responses
@@ -230,7 +242,7 @@ async function findPracticeWebsite(doctor: Doctor): Promise<PracticeWebsiteData>
           ];
           
           for (const pattern of websitePatterns) {
-            const matches = content.matchAll(pattern);
+            const matches = Array.from(content.matchAll(pattern));
             for (const match of matches) {
               let foundUrl = match[1] || match[0];
               if (!foundUrl.startsWith('http')) {
@@ -288,7 +300,14 @@ async function findPracticeWebsite(doctor: Doctor): Promise<PracticeWebsiteData>
       website: practiceWebsite,
       phone: practicePhone,
       email: practiceEmail,
-      sources: results.slice(0, 3) || []
+      sources: results.slice(0, 3).map((result: SearchResult) => ({
+        url: result.url || '',
+        title: result.title || '',
+        type: 'practice_website' as const,
+        content: result.description || '',
+        confidence: 80,
+        lastUpdated: new Date().toISOString()
+      }))
     };
   } catch (error) {
     console.error('Error finding practice website:', error);
@@ -306,9 +325,17 @@ async function gatherReviews(doctor: Doctor): Promise<ReviewData> {
     const reviewAnalysis = await analyzeReviewsWithAI(response, doctor);
     
     // Return both the analysis and the raw sources
+    const searchResults = (response as BraveSearchResponse)?.web?.results || [];
     return {
       ...reviewAnalysis,
-      sources: response?.web?.results || []
+      sources: searchResults.map((result: SearchResult) => ({
+        url: result.url || '',
+        title: result.title || '',
+        type: 'review_site' as const,
+        content: result.description || '',
+        confidence: 75,
+        lastUpdated: new Date().toISOString()
+      }))
     };
   } catch (error) {
     console.error('Error gathering reviews:', error);
@@ -397,8 +424,8 @@ async function searchAdditionalInfo(doctor: Doctor): Promise<AdditionalInfoData>
   }
 }
 
-async function analyzeReviewsWithAI(searchResults: unknown, doctor: Doctor): Promise<ReviewData> {
-  const results = searchResults?.web?.results || searchResults || [];
+async function analyzeReviewsWithAI(searchResults: unknown, doctor: Doctor): Promise<Omit<ReviewData, 'sources'>> {
+  const results = (searchResults as BraveSearchResponse)?.web?.results || (searchResults as SearchResult[]) || [];
   
   if (!results || results.length === 0) {
     return {
@@ -437,7 +464,7 @@ IMPORTANT: Respond with ONLY the JSON object, no explanations or other text.`;
       cleanResponse = response.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
     }
     
-    return parseAIResponse(cleanResponse);
+    return parseAIResponse(cleanResponse) as Omit<ReviewData, 'sources'>;
   } catch (error) {
     console.error('Error analyzing reviews with AI:', error);
     return {
@@ -451,7 +478,7 @@ IMPORTANT: Respond with ONLY the JSON object, no explanations or other text.`;
 }
 
 async function extractCredentialsWithAI(searchResults: unknown, doctor: Doctor, npiCredentials: CredentialsData): Promise<CredentialsData> {
-  const results = searchResults?.web?.results || searchResults || [];
+  const results = (searchResults as BraveSearchResponse)?.web?.results || (searchResults as SearchResult[]) || [];
   
   const prompt = `
 Extract medical credentials from these search results about Dr. ${doctor.displayName}.
@@ -477,7 +504,7 @@ Return ONLY a JSON object with:
 
   try {
     const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
-    return parseAIResponse(response);
+    return parseAIResponse(response) as CredentialsData;
   } catch (error) {
     return {
       ...npiCredentials,
@@ -491,7 +518,7 @@ Return ONLY a JSON object with:
 }
 
 async function analyzeBusinessDataWithAI(searchResults: unknown, doctor: Doctor): Promise<BusinessIntelData> {
-  const results = searchResults?.web?.results || searchResults || [];
+  const results = (searchResults as BraveSearchResponse)?.web?.results || (searchResults as SearchResult[]) || [];
   
   const prompt = `
 Analyze business intelligence from these search results about ${doctor.organizationName || doctor.displayName}.
@@ -512,7 +539,7 @@ Return ONLY a JSON object with:
 
   try {
     const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
-    return parseAIResponse(response);
+    return parseAIResponse(response) as BusinessIntelData;
   } catch (error) {
     return {
       practiceType: doctor.organizationName ? 'Group Practice' : 'Private Practice',
@@ -520,6 +547,8 @@ Return ONLY a JSON object with:
       marketPosition: 'Established',
       practiceSize: 'medium',
       technologyAdoption: 'mainstream',
+      techAdoption: 'mainstream',
+      estimatedRevenue: 'Unknown',
       recentNews: [],
       growthIndicators: []
     };
@@ -537,7 +566,7 @@ async function synthesizeResearchData(data: SynthesisData): Promise<ResearchData
       url: s.url || '',
       title: s.title || '',
       type: 'practice_website' as const,
-      content: s.description || '',
+      content: s.content || '',
       confidence: 80,
       lastUpdated: new Date().toISOString()
     })));
@@ -549,7 +578,7 @@ async function synthesizeResearchData(data: SynthesisData): Promise<ResearchData
       url: s.url || '',
       title: s.title || '',
       type: 'review_site' as const,
-      content: s.description || '',
+      content: s.content || '',
       confidence: 75,
       lastUpdated: new Date().toISOString()
     })));
@@ -561,7 +590,7 @@ async function synthesizeResearchData(data: SynthesisData): Promise<ResearchData
       url: s.url || '',
       title: s.title || '',
       type: 'medical_directory' as const,
-      content: s.description || '',
+      content: s.content || '',
       confidence: 85,
       lastUpdated: new Date().toISOString()
     })));
@@ -573,7 +602,7 @@ async function synthesizeResearchData(data: SynthesisData): Promise<ResearchData
       url: s.url || '',
       title: s.title || '',
       type: 'news_article' as const,
-      content: s.description || '',
+      content: s.content || '',
       confidence: 70,
       lastUpdated: new Date().toISOString()
     })));
@@ -598,7 +627,7 @@ async function synthesizeResearchData(data: SynthesisData): Promise<ResearchData
   if (data.practiceWebsite.website) confidenceScore += 10;
   if (data.reviews.averageRating) confidenceScore += 10;
   if (data.credentials.medicalSchool) confidenceScore += 10;
-  if (data.businessIntel.practiceSize) confidenceScore += 10;
+  if (data.businessIntel.practiceSize || data.businessIntel.practiceType) confidenceScore += 10;
   if (data.additionalInfo.technology.length > 0) confidenceScore += 10;
   
   // Add points for sources found
@@ -614,12 +643,15 @@ async function synthesizeResearchData(data: SynthesisData): Promise<ResearchData
       specialties: [data.doctor.specialty],
       services: extractServicesFromSpecialty(data.doctor.specialty),
       technology: data.additionalInfo.technology || [],
-      staff: estimateStaffSize(data.businessIntel.practiceSize),
+      staff: estimateStaffSize(data.businessIntel.practiceSize || 'medium'),
       established: undefined
     },
     credentials: {
-      ...data.credentials,
-      boardCertifications: data.credentials.boardCertifications || [data.doctor.specialty]
+      medicalSchool: data.credentials.medicalSchool || undefined,
+      residency: data.credentials.residency || undefined,
+      boardCertifications: data.credentials.boardCertifications || [data.doctor.specialty],
+      yearsExperience: data.credentials.yearsExperience || undefined,
+      hospitalAffiliations: data.credentials.hospitalAffiliations || []
     },
     reviews: data.reviews,
     businessIntel: {

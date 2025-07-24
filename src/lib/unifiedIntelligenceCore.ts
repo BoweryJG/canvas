@@ -6,7 +6,7 @@
 
 import { callBraveSearch } from './apiEndpoints';
 import { analyzeWebsitesWithClaude4Opus } from './aiWebsiteAnalyzer';
-import { scrapePracticeWebsite } from './firecrawlWebScraper';
+import { scrapePracticeWebsite, type ScrapedWebsiteData } from './firecrawlWebScraper';
 import { searchDoctorsByName } from './npiLookup';
 
 interface NPIData {
@@ -71,22 +71,7 @@ export interface UnifiedIntelligenceResult {
   scrapedWebsiteData?: ScrapedWebsiteData;
 }
 
-interface ScrapedWebsiteData {
-  title?: string;
-  dentalProcedures?: Record<string, boolean>;
-  aestheticProcedures?: Record<string, boolean>;
-  dentalTechnology?: Record<string, boolean>;
-  aestheticDevices?: Record<string, boolean>;
-  implantSystems?: Record<string, boolean>;
-  injectableBrands?: Record<string, boolean>;
-  practiceInfo?: {
-    teamSize?: number;
-    [key: string]: unknown;
-  };
-  missingProcedures?: string[];
-  competitiveAdvantages?: string[];
-  [key: string]: unknown;
-}
+// Use the imported ScrapedWebsiteData type from firecrawlWebScraper
 
 /**
  * THE ONE AND ONLY INTELLIGENCE FUNCTION
@@ -146,7 +131,15 @@ export async function gatherUnifiedIntelligence(
     try {
       const npiResults = await searchDoctorsByName(doctorName);
       if (npiResults.length > 0) {
-        npiData = npiResults[0];
+        const result = npiResults[0];
+        npiData = {
+          organizationName: result.organizationName,
+          specialty: result.specialty,
+          address: result.address,
+          city: result.city,
+          state: result.state,
+          phone: result.phone
+        };
         organizationName = npiData.organizationName || '';
         specialty = npiData.specialty || '';
         npiAddress = npiData.address || '';
@@ -281,28 +274,28 @@ export async function gatherUnifiedIntelligence(
         ];
         
         const allTechnologies = [
-          ...Object.entries(scrapedData.dentalTechnology || {}).filter(([k, v]) => v === true).map(([k, _]) => k),
+          ...Object.entries(scrapedData.dentalTechnology || {}).filter(([_k, v]) => v === true).map(([k, _]) => k),
           ...Object.entries(scrapedData.aestheticDevices || {})
             .filter(([k, v]) => {
               if (k === 'otherLasers') return false; // Skip array properties
               return v === true;
             })
             .map(([k, _]) => k),
-          ...(scrapedData.aestheticDevices?.otherLasers || []), // Add array items separately
+          ...(Array.isArray(scrapedData.aestheticDevices?.otherLasers) ? scrapedData.aestheticDevices.otherLasers : []), // Add array items separately
           ...Object.entries(scrapedData.implantSystems || {})
             .filter(([k, v]) => {
               if (k === 'other') return false; // Skip array properties
               return v === true;
             })
             .map(([k, _]) => k),
-          ...(scrapedData.implantSystems?.other || []), // Add array items separately
+          ...(Array.isArray(scrapedData.implantSystems?.other) ? scrapedData.implantSystems.other : []), // Add array items separately
           ...Object.entries(scrapedData.injectableBrands || {})
             .filter(([k, v]) => {
               if (k === 'otherFillers') return false; // Skip array properties
               return v === true;
             })
             .map(([k, _]) => k),
-          ...(scrapedData.injectableBrands?.otherFillers || []) // Add array items separately
+          ...(Array.isArray(scrapedData.injectableBrands?.otherFillers) ? scrapedData.injectableBrands.otherFillers : []) // Add array items separately
         ];
         
         result.intelligence = {
@@ -396,8 +389,7 @@ function buildPrioritizedSearchQueries(
     queries.push(`"${organizationName}" "${doctorName}"`);
     
     // Try direct domain search
-    const safeOrgName = organizationName || '';
-    const orgClean = safeOrgName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const orgClean = organizationName.toLowerCase().replace(/[^a-z0-9]/g, '');
     queries.push(`site:${orgClean}.com OR site:www.${orgClean}.com`);
   }
   

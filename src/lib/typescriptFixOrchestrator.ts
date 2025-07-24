@@ -140,7 +140,7 @@ export class TypeScriptFixOrchestrator {
         const [, file, lineNum, , errorCode, errorMsg] = match;
         
         // Categorize the error
-        for (const [categoryName, category] of this.categories) {
+        for (const [_categoryName, category] of this.categories) {
           if (category.pattern.test(errorMsg)) {
             category.files.add(file);
             category.errors.push({
@@ -193,7 +193,7 @@ export class TypeScriptFixOrchestrator {
     // Group fixes by file
     const fileFixMap = new Map<string, string[]>();
 
-    for (const [categoryName, category] of this.categories) {
+    for (const [_categoryName, category] of this.categories) {
       for (const error of category.errors) {
         if (!fileFixMap.has(error.file)) {
           fileFixMap.set(error.file, []);
@@ -202,11 +202,11 @@ export class TypeScriptFixOrchestrator {
         const fixes = fileFixMap.get(error.file)!;
         
         // Generate specific fix based on error type
-        if (categoryName === 'unused-params') {
+        if (_categoryName === 'unused-params') {
           fixes.push(`# Line ${error.line}: Prefix unused parameter with underscore`);
-        } else if (categoryName === 'undefined-properties') {
+        } else if (_categoryName === 'undefined-properties') {
           fixes.push(`# Line ${error.line}: Add null check or optional chaining`);
-        } else if (categoryName === 'type-unknown') {
+        } else if (_categoryName === 'type-unknown') {
           fixes.push(`# Line ${error.line}: Add type assertion or type guard`);
         }
       }

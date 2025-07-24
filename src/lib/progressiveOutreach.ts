@@ -204,23 +204,23 @@ Create a professional but personalized email that references specific practice d
     return {
       tier: 'pro',
       availableAt: 35,
-      subject: generated.subject || `${productName} - Custom Solution for ${practiceInfo.name || 'Your Practice'}`,
+      subject: generated.subject || `${productName} - Custom Solution for ${practiceInfo?.name || 'Your Practice'}`,
       emailContent: generated.content || generateProFallback(data),
       followUpSequence: [
         {
           day: 2,
-          subject: `Following up on ${practiceInfo.specialty || 'practice'} efficiency`,
-          content: personalizFollowUp(data, 1)
+          subject: `Following up on ${practiceInfo?.specialty || 'practice'} efficiency`,
+          content: personalizeFollowUp(data, 1)
         },
         {
           day: 5,
-          subject: `Quick question about your ${practiceInfo.technology?.[0] || 'current systems'}`,
-          content: personalizFollowUp(data, 2)
+          subject: `Quick question about your ${practiceInfo?.technology?.[0] || 'current systems'}`,
+          content: personalizeFollowUp(data, 2)
         },
         {
           day: 10,
           subject: `${productName} success story - similar to your practice`,
-          content: personalizFollowUp(data, 3)
+          content: personalizeFollowUp(data, 3)
         }
       ],
       personalizations: generated.personalizations || [
@@ -231,10 +231,10 @@ Create a professional but personalized email that references specific practice d
       ],
       confidence: 70,
       talkingPoints: [
-        `Practice uses ${practiceInfo.technology?.join(', ') || 'modern systems'}`,
+        `Practice uses ${practiceInfo?.technology?.join(', ') || 'modern systems'}`,
         `Located in competitive ${data.location || 'market'}`,
-        `Fit score of ${score}% indicates strong alignment`,
-        ...generated.researchInsights || []
+        `Fit score of ${score ?? 0}% indicates strong alignment`,
+        ...(generated.researchInsights as string[] || [])
       ],
       callScript: generateCallScript(data, 'pro')
     };
@@ -372,7 +372,7 @@ ${data.productName} has been particularly successful with practices like yours, 
 • Improve patient scheduling efficiency
 • Integrate seamlessly with ${data.practiceInfo?.technology?.[0] || 'existing systems'}
 
-Based on my research, your practice could benefit from our ${data.score > 80 ? 'premium' : 'standard'} implementation package.
+Based on my research, your practice could benefit from our ${(data.score ?? 0) > 80 ? 'premium' : 'standard'} implementation package.
 
 Would you have 15 minutes this week to discuss how ${data.productName} aligns with your practice goals?
 
@@ -385,7 +385,7 @@ Best regards,
   };
 }
 
-function personalizFollowUp(data: ResearchData, touchNumber: number): string {
+function personalizeFollowUp(data: ResearchData, touchNumber: number): string {
   const templates = {
     1: `Dr. ${data.doctorName}, I wanted to follow up on my previous email about ${data.productName}. Given your practice's focus on ${data.practiceInfo?.specialty || 'quality care'}, I think you'd find our approach particularly relevant...`,
     2: `Hi Dr. ${data.doctorName}, I noticed your practice ${data.practiceInfo?.technology ? `uses ${data.practiceInfo.technology[0]}` : 'values efficiency'}. ${data.productName} integrates seamlessly with similar systems. Quick question - what's your biggest workflow challenge right now?`,
@@ -439,7 +439,7 @@ function generateGeniusEmail(data: ResearchData, profile: Profile): string {
   return `[Genius-level personalized email based on deep research and psychological profiling]
 
 Subject line uses trigger words: ${profile.triggerWords?.join(', ')}
-Opening references: ${data.reviews?.recentUpdate || 'recent practice development'}
+Opening references: ${(data.reviews as any)?.recentUpdate || 'recent practice development'}
 Body leverages: ${profile.decisionStyle} decision-making style
 Close uses: ${profile.preferredNextStep || 'low-pressure invitation'}`;
 }

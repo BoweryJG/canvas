@@ -55,6 +55,8 @@ interface ProductIntelligence {
   };
   localInsights?: {
     adoptionRate?: string;
+    barriers?: string[];
+    recentCases?: any[];
   };
   messagingStrategy?: {
     keyBenefits?: string[];
@@ -111,11 +113,11 @@ PRODUCT MARKET INTELLIGENCE:
 - Top Competitors: ${productIntelligence.competitiveLandscape?.topCompetitors?.slice(0, 3).join(', ') || 'Unknown'}
 - Local Adoption Rate: ${productIntelligence.localInsights?.adoptionRate || 'Unknown'}
 - Key Benefits: ${productIntelligence.messagingStrategy?.keyBenefits?.slice(0, 3).join('; ') || 'Standard benefits'}
-- Local Barriers: ${productIntelligence.localInsights?.barriers?.slice(0, 3).join('; ') || 'None identified'}
-- Recent Local Cases: ${productIntelligence.localInsights?.recentCases?.length || 0} found
+- Local Barriers: ${productIntelligence.localInsights?.barriers ? productIntelligence.localInsights.barriers.slice(0, 3).join('; ') : 'None identified'}
+- Recent Local Cases: ${productIntelligence.localInsights?.recentCases ? productIntelligence.localInsights.recentCases.length : 0} found
 ` : ''}
 TOTAL INTELLIGENCE SOURCES: ${sources.length}
-Source Types: ${[...new Set(sources.map(s => s.type))].join(', ')}
+Source Types: ${Array.from(new Set(sources.map(s => s.type))).join(', ')}
 
 Create a detailed JSON response following this EXACT structure:
 
@@ -283,7 +285,7 @@ export const FOLLOW_UP_SEQUENCE_PROMPT = (
 ) => `Create a follow-up strategy based on no response to initial outreach.
 
 Previous approach: ${previousInteraction}
-Practice profile: ${insights.practiceProfile.size}, ${insights.practiceProfile.technologyAdoption}
+Practice profile: ${insights.practiceProfile?.size || 'Unknown'}, ${insights.practiceProfile?.technologyAdoption || 'Unknown'}
 Main opportunity: ${insights.buyingSignals?.[0]?.signal}
 
 Design 3 follow-up touches:

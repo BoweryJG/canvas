@@ -81,8 +81,8 @@ export async function generatePDFReport(
   const productStrategy = PRODUCT_STRATEGIES[productUpper] || null;
   
   // Get actual search results
-  const searchResults = researchData.actualSearchResults || {};
-  const deepScanData = researchData.deepScanResults || {};
+  const searchResults = (researchData as any).actualSearchResults || {};
+  const deepScanData = (researchData as any).deepScanResults || {};
   
   // Helper function to add text with wrapping
   const addWrappedText = (text: string, fontSize: number, isBold: boolean = false) => {
@@ -148,16 +148,17 @@ export async function generatePDFReport(
   if (searchResults.summary) {
     addWrappedText(searchResults.summary, 11);
   } else if (scanResult.doctorProfile) {
-    addWrappedText(scanResult.doctorProfile, 11);
+    addWrappedText(scanResult.doctorProfile as string, 11);
   } else {
     addWrappedText(`Dr. ${doctorName} - Professional profile pending detailed analysis.`, 11);
   }
   
   // Add actual key points from search
-  if (searchResults.keyPoints && searchResults.keyPoints.length > 0) {
+  if (searchResults.keyPoints && Array.isArray(searchResults.keyPoints) && searchResults.keyPoints.length > 0) {
     yPosition += 5;
     searchResults.keyPoints.forEach((point: string) => {
-      const cleanPoint = point.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+      // Remove emoji characters using simpler regex
+      const cleanPoint = point.replace(/[\u2600-\u27BF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|\uD83E[\uDD00-\uDDFF]/g, '').trim();
       if (cleanPoint) {
         doc.setFontSize(11);
         doc.text('• ' + cleanPoint, margin, yPosition);
@@ -256,7 +257,7 @@ export async function generatePDFReport(
     }
     // Extract any social media or contact info from keyPoints
     const allKeyPoints = [...(deepScanData.basic?.keyPoints || []), ...(deepScanData.enhanced?.keyPoints || [])];
-    allKeyPoints.forEach(point => {
+    allKeyPoints.forEach((point: string) => {
       if (point.includes('Instagram') || point.includes('@')) {
         doc.text(`Social: ${point}`, margin, yPosition);
         yPosition += 8;

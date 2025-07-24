@@ -237,7 +237,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
       userId
     );
     
-    data.competitiveIntel.positioning = this.parseCompetitive(competitiveAnalysis);
+    (data.competitiveIntel as any).positioning = this.parseCompetitive(competitiveAnalysis);
     data.score = this.refineScore(data);
     
     // Genius outreach now available
@@ -382,7 +382,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
   
   private refineScore(data: ResearchData): number {
     let score = data.score;
-    if (data.reviews?.found) score += 5;
+    if ((data.reviews as any)?.found) score += 5;
     if (data.competitiveIntel?.technology) score += 5;
     return Math.min(100, score);
   }
@@ -410,7 +410,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
     
     const { generateProgressiveOutreach } = await import('./progressiveOutreach');
     return generateProgressiveOutreach(
-      currentProgress.data,
+      currentProgress.data as any,
       currentProgress.percentComplete,
       tier
     );

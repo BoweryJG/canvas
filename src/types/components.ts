@@ -97,6 +97,10 @@ export interface InstantIntelligence {
   };
   confidenceScore: number;
   generatedIn: number;
+  tacticalBrief?: string;
+  keyInsights?: string[];
+  painPoints?: string[];
+  approachStrategy?: string;
 }
 
 // Deep scan results type

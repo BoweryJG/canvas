@@ -9,8 +9,9 @@ import EnhancedChatLauncher from '../components/EnhancedChatLauncher';
 import DoctorAddressCard from '../components/DoctorAddressCard';
 import { useAuth } from '../auth/useAuth';
 import { checkUserCredits } from '../lib/creditManager';
-import { type UnifiedResults, type BasicScanResult, type EnhancedResult, type InstantIntelligence } from '../types/components';
+import { type UnifiedResults, type BasicScanResult, type EnhancedResult } from '../types/components';
 import type { ResearchData } from '../lib/webResearch';
+import { type InstantIntelligence } from '../lib/instantIntelligence';
 
 // Premium gradient background with RepSpheres styling
 const PremiumBackground = styled(Box)`
@@ -246,10 +247,14 @@ const CanvasHomePremium: React.FC = () => {
               }}
               instantIntel={deepScanResults?.instant ? {
                 ...(deepScanResults.instant as any),
-                tacticalBrief: (deepScanResults.instant as any).tacticalBrief || '',
+                tacticalBrief: (deepScanResults.instant as any).tacticalBrief || 'No tactical brief available',
                 keyInsights: (deepScanResults.instant as any).keyInsights || [],
                 painPoints: (deepScanResults.instant as any).painPoints || [],
-                approachStrategy: (deepScanResults.instant as any).approachStrategy || ''
+                approachStrategy: (deepScanResults.instant as any).approachStrategy || {
+                  opening: '',
+                  valueProps: [],
+                  objectionHandlers: new Map()
+                }
               } as InstantIntelligence : undefined}
               deepScanResults={deepScanResults}
               scanData={scanData as any}

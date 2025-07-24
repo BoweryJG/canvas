@@ -14,45 +14,10 @@ interface SalesRepInfo {
   email?: string;
 }
 
-interface EmailContext {
-  scanResult: EnhancedScanResult;
-  researchData?: ResearchData;
-  salesRep: SalesRepInfo;
-  type: 'initial' | 'follow_up' | 'closing';
-}
-
-/**
- * Generate product-aware email campaigns
- */
-export function generateEnhancedEmailCampaign(
-  context: EmailContext
-): EmailCampaign {
-  const { scanResult, researchData, salesRep, type } = context;
-  
-  // Extract intelligence
-  const doctorIntel = researchData?.enhancedInsights || {};
-  const productIntel = researchData?.productIntelligence || {};
-  const combinedStrategy = researchData?.combinedStrategy || {};
-  
-  // Generate appropriate email based on type
-  switch (type) {
-    case 'initial':
-      return generateInitialOutreach(scanResult, doctorIntel, productIntel, combinedStrategy, salesRep);
-    case 'follow_up':
-      return generateFollowUp(scanResult, doctorIntel, productIntel, combinedStrategy, salesRep);
-    case 'closing':
-      return generateClosing(scanResult, doctorIntel, productIntel, combinedStrategy, salesRep);
-    default:
-      return generateInitialOutreach(scanResult, doctorIntel, productIntel, combinedStrategy, salesRep);
-  }
-}
-
-/**
- * Initial outreach with product market context
- */
 interface DoctorIntel {
   practiceProfile?: {
     notableFeatures?: string[];
+    size?: string;
   };
   executiveSummary?: string;
   competitivePosition?: {
@@ -116,6 +81,42 @@ interface CombinedStrategy {
   };
 }
 
+interface EmailContext {
+  scanResult: EnhancedScanResult;
+  researchData?: ResearchData;
+  salesRep: SalesRepInfo;
+  type: 'initial' | 'follow_up' | 'closing';
+}
+
+/**
+ * Generate product-aware email campaigns
+ */
+export function generateEnhancedEmailCampaign(
+  context: EmailContext
+): EmailCampaign {
+  const { scanResult, researchData, salesRep, type } = context;
+  
+  // Extract intelligence with type assertions
+  const doctorIntel = (researchData?.enhancedInsights || {}) as DoctorIntel;
+  const productIntel = (researchData?.productIntelligence || {}) as ProductIntel;
+  const combinedStrategy = (researchData?.combinedStrategy || {}) as CombinedStrategy;
+  
+  // Generate appropriate email based on type
+  switch (type) {
+    case 'initial':
+      return generateInitialOutreach(scanResult, doctorIntel, productIntel, combinedStrategy, salesRep);
+    case 'follow_up':
+      return generateFollowUp(scanResult, doctorIntel, productIntel, combinedStrategy, salesRep);
+    case 'closing':
+      return generateClosing(scanResult, doctorIntel, productIntel, combinedStrategy, salesRep);
+    default:
+      return generateInitialOutreach(scanResult, doctorIntel, productIntel, combinedStrategy, salesRep);
+  }
+}
+
+/**
+ * Initial outreach with product market context
+ */
 function generateInitialOutreach(
   scanResult: EnhancedScanResult,
   doctorIntel: DoctorIntel,
@@ -141,7 +142,7 @@ I noticed ${practiceInsight} and your position as ${marketPosition}. ${doctorInt
 
 ${localProof ? `${localProof}` : `Leading ${scanResult.specialty} practices`} are seeing remarkable results with ${salesRep.product}, particularly for ${competitiveDiff}.
 
-${productIntel.marketData?.awareness > 70 ? 
+${(productIntel.marketData?.awareness ?? 0) > 70 ? 
   `With ${salesRep.product} becoming the standard in ${scanResult.location}, ` :
   `As an early adopter opportunity in ${scanResult.location}, `}${combinedStrategy.messagingStrategy?.primaryHook || `this could help ${practiceInsight}.`}
 
@@ -180,8 +181,8 @@ function generateFollowUp(
     `challenges that ${scanResult.specialty} practices face`;
   
   const objection = Object.keys(doctorIntel.salesStrategy?.objectionHandlers || {})[0];
-  const objectionResponse = objection ? 
-    doctorIntel?.salesStrategy?.objectionHandlers[objection] : '';
+  const objectionResponse = objection && doctorIntel.salesStrategy?.objectionHandlers ? 
+    doctorIntel.salesStrategy.objectionHandlers[objection] : '';
   
   const caseStudy = productIntel.localInsights?.caseStudies?.[0] || 
     `A practice similar to yours`;
@@ -230,8 +231,8 @@ function generateClosing(
   combinedStrategy: CombinedStrategy,
   salesRep: SalesRepInfo
 ): EmailCampaign {
-  const competitorThreat = productIntel?.competitiveLandscape?.marketShare > 30 ?
-    `With ${productIntel?.competitiveLandscape.topCompetitors?.[0] || 'competitors'} rapidly expanding in ${scanResult.location}, ` :
+  const competitorThreat = (productIntel.competitiveLandscape?.marketShare ?? 0) > 30 ?
+    `With ${productIntel?.competitiveLandscape?.topCompetitors?.[0] || 'competitors'} rapidly expanding in ${scanResult.location}, ` :
     '';
   
   const urgency = combinedStrategy.messagingStrategy?.urgencyTrigger || 
@@ -317,9 +318,9 @@ function generateSubjectLine(
 function urgencyScore(productIntel: ProductIntel): number {
   let score = 50;
   
-  if (productIntel.marketData?.limitedTimeOffers?.length > 0) score += 20;
-  if (productIntel?.competitiveLandscape?.marketShare > 50) score += 15;
-  if (productIntel.marketData?.adoptionRate > 30) score += 15;
+  if ((productIntel.marketData?.limitedTimeOffers?.length ?? 0) > 0) score += 20;
+  if ((productIntel.competitiveLandscape?.marketShare ?? 0) > 50) score += 15;
+  if ((productIntel.marketData?.adoptionRate ?? 0) > 30) score += 15;
   
   return Math.min(score, 100);
 }
@@ -339,8 +340,8 @@ export function generateEnhancedSMS(
   scanResult: ScanResultSMS,
   researchData?: ResearchData
 ): string {
-  const productIntel = researchData?.productIntelligence || {};
-  const doctorIntel = researchData?.enhancedInsights || {};
+  const productIntel = (researchData?.productIntelligence || {}) as ProductIntel;
+  const doctorIntel = (researchData?.enhancedInsights || {}) as DoctorIntel;
   const location = `${scanResult.city || ''}, ${scanResult.state || ''}`.trim();
   
   const templates = [
@@ -364,8 +365,8 @@ export function generateEnhancedLinkedIn(
   scanResult: ScanResultLinkedIn,
   researchData?: ResearchData
 ): string {
-  const productIntel = researchData?.productIntelligence || {};
-  const doctorIntel = researchData?.enhancedInsights || {};
+  const productIntel = (researchData?.productIntelligence || {}) as ProductIntel;
+  const doctorIntel = (researchData?.enhancedInsights || {}) as DoctorIntel;
   const salesRepName = scanResult.salesRep || 'Your Sales Rep';
   
   return `Hi Dr. ${scanResult.doctor.split(' ').pop()},
@@ -393,8 +394,8 @@ export function generateEnhancedWhatsApp(
   scanResult: ScanResultLinkedIn,
   researchData?: ResearchData
 ): string {
-  const productIntel = researchData?.productIntelligence || {};
-  const combinedStrategy = researchData?.combinedStrategy || {};
+  const productIntel = (researchData?.productIntelligence || {}) as ProductIntel;
+  const combinedStrategy = (researchData?.combinedStrategy || {}) as CombinedStrategy;
   const salesRepName = scanResult.salesRep || 'Your Sales Rep';
   
   return `Hello Dr. ${scanResult.doctor.split(' ').pop()} 👋

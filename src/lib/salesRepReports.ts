@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import { type EnhancedScanResult } from './enhancedAI';
 import { type ResearchData } from './webResearch';
-import { callPerplexityResearch } from './apiEndpoints';
+// import { callPerplexityResearch } from './apiEndpoints';
 
 export interface SalesRepReportOptions {
   reportType: 'mckinsey_executive' | 'initial_outreach' | 'follow_up' | 'breakthrough' | 'closing';
@@ -346,7 +346,7 @@ export class SalesRepReportGenerator {
     this.doc.text('CONFIDENTIAL - Strategic Sales Intelligence', this.pageWidth / 2, this.currentY, { align: 'center' });
   }
 
-  private addMcKinseyExecutiveSummary(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addMcKinseyExecutiveSummary(scanResult: EnhancedScanResult, researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addMcKinseySlideHeader('EXECUTIVE SUMMARY', 'Key Findings & Strategic Recommendations');
 
     // Key metrics dashboard
@@ -378,7 +378,7 @@ export class SalesRepReportGenerator {
     this.addMcKinseyBottomLine('RECOMMENDATION: Immediate engagement with executive-level value proposition focusing on operational excellence and competitive advantage.');
   }
 
-  private addMcKinseySituationAnalysis(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addMcKinseySituationAnalysis(scanResult: EnhancedScanResult, researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addMcKinseySlideHeader('SITUATION ANALYSIS', 'Current State Assessment');
 
     // Practice profile
@@ -406,7 +406,7 @@ export class SalesRepReportGenerator {
     ]);
   }
 
-  private addMcKinseyMarketContext(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addMcKinseyMarketContext(scanResult: EnhancedScanResult, researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addMcKinseySlideHeader('MARKET CONTEXT & OPPORTUNITY', 'Industry Dynamics & Positioning');
 
     // Market forces diagram (simplified text version)
@@ -431,7 +431,7 @@ export class SalesRepReportGenerator {
     ]);
   }
 
-  private addMcKinseyFinancialImpact(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addMcKinseyFinancialImpact(scanResult: EnhancedScanResult, researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addMcKinseySlideHeader('FINANCIAL IMPACT ANALYSIS', 'ROI Projections & Cost-Benefit');
 
     // Financial model table
@@ -456,7 +456,7 @@ export class SalesRepReportGenerator {
     ]);
   }
 
-  private addMcKinseyCompetitivePosition(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addMcKinseyCompetitivePosition(_scanResult: EnhancedScanResult, _researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addMcKinseySlideHeader('COMPETITIVE POSITIONING', 'Market Differentiation Strategy');
 
     // Competitive matrix (simplified)
@@ -481,7 +481,7 @@ export class SalesRepReportGenerator {
     ]);
   }
 
-  private addMcKinseyStrategicRecommendations(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addMcKinseyStrategicRecommendations(scanResult: EnhancedScanResult, researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addMcKinseySlideHeader('STRATEGIC RECOMMENDATIONS', 'Recommended Course of Action');
 
     // Primary recommendation
@@ -505,7 +505,7 @@ export class SalesRepReportGenerator {
     ]);
   }
 
-  private addMcKinseyImplementationRoadmap(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addMcKinseyImplementationRoadmap(_scanResult: EnhancedScanResult, _researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addMcKinseySlideHeader('IMPLEMENTATION ROADMAP', '90-Day Execution Plan');
 
     // Timeline visualization (text-based)
@@ -527,14 +527,14 @@ export class SalesRepReportGenerator {
 
     // Resource requirements
     this.addMcKinseySection('RESOURCE REQUIREMENTS', [
-      `Implementation Team: ${this.getRequiredTeamSize(researchData)} professionals for ${this.getImplementationTimeline(scanResult)}`,
-      `Training Hours: ${this.getTrainingHours(researchData)} total across ${researchData.practiceInfo?.staff || 10} staff members`,
-      `Technology Infrastructure: ${this.getTechRequirements(researchData)}`,
-      `Investment: ${this.calculateImplementationCost(researchData)} total implementation cost`
+      `Implementation Team: ${this.getRequiredTeamSize(_researchData)} professionals for ${this.getImplementationTimeline(_scanResult)}`,
+      `Training Hours: ${this.getTrainingHours(_researchData)} total across ${_researchData.practiceInfo?.staff || 10} staff members`,
+      `Technology Infrastructure: ${this.getTechRequirements(_researchData)}`,
+      `Investment: ${this.calculateImplementationCost(_researchData)} total implementation cost`
     ]);
   }
 
-  private addMcKinseyRiskAssessment(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addMcKinseyRiskAssessment(_scanResult: EnhancedScanResult, _researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addMcKinseySlideHeader('RISK ASSESSMENT & MITIGATION', 'Risk Management Strategy');
 
     // Risk matrix
@@ -583,7 +583,7 @@ export class SalesRepReportGenerator {
     });
   }
 
-  private addMcKinseySuccessMetrics(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addMcKinseySuccessMetrics(_scanResult: EnhancedScanResult, _researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addMcKinseySlideHeader('SUCCESS METRICS & KPIs', 'Measurement Framework');
 
     // KPI dashboard
@@ -601,7 +601,7 @@ export class SalesRepReportGenerator {
 
     // Lagging indicators  
     this.addMcKinseySection('LAGGING INDICATORS (60-180 days)', [
-      `Efficiency gains: ${this.calculateExpectedROI(scanResult)}% productivity improvement`,
+      `Efficiency gains: ${this.calculateExpectedROI(_scanResult)}% productivity improvement`,
       'Revenue impact: 8-12% increase in billable efficiency',
       'Cost reduction: 25-35% decrease in administrative overhead',
       'ROI achievement: Break-even within 6-12 months'
@@ -616,7 +616,7 @@ export class SalesRepReportGenerator {
     ]);
   }
 
-  private addMcKinseyNextSteps(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addMcKinseyNextSteps(_scanResult: EnhancedScanResult, _researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addMcKinseySlideHeader('NEXT STEPS & CALL TO ACTION', 'Immediate Action Items');
 
     // Immediate actions (next 7 days)
@@ -653,7 +653,7 @@ export class SalesRepReportGenerator {
 
     this.currentY += 20;
     this.doc.setFontSize(12);
-    this.doc.text(`Contact: ${options.salesRepName} | ${options.companyName}`, this.pageWidth / 2, this.currentY, { align: 'center' });
+    this.doc.text(`Contact: ${_options.salesRepName} | ${_options.companyName}`, this.pageWidth / 2, this.currentY, { align: 'center' });
   }
 
   // Outreach Report Sections
@@ -712,7 +712,7 @@ export class SalesRepReportGenerator {
     this.doc.text(`Date: ${reportDate}`, this.pageWidth / 2, this.currentY + 20, { align: 'center' });
   }
 
-  private addInitialOutreachSummary(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addInitialOutreachSummary(scanResult: EnhancedScanResult, researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addSectionHeader('RESEARCH SUMMARY & PRACTICE FIT');
 
     // Practice intelligence
@@ -743,7 +743,7 @@ export class SalesRepReportGenerator {
     ]);
   }
 
-  private addInitialConversationGuide(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addInitialConversationGuide(scanResult: EnhancedScanResult, researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addSectionHeader('CONVERSATION GUIDE & KEY MESSAGES');
 
     // Opening conversation starters
@@ -788,7 +788,7 @@ export class SalesRepReportGenerator {
     this.addCallToAction(`"Based on what I'm seeing with practices similar to yours, I believe we could help you achieve a ${this.calculateExpectedROI(scanResult)}% improvement in operational efficiency. Would you be open to a 20-minute conversation to explore how this might work for your practice?"`);
   }
 
-  private addFollowUpStrategy(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addFollowUpStrategy(scanResult: EnhancedScanResult, researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addSectionHeader('FOLLOW-UP STRATEGY & APPROACH');
 
     // Previous interaction summary
@@ -835,7 +835,7 @@ export class SalesRepReportGenerator {
     ]);
   }
 
-  private addValuePropositionRefinement(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addValuePropositionRefinement(scanResult: EnhancedScanResult, researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addSectionHeader('REFINED VALUE PROPOSITION');
 
     // Practice-specific value drivers
@@ -875,7 +875,7 @@ export class SalesRepReportGenerator {
     ]);
   }
 
-  private addBreakthroughObstacleAnalysis(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addBreakthroughObstacleAnalysis(_scanResult: EnhancedScanResult, _researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addSectionHeader('OBSTACLE ANALYSIS & BREAKTHROUGH STRATEGY');
 
     // Identified obstacles
@@ -908,7 +908,7 @@ export class SalesRepReportGenerator {
     ]);
   }
 
-  private addBreakthroughAlternatives(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addBreakthroughAlternatives(_scanResult: EnhancedScanResult, _researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addSectionHeader('ALTERNATIVE PATHWAYS & APPROACHES');
 
     // Multiple pathway options
@@ -947,7 +947,7 @@ export class SalesRepReportGenerator {
     ]);
   }
 
-  private addBreakthroughUrgencyCreation(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addBreakthroughUrgencyCreation(_scanResult: EnhancedScanResult, _researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addSectionHeader('URGENCY CREATION & COMPELLING EVENTS');
 
     // Market timing factors
@@ -991,7 +991,7 @@ export class SalesRepReportGenerator {
     ]);
   }
 
-  private addClosingDecisionMakerAnalysis(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addClosingDecisionMakerAnalysis(_scanResult: EnhancedScanResult, _researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addSectionHeader('DECISION MAKER ANALYSIS & CLOSING STRATEGY');
 
     // Decision maker mapping
@@ -1030,7 +1030,7 @@ export class SalesRepReportGenerator {
     ]);
   }
 
-  private addClosingImplementationPlanning(scanResult: EnhancedScanResult, researchData: ResearchData, options: SalesRepReportOptions): void {
+  private addClosingImplementationPlanning(scanResult: EnhancedScanResult, researchData: ResearchData, _options: SalesRepReportOptions): void {
     this.addSectionHeader('IMPLEMENTATION PLANNING & CONTRACT TERMS');
 
     // Implementation options
@@ -1259,7 +1259,7 @@ export class SalesRepReportGenerator {
   private getReadinessAssessment(scanResult: EnhancedScanResult, researchData: ResearchData): string {
     const factors = [
       scanResult.score >= 70 ? 1 : 0,
-      researchData.practiceInfo?.technology?.length >= 2 ? 1 : 0,
+      (researchData.practiceInfo?.technology?.length ?? 0) >= 2 ? 1 : 0,
       (researchData.practiceInfo?.staff || 0) >= 5 ? 1 : 0
     ];
     const readiness = factors.reduce((a, b) => a + b, 0);
@@ -1291,7 +1291,7 @@ export class SalesRepReportGenerator {
     return `${staff * 8}-${staff * 12}`;
   }
 
-  private getTechRequirements(researchData: ResearchData): string {
+  private getTechRequirements(_researchData: ResearchData): string {
     return 'Standard network infrastructure, cloud connectivity, existing EHR integration';
   }
 
@@ -1442,7 +1442,7 @@ export class SalesRepReportGenerator {
     });
   }
 
-  private addMcKinseyFinancialModel(scanResult: EnhancedScanResult, researchData: ResearchData): void {
+  private addMcKinseyFinancialModel(_scanResult: EnhancedScanResult, researchData: ResearchData): void {
     // Simplified financial model table
     const tableData = [
       ['Investment Category', 'Year 1', 'Year 2', 'Year 3'],
@@ -1811,6 +1811,128 @@ export class SalesRepReportGenerator {
     this.doc.text(`Payback Period: 6-12 months | Annual ROI: ${this.calculateExpectedROI(scanResult)}%`, this.margin + 20, this.currentY);
     
     this.currentY += 25;
+  }
+
+  // Additional helper methods for breakthrough and closing reports
+  private addObstacleAnalysis(obstacles: any[]): void {
+    obstacles.forEach(obstacle => {
+      this.currentY += 20;
+      this.doc.setFontSize(12);
+      this.doc.setFont('helvetica', 'bold');
+      this.doc.text(`${obstacle.obstacle}:`, this.margin + 10, this.currentY);
+      
+      this.currentY += 15;
+      this.doc.setFontSize(11);
+      this.doc.setFont('helvetica', 'normal');
+      this.doc.text(`Analysis: ${obstacle.analysis}`, this.margin + 20, this.currentY);
+      
+      this.currentY += 15;
+      this.doc.text(`Solution: ${obstacle.solution}`, this.margin + 20, this.currentY);
+    });
+  }
+
+  private addBreakthroughStrategies(strategies: string[]): void {
+    this.addBulletPoints(strategies);
+  }
+
+  private addPathwayOptions(pathways: any[]): void {
+    pathways.forEach((pathway, index) => {
+      this.currentY += 25;
+      this.doc.setFontSize(12);
+      this.doc.setFont('helvetica', 'bold');
+      this.doc.text(`Option ${index + 1}: ${pathway.name}`, this.margin + 10, this.currentY);
+      
+      this.currentY += 15;
+      this.doc.setFontSize(11);
+      this.doc.setFont('helvetica', 'normal');
+      this.doc.text(`Approach: ${pathway.approach}`, this.margin + 20, this.currentY);
+      
+      this.currentY += 15;
+      this.doc.text(`Timeline: ${pathway.timeline}`, this.margin + 20, this.currentY);
+      
+      this.currentY += 15;
+      this.doc.text(`Probability: ${pathway.probability}`, this.margin + 20, this.currentY);
+    });
+  }
+
+  private addCompellingEvents(events: any[]): void {
+    events.forEach(event => {
+      this.currentY += 20;
+      this.doc.setFontSize(11);
+      this.doc.setFont('helvetica', 'bold');
+      this.doc.text(`• ${event.event}`, this.margin + 10, this.currentY);
+      
+      this.currentY += 15;
+      this.doc.setFont('helvetica', 'normal');
+      this.doc.text(`Impact: ${event.impact}`, this.margin + 20, this.currentY);
+      
+      this.currentY += 15;
+      this.doc.text(`Timing: ${event.timing}`, this.margin + 20, this.currentY);
+    });
+  }
+
+  private addUrgencyMessages(messages: string[]): void {
+    this.addBulletPoints(messages);
+  }
+
+  private addDecisionMakerMapping(decisionMakers: any[]): void {
+    decisionMakers.forEach(dm => {
+      this.currentY += 20;
+      this.doc.setFontSize(12);
+      this.doc.setFont('helvetica', 'bold');
+      this.doc.text(`${dm.role}: ${dm.name || 'To be identified'}`, this.margin + 10, this.currentY);
+      
+      this.currentY += 15;
+      this.doc.setFontSize(11);
+      this.doc.setFont('helvetica', 'normal');
+      this.doc.text(`Influence: ${dm.influence}`, this.margin + 20, this.currentY);
+      
+      this.currentY += 15;
+      this.doc.text(`Key Concerns: ${dm.concerns}`, this.margin + 20, this.currentY);
+      
+      this.currentY += 15;
+      this.doc.text(`Approach: ${dm.approach}`, this.margin + 20, this.currentY);
+    });
+  }
+
+  private addClosingStrategy(strategies: string[]): void {
+    this.addBulletPoints(strategies);
+  }
+
+  private addImplementationOptions(options: any[]): void {
+    options.forEach((option) => {
+      this.currentY += 25;
+      this.doc.setFontSize(12);
+      this.doc.setFont('helvetica', 'bold');
+      this.doc.text(`${option.name}`, this.margin + 10, this.currentY);
+      
+      this.currentY += 15;
+      this.doc.setFontSize(11);
+      this.doc.setFont('helvetica', 'normal');
+      this.doc.text(`Investment: ${option.investment}`, this.margin + 20, this.currentY);
+      
+      this.currentY += 15;
+      this.doc.text(`Timeline: ${option.timeline}`, this.margin + 20, this.currentY);
+      
+      this.currentY += 15;
+      this.doc.text(`Benefits: ${option.benefits}`, this.margin + 20, this.currentY);
+    });
+  }
+
+  private addContractTerms(terms: any[]): void {
+    terms.forEach(term => {
+      this.currentY += 20;
+      this.doc.setFontSize(11);
+      this.doc.setFont('helvetica', 'bold');
+      this.doc.text(`${term.item}:`, this.margin + 10, this.currentY);
+      
+      this.currentY += 15;
+      this.doc.setFont('helvetica', 'normal');
+      this.doc.text(`Standard: ${term.standard}`, this.margin + 20, this.currentY);
+      
+      this.currentY += 15;
+      this.doc.text(`Negotiable: ${term.negotiable}`, this.margin + 20, this.currentY);
+    });
   }
 
   // Additional methods would continue here for other report types...

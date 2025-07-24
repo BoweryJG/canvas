@@ -224,7 +224,7 @@ Immediate Actions (Next 7 Days):
 3. Develop customized implementation proposal
 4. Arrange reference practice visits/calls
 
-This analysis demonstrates strong alignment between ${productName} and Dr. ${String(((scanResult.doctor as any)?.name || scanResult.doctor) || 'Unknown Doctor').replace(/^Dr\.?\s*/i, '')}'s practice capabilities, indicating excellent potential for successful implementation and significant practice impact.
+This analysis demonstrates strong alignment between ${productName} and Dr. ${String(scanResult.doctor || 'Unknown Doctor').replace(/^Dr\.?\s*/i, '')}'s practice capabilities, indicating excellent potential for successful implementation and significant practice impact.
 
 ---
 Report prepared using Canvas Medical Intelligence Platform
@@ -257,9 +257,9 @@ export async function generateEnhancedInitialOutreachReport(
   _companyName: string,
   productName: string
 ): Promise<Blob> {
-  const productIntel = researchData.productIntelligence as ProductIntelligence;
-  const doctorIntel = researchData.enhancedInsights;
-  const combinedStrategy = researchData.combinedStrategy;
+  const productIntel = researchData.productIntelligence as ProductIntelligence | undefined;
+  const doctorIntel = researchData.enhancedInsights as any;
+  const combinedStrategy = researchData.combinedStrategy as any;
   
   const content = `
 INITIAL OUTREACH BRIEF
@@ -334,8 +334,8 @@ export async function generateEnhancedFollowUpReport(
   _companyName: string,
   _productName: string
 ): Promise<Blob> {
-  const productIntel = researchData.productIntelligence as ProductIntelligence;
-  const doctorIntel = researchData.enhancedInsights;
+  const productIntel = researchData.productIntelligence as ProductIntelligence | undefined;
+  const doctorIntel = researchData.enhancedInsights as any;
   
   const content = `
 FOLLOW-UP STRATEGY REPORT
@@ -397,9 +397,9 @@ export async function generateEnhancedBreakthroughReport(
   _companyName: string,
   productName: string
 ): Promise<Blob> {
-  const productIntel = researchData.productIntelligence as ProductIntelligence;
-  const doctorIntel = researchData.enhancedInsights;
-  const combinedStrategy = researchData.combinedStrategy;
+  const productIntel = researchData.productIntelligence as ProductIntelligence | undefined;
+  const doctorIntel = researchData.enhancedInsights as any;
+  const combinedStrategy = researchData.combinedStrategy as any;
   
   const content = `
 BREAKTHROUGH STRATEGY REPORT
@@ -437,7 +437,7 @@ URGENCY AMPLIFIERS
 
 BREAKTHROUGH MESSAGE
 --------------------
-"Dr. ${scanResult.doctor.split(' ').pop()}, 
+"Dr. ${(scanResult.doctor || 'Unknown').split(' ').pop()}, 
 
 ${productIntel?.localInsights?.topAdopters?.[0] || 'Your competitors'} just gained a significant advantage with ${productName}. 
 
@@ -467,9 +467,9 @@ export async function generateEnhancedClosingReport(
   _companyName: string,
   _productName: string
 ): Promise<Blob> {
-  const productIntel = researchData.productIntelligence as ProductIntelligence;
-  const doctorIntel = researchData.enhancedInsights;
-  const combinedStrategy = researchData.combinedStrategy;
+  const productIntel = researchData.productIntelligence as ProductIntelligence | undefined;
+  const doctorIntel = researchData.enhancedInsights as any;
+  const combinedStrategy = researchData.combinedStrategy as any;
   
   const content = `
 CLOSING STRATEGY REPORT

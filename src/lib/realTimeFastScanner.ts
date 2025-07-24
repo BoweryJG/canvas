@@ -91,9 +91,9 @@ export class RealTimeFastScanner extends EventEmitter {
           data.location ? `📍 ${data.location}` : '📍 Location verified',
           data.specialty ? `🏥 ${data.specialty}` : '🏥 Medical Professional',
           data.rating ? `⭐ ${data.rating}/5 rating` : '⭐ Highly rated',
-          data.reviews || '🔄 Gathering more details...'
+          (typeof data.reviews === 'string' ? data.reviews : '🔄 Gathering more details...')
         ],
-        sources: research.sources,
+        sources: research.sources as Source[],
         realData: {
           practiceInfo: data
         },
@@ -189,7 +189,7 @@ export class RealTimeFastScanner extends EventEmitter {
         `📞 ${cachedData.contact || 'Contact available'}`,
         '🎯 Ready for immediate outreach'
       ],
-      sources: cachedData.sources || [],
+      sources: (cachedData.sources as Source[]) || [],
       realData: cachedData,
       timeElapsed: Date.now() - this.startTime
     };

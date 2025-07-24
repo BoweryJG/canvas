@@ -33,7 +33,13 @@ export async function conductOptimizedResearch(doctorName: string, location?: st
     const searchResults = await callBraveSearch(comprehensiveQuery, 20);
     
     // 2. Smart URL categorization and prioritization
-    const categorizedUrls = categorizeUrls(searchResults.web?.results || []);
+    const braveResults = searchResults.web?.results || [];
+    const searchResultsArray: SearchResult[] = braveResults.map((result: any) => ({
+      url: result.url || '',
+      title: result.title || '',
+      description: result.description || ''
+    }));
+    const categorizedUrls = categorizeUrls(searchResultsArray);
     
     // 3. Scrape only the best URLs from each category (max 8 scrapes instead of 29)
     for (const [category, urls] of Object.entries(categorizedUrls)) {
@@ -107,17 +113,22 @@ function categorizeUrls(results: SearchResult[]): Record<string, CategorizedUrl[
   
   for (const result of results) {
     const url = result.url.toLowerCase();
+    const categorizedResult: CategorizedUrl = {
+      url: result.url,
+      title: result.title,
+      confidence: 80
+    };
     
     if (url.includes('healthgrades.com') || url.includes('webmd.com') || url.includes('vitals.com')) {
-      categories.medical_directory.push(result);
+      categories.medical_directory.push(categorizedResult);
     } else if (url.includes('zocdoc.com') || url.includes('ratemds.com')) {
-      categories.review_site.push(result);
+      categories.review_site.push(categorizedResult);
     } else if (url.includes('news') || url.includes('article')) {
-      categories.news_article.push(result);
+      categories.news_article.push(categorizedResult);
     } else if (url.includes('hospital') || url.includes('medical')) {
-      categories.hospital_affiliation.push(result);
+      categories.hospital_affiliation.push(categorizedResult);
     } else if (isProbablyPracticeWebsite(url, result.title)) {
-      categories.practice_website.push(result);
+      categories.practice_website.push(categorizedResult);
     }
   }
   
