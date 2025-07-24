@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Avatar, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import type { SystemAgent } from './types';
 
 const ParticleContainer = styled(Box)({
   position: 'absolute',
@@ -24,13 +25,7 @@ const Particle = styled(motion.div)(({ color }: { color: string }) => ({
 }));
 
 interface AgentAvatarProps {
-  agent: {
-    id: string;
-    name: string;
-    avatar: string;
-    color: string;
-    icon?: React.ElementType;
-  };
+  agent: SystemAgent;
   size?: number;
   isActive?: boolean;
   showParticles?: boolean;

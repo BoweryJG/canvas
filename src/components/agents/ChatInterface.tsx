@@ -7,46 +7,14 @@ import MessageInput from './MessageInput';
 import AgentSelector from './AgentSelector';
 import ConversationList from './ConversationList';
 import ProcedureSelector from './ProcedureSelector';
-
-interface MessageMetadata {
-  [key: string]: unknown;
-}
-
-interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: string;
-  isStreaming?: boolean;
-  metadata?: MessageMetadata;
-}
-
-interface AgentPersonality {
-  [key: string]: unknown;
-}
-
-interface Agent {
-  id: string;
-  name: string;
-  avatar_url?: string;
-  specialty: string[];
-  personality: AgentPersonality;
-}
-
-interface Conversation {
-  id: string;
-  title: string;
-  agent_id: string;
-  messages: Message[];
-  created_at: string;
-}
-
-interface Procedure {
-  id: string;
-  name: string;
-  category: string;
-  type: 'dental' | 'aesthetic';
-}
+import type { 
+  Agent, 
+  Message, 
+  MessageMetadata, 
+  Conversation, 
+  Procedure, 
+  Insight 
+} from '../../types/agent.types';
 
 interface ChatInterfaceProps {
   defaultAgentId?: string;
@@ -66,20 +34,37 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [isAgentTyping, setIsAgentTyping] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState<string>('');
   const [showConversations, setShowConversations] = useState(false);
-  interface Insight {
-    action: string;
-    data: {
-      doctorName?: string;
-      link?: string;
-      [key: string]: unknown;
-    };
-    [key: string]: unknown;
-  }
   const [insights, setInsights] = useState<Insight[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Backend URL from environment
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://osbackend-zl1h.onrender.com';
+
+  // Define loadAgent function before it's used
+  const loadAgent = useCallback(async (agentId: string) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/canvas/agents/${agentId}`, {
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`
+        }
+      });
+      const data = await response.json();
+      // Ensure the agent has the correct structure
+      if (data.agent) {
+        setSelectedAgent({
+          ...data.agent,
+          personality: {
+            ...data.agent.personality,
+            // Ensure personality properties are defined
+            approach: data.agent.personality?.approach || '',
+            tone: data.agent.personality?.tone || ''
+          }
+        } as Agent);
+      }
+    } catch (error) {
+      console.error('Failed to load agent:', error);
+    }
+  }, [BACKEND_URL, session?.access_token]);
 
   // Initialize WebSocket connection
   useEffect(() => {
@@ -150,20 +135,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, streamingMessage]);
 
-  const loadAgent = useCallback(async (agentId: string) => {
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/canvas/agents/${agentId}`, {
-        headers: {
-          'Authorization': `Bearer ${session?.access_token}`
-        }
-      });
-      const data = await response.json();
-      setSelectedAgent(data.agent);
-    } catch (error) {
-      console.error('Failed to load agent:', error);
-    }
-  }, []);
-
   const createNewConversation = async () => {
     if (!selectedAgent || !session) return;
 
@@ -224,7 +195,19 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       const data = await response.json();
       setCurrentConversation(data.conversation);
       setMessages(data.conversation.messages || []);
-      setSelectedAgent(data.conversation.canvas_ai_agents);
+      // Ensure the agent has the correct structure
+      const agent = data.conversation.canvas_ai_agents;
+      if (agent) {
+        setSelectedAgent({
+          ...agent,
+          personality: {
+            ...agent.personality,
+            // Ensure personality properties are defined
+            approach: agent.personality?.approach || '',
+            tone: agent.personality?.tone || ''
+          }
+        } as Agent);
+      }
       setShowConversations(false);
       
       // Notify socket about loaded conversation
@@ -262,10 +245,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     switch (insight.action) {
       case 'research_doctor':
         // Navigate to research panel with doctor name
-        window.location.hash = `#research?doctor=${encodeURIComponent(insight.data.doctorName)}`;
+        const doctorName = insight.data?.doctorName;
+        if (doctorName && typeof doctorName === 'string') {
+          window.location.hash = `#research?doctor=${encodeURIComponent(doctorName)}`;
+        }
         break;
       case 'show_procedure_data':
-        sendMessage(`Show me detailed data about ${insight.data.procedure} procedures in my area`);
+        const procedure = insight.data?.procedure;
+        if (procedure && typeof procedure === 'string') {
+          sendMessage(`Show me detailed data about ${procedure} procedures in my area`);
+        }
         break;
       case 'competitive_analysis':
         sendMessage('Run a competitive analysis for my territory');
@@ -280,7 +269,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div className="p-4 border-b border-[#00ffc6]/20">
           <AgentSelector
             selectedAgent={selectedAgent}
-            onSelectAgent={setSelectedAgent}
+            onSelectAgent={(agent) => setSelectedAgent(agent)}
             backendUrl={BACKEND_URL}
             selectedProcedure={selectedProcedure}
           />
@@ -452,8 +441,12 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                           onClick={() => handleInsightAction(insight)}
                           className="w-full text-left p-3 bg-gradient-to-r from-[#00ffc6]/10 to-[#00d4ff]/10 rounded-lg border border-[#00ffc6]/20 hover:border-[#00ffc6]/40 transition-all"
                         >
-                          <div className="text-sm font-medium text-white">{insight.title}</div>
-                          <div className="text-xs text-gray-400 mt-1">{insight.message}</div>
+                          <div className="text-sm font-medium text-white">
+                            {insight.title || 'Action Available'}
+                          </div>
+                          <div className="text-xs text-gray-400 mt-1">
+                            {insight.message || 'Click to perform this action'}
+                          </div>
                         </button>
                       ))}
                     </div>

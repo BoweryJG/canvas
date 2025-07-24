@@ -306,18 +306,12 @@ async function searchWithPerplexity(doctorName: string, location?: string): Prom
       
       // Add citations as additional sources
       if (result.citations?.length) {
-        interface Citation {
-          url?: string;
-          title?: string;
-          text?: string;
-          snippet?: string;
-        }
-        result.citations.forEach((citation: Citation, index: number) => {
+        result.citations.forEach((citation: string, index: number) => {
           sources.push({
-            url: citation.url || `citation-${index}`,
-            title: citation.title || `Citation ${index + 1}`,
+            url: citation || `citation-${index}`,
+            title: `Citation ${index + 1}`,
             type: 'medical_directory' as ResearchSource['type'],
-            content: citation.text || citation.snippet || '',
+            content: citation,
             confidence: 80,
             lastUpdated: new Date().toISOString()
           });

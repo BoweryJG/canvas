@@ -416,7 +416,7 @@ function generateAdditionalInfo(profile: VerificationResult, results: BraveSearc
   return info.join(' • ');
 }
 
-async function enhanceWithWebsiteData(): Promise<void> {
+async function enhanceWithWebsiteData(_profile: VerificationResult): Promise<void> {
   // Optional: Use Firecrawl to get more detailed website information
   // This would require calling the Firecrawl API
   // For now, we'll enhance with the search data we already have

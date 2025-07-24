@@ -34,10 +34,6 @@ const ConversationList: React.FC<ConversationListProps> = ({
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    loadConversations();
-  }, [loadConversations]);
-
   const loadConversations = useCallback(async () => {
     if (!session?.access_token) return;
 
@@ -55,6 +51,10 @@ const ConversationList: React.FC<ConversationListProps> = ({
       setLoading(false);
     }
   }, [session, backendUrl]);
+
+  useEffect(() => {
+    loadConversations();
+  }, [loadConversations]);
 
   const filteredConversations = conversations.filter(conv =>
     conv.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

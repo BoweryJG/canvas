@@ -34,6 +34,7 @@ import StrategyBuilder from './StrategyBuilder';
 import { getDentalProcedures, getAestheticProcedures } from '../../lib/procedureDatabase';
 import type { DentalProcedure, AestheticProcedure } from '../../lib/procedureDatabase';
 import { searchDoctorsByName, identifyDoctorFromContext, type NPIDoctor } from '../../lib/npiLookup';
+import type { SystemAgent } from './types';
 
 // Glassmorphism styled components
 const GlassContainer = styled(Paper)(() => ({
@@ -82,17 +83,7 @@ const StyledTab = styled(Tab)(() => ({
   fontSize: '0.95rem'
 }));
 
-interface Agent {
-  id: string;
-  name: string;
-  role: string;
-  avatar: string;
-  specialty: string[];
-  icon: React.ElementType;
-  color: string;
-}
-
-const agents: Agent[] = [
+const agents: SystemAgent[] = [
   {
     id: 'hunter',
     name: 'Hunter',

@@ -213,7 +213,7 @@ export async function gatherUnifiedIntelligence(
         npiCity || location?.split(',')[0],  // Use NPI city first
         npiState || location?.split(',')[1]?.trim()  // Use NPI state first
       );
-    } catch (_) {
+    } catch (error) {
       console.error('❌ Claude 4 Opus analysis failed:', error);
       // Use fallback with empty results
       aiAnalysis = {
@@ -340,7 +340,7 @@ export async function gatherUnifiedIntelligence(
           confidence: result.discovery.confidence
         };
       }
-    } catch (_) {
+    } catch (error) {
       console.error('Intelligence extraction error:', error);
     }
     
@@ -351,7 +351,7 @@ export async function gatherUnifiedIntelligence(
     
     return result;
     
-  } catch (_) {
+  } catch (error) {
     console.error('Unified intelligence error:', error);
     result.timingMs.total = Date.now() - startTime;
     return result;

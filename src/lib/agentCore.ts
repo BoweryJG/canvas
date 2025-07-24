@@ -4,13 +4,7 @@
  */
 
 import type { NPIDoctorInfo } from './doctorDetection';
-
-export interface AgentPersonality {
-  tone: string;
-  traits: string[];
-  expertise: string[];
-  communication_style: string;
-}
+import type { AgentPersonality } from '../types/agent.types';
 
 export interface AgentContext {
   agentName: string;
@@ -38,9 +32,9 @@ export function buildSystemPrompt(context: AgentContext): string {
 ${agentSpecialty.map(s => `- ${s}`).join('\n')}
 
 ## Your Personality
-- Communication style: ${personality.communication_style}
-- Key traits: ${personality.traits.join(', ')}
-- Tone: ${personality.tone}
+- Communication style: ${personality.communication_style || personality.communicationStyle || 'Professional and helpful'}
+- Key traits: ${personality.traits ? personality.traits.join(', ') : 'Knowledgeable, supportive, strategic'}
+- Tone: ${personality.tone || 'Professional yet approachable'}
 
 ## Core Capabilities
 1. **Doctor Intelligence**: You can detect when doctors are mentioned and automatically look up their NPI information

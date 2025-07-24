@@ -13,60 +13,16 @@ import {
   lookupDoctorNPI, 
   findBestMatch
 } from '../../lib/doctorDetection';
-import type { NPIDoctorInfo, DoctorMention } from '../../lib/doctorDetection';
-
-interface MessageMetadata {
-  doctors?: NPIDoctorInfo[];
-  doctorMentions?: DoctorMention[];
-  sources?: string[];
-  confidence?: number;
-  reasoning?: string;
-  suggestions?: string[];
-  [key: string]: unknown;
-}
-
-interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: string;
-  isStreaming?: boolean;
-  metadata?: MessageMetadata;
-}
-
-interface AgentPersonality {
-  tone: string;
-  expertise: string[];
-  traits: string[];
-  communicationStyle?: string;
-  specializations?: string[];
-}
-
-interface Agent {
-  id: string;
-  name: string;
-  avatar_url?: string;
-  specialty: string[];
-  personality: AgentPersonality;
-}
-
-interface Conversation {
-  id: string;
-  title: string;
-  agent_id: string;
-  messages: Message[];
-  created_at: string;
-  context?: {
-    doctors?: NPIDoctorInfo[];
-  };
-}
-
-interface Procedure {
-  id: string;
-  name: string;
-  category: string;
-  type: 'dental' | 'aesthetic';
-}
+import type { 
+  Agent, 
+  Message, 
+  MessageMetadata, 
+  Conversation, 
+  Procedure, 
+  Insight,
+  NPIDoctorInfo, 
+  DoctorMention 
+} from '../../types/agent.types';
 
 interface ChatInterfaceProps {
   defaultAgentId?: string;
@@ -86,7 +42,7 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
   const [isAgentTyping, setIsAgentTyping] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState<string>('');
   const [showConversations, setShowConversations] = useState(false);
-  const [insights, setInsights] = useState<unknown[]>([]);
+  const [insights, setInsights] = useState<Insight[]>([]);
   const [detectedDoctors, setDetectedDoctors] = useState<Map<string, NPIDoctorInfo>>(new Map());
   const [showDoctorLookup, setShowDoctorLookup] = useState(false);
   const [lookingUpDoctor, setLookingUpDoctor] = useState(false);
@@ -94,6 +50,84 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
 
   // Backend URL from environment
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://osbackend-zl1h.onrender.com';
+
+  // Define updateConversationContext before it's used
+  const updateConversationContext = useCallback((context: { doctors?: NPIDoctorInfo[] }) => {
+    if (!currentConversation) return;
+    
+    socket?.emit('conversation:updateContext', {
+      conversationId: currentConversation.id,
+      context
+    });
+  }, [currentConversation, socket]);
+
+  // Define handleDoctorDetection before it's used
+  const handleDoctorDetection = useCallback(async (mentions: DoctorMention[]) => {
+    setLookingUpDoctor(true);
+    
+    for (const mention of mentions) {
+      // Skip if already detected
+      if (detectedDoctors.has(mention.fullName)) continue;
+      
+      try {
+        const npiResults = await lookupDoctorNPI(mention.firstName, mention.lastName);
+        const bestMatch = findBestMatch(mention, npiResults);
+        
+        if (bestMatch) {
+          setDetectedDoctors(prev => new Map(prev).set(mention.fullName, bestMatch));
+          
+          // Notify backend about detected doctor
+          socket?.emit('doctor:found', {
+            conversationId: currentConversation?.id,
+            doctor: bestMatch,
+            mention
+          });
+          
+          // Add to conversation context
+          updateConversationContext({ doctors: bestMatch ? [bestMatch] : [] });
+        }
+      } catch (error) {
+        console.error('Doctor lookup failed:', error);
+      }
+    }
+    
+    setLookingUpDoctor(false);
+  }, [detectedDoctors, socket, currentConversation?.id, updateConversationContext]);
+
+  // Define handleDoctorMentions before it's used
+  const handleDoctorMentions = useCallback(async (mentions: DoctorMention[]) => {
+    for (const mention of mentions) {
+      if (!detectedDoctors.has(mention.fullName)) {
+        await handleDoctorDetection([mention]);
+      }
+    }
+  }, [detectedDoctors, handleDoctorDetection]);
+
+  // Define loadAgent before it's used
+  const loadAgent = useCallback(async (agentId: string) => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/canvas/agents/${agentId}`, {
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`
+        }
+      });
+      const data = await response.json();
+      // Ensure the agent has the correct structure
+      if (data.agent) {
+        setSelectedAgent({
+          ...data.agent,
+          personality: {
+            ...data.agent.personality,
+            // Ensure personality properties are defined
+            approach: data.agent.personality?.approach || '',
+            tone: data.agent.personality?.tone || ''
+          }
+        } as Agent);
+      }
+    } catch (error) {
+      console.error('Failed to load agent:', error);
+    }
+  }, [session?.access_token, BACKEND_URL]);
 
   // Initialize WebSocket connection with enhanced events
   useEffect(() => {
@@ -169,7 +203,7 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
     return () => {
       socketInstance.disconnect();
     };
-  }, [session, BACKEND_URL, currentConversation?.id, streamingMessage, handleDoctorDetection, handleDoctorMentions]);
+  }, [session, BACKEND_URL, currentConversation?.id, streamingMessage]);
 
   // Detect doctors in user messages
   const detectDoctorsInMessage = useCallback(async (content: string) => {
@@ -178,58 +212,6 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
       await handleDoctorDetection(mentions);
     }
   }, [handleDoctorDetection]);
-
-  // Handle detected doctor mentions
-  const handleDoctorDetection = useCallback(async (mentions: DoctorMention[]) => {
-    setLookingUpDoctor(true);
-    
-    for (const mention of mentions) {
-      // Skip if already detected
-      if (detectedDoctors.has(mention.fullName)) continue;
-      
-      try {
-        const npiResults = await lookupDoctorNPI(mention.firstName, mention.lastName);
-        const bestMatch = findBestMatch(mention, npiResults);
-        
-        if (bestMatch) {
-          setDetectedDoctors(prev => new Map(prev).set(mention.fullName, bestMatch));
-          
-          // Notify backend about detected doctor
-          socket?.emit('doctor:found', {
-            conversationId: currentConversation?.id,
-            doctor: bestMatch,
-            mention
-          });
-          
-          // Add to conversation context
-          updateConversationContext({ doctors: bestMatch ? [bestMatch] : [] });
-        }
-      } catch (error) {
-        console.error('Doctor lookup failed:', error);
-      }
-    }
-    
-    setLookingUpDoctor(false);
-  }, [detectedDoctors, socket, currentConversation?.id, updateConversationContext]);
-
-  // Handle doctor mentions from agent
-  const handleDoctorMentions = useCallback(async (mentions: DoctorMention[]) => {
-    for (const mention of mentions) {
-      if (!detectedDoctors.has(mention.fullName)) {
-        await handleDoctorDetection([mention]);
-      }
-    }
-  }, [detectedDoctors]);
-
-  // Update conversation context with doctor info
-  const updateConversationContext = (context: { doctors?: NPIDoctorInfo[] }) => {
-    if (!currentConversation) return;
-    
-    socket?.emit('conversation:updateContext', {
-      conversationId: currentConversation.id,
-      context
-    });
-  };
 
   // Load default agent
   useEffect(() => {
@@ -242,20 +224,6 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, streamingMessage]);
-
-  const loadAgent = useCallback(async (agentId: string) => {
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/canvas/agents/${agentId}`, {
-        headers: {
-          'Authorization': `Bearer ${session?.access_token}`
-        }
-      });
-      const data = await response.json();
-      setSelectedAgent(data.agent);
-    } catch (error) {
-      console.error('Failed to load agent:', error);
-    }
-  }, [session?.access_token, BACKEND_URL]);
 
   const createNewConversation = async () => {
     if (!selectedAgent || !session) return;
@@ -318,7 +286,19 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
       const data = await response.json();
       setCurrentConversation(data.conversation);
       setMessages(data.conversation.messages || []);
-      setSelectedAgent(data.conversation.canvas_ai_agents);
+      // Ensure the agent has the correct structure
+      const agent = data.conversation.canvas_ai_agents;
+      if (agent) {
+        setSelectedAgent({
+          ...agent,
+          personality: {
+            ...agent.personality,
+            // Ensure personality properties are defined
+            approach: agent.personality?.approach || '',
+            tone: agent.personality?.tone || ''
+          }
+        } as Agent);
+      }
       setShowConversations(false);
       
       // Load any saved doctors from context
@@ -366,23 +346,29 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
     });
   };
 
-  const handleInsightAction = async (insight: unknown) => {
+  const handleInsightAction = async (insight: Insight) => {
     // Handle different insight actions
     switch (insight.action) {
       case 'research_doctor':
         // Navigate to research panel with doctor name
-        window.location.hash = `#research?doctor=${encodeURIComponent(insight.data.doctorName)}`;
+        if (insight.data?.doctorName) {
+          window.location.hash = `#research?doctor=${encodeURIComponent(insight.data.doctorName)}`;
+        }
         break;
       case 'lookup_doctor': {
         // Trigger doctor lookup
-        const mentions = detectDoctorMentions(insight.data.doctorName);
-        if (mentions.length > 0) {
-          await handleDoctorDetection(mentions);
+        if (insight.data?.doctorName) {
+          const mentions = detectDoctorMentions(insight.data.doctorName);
+          if (mentions.length > 0) {
+            await handleDoctorDetection(mentions);
+          }
         }
         break;
       }
       case 'show_procedure_data':
-        sendMessage(`Show me detailed data about ${insight.data.procedure} procedures in my area`);
+        if (insight.data?.procedure) {
+          sendMessage(`Show me detailed data about ${insight.data.procedure} procedures in my area`);
+        }
         break;
       case 'competitive_analysis':
         sendMessage('Run a competitive analysis for my territory');
@@ -393,7 +379,7 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
   const addDoctorToContext = (doctor: NPIDoctorInfo) => {
     sendMessage(
       `Tell me more about ${doctor.displayName} and their practice. What sales strategies would work best?`,
-      { contextDoctor: doctor }
+      { doctors: [doctor] }
     );
   };
 
@@ -415,7 +401,7 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
         <div className="p-4 border-b border-[#00ffc6]/20">
           <AgentSelector
             selectedAgent={selectedAgent}
-            onSelectAgent={setSelectedAgent}
+            onSelectAgent={(agent) => setSelectedAgent(agent)}
             backendUrl={BACKEND_URL}
             selectedProcedure={selectedProcedure}
           />

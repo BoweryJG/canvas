@@ -26,11 +26,6 @@ interface SearchResultsWrapper {
   };
 }
 
-interface ScrapedData {
-  markdown?: string;
-  title?: string;
-  [key: string]: unknown;
-}
 
 interface AnalysisResult {
   score?: number;
@@ -165,7 +160,7 @@ export async function basicResearch(doctorName: string, productName: string, loc
   return {
     tier: 'basic',
     doctorName,
-    practiceInfo: extractBasicInfo(practiceData, searchResults),
+    practiceInfo: extractBasicInfo(practiceData || null, searchResults),
     score: calculateDetailedScore(analysis, productName),
     insights: parseDetailedInsights(analysis),
     sources: [searchResults.web?.results?.[0]?.url].filter(Boolean),
@@ -249,11 +244,11 @@ function selectBestUrls(results: SearchResult[], limit: number): string[] {
   
   // Prioritize: medical directories, practice websites, review sites
   const priorities = [
-    (r: unknown) => r.url.includes('healthgrades.com'),
-    (r: unknown) => r.url.includes('webmd.com'),
-    (r: unknown) => r.url.includes('zocdoc.com'),
-    (r: unknown) => r.title.toLowerCase().includes('practice'),
-    (r: unknown) => r.title.toLowerCase().includes('clinic')
+    (r: SearchResult) => r.url.includes('healthgrades.com'),
+    (r: SearchResult) => r.url.includes('webmd.com'),
+    (r: SearchResult) => r.url.includes('zocdoc.com'),
+    (r: SearchResult) => r.title.toLowerCase().includes('practice'),
+    (r: SearchResult) => r.title.toLowerCase().includes('clinic')
   ];
   
   for (const priority of priorities) {
@@ -304,12 +299,13 @@ function calculateQuickScore(content: string, _productName: string): number {
   return Math.max(0, Math.min(100, score));
 }
 
-function extractBasicInfo(scrapedData: ScrapedData | null, searchResults: SearchResultsWrapper): Record<string, unknown> {
+function extractBasicInfo(scrapedData: any | null, searchResults: SearchResultsWrapper): Record<string, unknown> {
   return {
     name: searchResults.web?.results?.[0]?.title || 'Unknown',
     url: searchResults.web?.results?.[0]?.url || null,
     description: searchResults.web?.results?.[0]?.description || 'No description available',
-    hasWebsite: !!scrapedData
+    hasWebsite: !!scrapedData,
+    websiteTitle: scrapedData?.metadata?.title || scrapedData?.title || null
   };
 }
 

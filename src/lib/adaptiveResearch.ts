@@ -246,7 +246,7 @@ export async function adaptiveResearch(
       strategy,
       doctor,
       product,
-      productIntelligence as unknown // Pass product intelligence to synthesis
+      productIntelligence as ProductIntelligence // Pass product intelligence to synthesis
     );
     
     // Calculate confidence with strategy awareness
@@ -312,7 +312,7 @@ async function scrapeWebsiteIfNeeded(
       type: 'practice_website',
       title: 'Practice Website',
       url,
-      content: scraped?.content?.substring(0, 1000) || scraped?.metadata?.description || 'Website analyzed',
+      content: scraped?.markdown?.substring(0, 1000) || scraped?.metadata?.description || 'Website analyzed',
       confidence: 90,
       lastUpdated: new Date().toISOString()
     });
@@ -356,7 +356,16 @@ async function gatherTargetedReviews(
     }
   });
   
-  return { count: totalReviews, data: { sources: reviews } };
+  // Create a properly typed return object
+  const reviewData = {
+    sources: reviews.map((result, idx) => ({
+      site: reviewSites[idx],
+      rating: 0, // Default rating since we don't extract it
+      count: result?.web?.results?.length || 0
+    }))
+  };
+  
+  return { count: totalReviews, data: reviewData };
 }
 
 async function performFocusedSearch(
@@ -366,7 +375,7 @@ async function performFocusedSearch(
 ): Promise<{ markdown?: string; metadata?: { title?: string; description?: string } } | null> {
   const result = await callBraveSearch(query);
   
-  if (result?.web?.results?.length > 0) {
+  if (result?.web?.results && result.web.results.length > 0) {
     sources.push({
       type: 'medical_directory',
       title: label,
@@ -375,9 +384,18 @@ async function performFocusedSearch(
       confidence: 70,
       lastUpdated: new Date().toISOString()
     });
+    
+    // Return a compatible object structure
+    return {
+      markdown: JSON.stringify(result.web.results),
+      metadata: {
+        title: label,
+        description: `${result.web.results.length} search results`
+      }
+    };
   }
   
-  return result;
+  return null;
 }
 
 async function analyzeCompetitors(

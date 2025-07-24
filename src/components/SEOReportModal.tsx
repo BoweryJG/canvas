@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   analyzePracticeSEO, 
@@ -34,7 +34,7 @@ export const SEOReportModal: React.FC<SEOReportModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
 
-  const runAnalysis = React.useCallback(async () => {
+  const runAnalysis = useCallback(async () => {
     setLoading(true);
     setError(null);
     

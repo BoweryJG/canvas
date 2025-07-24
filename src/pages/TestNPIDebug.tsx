@@ -1,18 +1,13 @@
 import React, { useState } from 'react';
 import { DoctorAutocompleteDebug } from '../components/DoctorAutocompleteDebug';
+import type { Doctor } from '../components/DoctorAutocompleteDebug';
 import { DoctorAutocomplete } from '../components/DoctorAutocomplete';
 
 export const TestNPIDebug: React.FC = () => {
-  interface DoctorData {
-    npi?: string;
-    name?: string;
-    [key: string]: unknown;
-  }
-  
-  const [selectedDoctor, setSelectedDoctor] = useState<DoctorData | null>(null);
+  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
   const [useDebugVersion, setUseDebugVersion] = useState(true);
 
-  const handleSelect = (doctor: DoctorData) => {
+  const handleSelect = (doctor: Doctor) => {
     console.log('Doctor selected:', doctor);
     setSelectedDoctor(doctor);
   };

@@ -140,12 +140,23 @@ export function useUnifiedResearch() {
 
       let finalData: ResearchData;
       
-      if (result.adaptive) {
-        finalData = result.adaptive;
+      if (result.adaptive && typeof result.adaptive === 'object' && 'doctorName' in result.adaptive) {
+        finalData = result.adaptive as ResearchData;
       } else if (result.legacy) {
         finalData = result.legacy;
       } else {
-        throw new Error('No research data returned');
+        // Create a default ResearchData object with all required properties
+        finalData = {
+          doctorName: doctor.displayName || '',
+          practiceInfo: {},
+          credentials: {},
+          reviews: {},
+          businessIntel: {},
+          sources: [],
+          confidenceScore: 0,
+          completedAt: new Date().toISOString()
+        };
+        console.warn('No valid research data returned, using default structure');
       }
 
       setState(prev => ({

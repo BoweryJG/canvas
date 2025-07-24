@@ -51,6 +51,10 @@ interface Competitor {
   url?: string;
   type?: string;
   description?: string;
+  rating?: number;
+  rating_count?: number;
+  distance?: number;
+  [key: string]: unknown; // Allow additional properties to match enhancedConfidenceScoring.ts
 }
 
 interface ProductFit {
@@ -183,9 +187,15 @@ export async function baselineResearch(
       true, // NPI verified
       websiteIntel,
       reviewData,
-      sources as unknown[],
+      sources.map(s => ({
+        url: s.url,
+        title: s.title,
+        type: s.type,
+        content: s.content,
+        confidence: s.confidence
+      })),
       synthesis,
-      competitors as unknown[]
+      competitors
     );
     
     const confidence = calculateEnhancedConfidence(confidenceFactors);
@@ -262,12 +272,12 @@ async function findAndAnalyzePracticeWebsite(
     // Skip ALL searching - go straight to crawling
     try {
       const crawlData = await callFirecrawlScrape(practiceUrl);
-      if (crawlData?.success && crawlData?.data?.markdown) {
-        const extracted = await extractWebsiteIntelligence(crawlData.data.markdown);
+      if (crawlData?.success && crawlData?.markdown) {
+        const extracted = await extractWebsiteIntelligence(crawlData.markdown);
         return {
           url: practiceUrl,
           crawled: true,
-          content: crawlData.data.markdown,
+          content: crawlData.markdown,
           ...extracted
         };
       }
@@ -447,7 +457,8 @@ Website content:
 ${content.substring(0, 3000)}`;
 
     const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
-    return JSON.parse(response);
+    const responseContent = response.choices[0]?.message?.content || '{}';
+    return JSON.parse(responseContent);
   } catch (error) {
     console.log('Could not extract website intelligence:', error);
     return {};
@@ -786,7 +797,8 @@ async function synthesizeIntelligence(
 
       try {
         const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
-        return JSON.parse(response) as SynthesisResult;
+        const content = response.choices[0]?.message?.content || '{}';
+        return JSON.parse(content) as SynthesisResult;
       } catch (error) {
         console.error('Synthesis failed:', error);
         return {

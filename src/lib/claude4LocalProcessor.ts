@@ -135,11 +135,15 @@ export class Claude4LocalProcessor {
     // Try Claude 4 Opus first, then fall back to Claude 3.5 Sonnet
     try {
       const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
-      return JSON.parse(response);
+      // Extract the content from the ClaudeResponse structure
+      const content = response.choices[0].message.content;
+      return JSON.parse(content);
     } catch {
       console.log('Claude 4 Opus not available, using Claude 3.5 Sonnet');
       const response = await callClaude(prompt, 'claude-3.5-sonnet-20241022');
-      return JSON.parse(response);
+      // Extract the content from the ClaudeResponse structure
+      const content = response.choices[0].message.content;
+      return JSON.parse(content);
     }
   }
   

@@ -54,7 +54,7 @@ export async function gatherSuperIntelligentDoctorResearch(
     const localCompetitorQuery = `${doctor.specialty} near ${doctor.city}, ${doctor.state}`;
     const localCompetitors = await callBraveLocalSearch(localCompetitorQuery, 20);
     
-    if (localCompetitors?.results?.length > 0) {
+    if (localCompetitors?.results && localCompetitors.results.length > 0) {
       progressCallback?.updateStep('localcompetitors', 'found', `${localCompetitors.results.length} competitors analyzed`);
       console.log(`Found ${localCompetitors.results.length} local competitors`);
     }
@@ -72,7 +72,7 @@ export async function gatherSuperIntelligentDoctorResearch(
       orchestratedData,
       practiceWebsite,
       braveResults,
-      localCompetitors,
+      localCompetitors as LocalCompetitorResponse,
       doctor,
       product
     );
@@ -80,7 +80,7 @@ export async function gatherSuperIntelligentDoctorResearch(
     // Step 4: Create final research data
     return createSuperResearchData(superIntelligence, doctor);
     
-  } catch (_) {
+  } catch (error) {
     console.error('Super intelligence error:', error);
     return createFallbackResearchData(doctor);
   }
@@ -146,7 +146,7 @@ interface LocalCompetitor {
   title?: string;
   rating?: number;
   rating_count?: number;
-  distance?: string;
+  distance?: number | string;
   address?: string;
   phone?: string;
   categories?: string[];
@@ -214,7 +214,7 @@ function processSuperIntelligence(
       url: 'perplexity-realtime',
       title: 'AI Real-time Analysis',
       type: 'news_article',
-      content: JSON.stringify((perplexityInsights as unknown).basicInfo),
+      content: JSON.stringify((perplexityInsights as any).basicInfo),
       confidence: 85,
       lastUpdated: new Date().toISOString()
     });

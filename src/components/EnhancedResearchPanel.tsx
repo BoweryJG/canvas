@@ -4,6 +4,19 @@ import { ProgressiveResearchEngine } from '../lib/progressiveResearch';
 import { conductEnhancedResearch } from '../lib/enhancedWebResearch';
 import { useAuth } from '../auth';
 
+interface FormData {
+  doctorName: string;
+  credential: string;
+  specialty: string;
+  location: string;
+  practiceName: string;
+  phone: string;
+  address: string;
+  npi: string;
+  productName: string;
+  verifiedWebsite?: string;
+}
+
 interface ResearchData {
   insights?: string[];
   score?: number;
@@ -26,7 +39,7 @@ export const EnhancedResearchPanel: React.FC = () => {
   const [researchProgress, setResearchProgress] = useState<ResearchProgress | null>(null);
   const [researchEngine] = useState(() => new ProgressiveResearchEngine());
   
-  const handleResearchSubmit = async (formData: Record<string, unknown>) => {
+  const handleResearchSubmit = async (formData: FormData) => {
     setIsResearching(true);
     
     // If we have NPI data, do enhanced research first
@@ -35,12 +48,12 @@ export const EnhancedResearchPanel: React.FC = () => {
       
       // Quick enhanced search with specialty data
       const enhancedResults = await conductEnhancedResearch({
-        doctorName: formData.doctorName as string,
-        specialty: formData.specialty as string,
-        location: formData.location as string | undefined,
-        credential: formData.credential as string | undefined,
-        npi: formData.npi as string | undefined,
-        practiceName: formData.practiceName as string | undefined
+        doctorName: formData.doctorName,
+        specialty: formData.specialty,
+        location: formData.location || undefined,
+        credential: formData.credential || undefined,
+        npi: formData.npi || undefined,
+        practiceName: formData.practiceName || undefined
       }, user?.id);
       
       console.log(`✨ Enhanced search confidence: ${enhancedResults.confidence}%`);
@@ -67,9 +80,9 @@ export const EnhancedResearchPanel: React.FC = () => {
     
     // Start the progressive research
     researchEngine.startResearch(
-      formData.doctorName as string,
-      formData.productName as string,
-      formData.location as string | undefined,
+      formData.doctorName,
+      formData.productName,
+      formData.location || undefined,
       'standard',
       user?.id
     );

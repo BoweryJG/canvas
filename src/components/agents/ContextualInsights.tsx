@@ -27,6 +27,7 @@ import { MockDataProvider } from '../../lib/mockDataProvider';
 import type { MockInsight, MockDoctor } from '../../lib/mockDataProvider';
 import type { DentalProcedure, AestheticProcedure } from '../../lib/procedureDatabase';
 import type { NPIDoctor } from '../../lib/npiLookup';
+import type { SystemAgent, Insight } from './types';
 
 const InsightCard = styled(Box)(({ priority }: { priority: string }) => ({
   background: priority === 'high' 
@@ -61,25 +62,8 @@ const ActionButton = styled(Button)({
   }
 });
 
-interface Agent {
-  id: string;
-  name?: string;
-  [key: string]: unknown;
-}
-
-interface Insight {
-  id: string;
-  type: string;
-  icon: React.ElementType;
-  priority: string;
-  title: string;
-  description: string;
-  actions: string[];
-  [key: string]: unknown;
-}
-
 interface ContextualInsightsProps {
-  agent: Agent;
+  agent: SystemAgent;
   context: {
     tab?: string;
     doctorId?: string;
@@ -108,10 +92,6 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
   const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedInsight, setSelectedInsight] = useState<string | null>(null);
-
-  useEffect(() => {
-    generateInsights();
-  }, [generateInsights]);
 
   const generateInsights = useCallback(async () => {
     setLoading(true);
@@ -145,10 +125,14 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
     }
     
     setLoading(false);
-  }, [context, agent, isDemo]);
+  }, [context, agent, isDemo, dentalProcedures, aestheticProcedures]);
+
+  useEffect(() => {
+    generateInsights();
+  }, [generateInsights]);
 
   const generateAgentSpecificInsights = (
-    agent: Agent, 
+    agent: SystemAgent, 
     doctor: MockDoctor | undefined, 
     baseInsights: MockInsight[]
   ): Insight[] => {
@@ -174,7 +158,7 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
               'Prepare growth proposal',
               'Analyze competitor landscape',
               context.npiDoctor ? `Contact: ${context.npiDoctor.phone || 'See NPI registry'}` : null
-            ].filter(Boolean)
+            ].filter((action): action is string => action !== null)
           });
         }
         
@@ -285,7 +269,7 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
               'Score lead quality',
               !isDemo ? 'Target procedure-specific opportunities' : null,
               context.npiDoctor ? `Verified NPI: ${context.npiDoctor.npi}` : null
-            ].filter(Boolean)
+            ].filter((action): action is string => action !== null)
           });
         }
         break;
@@ -310,7 +294,7 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
               'Address final objections',
               'Present contract terms',
               !isDemo && avgProcedurePrice > 0 ? 'Show procedure-based revenue potential' : null
-            ].filter(Boolean)
+            ].filter((action): action is string => action !== null)
           });
         }
         break;
@@ -335,7 +319,7 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
               'Share clinical case studies',
               'Offer training sessions',
               !isDemo && procedureTypes > 0 ? 'Create procedure-specific materials' : null
-            ].filter(Boolean)
+            ].filter((action): action is string => action !== null)
           });
         }
         break;

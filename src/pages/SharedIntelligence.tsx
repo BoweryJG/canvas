@@ -31,6 +31,7 @@ import { validateMagicLink, trackDownload } from '../lib/magicLinkGenerator';
 import { generatePDFReport } from '../lib/simplePdfExport';
 import { MAGIC_LINK_CONFIGS, type SubscriptionTier } from '../types/magicLink';
 import type { ResearchData } from '../lib/webResearch';
+import type { EnhancedScanResult } from '../types/scan';
 
 // Premium styled components
 const PageContainer = styled(Box)`
@@ -158,7 +159,7 @@ export default function SharedIntelligence() {
       );
       
       if (result.valid && result.data) {
-        setLinkData(result.data);
+        setLinkData(result.data as LinkData);
         setRequiresPassword(false);
       } else if (result.error === 'Password required') {
         setRequiresPassword(true);
@@ -239,8 +240,33 @@ export default function SharedIntelligence() {
         completedAt: new Date().toISOString()
       };
       
+      // Create a proper EnhancedScanResult if scanResult is missing
+      const enhancedScanResult: EnhancedScanResult = reportData.scanResult ? {
+        doctor: reportData.scanResult.doctor || linkData.doctor_name,
+        product: 'Healthcare Product',
+        score: reportData.scanResult.confidence || 85,
+        doctorProfile: '',
+        productIntel: '',
+        salesBrief: '',
+        insights: reportData.scanResult.insights || [],
+        researchQuality: (reportData.scanResult.researchQuality as 'verified' | 'partial' | 'inferred' | 'unknown') || 'unknown',
+        researchSources: reportData.researchData?.sources?.length || 0,
+        factBased: (reportData.scanResult.confidence || 0) > 60
+      } : {
+        doctor: linkData.doctor_name,
+        product: 'Healthcare Product',
+        score: 85,
+        doctorProfile: '',
+        productIntel: '',
+        salesBrief: '',
+        insights: [],
+        researchQuality: 'unknown',
+        researchSources: 0,
+        factBased: false
+      };
+      
       const pdfBlob = await generatePDFReport(
-        reportData.scanResult,
+        enhancedScanResult,
         fallbackResearchData,
         {
           includeLogo: true,

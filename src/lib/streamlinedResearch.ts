@@ -19,14 +19,10 @@ interface BraveSearchResult {
 
 interface BraveSearchResponse {
   web?: {
-    results: BraveSearchResult[];
+    results?: BraveSearchResult[];
   };
 }
 
-interface FirecrawlResponse {
-  content?: string;
-  [key: string]: unknown;
-}
 
 interface ClaudeResponse {
   choices: Array<{
@@ -91,7 +87,7 @@ export async function streamlinedResearch(
         !r.url.includes('healthgrades') && 
         !r.url.includes('vitals.com') &&
         !r.url.includes('zocdoc')
-      )?.url;
+      )?.url || null;
       
       // Extract any additional info from snippets
       results.forEach((result: BraveSearchResult) => {
@@ -120,13 +116,13 @@ export async function streamlinedResearch(
     if (websiteUrl) {
       progress?.updateStep?.('website', 'active');
       try {
-        const websiteData = await callFirecrawlScrape(websiteUrl) as FirecrawlResponse;
-        if (websiteData?.content) {
+        const websiteData = await callFirecrawlScrape(websiteUrl);
+        if (websiteData?.markdown) {
           sources.push({
             type: 'practice_website',
             title: 'Practice Website',
             url: websiteUrl,
-            content: websiteData.content.substring(0, 5000), // Limit content size
+            content: websiteData.markdown.substring(0, 5000), // Limit content size
             confidence: 95,
             lastUpdated: new Date().toISOString()
           });
@@ -134,7 +130,7 @@ export async function streamlinedResearch(
           // Extract tech stack mentions
           const techKeywords = ['CEREC', 'CAD/CAM', 'laser', 'digital', '3D', 'cone beam', 'intraoral scanner'];
           const foundTech = techKeywords.filter(tech => 
-            websiteData.content.toLowerCase().includes(tech.toLowerCase())
+            websiteData.markdown.toLowerCase().includes(tech.toLowerCase())
           );
           
           if (foundTech.length > 0) {

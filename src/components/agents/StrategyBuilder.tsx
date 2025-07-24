@@ -31,6 +31,7 @@ import { MockDataProvider } from '../../lib/mockDataProvider';
 import type { MockDoctor } from '../../lib/mockDataProvider';
 import type { DentalProcedure, AestheticProcedure } from '../../lib/procedureDatabase';
 import type { NPIDoctor } from '../../lib/npiLookup';
+import type { SystemAgent } from './types';
 
 const StrategySection = styled(Paper)({
   background: 'rgba(255, 255, 255, 0.05)',
@@ -58,7 +59,7 @@ const StyledTextField = styled(TextField)({
 });
 
 interface StrategyBuilderProps {
-  agent: unknown;
+  agent: SystemAgent;
   context: {
     tab?: string;
     doctorId?: string;
@@ -116,7 +117,7 @@ const StrategyBuilder: React.FC<StrategyBuilderProps> = ({
     setIsGenerating(false);
   };
 
-  const generateStrategyForDoctor = (doctor: MockDoctor, agent: unknown) => {
+  const generateStrategyForDoctor = (doctor: MockDoctor, agent: SystemAgent) => {
     const personalizations = MockDataProvider.generatePersonalizedStrategy(doctor);
     
     let approach = '';

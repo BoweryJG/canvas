@@ -1,26 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../auth/useAuth';
-
-interface AgentPersonality {
-  approach?: string;
-  tone?: string;
-}
-
-interface Agent {
-  id: string;
-  name: string;
-  avatar_url?: string;
-  specialty: string[];
-  personality: AgentPersonality;
-}
-
-interface Procedure {
-  id: string;
-  name: string;
-  category: string;
-  type: 'dental' | 'aesthetic';
-}
+import type { Agent, Procedure } from '../../types/agent.types';
 
 interface AgentSelectorProps {
   selectedAgent: Agent | null;

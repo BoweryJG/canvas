@@ -18,8 +18,9 @@ const DebugChat: React.FC = () => {
       setMessages(prev => [...prev, `You: ${message}`]);
       setMessages(prev => [...prev, `Bot: Thanks for your message "${message}"`]);
       setMessage('');
-    } catch (e: unknown) {
-      setError(e.message);
+    } catch (e) {
+      const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred';
+      setError(errorMessage);
       console.error('Error sending message:', e);
     }
   };

@@ -915,9 +915,10 @@ export class CRMIntegrationManager {
     return stageMap[stage] || 1;
   }
 
-  private async getOrCreatePipedriveOrg(): Promise<string> {
+  private async getOrCreatePipedriveOrg(companyName: string): Promise<string> {
     // In real implementation, search for existing org or create new one
-    return 'pd_org_' + Date.now();
+    // For now, we'll just return a mock ID with the company name
+    return `pd_org_${companyName.replace(/\s+/g, '_')}_${Date.now()}`;
   }
 
   private updateMetrics(success: boolean, error?: string): void {
@@ -937,7 +938,7 @@ export class CRMIntegrationManager {
     this.metrics.lastSyncTime = new Date().toISOString();
   }
 
-  private async mockAPICall(endpoint: string, data: unknown): Promise<unknown> {
+  private async mockAPICall(endpoint: string, data: unknown): Promise<{ id: string; success: boolean; data: unknown }> {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
     

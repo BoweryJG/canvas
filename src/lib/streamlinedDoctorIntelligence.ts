@@ -135,7 +135,7 @@ export async function gatherStreamlinedDoctorIntelligence(
         { city: doctor.city, state: doctor.state },
         doctor.specialty
       );
-    } catch (_) {
+    } catch (error) {
       console.error('Product intelligence gathering failed:', error);
       productIntel = null;
     }
@@ -199,7 +199,7 @@ export async function gatherStreamlinedDoctorIntelligence(
       doctor
     );
     
-  } catch (_) {
+  } catch (error) {
     console.error('Streamlined intelligence error:', error);
     // Try to salvage what we can from the search data
     if (searchData && searchData.sources && searchData.sources.length > 0) {
@@ -299,16 +299,29 @@ async function gatherLocalCompetitors(
     const query = `${doctor.specialty} near ${doctor.city}, ${doctor.state}`;
     const results = await callBraveLocalSearch(query, 20);
     
-    if (results?.results?.length > 0) {
+    if (results?.results && results.results.length > 0) {
       progress?.updateStep('competitors', 'found', `${results.results.length} competitors`);
       // Note: updateSources expects a total count
       if (progress?.updateSources) {
         progress.updateSources(results.results.length);
       }
+      
+      // Convert BraveLocalResult to LocalCompetitor format
+      const competitors: LocalCompetitor[] = results.results.map(result => ({
+        title: result.title,
+        rating: result.rating,
+        rating_count: result.rating_count,
+        distance: result.distance.toString(), // Convert number to string
+        address: result.address,
+        url: result.url,
+        priceRange: undefined // Add if available in result
+      }));
+      
+      return { results: competitors };
     }
     
-    return results;
-  } catch (_) {
+    return { results: [] };
+  } catch (error) {
     console.error('Local search error:', error);
     return { results: [] };
   }
@@ -415,17 +428,26 @@ Return JSON with these fields:
 }`;
 
   try {
-    // Use Claude 4 Opus directly
+    // Use Claude 3.5 Sonnet (as per CLAUDE.md, all AI calls use this model)
     const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
-    return JSON.parse(response);
-  } catch (_) {
-    console.error('Claude 4 Opus error, trying Claude 3.5 Sonnet:', error);
+    const content = response.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error('No content in Claude response');
+    }
+    return JSON.parse(content);
+  } catch (error) {
+    console.error('Claude synthesis error:', error);
     
-    // Fallback to Claude 3.5 Sonnet
+    // Try one more time with a simpler prompt
     try {
-      const response = await callClaude(prompt, 'claude-3.5-sonnet-20241022');
-      return JSON.parse(response);
-    } catch (_) {
+      const simplePrompt = `Analyze this doctor for ${product} sales. Return JSON with executiveSummary, opportunityScore (1-100), and salesStrategy.perfectPitch fields.`;
+      const response = await callClaude(simplePrompt, 'claude-3-5-sonnet-20241022');
+      const content = response.choices[0]?.message?.content;
+      if (!content) {
+        throw new Error('No content in Claude response');
+      }
+      return JSON.parse(content);
+    } catch (fallbackError) {
       console.error('All synthesis failed:', fallbackError);
       return createDefaultSynthesis(doctor, product);
     }

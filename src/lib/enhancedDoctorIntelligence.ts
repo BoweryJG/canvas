@@ -77,7 +77,8 @@ async function gatherAllIntelligence(doctor: Doctor, product: string): Promise<I
   const perplexityResults2: Record<string, unknown> | undefined = undefined;
   
   try {
-    perplexityResults1 = await callPerplexitySearch(`${doctorFullName} ${specialty} ${location} practice technology equipment`);
+    const perplexityResponse = await callPerplexitySearch(`${doctorFullName} ${specialty} ${location} practice technology equipment`);
+    perplexityResults1 = perplexityResponse as unknown as Record<string, unknown>;
   } catch (error) {
     console.log('Perplexity unavailable, continuing with Brave results:', error);
   }
@@ -148,7 +149,13 @@ async function gatherAllIntelligence(doctor: Doctor, product: string): Promise<I
   const technologyIntel = await callBraveSearch(`"${product}" dental practices ${location} case studies`, 5);
   
   // Add competitor and technology sources
-  (competitorIntel?.web?.results || []).forEach((result: unknown) => {
+  interface BraveResult {
+    url?: string;
+    title?: string;
+    description?: string;
+  }
+  
+  (competitorIntel?.web?.results || []).forEach((result: BraveResult) => {
     allSources.push({
       url: result.url || '',
       title: result.title || '',
@@ -163,11 +170,11 @@ async function gatherAllIntelligence(doctor: Doctor, product: string): Promise<I
     practiceWebsite,
     allSources,
     rawData: {
-      practiceInfo: braveResults1,
-      reviews: braveResults2,
+      practiceInfo: braveResults1 as Record<string, unknown>,
+      reviews: braveResults2 as Record<string, unknown>,
       marketPosition: perplexityResults2 || {} as Record<string, unknown>,
-      technology: technologyIntel,
-      competition: competitorIntel
+      technology: technologyIntel as Record<string, unknown>,
+      competition: competitorIntel as Record<string, unknown>
     }
   };
 }
@@ -252,13 +259,15 @@ Format as JSON with these exact fields:
   try {
     // Try Claude 4 Opus first (premium model)
     const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
-    return JSON.parse(response);
+    const content = response.choices[0].message.content;
+    return JSON.parse(content);
   } catch (error) {
     console.error('Claude 4 Opus error, trying fallback:', error);
     // Fallback to Claude 3.5 Sonnet (fast, efficient alternative)
     try {
       const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
-      return JSON.parse(response);
+      const content = response.choices[0].message.content;
+      return JSON.parse(content);
     } catch (error) {
       console.error('Claude fallback error:', error);
       return createDefaultInsights(doctor, product);
@@ -269,8 +278,14 @@ Format as JSON with these exact fields:
 function findPracticeWebsite(results: unknown[], doctor: Doctor): string {
   const directoryDomains = ['ada.org', 'healthgrades.com', 'zocdoc.com', 'vitals.com', 'yelp.com'];
   
+  interface SearchResult {
+    url?: string;
+    title?: string;
+  }
+  
   for (const result of results) {
-    const url = result.url || '';
+    const searchResult = result as SearchResult;
+    const url = searchResult.url || '';
     const urlLower = url.toLowerCase();
     
     // Skip directories
@@ -288,8 +303,14 @@ function findPracticeWebsite(results: unknown[], doctor: Doctor): string {
 }
 
 function determineSourceType(result: unknown): ResearchSource['type'] {
-  const url = result.url?.toLowerCase() || '';
-  const title = result.title?.toLowerCase() || '';
+  interface SearchResult {
+    url?: string;
+    title?: string;
+  }
+  
+  const searchResult = result as SearchResult;
+  const url = searchResult.url?.toLowerCase() || '';
+  const title = searchResult.title?.toLowerCase() || '';
   
   if (url.includes('healthgrades') || url.includes('vitals') || url.includes('zocdoc')) {
     return 'review_site';
@@ -306,17 +327,61 @@ function determineSourceType(result: unknown): ResearchSource['type'] {
   return 'medical_directory';
 }
 
+interface InsightsData {
+  practiceProfile?: {
+    size?: string;
+    patientVolume?: string;
+    yearsInBusiness?: number;
+    technologyLevel?: string;
+    notableFeatures?: string[];
+  };
+  technologyStack?: {
+    current?: string[];
+    recentAdditions?: string[];
+    gaps?: string[];
+  };
+  marketPosition?: {
+    ranking?: string;
+    reputation?: string;
+    differentiators?: string[];
+  };
+  buyingSignals?: string[];
+  competition?: {
+    currentVendors?: string[];
+    recentPurchases?: string[];
+  };
+  approachStrategy?: {
+    bestTiming?: string;
+    preferredChannel?: string;
+    keyMessage?: string;
+    avoidTopics?: string[];
+  };
+  decisionMakers?: {
+    primary?: string;
+    influencers?: string[];
+  };
+  painPoints?: string[];
+  budgetIndicators?: {
+    estimatedRevenue?: string;
+    technologyBudget?: string;
+    purchaseTimeframe?: string;
+  };
+  salesBrief?: string;
+}
+
 function createEnhancedResearchData(
   intelligenceData: IntelligenceGatheringResult,
   insights: unknown,
   doctor: Doctor
 ): ResearchData {
+  const typedInsights = insights as InsightsData;
+  
   // Calculate confidence based on data completeness
   let confidence = 50; // Base NPI verification
   if (intelligenceData.practiceWebsite) confidence += 10;
   if (intelligenceData.allSources.length > 10) confidence += 20;
   if (intelligenceData.allSources.length > 20) confidence += 10;
-  if (insights.practiceProfile?.size) confidence += 10;
+  if (typedInsights.practiceProfile?.size) confidence += 10;
   
   return {
     doctorName: doctor.displayName,
@@ -326,33 +391,33 @@ function createEnhancedResearchData(
       phone: doctor.phone,
       website: intelligenceData.practiceWebsite || undefined,
       specialties: [doctor.specialty],
-      services: insights.practiceProfile?.notableFeatures || [],
-      technology: insights.technologyStack?.current || [],
-      staff: estimateStaffFromSize(insights.practiceProfile?.size),
-      established: insights.practiceProfile?.yearsInBusiness ? 
-        new Date().getFullYear() - insights.practiceProfile.yearsInBusiness + '' : undefined
+      services: typedInsights.practiceProfile?.notableFeatures || [],
+      technology: typedInsights.technologyStack?.current || [],
+      staff: estimateStaffFromSize(typedInsights.practiceProfile?.size),
+      established: typedInsights.practiceProfile?.yearsInBusiness ? 
+        new Date().getFullYear() - typedInsights.practiceProfile.yearsInBusiness + '' : undefined
     },
     credentials: {
       boardCertifications: [doctor.specialty]
     },
     reviews: {
-      averageRating: insights.marketPosition?.reputation?.includes('highly rated') ? 4.5 : undefined,
-      commonPraise: insights.marketPosition?.differentiators || [],
-      commonConcerns: insights.painPoints?.slice(0, 2) || []
+      averageRating: typedInsights.marketPosition?.reputation?.includes('highly rated') ? 4.5 : undefined,
+      commonPraise: typedInsights.marketPosition?.differentiators || [],
+      commonConcerns: typedInsights.painPoints?.slice(0, 2) || []
     },
     businessIntel: {
-      practiceType: insights.practiceProfile?.size || 'Unknown',
-      patientVolume: insights.practiceProfile?.patientVolume || 'Unknown',
-      marketPosition: insights.marketPosition?.ranking || 'Unknown',
-      recentNews: insights.competition?.recentPurchases || [],
-      growthIndicators: insights.buyingSignals || []
+      practiceType: typedInsights.practiceProfile?.size || 'Unknown',
+      patientVolume: typedInsights.practiceProfile?.patientVolume || 'Unknown',
+      marketPosition: typedInsights.marketPosition?.ranking || 'Unknown',
+      recentNews: typedInsights.competition?.recentPurchases || [],
+      growthIndicators: typedInsights.buyingSignals || []
     },
     sources: intelligenceData.allSources,
     confidenceScore: Math.min(confidence, 100),
     completedAt: new Date().toISOString(),
     // Add the rich insights
-    enhancedInsights: insights
-  };
+    enhancedInsights: typedInsights
+  } as ResearchData & { enhancedInsights?: InsightsData };
 }
 
 function createDefaultInsights(doctor: Doctor, product: string): unknown {
@@ -372,7 +437,7 @@ function createDefaultInsights(doctor: Doctor, product: string): unknown {
   };
 }
 
-function estimateStaffFromSize(size: string): number {
+function estimateStaffFromSize(size?: string): number {
   const sizeMap: Record<string, number> = {
     'solo practice': 3,
     'small practice': 8,
@@ -382,7 +447,8 @@ function estimateStaffFromSize(size: string): number {
     'hospital': 100
   };
   
-  return sizeMap[size?.toLowerCase()] || 10;
+  if (!size) return 10;
+  return sizeMap[size.toLowerCase()] || 10;
 }
 
 function createBasicResearchData(doctor: Doctor): ResearchData {

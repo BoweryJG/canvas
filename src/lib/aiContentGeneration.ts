@@ -162,8 +162,11 @@ Body: [Hyper-personalized message]`;
   try {
     const response = await callPerplexityResearch(prompt, 'search');
     
+    // Extract content from the response
+    const content = response.choices[0]?.message?.content || '';
+    
     // Parse the response
-    const lines = response.split('\n');
+    const lines = content.split('\n');
     let subject = '';
     let preheader = '';
     let body = '';
@@ -188,7 +191,7 @@ Body: [Hyper-personalized message]`;
     if (!subject || !body) {
       return {
         subject: `${productName} can transform your ${insights?.specialty || 'practice'}, Dr. ${doctorName}`,
-        body: response || generateFallbackEmail(doctorName, productName, insights || null),
+        body: content || generateFallbackEmail(doctorName, productName, insights || null),
         preheader: preheader || `Proven results in ${researchData.practiceInfo?.address || 'your area'}`
       };
     }
@@ -247,8 +250,11 @@ Also generate follow-up SMS (160 chars) that references their specific pain poin
   try {
     const response = await callPerplexityResearch(prompt, 'search');
     
+    // Extract content from the response
+    const content = response.choices[0]?.message?.content || '';
+    
     // Simple parsing
-    const messages = response.split('\n').filter((line) => line.trim());
+    const messages = content.split('\n').filter((line: string) => line.trim());
     return {
       message: messages[0] || generateFallbackSMS(doctorName, productName, salesRepName),
       followUp: messages[1]

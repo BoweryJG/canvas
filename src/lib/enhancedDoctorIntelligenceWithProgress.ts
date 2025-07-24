@@ -3,7 +3,7 @@
  * Uses multiple data sources and Claude 4 Opus for premium insights
  */
 
-import { callBraveSearch, callBraveLocalSearch, callFirecrawlScrape, callClaude } from './apiEndpoints';
+import { callBraveSearch, callBraveLocalSearch, callFirecrawlScrape, callClaude, type BraveLocalResponse, type BraveLocalResult, type BraveSearchResponse, type BraveSearchResult } from './apiEndpoints';
 import { getClaude4Processor } from './claude4LocalProcessor';
 import type { Doctor } from '../components/DoctorAutocomplete';
 import type { ResearchData, ResearchSource } from './webResearch';
@@ -16,43 +16,26 @@ interface ProgressCallback {
   updateStrategy?: (strategy: string) => void;
 }
 
-interface LocalCompetitor {
-  title: string;
-  address: string;
-  rating: number;
-  rating_count: number;
-  phone?: string;
-  distance?: string;
+// Use the imported BraveLocalResult type as LocalCompetitor
+type LocalCompetitor = BraveLocalResult & {
   categories?: string[];
-  url?: string;
-}
+};
 
-interface LocalCompetitorsResponse {
-  results: LocalCompetitor[];
-}
+// Use the imported BraveLocalResponse type as LocalCompetitorsResponse
+type LocalCompetitorsResponse = BraveLocalResponse;
 
-interface BraveSearchResult {
-  url: string;
-  title: string;
-  description: string;
-}
-
-interface BraveSearchResponse {
-  web?: {
-    results: BraveSearchResult[];
-  };
-}
+// Remove local interfaces and import from apiEndpoints instead
 
 interface IntelligenceGatheringResult {
   practiceWebsite: string;
   allSources: ResearchSource[];
   localCompetitors?: LocalCompetitorsResponse;
   rawData: {
-    practiceInfo: BraveSearchResponse;
-    reviews: BraveSearchResponse;
-    marketPosition: BraveSearchResponse;
-    technology: BraveSearchResponse;
-    competition: BraveSearchResponse;
+    practiceInfo: BraveSearchResponse | null;
+    reviews: BraveSearchResponse | null;
+    marketPosition: BraveSearchResponse | null;
+    technology: BraveSearchResponse | null;
+    competition: BraveSearchResponse | null;
   };
 }
 
@@ -355,11 +338,11 @@ async function gatherAllIntelligenceWithProgress(
     allSources,
     localCompetitors,
     rawData: {
-      practiceInfo: braveResults1,
-      reviews: braveResults2,
-      marketPosition: competitorIntel,
-      technology: technologyIntel,
-      competition: competitorIntel
+      practiceInfo: braveResults1 || null,
+      reviews: braveResults2 || null,
+      marketPosition: competitorIntel || null,
+      technology: technologyIntel || null,
+      competition: competitorIntel || null
     }
   };
 }
@@ -480,14 +463,16 @@ Format as JSON with these exact fields:
     // Try Claude 4 Opus first via OpenRouter
     console.log('🎯 Attempting Claude 4 Opus synthesis...');
     const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
-    return JSON.parse(response);
+    const content = response.choices?.[0]?.message?.content || '{}';
+    return JSON.parse(content);
   } catch (error) {
     console.error('Claude 4 Opus not available, trying Claude 3.5 Sonnet:', error);
     
     // Fallback to Claude 3.5 Sonnet (better than 3.0)
     try {
       const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
-      return JSON.parse(response);
+      const content = response.choices?.[0]?.message?.content || '{}';
+      return JSON.parse(content);
     } catch (error) {
       console.error('Claude 3.5 Sonnet failed, trying local processor:', error);
       
@@ -595,7 +580,7 @@ function createEnhancedResearchData(
     sources: intelligenceData.allSources,
     confidenceScore: Math.min(confidence, 100),
     completedAt: new Date().toISOString(),
-    enhancedInsights: insights as unknown
+    enhancedInsights: JSON.parse(JSON.stringify(insights)) as Record<string, unknown>
   };
 }
 

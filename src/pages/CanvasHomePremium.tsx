@@ -9,7 +9,7 @@ import EnhancedChatLauncher from '../components/EnhancedChatLauncher';
 import DoctorAddressCard from '../components/DoctorAddressCard';
 import { useAuth } from '../auth/useAuth';
 import { checkUserCredits } from '../lib/creditManager';
-import { type UnifiedResults, type BasicScanResult, type EnhancedResult } from '../types/components';
+import { type UnifiedResults, type EnhancedResult, type Address } from '../types/components';
 import type { ResearchData } from '../lib/webResearch';
 import { type InstantIntelligence } from '../lib/instantIntelligence';
 
@@ -67,24 +67,80 @@ interface ScanData {
   doctorName: string;
   product: string;
   location?: string;
+  [key: string]: unknown; // Add index signature for type compatibility
 }
 
-interface PageScanResults {
+// Create a compatible type that works with both SimpleCinematicScan and our needs
+interface ScanResults {
+  // All properties from UnifiedResults
+  discovery?: {
+    practiceWebsite?: string | null;
+    confidence?: number;
+    discoveryMethod?: string;
+    address?: Address;
+    organizationName?: string;
+  };
+  intelligence?: {
+    practiceInfo?: {
+      name?: string;
+      services?: unknown[];
+      technologies?: unknown[];
+    };
+    insights?: unknown[];
+    opportunities?: unknown[];
+    painPoints?: unknown[];
+    competitiveAdvantage?: unknown[];
+  };
+  instant?: {
+    summary?: string;
+    keyPoints?: string[];
+    confidence?: number;
+  };
+  timingMs?: {
+    discovery?: number;
+    intelligence?: number;
+    total?: number;
+  };
+  scrapedWebsiteData?: {
+    url?: string;
+    title?: string;
+    practiceInfo?: {
+      practiceType?: string;
+      services?: string[];
+      technologies?: string[];
+      teamSize?: number;
+    };
+    recentNews?: string[];
+    competitiveAdvantages?: string[];
+  };
+  // Additional properties
   unified?: UnifiedResults;
-  basic?: BasicScanResult;
+  basic?: {
+    confidence: number;
+    doctor: { 
+      name: string; 
+      location: string;
+      address?: Address;
+    };
+    practice: { 
+      name: string;
+      verified: boolean;
+      website?: string | null;
+      address?: Address;
+    };
+    summary?: string;
+    keyPoints?: string[];
+  };
   enhanced?: EnhancedResult;
   research?: unknown;
   instantIntel?: unknown;
-  instant?: unknown;
-  intelligence?: unknown;
-  discovery?: unknown;
   [key: string]: unknown;
 }
 
 const CanvasHomePremium: React.FC = () => {
   const [stage, setStage] = useState<'input' | 'scanning-basic' | 'scanning-deep' | 'campaigns'>('input');
   const [scanData, setScanData] = useState<ScanData | undefined>(undefined);
-  const [deepScanResults, setDeepScanResults] = useState<PageScanResults | undefined>(undefined);
+  const [deepScanResults, setDeepScanResults] = useState<ScanResults | undefined>(undefined);
   const [creditsRemaining, setCreditsRemaining] = useState<number | undefined>(undefined);
   const [creditError] = useState('');
   
@@ -107,7 +163,7 @@ const CanvasHomePremium: React.FC = () => {
     setStage('scanning-basic');
   };
   
-  const handleBasicScanComplete = (results: PageScanResults) => {
+  const handleBasicScanComplete = (results: ScanResults) => {
     console.log('handleBasicScanComplete called with results:', results);
     
     // Store scan results - our unified system already did everything!
@@ -120,7 +176,7 @@ const CanvasHomePremium: React.FC = () => {
   
   
   
-  const handleDeepScanComplete = (results: PageScanResults) => {
+  const handleDeepScanComplete = (results: ScanResults) => {
     console.log('handleDeepScanComplete called with results:', results);
     console.log('handleDeepScanComplete: results.research:', results?.research);
     console.log('handleDeepScanComplete: results.instantIntel:', results?.instantIntel);
@@ -150,7 +206,7 @@ const CanvasHomePremium: React.FC = () => {
             doctorName={scanData.doctorName}
             productName={scanData.product}
             location={scanData.location}
-            onComplete={handleBasicScanComplete}
+            onComplete={handleBasicScanComplete as any}
           />
         )}
         
@@ -159,7 +215,7 @@ const CanvasHomePremium: React.FC = () => {
           <DeepIntelligenceScan
             doctorName={scanData.doctorName}
             location={scanData.location}
-            basicScanResults={deepScanResults}
+            basicScanResults={deepScanResults as any}
             onComplete={handleDeepScanComplete}
           />
         )}
@@ -256,7 +312,7 @@ const CanvasHomePremium: React.FC = () => {
                   objectionHandlers: new Map()
                 }
               } : undefined}
-              deepScanResults={deepScanResults}
+              deepScanResults={deepScanResults as any}
               scanData={scanData as ScanData}
             />
           </Box>

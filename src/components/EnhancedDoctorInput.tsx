@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { DoctorAutocomplete, type Doctor } from './DoctorAutocomplete';
 import DoctorVerification from './DoctorVerification';
 import { smartVerifyDoctor } from '../lib/smartDoctorVerification';

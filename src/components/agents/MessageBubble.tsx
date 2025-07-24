@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import type { Components } from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -10,7 +11,10 @@ interface Message {
   content: string;
   timestamp: string;
   isStreaming?: boolean;
-  metadata?: Record<string, unknown>;
+  metadata?: {
+    isVoice?: boolean;
+    [key: string]: unknown;
+  };
 }
 
 interface MessageBubbleProps {
@@ -84,25 +88,23 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             <div className="text-sm text-white prose prose-invert prose-sm max-w-none">
               <ReactMarkdown
                 components={{
-                  code({ inline, className, children, ...props }: {
-                    inline?: boolean;
-                    className?: string;
-                    children?: React.ReactNode;
-                    [key: string]: unknown;
-                  }) {
+                  code(props) {
+                    const {children, className, ...rest} = props;
+                    const inline = !className?.startsWith('language-');
                     const match = /language-(\w+)/.exec(className || '');
+                    const codeString = String(children).replace(/\n$/, '');
+                    
                     return !inline && match ? (
                       <SyntaxHighlighter
                         style={vscDarkPlus}
                         language={match[1]}
                         PreTag="div"
                         className="rounded-lg my-2"
-                        {...props}
                       >
-                        {String(children).replace(/\n$/, '')}
+                        {codeString}
                       </SyntaxHighlighter>
                     ) : (
-                      <code className="bg-black/50 px-1 py-0.5 rounded text-[#00ffc6]" {...props}>
+                      <code className="bg-black/50 px-1 py-0.5 rounded text-[#00ffc6]" {...rest}>
                         {children}
                       </code>
                     );
@@ -116,7 +118,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
                       {children}
                     </blockquote>
                   ),
-                }}
+                } as Components}
               >
                 {message.content}
               </ReactMarkdown>

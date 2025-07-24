@@ -32,10 +32,6 @@ const ProcedureSelector: React.FC<ProcedureSelectorProps> = ({
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
 
-  useEffect(() => {
-    loadFeaturedProcedures();
-  }, [loadFeaturedProcedures]);
-
   const loadFeaturedProcedures = useCallback(async () => {
     if (!session?.access_token) return;
 
@@ -53,6 +49,10 @@ const ProcedureSelector: React.FC<ProcedureSelectorProps> = ({
       setLoading(false);
     }
   }, [session, backendUrl]);
+
+  useEffect(() => {
+    loadFeaturedProcedures();
+  }, [loadFeaturedProcedures]);
 
   const searchProcedures = useCallback(async (query: string) => {
     if (!query.trim() || !session?.access_token) return;

@@ -14,14 +14,14 @@ import {
 import { getApiEndpoint } from '../config/api';
 
 // Type definitions for API responses
-interface BraveSearchResult {
+export interface BraveSearchResult {
   title: string;
   url: string;
   description: string;
   published?: string;
 }
 
-interface BraveSearchResponse {
+export interface BraveSearchResponse {
   web?: {
     results?: BraveSearchResult[];
   };
@@ -30,9 +30,10 @@ interface BraveSearchResponse {
 interface PerplexitySearchResponse {
   answer: string;
   sources: BraveSearchResult[];
+  error?: boolean;
 }
 
-interface FirecrawlResponse {
+export interface FirecrawlResponse {
   success: boolean;
   markdown: string;
   metadata: {
@@ -53,9 +54,10 @@ interface PerplexityResearchResponse {
   choices: PerplexityChoice[];
   citations?: string[];
   related_questions?: string[];
+  [key: string]: unknown;
 }
 
-interface ClaudeResponse {
+export interface ClaudeResponse {
   choices: Array<{
     message: {
       content: string;
@@ -63,7 +65,7 @@ interface ClaudeResponse {
   }>;
 }
 
-interface BraveLocalResult {
+export interface BraveLocalResult {
   title: string;
   address: string;
   phone: string;
@@ -74,7 +76,7 @@ interface BraveLocalResult {
   url: string;
 }
 
-interface BraveLocalResponse {
+export interface BraveLocalResponse {
   results?: BraveLocalResult[];
 }
 
@@ -114,7 +116,8 @@ async function cachedApiCall<T>(
   // Clean old entries
   if (apiCache.size > 100) {
     const now = Date.now();
-    for (const [key, value] of apiCache.entries()) {
+    const entries = Array.from(apiCache.entries());
+    for (const [key, value] of entries) {
       if (now - value.timestamp > ttl * 2) {
         apiCache.delete(key);
       }

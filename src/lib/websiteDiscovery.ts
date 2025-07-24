@@ -120,7 +120,7 @@ export async function discoverPracticeWebsite(
       verificationSignals: ['claude-4-opus-verified', ...bestWebsite.signals]
     };
     
-  } catch {
+  } catch (error) {
     console.error('Website discovery error:', error);
     return null;
   }
@@ -216,19 +216,22 @@ export function extractWebsiteMetadata(discoveryResult: WebsiteDiscoveryResult):
   tld: string;
   likelyPracticeType?: string;
 } {
-  let url: URL;
+  let url: URL | null = null;
   let domain: string;
   let tld: string;
+  let isSecure: boolean;
   
   try {
     url = new URL(discoveryResult.websiteUrl);
     domain = url.hostname;
     tld = domain.split('.').pop() || '';
+    isSecure = url.protocol === 'https:';
   } catch {
     // Fallback for invalid URLs
     domain = discoveryResult.websiteUrl.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
     tld = domain.split('.').pop() || '';
-    url = { protocol: 'https:' } as Pick<URL, 'protocol'>; // Mock URL object for isSecure check
+    // Default to https for invalid URLs
+    isSecure = discoveryResult.websiteUrl.startsWith('https://');
   }
   
   // Determine likely practice type from domain
@@ -251,7 +254,7 @@ export function extractWebsiteMetadata(discoveryResult: WebsiteDiscoveryResult):
   
   return {
     domain,
-    isSecure: url.protocol === 'https:',
+    isSecure,
     tld,
     likelyPracticeType
   };
