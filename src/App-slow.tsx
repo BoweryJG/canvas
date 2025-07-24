@@ -9,30 +9,18 @@ import NavBar from './components/NavBar'
 import ResearchPanel from './components/ResearchPanel'
 import { conductDoctorResearch, type ResearchData } from './lib/webResearch'
 import { performEnhancedAIScan } from './lib/enhancedAI'
-
-interface ScanResult {
-  doctor: string;
-  product: string;
-  score: number;
-  doctorProfile: string;
-  productIntel: string;
-  salesBrief: string;
-  insights: string[];
-  researchQuality?: 'verified' | 'partial' | 'inferred' | 'unknown';
-  researchSources?: number;
-  factBased?: boolean;
-}
+import { type ScanResult, toEnhancedScanResult } from './types/scan'
 import './App.css'
 
 function App() {
   const [doctor, setDoctor] = useState('')
   const [product, setProduct] = useState('')
   const [isScanning, setIsScanning] = useState(false)
-  const [scanResult, setScanResult] = useState<ScanResult | null>(null)
+  const [scanResult, setScanResult] = useState<ScanResult | undefined>(undefined)
   const [scanStage, setScanStage] = useState('')
   const [scanHistory, setScanHistory] = useState<ScanResult[]>([])
   const [showHistory, setShowHistory] = useState(false)
-  const [researchData, setResearchData] = useState<ResearchData | null>(null)
+  const [researchData, setResearchData] = useState<ResearchData | undefined>(undefined)
   const [isResearching, setIsResearching] = useState(false)
   const [cinematicMode, setCinematicMode] = useState(false)
 
@@ -41,8 +29,8 @@ function App() {
     
     setIsScanning(true)
     setIsResearching(true)
-    setScanResult(null)
-    setResearchData(null)
+    setScanResult(undefined)
+    setResearchData(undefined)
     setScanStage('Initializing Intelligence Scan...')
     
     try {
@@ -78,9 +66,9 @@ function App() {
       
       // Save to Supabase with enhanced data
       const saveResult = await saveScan(finalResult, null)
-      if (saveResult.success) {
+      if (saveResult.success && saveResult.data) {
         console.log('Enhanced scan saved to database:', saveResult.data.id)
-        setScanResult(prev => prev ? { ...prev, scanId: saveResult.data.id } : prev)
+        setScanResult(prev => prev ? { ...prev, scanId: saveResult.data!.id } : prev)
       }
       
     } catch (error) {
@@ -105,7 +93,7 @@ function App() {
     // Load anonymous scans (user_id = null)
     const historyResult = await getScanHistory(null) 
     if (historyResult.success && historyResult.data) {
-      setScanHistory(historyResult.data)
+      setScanHistory(historyResult.data as unknown as ScanResult[])
     }
   }
 
@@ -294,7 +282,7 @@ function App() {
 
       {/* Research Panel */}
       <ResearchPanel 
-        researchData={researchData}
+        researchData={researchData || null}
         isResearching={isResearching}
         researchQuality={scanResult?.researchQuality || 'unknown'}
       />
@@ -303,7 +291,7 @@ function App() {
       {scanResult && !isScanning && (
         <div className="insights-section">
           <div className="insights-grid">
-            {scanResult.insights.map((insight, index) => (
+            {scanResult.insights && Array.isArray(scanResult.insights) && scanResult.insights.map((insight: any, index: number) => (
               <div key={index} className="insight-card">
                 <p>{insight}</p>
               </div>
@@ -321,8 +309,8 @@ function App() {
 
           {/* Enhanced Action Suite */}
           <EnhancedActionSuite 
-            scanResult={scanResult} 
-            researchData={researchData || undefined}
+            scanResult={toEnhancedScanResult(scanResult)} 
+            researchData={researchData}
           />
         </div>
       )}

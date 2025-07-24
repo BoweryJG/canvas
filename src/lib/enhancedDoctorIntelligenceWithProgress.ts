@@ -13,6 +13,7 @@ interface ProgressCallback {
   updateSources: (count: number) => void;
   updateConfidence: (score: number) => void;
   updateStage: (stage: string) => void;
+  updateStrategy?: (strategy: string) => void;
 }
 
 interface LocalCompetitor {
@@ -105,7 +106,19 @@ export async function gatherComprehensiveDoctorIntelligenceWithProgress(
   if (useSuperMode) {
     console.log('🧠 Using SUPER INTELLIGENT mode (legacy)');
     const { gatherSuperIntelligentDoctorResearch } = await import('./superIntelligentDoctorResearch');
-    return gatherSuperIntelligentDoctorResearch(doctor, product, progress);
+    // Create a wrapper to adapt the progress callback
+    const adaptedProgress = progress ? {
+      updateStep: (step: string, status: string, message?: string) => {
+        // Map status string to our expected type
+        const mappedStatus = (['pending', 'active', 'completed', 'found'].includes(status) 
+          ? status 
+          : 'active') as 'pending' | 'active' | 'completed' | 'found';
+        progress.updateStep(step, mappedStatus, message);
+      },
+      updateStage: progress.updateStage
+    } : undefined;
+    
+    return gatherSuperIntelligentDoctorResearch(doctor, product, adaptedProgress);
   }
   
   // Initialize progress steps
@@ -582,7 +595,7 @@ function createEnhancedResearchData(
     sources: intelligenceData.allSources,
     confidenceScore: Math.min(confidence, 100),
     completedAt: new Date().toISOString(),
-    enhancedInsights: insights
+    enhancedInsights: insights as any
   };
 }
 
@@ -652,9 +665,21 @@ function createBasicResearchData(doctor: Doctor): ResearchData {
     credentials: {
       boardCertifications: [doctor.specialty]
     },
-    reviews: {},
+    reviews: {
+      averageRating: 0,
+      totalReviews: 0,
+      commonPraise: [],
+      commonConcerns: [],
+      recentFeedback: []
+    },
     businessIntel: {
-      practiceType: 'Unknown'
+      practiceType: 'Unknown',
+      patientVolume: 'Not Available',
+      marketPosition: 'Not Available',
+      recentNews: [],
+      growthIndicators: [],
+      technologyStack: [],
+      specialty: doctor.specialty || 'Healthcare'
     },
     sources: [],
     confidenceScore: 50,

@@ -30,6 +30,7 @@ import {
 import { validateMagicLink, trackDownload } from '../lib/magicLinkGenerator';
 import { generatePDFReport } from '../lib/simplePdfExport';
 import { MAGIC_LINK_CONFIGS, type SubscriptionTier } from '../types/magicLink';
+import type { ResearchData } from '../lib/webResearch';
 
 // Premium styled components
 const PageContainer = styled(Box)`
@@ -173,9 +174,51 @@ export default function SharedIntelligence() {
       
       // Generate PDF from report data
       const reportData = linkData.report_data;
+      // Create proper fallback ResearchData if missing
+      const fallbackResearchData: ResearchData = reportData.researchData || {
+        doctorName: reportData.scanResult?.doctor || 'Healthcare Professional',
+        practiceInfo: {
+          name: `${reportData.scanResult?.doctor || 'Healthcare Professional'} Medical Practice`,
+          address: 'Not Available',
+          phone: 'Not Available',
+          website: 'Not Available',
+          specialties: [],
+          services: [],
+          technology: [],
+          staff: 0,
+          established: 'Unknown'
+        },
+        credentials: {
+          medicalSchool: 'Not Available',
+          residency: 'Not Available',
+          boardCertifications: [],
+          yearsExperience: 0,
+          hospitalAffiliations: []
+        },
+        reviews: {
+          averageRating: 0,
+          totalReviews: 0,
+          commonPraise: [],
+          commonConcerns: [],
+          recentFeedback: []
+        },
+        businessIntel: {
+          practiceType: 'Unknown',
+          patientVolume: 'Not Available',
+          marketPosition: 'Not Available',
+          recentNews: [],
+          growthIndicators: [],
+          technologyStack: [],
+          specialty: 'Healthcare'
+        },
+        sources: [], // Must be an array, not an object
+        confidenceScore: 0,
+        completedAt: new Date().toISOString()
+      };
+      
       const pdfBlob = await generatePDFReport(
         reportData.scanResult,
-        reportData.researchData || {},
+        fallbackResearchData,
         {
           includeLogo: true,
           includeResearch: true,

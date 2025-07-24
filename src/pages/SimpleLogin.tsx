@@ -16,7 +16,7 @@ import { useAuth } from '../auth';
 
 const SimpleLogin: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | undefined>(undefined);
   const { signInWithProvider, user } = useAuth();
   const navigate = useNavigate();
 
@@ -30,7 +30,7 @@ const SimpleLogin: React.FC = () => {
   const handleProviderAuth = async (provider: 'google' | 'github') => {
     console.log(`SimpleLogin - Authenticating with ${provider}`);
     setLoading(true);
-    setError(null);
+    setError(undefined);
     
     try {
       await signInWithProvider(provider);

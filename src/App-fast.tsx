@@ -6,19 +6,7 @@ import NavBar from './components/NavBar'
 import ResearchPanel from './components/ResearchPanel'
 import IntegratedCanvasExperience from './components/IntegratedCanvasExperience'
 import { AuthProvider } from './auth'
-
-interface ScanResult {
-  doctor: string;
-  product: string;
-  score: number;
-  doctorProfile: string;
-  productIntel: string;
-  salesBrief: string;
-  insights: string[];
-  researchQuality?: 'verified' | 'partial' | 'inferred' | 'unknown';
-  researchSources?: number;
-  factBased?: boolean;
-}
+import { type ScanResult, toEnhancedScanResult } from './types/scan'
 import './App.css'
 
 function App() {
@@ -195,7 +183,13 @@ function App() {
           researchData={{
             doctorName: doctor,
             practiceInfo: { name: doctor, specialties: ['Medical Professional'] },
-            credentials: {},
+            credentials: {
+              medicalSchool: 'Not Available',
+              residency: 'Not Available',
+              boardCertifications: [],
+              yearsExperience: 0,
+              hospitalAffiliations: []
+            },
             reviews: { averageRating: 4.5, totalReviews: 100 },
             sources: [],
             businessIntel: {
@@ -217,7 +211,7 @@ function App() {
       {scanResult && !isScanning && (
         <div className="insights-section">
           <div className="insights-grid">
-            {scanResult.insights.map((insight, index) => (
+            {scanResult.insights && Array.isArray(scanResult.insights) && scanResult.insights.map((insight: any, index: number) => (
               <div key={index} className="insight-card">
                 <p>{insight}</p>
               </div>
@@ -235,7 +229,7 @@ function App() {
 
           {/* Action Suite */}
           <EnhancedActionSuite 
-            scanResult={scanResult} 
+            scanResult={toEnhancedScanResult(scanResult)} 
             researchData={undefined}
           />
         </div>

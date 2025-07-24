@@ -4,11 +4,18 @@ import { ProgressiveResearchEngine } from '../lib/progressiveResearch';
 import { conductEnhancedResearch } from '../lib/enhancedWebResearch';
 import { useAuth } from '../auth';
 
+interface ResearchData {
+  insights?: string[];
+  score?: number;
+  sources?: unknown[];
+  [key: string]: unknown;
+}
+
 interface ResearchProgress {
   stage: 'idle' | 'instant' | 'basic' | 'enhanced' | 'deep' | 'complete';
   percentComplete: number;
   currentAction: string;
-  data: Record<string, unknown>;
+  data: ResearchData;
   timeElapsed: number;
   estimatedTimeRemaining: number;
 }
@@ -19,7 +26,7 @@ export const EnhancedResearchPanel: React.FC = () => {
   const [researchProgress, setResearchProgress] = useState<ResearchProgress | null>(null);
   const [researchEngine] = useState(() => new ProgressiveResearchEngine());
   
-  const handleResearchSubmit = async (formData: Record<string, unknown>) => {
+  const handleResearchSubmit = async (formData: any) => {
     setIsResearching(true);
     
     // If we have NPI data, do enhanced research first
@@ -28,12 +35,12 @@ export const EnhancedResearchPanel: React.FC = () => {
       
       // Quick enhanced search with specialty data
       const enhancedResults = await conductEnhancedResearch({
-        doctorName: formData.doctorName,
-        specialty: formData.specialty,
-        location: formData.location,
-        credential: formData.credential,
-        npi: formData.npi,
-        practiceName: formData.practiceName
+        doctorName: formData.doctorName as string,
+        specialty: formData.specialty as string,
+        location: formData.location as string | undefined,
+        credential: formData.credential as string | undefined,
+        npi: formData.npi as string | undefined,
+        practiceName: formData.practiceName as string | undefined
       }, user?.id);
       
       console.log(`✨ Enhanced search confidence: ${enhancedResults.confidence}%`);
@@ -44,7 +51,7 @@ export const EnhancedResearchPanel: React.FC = () => {
       setResearchProgress(progress);
     });
     
-    researchEngine.on('complete', (finalData: Record<string, unknown>) => {
+    researchEngine.on('complete', (finalData: ResearchData) => {
       setIsResearching(false);
       console.log('Research complete!', finalData);
     });
@@ -56,9 +63,9 @@ export const EnhancedResearchPanel: React.FC = () => {
     
     // Start the progressive research
     researchEngine.startResearch(
-      formData.doctorName,
-      formData.productName,
-      formData.location,
+      formData.doctorName as string,
+      formData.productName as string,
+      formData.location as string | undefined,
       'standard',
       user?.id
     );
@@ -122,13 +129,13 @@ export const EnhancedResearchPanel: React.FC = () => {
             </div>
             
             {/* Research Insights */}
-            {researchProgress.data?.insights && (
+            {researchProgress.data?.insights && Array.isArray(researchProgress.data.insights) && (
               <div className="mt-6">
                 <h4 className="font-semibold text-gray-900 mb-3">
                   Live Intelligence Feed
                 </h4>
                 <div className="space-y-2">
-                  {researchProgress.data.insights.map((insight: string, idx: number) => (
+                  {researchProgress.data.insights.map((insight, idx) => (
                     <div 
                       key={idx}
                       className="flex items-start gap-2 text-sm animate-fade-in"

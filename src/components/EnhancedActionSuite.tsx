@@ -34,20 +34,27 @@ import { type InstantIntelligence } from '../lib/instantIntelligence';
 import ShareIntelligenceModal from './ShareIntelligenceModal';
 import { type SubscriptionTier } from '../types/magicLink';
 import MetallicScrew from './PremiumComponents/MetallicScrew';
+import { 
+  type DeepScanResults, 
+  type ScanData,
+  type SalesRepInfo,
+  getDoctorName,
+  safeAccess
+} from '../types/components';
 
 interface EnhancedActionSuiteProps {
-  scanResult: EnhancedScanResult | Record<string, unknown>;
+  scanResult: EnhancedScanResult;
   researchData?: ResearchData;
   instantIntel?: InstantIntelligence;
-  deepScanResults?: Record<string, unknown>;
-  scanData?: Record<string, unknown>;
+  deepScanResults?: DeepScanResults;
+  scanData?: ScanData;
 }
 
 /**
  * Generate dynamic report name based on product
  */
-function generateDynamicReportName(productName: string, doctorName: string): string {
-  const safeDoctorName = String((typeof doctorName === 'object' && doctorName && 'name' in doctorName ? (doctorName as { name: string }).name : doctorName) || 'Unknown Doctor');
+function generateDynamicReportName(productName: string, doctorName: string | { name: string } | unknown): string {
+  const safeDoctorName = getDoctorName(doctorName);
   const cleanDoctorName = safeDoctorName.replace(/^Dr\.?\s*/i, '');
   return `${productName} Impact Report for Dr. ${cleanDoctorName}`;
 }
@@ -89,11 +96,11 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
   const [contactInfo, setContactInfo] = useState({
     email: '',
     phone: '',
-    preferredName: typeof scanResult.doctor === 'string' ? scanResult.doctor : scanResult.doctor?.name || 'Unknown Doctor'
+    preferredName: getDoctorName(scanResult.doctor)
   });
   
   // Sales rep information
-  const [salesRepInfo, setSalesRepInfo] = useState({
+  const [salesRepInfo, setSalesRepInfo] = useState<SalesRepInfo>({
     name: 'Sales Representative',
     company: 'Your Company',
     product: 'Your Product'
@@ -121,7 +128,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         content: {
           subject: '',
           content: instantIntel.outreachTemplates.sms,
-          personalizations: [typeof scanResult.doctor === 'string' ? scanResult.doctor : scanResult.doctor?.name || 'Unknown Doctor'],
+          personalizations: [getDoctorName(scanResult.doctor)],
           researchInsights: [],
           urgencyScore: 8,
           expectedResponse: 'Quick response'
@@ -203,7 +210,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       if (instantIntel && !researchData) {
         const simplifiedCampaign: OutreachCampaign = {
           id: `instant-campaign-${Date.now()}`,
-          doctorName: scanResult.doctor,
+          doctorName: getDoctorName(scanResult.doctor),
           productName: scanResult.product,
           templates: [],
           sequence: [
@@ -284,34 +291,29 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       
       // Create intelligent fallback research data using all available data sources
       const fallbackResearchData = researchData || {
-        doctorName: scanResult.doctor || 
+        doctorName: getDoctorName(scanResult.doctor) || 
+                    scanData?.doctorName || 
                     scanData?.doctor || 
-                    deepScanResults?.doctorName || 
                     'Healthcare Professional',
         practiceInfo: {
           name: scanData?.practiceInfo?.name ||
-                deepScanResults?.practiceInfo?.name ||
-                `${scanResult.doctor || 'Healthcare Professional'} Medical Practice`,
+                safeAccess(deepScanResults, 'practiceInfo.name', '') ||
+                `${getDoctorName(scanResult.doctor)} Medical Practice`,
           address: scanData?.location ||
                    scanResult.location ||
-                   deepScanResults?.address ||
-                   'Practice Location',
+                   safeAccess(deepScanResults, 'address', 'Practice Location'),
           phone: scanData?.phone ||
                  'Contact Information',
           website: scanData?.website ||
-                   deepScanResults?.website ||
-                   'Practice Website',
+                   safeAccess(deepScanResults, 'website', 'Practice Website'),
           specialties: scanData?.specialties ||
                        (scanResult.specialty ? [scanResult.specialty] : ['Medical Practice']),
           services: scanData?.services ||
-                    deepScanResults?.services ||
-                    ['Healthcare Services'],
+                    safeAccess(deepScanResults, 'services', ['Healthcare Services']),
           technology: scanData?.technology ||
-                      deepScanResults?.technology ||
-                      [],
+                      safeAccess(deepScanResults, 'technology', []),
           staff: scanData?.staff ||
-                 deepScanResults?.staffCount ||
-                 5,
+                 safeAccess(deepScanResults, 'staffCount', 5),
           established: scanData?.established ||
                        '2020'
         },
@@ -346,28 +348,32 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                          growthIndicators: scrapedFallbackData?.competitiveAdvantages || 
                                            scanData?.growthIndicators || 
                                            [],
-                         technologyStack: unifiedFallbackData?.intelligence?.practiceInfo?.technologies || 
-                                          scrapedFallbackData?.practiceInfo?.technologies || 
+                         technologyStack: (unifiedFallbackData?.intelligence?.practiceInfo?.technologies as string[] | undefined) || 
+                                          (scrapedFallbackData?.practiceInfo?.technologies as string[] | undefined) || 
                                           scanData?.technology || 
-                                          deepScanResults?.technology || 
-                                          [],
+                                          safeAccess(deepScanResults, 'technology', []),
                          specialty: scanResult.specialty || 
                                     'Healthcare'
                        },
         sources: scanData?.sources ||
-                 deepScanResults?.sources ||
+                 (Array.isArray(deepScanResults?.sources) ? deepScanResults.sources : []) ||
                  [],
-        confidenceScore: scanData?.confidenceScore ||
-                         instantIntel?.confidenceScore ||
-                         deepScanResults?.confidenceScore ||
+        confidenceScore: (typeof scanData?.confidenceScore === 'number' ? scanData.confidenceScore : undefined) ||
+                         (typeof instantIntel?.confidenceScore === 'number' ? instantIntel.confidenceScore : undefined) ||
+                         (typeof deepScanResults?.confidenceScore === 'number' ? deepScanResults.confidenceScore : undefined) ||
                          (scanResult.score || 0),
         completedAt: scanData?.completedAt ||
-                     deepScanResults?.completedAt ||
+                     (typeof deepScanResults?.completedAt === 'string' ? deepScanResults.completedAt : null) ||
                      new Date().toISOString()
       };
       
       // Pass the REAL data to the PDF generator
-      const realResearchData = {
+      const realResearchData: ResearchData & { 
+        deepScanResults?: DeepScanResults;
+        scanData?: ScanData;
+        actualSearchResults?: unknown;
+        product?: string;
+      } = {
         ...fallbackResearchData,
         deepScanResults: deepScanResults,
         scanData: scanData,
@@ -399,7 +405,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         link.href = url;
         
         // Safer filename generation
-        const doctorName = String(((scanResult.doctor as { name?: string })?.name || scanResult.doctor) || 'Unknown-Doctor').replace(/[^a-zA-Z0-9]/g, '-');
+        const doctorName = getDoctorName(scanResult.doctor).replace(/[^a-zA-Z0-9]/g, '-');
         const filename = `canvas-intelligence-${doctorName}-${new Date().toISOString().split('T')[0]}.pdf`;
         link.download = filename;
         
@@ -516,23 +522,22 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                          growthIndicators: scrapedFallbackData?.competitiveAdvantages || 
                                            scanData?.growthIndicators || 
                                            [],
-                         technologyStack: unifiedFallbackData?.intelligence?.practiceInfo?.technologies || 
-                                          scrapedFallbackData?.practiceInfo?.technologies || 
+                         technologyStack: (unifiedFallbackData?.intelligence?.practiceInfo?.technologies as string[] | undefined) || 
+                                          (scrapedFallbackData?.practiceInfo?.technologies as string[] | undefined) || 
                                           scanData?.technology || 
-                                          deepScanResults?.technology || 
-                                          [],
+                                          safeAccess(deepScanResults, 'technology', []),
                          specialty: scanResult.specialty || 
                                     'Healthcare'
                        },
         sources: scanData?.sources ||
-                 deepScanResults?.sources ||
+                 (Array.isArray(deepScanResults?.sources) ? deepScanResults.sources : []) ||
                  [],
-        confidenceScore: scanData?.confidenceScore ||
-                         instantIntel?.confidenceScore ||
-                         deepScanResults?.confidenceScore ||
+        confidenceScore: (typeof scanData?.confidenceScore === 'number' ? scanData.confidenceScore : undefined) ||
+                         (typeof instantIntel?.confidenceScore === 'number' ? instantIntel.confidenceScore : undefined) ||
+                         (typeof deepScanResults?.confidenceScore === 'number' ? deepScanResults.confidenceScore : undefined) ||
                          (scanResult.score || 0),
         completedAt: scanData?.completedAt ||
-                     deepScanResults?.completedAt ||
+                     (typeof deepScanResults?.completedAt === 'string' ? deepScanResults.completedAt : null) ||
                      new Date().toISOString()
       };
       
@@ -560,7 +565,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
       const url = URL.createObjectURL(pdfBlob);
       const link = document.createElement('a');
       link.href = url;
-      const filename = `deep-research-${String(((scanResult.doctor as { name?: string })?.name || scanResult.doctor) || 'Unknown-Doctor').replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
+      const filename = `deep-research-${getDoctorName(scanResult.doctor).replace(/[^a-zA-Z0-9]/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
       link.download = filename;
       
       console.log('Deep Research download link created:', link.href);
@@ -636,14 +641,14 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
           website: unifiedData?.discovery?.practiceWebsite || 
                    scrapedData?.url || 
                    'Practice Website',
-          specialties: unifiedData?.intelligence?.practiceInfo?.services || 
+          specialties: (unifiedData?.intelligence?.practiceInfo?.services as string[] | undefined) || 
                        scanData?.specialties || 
                        ['Medical Practice'],
-          services: unifiedData?.intelligence?.practiceInfo?.services || 
-                    scrapedData?.practiceInfo?.services || 
+          services: (unifiedData?.intelligence?.practiceInfo?.services as string[] | undefined) || 
+                    (scrapedData?.practiceInfo?.services as string[] | undefined) || 
                     ['Healthcare Services'],
-          technology: unifiedData?.intelligence?.practiceInfo?.technologies || 
-                      scrapedData?.practiceInfo?.technologies || 
+          technology: (unifiedData?.intelligence?.practiceInfo?.technologies as string[] | undefined) || 
+                      (scrapedData?.practiceInfo?.technologies as string[] | undefined) || 
                       [],
           staff: scrapedData?.practiceInfo?.teamSize || 
                  scanData?.staff || 
@@ -685,14 +690,14 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                                     'Healthcare'
                        },
         sources: scanData?.sources ||
-                 deepScanResults?.sources ||
+                 (Array.isArray(deepScanResults?.sources) ? deepScanResults.sources : []) ||
                  [],
-        confidenceScore: scanData?.confidenceScore ||
-                         instantIntel?.confidenceScore ||
-                         deepScanResults?.confidenceScore ||
+        confidenceScore: (typeof scanData?.confidenceScore === 'number' ? scanData.confidenceScore : undefined) ||
+                         (typeof instantIntel?.confidenceScore === 'number' ? instantIntel.confidenceScore : undefined) ||
+                         (typeof deepScanResults?.confidenceScore === 'number' ? deepScanResults.confidenceScore : undefined) ||
                          (scanResult.score || 0),
         completedAt: scanData?.completedAt ||
-                     deepScanResults?.completedAt ||
+                     (typeof deepScanResults?.completedAt === 'string' ? deepScanResults.completedAt : null) ||
                      new Date().toISOString()
       };
       
@@ -773,7 +778,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         link.href = url;
         
         // Safer filename generation
-        const doctorName = String(((scanResult.doctor as { name?: string })?.name || scanResult.doctor) || 'Unknown-Doctor').replace(/[^a-zA-Z0-9]/g, '-');
+        const doctorName = getDoctorName(scanResult.doctor).replace(/[^a-zA-Z0-9]/g, '-');
         const filename = `sales-report-${reportType}-${doctorName}-${new Date().toISOString().split('T')[0]}.pdf`;
         link.download = filename;
         
@@ -1696,13 +1701,13 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
                 <h5>📋 Data to be synced:</h5>
                 <div className="preview-items">
                   <div className="preview-item">
-                    <strong>Contact:</strong> {scanResult.doctor}
+                    <strong>Contact:</strong> {getDoctorName(scanResult.doctor)}
                   </div>
                   <div className="preview-item">
-                    <strong>Company:</strong> {researchData?.practiceInfo?.name || `${scanResult.doctor} Medical Practice`}
+                    <strong>Company:</strong> {researchData?.practiceInfo?.name || `${getDoctorName(scanResult.doctor)} Medical Practice`}
                   </div>
                   <div className="preview-item">
-                    <strong>Opportunity:</strong> {scanResult.doctor} - {scanResult.product} Opportunity
+                    <strong>Opportunity:</strong> {getDoctorName(scanResult.doctor)} - {scanResult.product} Opportunity
                   </div>
                   <div className="preview-item">
                     <strong>Practice Score:</strong> {scanResult.score}%
@@ -1998,9 +2003,9 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
           open={showSEOReport}
           onClose={() => setShowSEOReport(false)}
           websiteUrl={researchData.practiceInfo.website}
-          doctorName={scanResult.doctor}
+          doctorName={getDoctorName(scanResult.doctor)}
           location={researchData.practiceInfo.address || ''}
-          specialty={researchData.enhancedInsights?.specialty}
+          specialty={typeof researchData.enhancedInsights?.specialty === 'string' ? researchData.enhancedInsights.specialty : undefined}
           userId={user?.id}
         />
       )}
@@ -2010,11 +2015,11 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         open={showShareModal}
         onClose={() => setShowShareModal(false)}
         reportData={{
-          scanResult,
-          researchData,
-          deepScanResults,
-          scanData,
-          instantIntel
+          scanResult: scanResult as unknown as Record<string, unknown>,
+          researchData: researchData as unknown as Record<string, unknown> | undefined,
+          deepScanResults: deepScanResults as unknown as Record<string, unknown> | undefined,
+          scanData: scanData as unknown as Record<string, unknown> | undefined,
+          instantIntel: instantIntel as unknown as Record<string, unknown> | undefined
         }}
         doctorName={scanResult.doctor}
         userTier={getUserTier()}

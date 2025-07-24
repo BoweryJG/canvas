@@ -82,6 +82,14 @@ export async function callAnthropicDirect(
   });
 }
 
+interface OpenRouterResponse {
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+}
+
 /**
  * Drop-in replacement for callOpenRouter that uses direct Anthropic API
  */
@@ -89,7 +97,7 @@ export async function callAnthropicInsteadOfOpenRouter(
   prompt: string, 
   model: string = 'anthropic/claude-3.5-sonnet',
   userId?: string
-): Promise<string> {
+): Promise<OpenRouterResponse> {
   // Map OpenRouter model names to Anthropic model names
   const modelMap: Record<string, string> = {
     'anthropic/claude-3.5-sonnet': 'claude-3-5-sonnet-20241022',

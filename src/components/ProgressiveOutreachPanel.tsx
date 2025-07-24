@@ -13,6 +13,8 @@ import {
 import { generateProgressiveOutreach, getOutreachCapabilities, OUTREACH_TIERS } from '../lib/progressiveOutreach';
 
 interface ResearchData {
+  doctorName: string;
+  productName: string;
   businessName?: string;
   contactInfo?: {
     name?: string;
@@ -229,13 +231,13 @@ export function ProgressiveOutreachPanel({
             </div>
 
             {/* Personalizations */}
-            {generatedMaterial.personalizations?.length > 0 && (
+            {generatedMaterial.personalizations && generatedMaterial.personalizations.length > 0 && (
               <div>
                 <h5 className="text-sm font-medium text-gray-900 mb-2">
                   Personalizations ({generatedMaterial.personalizations.length})
                 </h5>
                 <div className="flex flex-wrap gap-2">
-                  {generatedMaterial.personalizations.map((item: string, i: number) => (
+                  {generatedMaterial.personalizations!.map((item: string, i: number) => (
                     <span 
                       key={i}
                       className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
@@ -248,13 +250,13 @@ export function ProgressiveOutreachPanel({
             )}
 
             {/* Follow-up Sequence */}
-            {generatedMaterial.followUpSequence?.length > 0 && (
+            {generatedMaterial.followUpSequence && generatedMaterial.followUpSequence.length > 0 && (
               <div>
                 <h5 className="text-sm font-medium text-gray-900 mb-2">
                   Follow-up Sequence
                 </h5>
                 <div className="space-y-2">
-                  {generatedMaterial.followUpSequence.map((followUp: FollowUpMessage, i: number) => (
+                  {generatedMaterial.followUpSequence!.map((followUp: FollowUpMessage, i: number) => (
                     <div key={i} className="flex items-center space-x-3 text-sm">
                       <span className="text-gray-500">Day {followUp.day}:</span>
                       <span className="text-gray-700">{followUp.subject}</span>

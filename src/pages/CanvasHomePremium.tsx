@@ -9,6 +9,8 @@ import EnhancedChatLauncher from '../components/EnhancedChatLauncher';
 import DoctorAddressCard from '../components/DoctorAddressCard';
 import { useAuth } from '../auth/useAuth';
 import { checkUserCredits } from '../lib/creditManager';
+import { type UnifiedResults, type BasicScanResult, type EnhancedResult, type InstantIntelligence } from '../types/components';
+import type { ResearchData } from '../lib/webResearch';
 
 // Premium gradient background with RepSpheres styling
 const PremiumBackground = styled(Box)`
@@ -66,7 +68,10 @@ interface ScanData {
   location?: string;
 }
 
-interface ScanResults {
+interface PageScanResults {
+  unified?: UnifiedResults;
+  basic?: BasicScanResult;
+  enhanced?: EnhancedResult;
   research?: unknown;
   instantIntel?: unknown;
   instant?: unknown;
@@ -77,9 +82,9 @@ interface ScanResults {
 
 const CanvasHomePremium: React.FC = () => {
   const [stage, setStage] = useState<'input' | 'scanning-basic' | 'scanning-deep' | 'campaigns'>('input');
-  const [scanData, setScanData] = useState<ScanData | null>(null);
-  const [deepScanResults, setDeepScanResults] = useState<ScanResults | null>(null);
-  const [creditsRemaining, setCreditsRemaining] = useState<number | null>(null);
+  const [scanData, setScanData] = useState<ScanData | undefined>(undefined);
+  const [deepScanResults, setDeepScanResults] = useState<PageScanResults | undefined>(undefined);
+  const [creditsRemaining, setCreditsRemaining] = useState<number | undefined>(undefined);
   const [creditError] = useState('');
   
   const { user } = useAuth();
@@ -101,7 +106,7 @@ const CanvasHomePremium: React.FC = () => {
     setStage('scanning-basic');
   };
   
-  const handleBasicScanComplete = (results: ScanResults) => {
+  const handleBasicScanComplete = (results: any) => {
     console.log('handleBasicScanComplete called with results:', results);
     
     // Store scan results - our unified system already did everything!
@@ -114,7 +119,7 @@ const CanvasHomePremium: React.FC = () => {
   
   
   
-  const handleDeepScanComplete = (results: ScanResults) => {
+  const handleDeepScanComplete = (results: PageScanResults) => {
     console.log('handleDeepScanComplete called with results:', results);
     console.log('handleDeepScanComplete: results.research:', results?.research);
     console.log('handleDeepScanComplete: results.instantIntel:', results?.instantIntel);
@@ -134,7 +139,7 @@ const CanvasHomePremium: React.FC = () => {
         {stage === 'input' && (
           <RepSpheresSearchPanel
             onScanStart={handleScanStart}
-            creditsRemaining={creditsRemaining}
+            creditsRemaining={creditsRemaining || null}
             creditError={creditError}
           />
         )}
@@ -171,16 +176,24 @@ const CanvasHomePremium: React.FC = () => {
               <Box sx={{ maxWidth: 800, mx: 'auto', mb: 3 }}>
                 <DoctorAddressCard
                   doctorName={scanData?.doctorName || 'Unknown Doctor'}
-                  address={deepScanResults.unified.discovery.address}
+                  address={{
+                    street: deepScanResults.unified.discovery.address.street || '',
+                    city: deepScanResults.unified.discovery.address.city || '',
+                    state: deepScanResults.unified.discovery.address.state || '',
+                    zip: deepScanResults.unified.discovery.address.zip,
+                    full: deepScanResults.unified.discovery.address.full || ''
+                  }}
                   practiceName={deepScanResults.unified.discovery.organizationName || deepScanResults.unified.intelligence?.practiceInfo?.name}
-                  website={deepScanResults.unified.discovery.practiceWebsite}
+                  website={deepScanResults.unified.discovery.practiceWebsite || undefined}
                   verified={true}
                 />
               </Box>
             )}
             <EnhancedActionSuite
               scanResult={{
-                doctor: deepScanResults?.enhanced?.doctor || deepScanResults?.basic?.doctor || scanData?.doctorName || 'Unknown Doctor',
+                doctor: (typeof deepScanResults?.enhanced?.doctor === 'string' ? deepScanResults.enhanced.doctor : deepScanResults?.enhanced?.doctor?.name) || 
+                       (typeof deepScanResults?.basic?.doctor === 'string' ? deepScanResults.basic.doctor : deepScanResults?.basic?.doctor?.name) || 
+                       scanData?.doctorName || 'Unknown Doctor',
                 product: scanData?.product || 'Product',
                 score: deepScanResults?.enhanced?.confidence || deepScanResults?.basic?.confidence || 0,
                 doctorProfile: deepScanResults?.enhanced?.summary || deepScanResults?.basic?.summary || 'Medical professional',
@@ -191,10 +204,55 @@ const CanvasHomePremium: React.FC = () => {
                 researchSources: 5,
                 factBased: true
               }}
-              researchData={deepScanResults || { practiceInfo: {}, marketInsights: {} }}
-              instantIntel={deepScanResults?.instant || deepScanResults || { outreachTemplates: { email: { subject: '', body: '' } } }}
+              researchData={deepScanResults as unknown as ResearchData || {
+                doctorName: scanData?.doctorName || 'Healthcare Professional',
+                practiceInfo: {
+                  name: `${scanData?.doctorName || 'Healthcare Professional'} Medical Practice`,
+                  address: 'Not Available',
+                  phone: 'Not Available',
+                  website: 'Not Available',
+                  specialties: [],
+                  services: [],
+                  technology: [],
+                  staff: 0,
+                  established: 'Unknown'
+                },
+                credentials: {
+                  medicalSchool: 'Not Available',
+                  residency: 'Not Available',
+                  boardCertifications: [],
+                  yearsExperience: 0,
+                  hospitalAffiliations: []
+                },
+                reviews: {
+                  averageRating: 0,
+                  totalReviews: 0,
+                  commonPraise: [],
+                  commonConcerns: [],
+                  recentFeedback: []
+                },
+                businessIntel: {
+                  practiceType: 'Unknown',
+                  patientVolume: 'Not Available',
+                  marketPosition: 'Not Available',
+                  recentNews: [],
+                  growthIndicators: [],
+                  technologyStack: [],
+                  specialty: 'Healthcare'
+                },
+                sources: [], // Must be an array, not an object
+                confidenceScore: 0,
+                completedAt: new Date().toISOString()
+              }}
+              instantIntel={deepScanResults?.instant ? {
+                ...(deepScanResults.instant as any),
+                tacticalBrief: (deepScanResults.instant as any).tacticalBrief || '',
+                keyInsights: (deepScanResults.instant as any).keyInsights || [],
+                painPoints: (deepScanResults.instant as any).painPoints || [],
+                approachStrategy: (deepScanResults.instant as any).approachStrategy || ''
+              } as InstantIntelligence : undefined}
               deepScanResults={deepScanResults}
-              scanData={scanData}
+              scanData={scanData as any}
             />
           </Box>
         )}

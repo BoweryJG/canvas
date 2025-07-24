@@ -246,7 +246,13 @@ export async function simpleCanvasResearch(
         credentials: {
           boardCertifications: [instant.doctor.specialty]
         },
-        reviews: {},
+        reviews: {
+          averageRating: 0,
+          totalReviews: 0,
+          commonPraise: [],
+          commonConcerns: [],
+          recentFeedback: []
+        },
         businessIntel: {
           practiceType: instant.quickInsights.practiceSize,
           patientVolume: instant.quickInsights.patientVolume,

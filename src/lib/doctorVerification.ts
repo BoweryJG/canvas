@@ -5,6 +5,13 @@
 
 import { callBraveSearch } from './apiEndpoints';
 
+interface BraveSearchResult {
+  url: string;
+  title: string;
+  description: string;
+  published?: string;
+}
+
 interface VerificationResult {
   name: string;
   specialty: string;
@@ -19,7 +26,7 @@ interface VerificationResult {
     url: string;
     type: 'directory' | 'website' | 'review';
   }>;
-  rawData: unknown[]; // Store raw search data for later synthesis
+  rawData: BraveSearchResult[]; // Store raw search data for later synthesis
 }
 
 export async function verifyDoctor(doctorName: string, location?: string): Promise<VerificationResult> {
@@ -45,7 +52,7 @@ export async function verifyDoctor(doctorName: string, location?: string): Promi
   return profile;
 }
 
-function extractVerificationData(results: unknown[], doctorName: string, location?: string): VerificationResult {
+function extractVerificationData(results: BraveSearchResult[], doctorName: string, location?: string): VerificationResult {
   const profile: VerificationResult = {
     name: doctorName,
     specialty: '',
@@ -64,7 +71,7 @@ function extractVerificationData(results: unknown[], doctorName: string, locatio
   let foundPracticeWebsite = false;
   
   // FIRST PASS: Prioritize finding the practice website
-  results.forEach(result => {
+  results.forEach((result: BraveSearchResult) => {
     const text = `${result.title} ${result.description}`.toLowerCase();
     
     if (!isRelevantResult(text, doctorName, location)) return;
@@ -83,7 +90,7 @@ function extractVerificationData(results: unknown[], doctorName: string, locatio
   });
   
   // SECOND PASS: Extract other information
-  results.forEach(result => {
+  results.forEach((result: BraveSearchResult) => {
     const text = `${result.title} ${result.description}`.toLowerCase();
     const url = result.url.toLowerCase();
     
@@ -369,7 +376,7 @@ function calculateResultConfidence(text: string, url: string, doctorName: string
   return Math.min(confidence, 90);
 }
 
-function generateAdditionalInfo(profile: VerificationResult, results: any[]): string {
+function generateAdditionalInfo(profile: VerificationResult, results: BraveSearchResult[]): string {
   const info: string[] = [];
   
   // Highlight practice website as primary verification
@@ -392,7 +399,7 @@ function generateAdditionalInfo(profile: VerificationResult, results: any[]): st
   // Extract any additional relevant details from the first result
   if (results.length > 0) {
     const firstResult = results[0];
-    const description = firstResult.description;
+    const description = firstResult.description || '';
     
     // Look for years of experience, education, etc.
     const yearsMatch = description.match(/(\d+)\s*years?\s*(?:of\s*)?(?:experience|practicing)/i);

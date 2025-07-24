@@ -33,11 +33,20 @@ interface Synthesis {
 }
 
 interface Source {
-  [key: string]: unknown;
+  url: string;
+  title: string;
+  type: string;
+  content: string;
+  confidence: number;
+  [key: string]: unknown; // Allow additional properties
 }
 
 interface Competitor {
-  [key: string]: unknown;
+  name: string;
+  url?: string;
+  type?: string;
+  description?: string;
+  [key: string]: unknown; // Allow additional properties
 }
 
 export interface ConfidenceFactors {
@@ -193,13 +202,13 @@ function determinePracticeDataQuality(
   let qualityScore = 0;
   
   // Website quality
-  if (websiteIntel?.services?.length > 3) qualityScore++;
-  if (websiteIntel?.technology?.length > 0) qualityScore++;
+  if (websiteIntel?.services && websiteIntel.services.length > 3) qualityScore++;
+  if (websiteIntel?.technology && websiteIntel.technology.length > 0) qualityScore++;
   if (websiteIntel?.philosophy) qualityScore++;
   
   // Review quality
   if (reviewData?.combinedRating) qualityScore++;
-  if (reviewData?.doctorReviews?.highlights?.length > 0) qualityScore++;
+  if (reviewData?.doctorReviews?.highlights && reviewData.doctorReviews.highlights.length > 0) qualityScore++;
   
   // Synthesis quality
   if (synthesis?.practiceProfile?.size && synthesis.practiceProfile.size !== 'Unknown') qualityScore++;

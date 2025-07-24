@@ -73,8 +73,8 @@ async function gatherAllIntelligence(doctor: Doctor, product: string): Promise<I
   const competitorIntel = await callBraveSearch(`${specialty} practices ${location} -"${doctorFullName}"`, 5);
   
   // Optional: Use Perplexity for deep analysis (but it's just using Brave as fallback for now)
-  let perplexityResults1 = null;
-  const perplexityResults2 = null;
+  let perplexityResults1: Record<string, unknown> | undefined;
+  const perplexityResults2: Record<string, unknown> | undefined = undefined;
   
   try {
     perplexityResults1 = await callPerplexitySearch(`${doctorFullName} ${specialty} ${location} practice technology equipment`);
@@ -125,7 +125,7 @@ async function gatherAllIntelligence(doctor: Doctor, product: string): Promise<I
       url: 'perplexity-analysis',
       title: 'AI Analysis: Doctor Profile',
       type: 'medical_directory',
-      content: perplexityResults1.answer,
+      content: String(perplexityResults1.answer),
       confidence: 85,
       lastUpdated: new Date().toISOString()
     });
@@ -165,7 +165,7 @@ async function gatherAllIntelligence(doctor: Doctor, product: string): Promise<I
     rawData: {
       practiceInfo: braveResults1,
       reviews: braveResults2,
-      marketPosition: perplexityResults2,
+      marketPosition: perplexityResults2 || {} as Record<string, unknown>,
       technology: technologyIntel,
       competition: competitorIntel
     }
@@ -396,9 +396,21 @@ function createBasicResearchData(doctor: Doctor): ResearchData {
     credentials: {
       boardCertifications: [doctor.specialty]
     },
-    reviews: {},
+    reviews: {
+      averageRating: 0,
+      totalReviews: 0,
+      commonPraise: [],
+      commonConcerns: [],
+      recentFeedback: []
+    },
     businessIntel: {
-      practiceType: 'Unknown'
+      practiceType: 'Unknown',
+      patientVolume: 'Not Available',
+      marketPosition: 'Not Available',
+      recentNews: [],
+      growthIndicators: [],
+      technologyStack: [],
+      specialty: doctor.specialty || 'Healthcare'
     },
     sources: [],
     confidenceScore: 50,

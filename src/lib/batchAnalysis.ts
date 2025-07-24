@@ -2,6 +2,7 @@ import { type EnhancedScanResult } from './enhancedAI';
 import { type ResearchData } from './webResearch';
 import { performAIScan } from './ai';
 import { conductDoctorResearch } from './webResearch';
+import { toEnhancedScanResult } from '../types/scan';
 
 export interface BatchDoctorInput {
   id: string;
@@ -49,9 +50,10 @@ export class BatchAnalysisEngine {
   private abortController?: AbortController;
   private onProgressUpdate?: (progress: BatchAnalysisProgress) => void;
   private onResultUpdate?: (result: BatchAnalysisResult) => void;
+  private options: BatchAnalysisOptions;
 
   constructor(
-    private options: BatchAnalysisOptions = {
+    options: BatchAnalysisOptions = {
       includeWebResearch: true,
       maxConcurrent: 3,
       delayBetweenRequests: 2000,
@@ -60,6 +62,7 @@ export class BatchAnalysisEngine {
       confidenceThreshold: 40
     }
   ) {
+    this.options = options;
     this.progress = {
       total: 0,
       completed: 0,
@@ -197,7 +200,7 @@ export class BatchAnalysisEngine {
       if (this.options.skipLowConfidence && scanResult.score < this.options.confidenceThreshold) {
         console.log(`⚠️ Skipping ${doctor.doctor} - low confidence (${scanResult.score}%)`);
         result.status = 'completed';
-        result.scanResult = scanResult;
+        result.scanResult = toEnhancedScanResult(scanResult);
         result.processingTime = Date.now() - startTime;
         result.completedAt = new Date();
         this.progress.completed++;
@@ -206,7 +209,7 @@ export class BatchAnalysisEngine {
         return;
       }
 
-      result.scanResult = scanResult;
+      result.scanResult = toEnhancedScanResult(scanResult);
 
       // Perform web research if enabled
       if (this.options.includeWebResearch) {
@@ -363,7 +366,7 @@ export function exportBatchResultsToCSV(results: BatchAnalysisResult[]): string 
     result.status,
     result.scanResult?.score || '',
     result.scanResult?.researchQuality || '',
-    result.scanResult?.recommendations?.slice(0, 2).join('; ') || '',
+    Array.isArray(result.scanResult?.insights) ? result.scanResult.insights.slice(0, 2).join('; ') : '',
     result.processingTime || '',
     result.completedAt?.toISOString() || '',
     result.error || ''

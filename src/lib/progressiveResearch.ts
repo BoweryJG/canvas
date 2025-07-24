@@ -58,9 +58,28 @@ export class ProgressiveResearchEngine extends EventEmitter {
       score: 0,
       insights: [],
       sources: [],
-      practiceInfo: {},
-      competitiveIntel: {},
-      outreachStrategy: {}
+      practiceInfo: {
+        name: 'Not Available',
+        address: 'Not Available',
+        phone: 'Not Available',
+        website: 'Not Available',
+        specialties: [],
+        services: [],
+        technology: [],
+        staff: 0,
+        established: 'Unknown'
+      },
+      competitiveIntel: {
+        competitors: [],
+        marketShare: 'Unknown',
+        strengths: [],
+        weaknesses: []
+      },
+      outreachStrategy: {
+        approach: 'Standard',
+        timing: 'Business hours',
+        channel: 'Email'
+      }
     };
     
     try {

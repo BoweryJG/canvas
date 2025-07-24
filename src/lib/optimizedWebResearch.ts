@@ -187,10 +187,40 @@ async function structureResearchData(sources: ResearchSource[], doctorName: stri
 function createFallbackData(doctorName: string): ResearchData {
   return {
     doctorName,
-    practiceInfo: {},
-    credentials: {},
-    reviews: {},
-    businessIntel: {},
+    practiceInfo: {
+      name: `${doctorName} Medical Practice`,
+      address: 'Not Available',
+      phone: 'Not Available',
+      website: 'Not Available',
+      specialties: [],
+      services: [],
+      technology: [],
+      staff: 0,
+      established: 'Unknown'
+    },
+    credentials: {
+      medicalSchool: 'Not Available',
+      residency: 'Not Available',
+      boardCertifications: [],
+      yearsExperience: 0,
+      hospitalAffiliations: []
+    },
+    reviews: {
+      averageRating: 0,
+      totalReviews: 0,
+      commonPraise: [],
+      commonConcerns: [],
+      recentFeedback: []
+    },
+    businessIntel: {
+      practiceType: 'Unknown',
+      patientVolume: 'Not Available',
+      marketPosition: 'Not Available',
+      recentNews: [],
+      growthIndicators: [],
+      technologyStack: [],
+      specialty: 'Healthcare'
+    },
     sources: [],
     confidenceScore: 0,
     completedAt: new Date().toISOString()

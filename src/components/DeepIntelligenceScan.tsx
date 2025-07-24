@@ -117,7 +117,7 @@ export default function DeepIntelligenceScan({
           setScanStage('Intelligence Report Ready');
           setProgress(100);
           setIsScanning(false);
-          onComplete?.(basicScanResults);
+          onComplete?.(basicScanResults || {});
         }
       }
     }

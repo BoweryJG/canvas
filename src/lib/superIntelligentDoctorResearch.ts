@@ -333,9 +333,21 @@ function createFallbackResearchData(doctor: Doctor): ResearchData {
     credentials: {
       boardCertifications: [doctor.specialty]
     },
-    reviews: {},
+    reviews: {
+      averageRating: 0,
+      totalReviews: 0,
+      commonPraise: [],
+      commonConcerns: [],
+      recentFeedback: []
+    },
     businessIntel: {
-      practiceType: 'Unknown'
+      practiceType: 'Unknown',
+      patientVolume: 'Not Available',
+      marketPosition: 'Not Available',
+      recentNews: [],
+      growthIndicators: [],
+      technologyStack: [],
+      specialty: doctor.specialty || 'Healthcare'
     },
     sources: [],
     confidenceScore: 50,

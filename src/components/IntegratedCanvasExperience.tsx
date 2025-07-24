@@ -9,7 +9,7 @@ import { styled } from '@mui/material/styles';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bolt, AutoAwesome } from '@mui/icons-material';
 import SimpleCinematicScan from './SimpleCinematicScan';
-import SimpleProgressiveResults from './SimpleProgressiveResults';
+import SimpleProgressiveResults, { type ScanData } from './SimpleProgressiveResults';
 import { EnhancedNPILookup } from './EnhancedNPILookup';
 import { CanvasMainSearch } from './CanvasMainSearch';
 import { useAuth } from '../auth';
@@ -393,7 +393,7 @@ export default function IntegratedCanvasExperience() {
           doctorName={doctor}
           userTier={userTier}
           onUpgradeClick={handleUpgrade}
-          scanData={scanResults}
+          scanData={scanResults as ScanData | undefined}
         />
       </motion.div>
     </Container>
@@ -410,7 +410,7 @@ export default function IntegratedCanvasExperience() {
             productName="General Analysis"
             location={location}
             onComplete={(results) => {
-              setScanResults(results);
+              setScanResults(results as UnifiedIntelligenceResult);
               setStage('results');
             }}
           />

@@ -11,8 +11,9 @@ import { type ExtendedResearchData } from './types/research';
 interface CompetitorData {
   competitors: Array<{
     name: string;
-    distance: string;
-    rating: number;
+    distance?: string;
+    rating?: number;
+    mentioned?: boolean;
     [key: string]: unknown;
   }>;
 }
@@ -21,7 +22,20 @@ interface SynthesisResult {
   salesBrief?: string;
   technologyStack?: {
     current?: string[];
+    gaps?: string[];
+    readiness?: string;
   };
+  practiceProfile?: Record<string, any>;
+  credentials?: Record<string, any>;
+  reviews?: Record<string, any>;
+  businessIntel?: Record<string, any>;
+  marketPosition?: Record<string, any>;
+  buyingSignals?: string[];
+  competition?: Record<string, any>;
+  approachStrategy?: Record<string, any>;
+  painPoints?: string[];
+  decisionMakers?: Record<string, any>;
+  budgetIndicators?: Record<string, any>;
   [key: string]: unknown;
 }
 import { callBraveSearch, callFirecrawlScrape } from './apiEndpoints';
@@ -232,7 +246,7 @@ export async function adaptiveResearch(
       strategy,
       doctor,
       product,
-      productIntelligence // Pass product intelligence to synthesis
+      productIntelligence as any // Pass product intelligence to synthesis
     );
     
     // Calculate confidence with strategy awareness
@@ -252,13 +266,13 @@ export async function adaptiveResearch(
       // Extended fields
       technologyStack: synthesis.technologyStack || {},
       marketPosition: synthesis.marketPosition || {},
-      buyingSignals: synthesis.buyingSignals || [],
+      buyingSignals: Array.isArray(synthesis.buyingSignals) ? synthesis.buyingSignals : [],
       competition: synthesis.competition || {},
       approachStrategy: synthesis.approachStrategy || {},
-      painPoints: synthesis.painPoints || [],
+      painPoints: Array.isArray(synthesis.painPoints) ? synthesis.painPoints : [],
       decisionMakers: synthesis.decisionMakers || {},
       budgetInfo: synthesis.budgetIndicators || {},
-      salesBrief: synthesis.salesBrief || generateBackupSalesBrief(doctor, product, strategy, sources),
+      salesBrief: (synthesis.salesBrief || generateBackupSalesBrief(doctor, product, strategy, sources)) as string,
       totalTime: Date.now() - startTime,
       strategyUsed: {
         focusAreas: strategy.focusAreas,
@@ -371,7 +385,7 @@ async function analyzeCompetitors(
   _product: string,
   knownCompetitors: string[],
   sources: ResearchSource[]
-): Promise<{ markdown?: string; metadata?: { title?: string; description?: string } } | null> {
+): Promise<CompetitorData | null> {
   const competitorSearches = knownCompetitors.map(comp =>
     callBraveSearch(`"${doctor.organizationName || doctor.displayName}" "${comp}"`)
   );
@@ -394,7 +408,7 @@ async function analyzeCompetitors(
     });
   }
   
-  return { competitors } as CompetitorData;
+  return { competitors };
 }
 
 function calculateAdaptiveConfidence(
@@ -407,7 +421,7 @@ function calculateAdaptiveConfidence(
     sourcesFound: sources.length,
     websiteAnalyzed: strategy.websiteUrl && !strategy.skipWebsiteScrape,
     reviewsFound: sources.some(s => s.type === 'review_site'),
-    competitorsIdentified: (synthesis as SynthesisResult & { competition?: { currentVendors?: string[] } })?.competition?.currentVendors?.length > 0,
+    competitorsIdentified: ((synthesis as SynthesisResult & { competition?: { currentVendors?: string[] } })?.competition?.currentVendors?.length || 0) > 0,
     strategyAlignment: strategy.focusAreas.length > 0,
     keyQuestionsAnswered: 0,
     npiVerified: true // Always true when we use NPI data

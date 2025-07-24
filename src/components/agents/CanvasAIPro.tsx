@@ -1,36 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-
-// Speech Recognition type declarations
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onresult: (event: SpeechRecognitionEvent) => void;
-  onerror: () => void;
-  start(): void;
-  stop(): void;
-}
-
-interface SpeechRecognitionEvent {
-  results: SpeechRecognitionResultList;
-}
-
-interface SpeechRecognitionResultList {
-  length: number;
-  item(index: number): SpeechRecognitionResult;
-  [index: number]: SpeechRecognitionResult;
-}
-
-interface SpeechRecognitionResult {
-  length: number;
-  item(index: number): SpeechRecognitionAlternative;
-  [index: number]: SpeechRecognitionAlternative;
-}
-
-interface SpeechRecognitionAlternative {
-  transcript: string;
-  confidence: number;
-}
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { 
   Box, 
@@ -64,6 +32,39 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../../auth/useAuth';
 import { searchDoctorsByName } from '../../lib/npiLookup';
+
+// Speech Recognition type declarations
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: () => void;
+  start(): void;
+  stop(): void;
+}
+
+interface SpeechRecognitionEvent {
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+// import { isRecord } from '../../types/components'; // Not used yet
 
 // Real-time data visualization component
 const DataOrb = ({ data, color }: { data: number; color: string }) => {
@@ -140,6 +141,14 @@ interface Message {
   timestamp: Date;
   data?: Record<string, unknown>;
   visualization?: string;
+}
+
+// AI Response type
+interface AIResponse {
+  content: string;
+  data?: Record<string, unknown>;
+  visualization?: string;
+  context?: Record<string, unknown>;
 }
 
 // Insight card component interface
@@ -284,7 +293,7 @@ export const CanvasAIPro: React.FC = () => {
   };
 
   // Process AI query with Canvas integration
-  const processAIQuery = async (query: string, context: Record<string, unknown> | null) => {
+  const processAIQuery = async (query: string, context: Record<string, unknown> | null): Promise<AIResponse> => {
     // Detect intent
     const lowerQuery = query.toLowerCase();
     
@@ -294,7 +303,7 @@ export const CanvasAIPro: React.FC = () => {
       if (doctors.length > 0) {
         return {
           content: `I found ${doctors.length} doctors matching your search. Here are the top results with insights on their practice focus and potential opportunities.`,
-          data: doctors,
+          data: { doctors } as Record<string, unknown>,
           visualization: 'network',
           context: { doctors }
         };
@@ -499,15 +508,15 @@ export const CanvasAIPro: React.FC = () => {
                   <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
                     Context:
                   </Typography>
-                  {activeContext.doctors && (
+                  {Boolean(activeContext['doctors'] && Array.isArray(activeContext['doctors'])) && (
                     <Chip
                       size="small"
                       icon={<PersonSearch />}
-                      label={`${activeContext.doctors.length} Doctors`}
+                      label={`${Array.isArray(activeContext['doctors']) ? (activeContext['doctors'] as any[]).length : 0} Doctors`}
                       sx={{ background: 'rgba(76,175,80,0.2)', color: '#4caf50' }}
                     />
                   )}
-                  {activeContext.procedures && (
+                  {Boolean(activeContext['procedures']) && (
                     <Chip
                       size="small"
                       icon={<LocalHospital />}
@@ -515,7 +524,7 @@ export const CanvasAIPro: React.FC = () => {
                       sx={{ background: 'rgba(33,150,243,0.2)', color: '#2196f3' }}
                     />
                   )}
-                  {activeContext.insights && (
+                  {Boolean(activeContext['insights']) && (
                     <Chip
                       size="small"
                       icon={<Analytics />}

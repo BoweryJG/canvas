@@ -7,33 +7,28 @@ import { Box, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import { gatherUnifiedIntelligence } from '../lib/unifiedIntelligenceCore';
 import { IntelligenceInterface } from './IntelligenceInterface';
+import { type UnifiedResults, type Address } from '../types/components';
 
-interface ScanResults {
-  discovery?: {
-    practiceWebsite?: string | null;
-    confidence?: number;
-    discoveryMethod?: string;
-  };
-  intelligence?: {
-    practiceInfo?: {
-      name?: string;
-      services?: unknown[];
-      technologies?: unknown[];
+type ScanResults = UnifiedResults & {
+  unified?: UnifiedResults;
+  basic?: {
+    confidence: number;
+    doctor: { 
+      name: string; 
+      location: string;
+      address?: Address;
     };
+    practice: { 
+      name: string; 
+      verified: boolean;
+      website?: string | null;
+      address?: Address;
+    };
+  };
+  enhanced?: {
+    confidence: number;
     insights?: unknown[];
     opportunities?: unknown[];
-    painPoints?: unknown[];
-    competitiveAdvantage?: unknown[];
-  };
-  instant?: {
-    summary?: string;
-    keyPoints?: string[];
-    confidence?: number;
-  };
-  timingMs?: {
-    discovery?: number;
-    intelligence?: number;
-    total?: number;
   };
 }
 
@@ -130,7 +125,7 @@ export default function SimpleCinematicScan({ doctorName, productName, location,
         // Get actual results with error handling from UNIFIED system
         let unifiedResults: ScanResults;
         try {
-          unifiedResults = await scanPromise;
+          unifiedResults = await scanPromise as UnifiedResults;
           console.log('✅ Unified Intelligence Results:', unifiedResults);
         } catch (error) {
           console.warn('Unified scan failed, using fallback results:', error);
@@ -155,7 +150,7 @@ export default function SimpleCinematicScan({ doctorName, productName, location,
           // Calculate intelligence score based on unified results
           const score = unifiedResults.instant?.confidence || 60;
           setIntelligenceScore(score);
-          setScanStage(unifiedResults.discovery.practiceWebsite ? 'Practice Website Found!' : 'Basic Scan Complete');
+          setScanStage(unifiedResults.discovery?.practiceWebsite ? 'Practice Website Found!' : 'Basic Scan Complete');
           setProgress(100);
           
           // Convert unified results to legacy format for compatibility
@@ -166,19 +161,19 @@ export default function SimpleCinematicScan({ doctorName, productName, location,
               doctor: { 
                 name: doctorName, 
                 location: location || 'Unknown',
-                address: unifiedResults.discovery.address // Include NPI address
+                address: unifiedResults.discovery?.address // Include NPI address
               },
               practice: { 
-                name: unifiedResults.intelligence.practiceInfo.name || `${doctorName} Practice`, 
-                verified: unifiedResults.discovery.practiceWebsite !== null,
-                website: unifiedResults.discovery.practiceWebsite,
-                address: unifiedResults.discovery.address // Include here too
+                name: unifiedResults.intelligence?.practiceInfo?.name || `${doctorName} Practice`, 
+                verified: unifiedResults.discovery?.practiceWebsite !== null,
+                website: unifiedResults.discovery?.practiceWebsite,
+                address: unifiedResults.discovery?.address // Include here too
               }
             },
             enhanced: {
               confidence: score,
-              insights: unifiedResults.intelligence.insights,
-              opportunities: unifiedResults.intelligence.opportunities
+              insights: unifiedResults.intelligence?.insights,
+              opportunities: unifiedResults.intelligence?.opportunities
             }
           };
           

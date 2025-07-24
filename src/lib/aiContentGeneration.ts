@@ -188,7 +188,7 @@ Body: [Hyper-personalized message]`;
     if (!subject || !body) {
       return {
         subject: `${productName} can transform your ${insights?.specialty || 'practice'}, Dr. ${doctorName}`,
-        body: response || generateFallbackEmail(doctorName, productName, insights),
+        body: response || generateFallbackEmail(doctorName, productName, insights || null),
         preheader: preheader || `Proven results in ${researchData.practiceInfo?.address || 'your area'}`
       };
     }
@@ -198,7 +198,7 @@ Body: [Hyper-personalized message]`;
     console.error('AI email generation failed:', error);
     return {
       subject: `${productName} can transform your ${insights?.specialty || 'practice'}, Dr. ${doctorName}`,
-      body: generateFallbackEmail(doctorName, productName, insights),
+      body: generateFallbackEmail(doctorName, productName, insights || null),
       preheader: `Proven results in ${researchData.practiceInfo?.address || 'your area'}`
     };
   }
@@ -389,9 +389,9 @@ export function generateWowFactorOpening(
   }
   
   // Team recognition
-  if (scrapedData?.staff?.length > 3) {
+  if (scrapedData?.staff && scrapedData.staff.length > 3) {
     try {
-      const hostname = new URL(scrapedData.url).hostname;
+      const hostname = new URL(scrapedData.url!).hostname;
       options.push(`Dr. ${doctorName}, your ${scrapedData.staff.length}-member team at ${hostname} is impressive.`);
     } catch {
       options.push(`Dr. ${doctorName}, your ${scrapedData.staff.length}-member team is impressive.`);
@@ -404,12 +404,12 @@ export function generateWowFactorOpening(
   }
   
   // Social proof
-  if (scrapedData?.socialMedia?.instagramFollowers > 1000) {
+  if (scrapedData?.socialMedia?.instagramFollowers && scrapedData.socialMedia.instagramFollowers > 1000) {
     options.push(`Dr. ${doctorName}, ${scrapedData.socialMedia.instagramFollowers} Instagram followers - you've built quite a following!`);
   }
   
   // Service excellence
-  if (scrapedData?.services?.length > 5) {
+  if (scrapedData?.services && scrapedData.services.length > 5) {
     options.push(`Dr. ${doctorName}, offering ${scrapedData.services.length} specialized services shows your commitment to comprehensive care.`);
   }
   

@@ -42,7 +42,7 @@ import {
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { getShareAnalytics, revokeMagicLink } from '../lib/magicLinkGenerator';
-import { type MagicLink, type SubscriptionTier, MAGIC_LINK_CONFIGS } from '../types/magicLink';
+import { type SubscriptionTier, MAGIC_LINK_CONFIGS } from '../types/magicLink';
 import { formatDistanceToNow } from 'date-fns';
 
 interface MagicLinkAnalyticsEvent {
@@ -70,8 +70,10 @@ interface AnalyticsData {
   totalViews: number;
   totalDownloads: number;
   activeLinks: number;
+  avgEngagementTime: number;
   topPerformingLink: MagicLinkWithAnalytics | null;
-  viewsByDay: Record<string, number>;
+  viewsByDay: { date: string; views: number }[];
+  deviceBreakdown: { device: string; count: number }[];
 }
 
 type TimeFilter = '7d' | '30d' | '90d' | 'all';
@@ -134,17 +136,6 @@ const ChartContainer = styled(Box)`
   align-items: center;
   justify-content: center;
 `;
-
-interface AnalyticsData {
-  links: MagicLink[];
-  totalViews: number;
-  totalDownloads: number;
-  activeLinks: number;
-  avgEngagementTime: number;
-  topPerformingLink: MagicLink | null;
-  viewsByDay: { date: string; views: number }[];
-  deviceBreakdown: { device: string; count: number }[];
-}
 
 export default function MagicLinkAnalytics({ userId, userTier }: Props) {
   const [loading, setLoading] = useState(true);

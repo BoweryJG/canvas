@@ -24,7 +24,7 @@ interface ScanStageData {
   };
 }
 
-interface ScanData {
+export interface ScanData {
   instant?: ScanStageData;
   basic?: ScanStageData;
   enhanced?: ScanStageData;
@@ -121,7 +121,7 @@ export default function SimpleProgressiveResults({ doctorName, userTier, onUpgra
         'key points': (latest?.keyPoints || []).slice(0, 3).join(' • ') || 'None'
       },
       outreach: {
-        'recommendation': latest?.confidence > 70 ? 'Ready for outreach' : 'Needs verification',
+        'recommendation': (latest?.confidence || 0) > 70 ? 'Ready for outreach' : 'Needs verification',
         'confidence score': `${latest?.confidence || 0}/100`,
         'best approach': verification?.suggestedConfirmation || 'Email introduction'
       }

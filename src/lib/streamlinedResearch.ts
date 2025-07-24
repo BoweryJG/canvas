@@ -184,8 +184,20 @@ export async function streamlinedResearch(
       salesBrief: analysis.salesBrief || {},
       totalTime: Date.now() - startTime,
       // Default empty objects for unused fields
-      credentials: {},
-      reviews: {},
+      credentials: {
+        medicalSchool: undefined,
+        residency: undefined,
+        boardCertifications: [],
+        yearsExperience: undefined,
+        hospitalAffiliations: []
+      },
+      reviews: {
+        averageRating: undefined,
+        totalReviews: undefined,
+        commonPraise: [],
+        commonConcerns: [],
+        recentFeedback: []
+      },
       competition: {},
       decisionMakers: {},
       budgetInfo: {}
@@ -329,8 +341,20 @@ function createFallbackData(
     painPoints: [],
     salesBrief: `${product} opportunity for ${doctor.displayName}'s ${doctor.specialty} practice in ${doctor.city}.`,
     totalTime,
-    credentials: {},
-    reviews: {},
+    credentials: {
+      medicalSchool: undefined,
+      residency: undefined,
+      boardCertifications: [],
+      yearsExperience: undefined,
+      hospitalAffiliations: []
+    },
+    reviews: {
+      averageRating: undefined,
+      totalReviews: undefined,
+      commonPraise: [],
+      commonConcerns: [],
+      recentFeedback: []
+    },
     competition: {},
     decisionMakers: {},
     budgetInfo: {}

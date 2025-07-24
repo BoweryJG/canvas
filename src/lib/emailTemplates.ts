@@ -1,20 +1,7 @@
 import { type EmailCampaign } from './magicLinks';
 import type { ResearchData } from './webResearch';
 import { generateEnhancedEmailCampaign } from './enhancedEmailTemplates';
-
-interface ScanResult {
-  doctor: string;
-  product: string;
-  score: number;
-  doctorProfile: string;
-  productIntel: string;
-  salesBrief: string;
-  insights: string[];
-  email?: string;
-  specialty?: string;
-  location?: string;
-  salesRep?: string;
-}
+import { type ScanResult, toEnhancedScanResult } from '../types/scan';
 
 export const generateEmailFromScanResult = (
   scanResult: ScanResult,
@@ -25,7 +12,7 @@ export const generateEmailFromScanResult = (
   // Use enhanced templates if research data is available
   if (researchData?.productIntelligence || researchData?.enhancedInsights) {
     return generateEnhancedEmailCampaign({
-      scanResult: scanResult,
+      scanResult: toEnhancedScanResult(scanResult),
       researchData,
       salesRep: salesRepInfo,
       type: emailType
@@ -53,9 +40,10 @@ const generateInitialEmail = (
   salesRepInfo: { name: string; company: string; product: string }
 ): EmailCampaign => {
   // Extract key insights for personalization
-  const practiceInfo = scanResult.insights.find(i => i.includes('Practice size')) || '';
-  const techAdoption = scanResult.insights.find(i => i.includes('Technology adoption')) || '';
-  const keyBuyingSignal = scanResult.insights.find(i => i.includes('💡')) || '';
+  const insights = Array.isArray(scanResult.insights) ? scanResult.insights : [];
+  const practiceInfo = insights.find((i: string) => i.includes('Practice size')) || '';
+  const techAdoption = insights.find((i: string) => i.includes('Technology adoption')) || '';
+  const keyBuyingSignal = insights.find((i: string) => i.includes('💡')) || '';
   
   const subject = `${scanResult.product} - Tailored Solution for ${scanResult.doctor.split(' ')[0]}'s Practice`;
   

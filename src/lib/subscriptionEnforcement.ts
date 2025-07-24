@@ -312,7 +312,16 @@ export async function validateScanRequest(userId: string): Promise<{
   if (!userId) {
     return {
       allowed: false,
-      status: {} as UsageStatus,
+      status: {
+        canScan: false,
+        scansUsedToday: 0,
+        scansRemaining: 0,
+        dailyLimit: 0,
+        userTier: 'free',
+        resetTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        upgradeRequired: true,
+        message: 'User authentication required'
+      },
       errorMessage: 'User authentication required'
     };
   }

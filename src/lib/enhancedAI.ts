@@ -1,5 +1,9 @@
 import { type ResearchData } from './webResearch';
 import { getClaude4Prompt, CLAUDE_OUTPUT_FORMATS } from './claude-prompts';
+import { type EnhancedScanResult as EnhancedScanResultType } from '../types/scan';
+
+// Re-export the type from consolidated types
+export type EnhancedScanResult = EnhancedScanResultType;
 
 /**
  * Call our Netlify function for AI analysis
@@ -26,23 +30,6 @@ async function callClaudeAPI(messages: Array<{role: string, content: string}>, t
     console.error('AI API call failed:', error);
     throw error;
   }
-}
-
-export interface EnhancedScanResult {
-  doctor: string;
-  product: string;
-  score: number;
-  doctorProfile: string;
-  productIntel: string;
-  salesBrief: string;
-  insights: string[];
-  researchQuality: 'verified' | 'partial' | 'inferred' | 'unknown';
-  researchSources: number;
-  factBased: boolean;
-  // Additional properties used in various components
-  specialty?: string;
-  location?: string;
-  email?: string;
 }
 
 /**

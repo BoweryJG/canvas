@@ -303,7 +303,29 @@ class AnalyticsManager {
       });
     });
     
-    return summary;
+    // Convert popularPages to topPages array
+    const topPages = Object.entries(summary.popularPages)
+      .map(([page, views]) => ({ page, views }))
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 10);
+    
+    // Calculate error rate
+    const errorEvents = sessions.reduce((sum, s) => 
+      sum + s.events.filter(e => e.category === 'error').length, 0
+    );
+    const errorRate = summary.totalEvents > 0 
+      ? (errorEvents / summary.totalEvents) * 100 
+      : 0;
+    
+    return {
+      totalSessions: summary.totalSessions,
+      totalPageViews: summary.totalPageViews,
+      totalEvents: summary.totalEvents,
+      averageSessionDuration: summary.averageSessionDuration,
+      eventsByCategory: summary.eventsByCategory,
+      topPages,
+      errorRate
+    };
   }
   
   /**

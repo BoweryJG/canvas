@@ -253,15 +253,15 @@ export class Claude4LocalProcessor {
     };
   }
   
-  private generatePremiumMockIntelligence(
+  private async generatePremiumMockIntelligence(
     doctorName: string,
     product: string
   ): Promise<PremiumIntelligenceResponse> {
     // Even more detailed mock for Claude Code mode
-    const basicIntel = this.generateMockIntelligence(doctorName, product);
+    const basicIntel = await this.generateMockIntelligence(doctorName, product);
     
     // Enhance with more specific details
-    return Promise.resolve({
+    const enhanced: PremiumIntelligenceResponse = {
       ...basicIntel,
       additionalInsights: {
         practiceWebsite: "Shows 3D virtual consultations and same-day treatments",
@@ -270,7 +270,9 @@ export class Claude4LocalProcessor {
         staffDetails: "12 employees, recent expansion of clinical team",
         patientDemographics: "Affluent suburban families, 30% pediatric"
       }
-    });
+    };
+    
+    return enhanced;
   }
 }
 

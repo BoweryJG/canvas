@@ -280,7 +280,11 @@ function createBasicProductIntelligence(
     },
     messagingStrategy: {
       keyBenefits: [`${product} can improve practice efficiency`],
-      objectionHandlers: {},
+      objectionHandlers: {
+        costConcerns: 'Address value proposition',
+        timingConcerns: 'Discuss implementation timeline',
+        integrationConcerns: 'Explain compatibility'
+      },
       competitivePitch: `Consider ${product} for your practice`,
       localizedAngle: 'Modern solution for modern practices'
     }

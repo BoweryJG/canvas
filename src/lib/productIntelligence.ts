@@ -8,6 +8,11 @@ import { type ScrapedWebsiteData } from './firecrawlWebScraper';
 import { type DeepIntelligenceResult } from './deepIntelligenceGatherer';
 import { callPerplexityResearch } from './apiEndpoints';
 
+// Extended type that includes website property
+export interface ScrapedDataWithWebsite extends ScrapedWebsiteData {
+  website?: string;
+}
+
 export interface ProductIntelligence {
   product: DentalProcedure | AestheticProcedure;
   relatedProducts: string[];
@@ -293,7 +298,8 @@ async function identifyCompetitiveAdvantages(
                     that would appeal to a ${product.specialty || 'medical'} practice. 
                     Be specific and compelling. Format: One advantage per line.`;
     
-    const aiAdvantages = await callPerplexityResearch(prompt, 'search');
+    const aiResponse = await callPerplexityResearch(prompt, 'search');
+    const aiAdvantages = aiResponse?.choices?.[0]?.message?.content || '';
     const lines = aiAdvantages.split('\n').filter((line: string) => line.trim());
     advantages.push(...lines.slice(0, 2));
   } catch (error) {
@@ -349,13 +355,14 @@ function generatePersonalizedBenefits(
   const benefits: string[] = [];
   
   // Website-specific benefits
-  if ((scrapedData as any)?.website) {
+  const scrapedWithWebsite = scrapedData as ScrapedDataWithWebsite | undefined;
+  if (scrapedWithWebsite?.website) {
     try {
-      const domain = new URL((scrapedData as any).website).hostname;
+      const domain = new URL(scrapedWithWebsite.website).hostname;
       benefits.push(`Seamlessly integrates with ${domain}'s existing patient flow`);
     } catch {
       // Fallback if URL parsing fails
-      const websiteName = (scrapedData as ScrapedDataWithWebsite).website!.replace(/^https?:\/\//, '').split('/')[0];
+      const websiteName = scrapedWithWebsite.website.replace(/^https?:\/\//, '').split('/')[0];
       if (websiteName) {
         benefits.push(`Seamlessly integrates with ${websiteName}'s existing patient flow`);
       }
@@ -470,13 +477,14 @@ export function generateValueProposition(
   
   let proposition = `${productIntel.product.name} ${benefits}, `;
   
-  if ((scrapedData as any)?.website) {
+  const scrapedWithWebsite = scrapedData as ScrapedDataWithWebsite | undefined;
+  if (scrapedWithWebsite?.website) {
     try {
-      const hostname = new URL((scrapedData as any).website).hostname;
+      const hostname = new URL(scrapedWithWebsite.website).hostname;
       proposition += `perfectly complementing ${hostname}'s digital presence. `;
     } catch {
       // Fallback if URL parsing fails
-      const websiteName = (scrapedData as ScrapedDataWithWebsite).website!.replace(/^https?:\/\//, '').split('/')[0];
+      const websiteName = scrapedWithWebsite.website.replace(/^https?:\/\//, '').split('/')[0];
       if (websiteName) {
         proposition += `perfectly complementing ${websiteName}'s digital presence. `;
       }

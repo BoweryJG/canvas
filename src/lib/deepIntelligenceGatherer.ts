@@ -222,7 +222,7 @@ function generateKeyPoints(practiceInfo: PracticeInfo | undefined, website: stri
     points.push(`🏥 ${practiceInfo.name}`);
   }
   
-  if (practiceInfo?.services?.length > 0) {
+  if (practiceInfo?.services && practiceInfo.services.length > 0) {
     points.push(`🦷 Services: ${practiceInfo.services.slice(0, 3).join(', ')}`);
   }
   

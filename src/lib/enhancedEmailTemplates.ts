@@ -129,7 +129,7 @@ function generateInitialOutreach(
   const localProof = productIntel.localInsights?.socialProof?.[0] || 
     `practices in ${scanResult.location}`;
   
-  const competitiveDiff = productIntel.competitiveLandscape?.differentiators?.[0] || 
+  const competitiveDiff = productIntel?.competitiveLandscape?.differentiators?.[0] || 
     'enhanced patient outcomes';
   
   const marketPosition = doctorIntel.competitivePosition?.marketRank || 
@@ -181,7 +181,7 @@ function generateFollowUp(
   
   const objection = Object.keys(doctorIntel.salesStrategy?.objectionHandlers || {})[0];
   const objectionResponse = objection ? 
-    doctorIntel.salesStrategy.objectionHandlers[objection] : '';
+    doctorIntel?.salesStrategy?.objectionHandlers[objection] : '';
   
   const caseStudy = productIntel.localInsights?.caseStudies?.[0] || 
     `A practice similar to yours`;
@@ -196,8 +196,8 @@ ${objection && objectionResponse ?
   `If you're concerned about ${objection}, ${objectionResponse}` :
   `Common concerns about ${salesRep.product} include implementation time and training, but our process typically takes just ${productIntel.implementationData?.timeframe || '2-3 weeks'} with minimal disruption.`}
 
-${productIntel.competitiveLandscape?.vsCompetitors ? 
-  `Unlike ${productIntel.competitiveLandscape.topCompetitors?.[0] || 'other solutions'}, ${salesRep.product} offers ${productIntel.competitiveLandscape.differentiators?.join(' and ') || 'unique advantages'}.` :
+${productIntel?.competitiveLandscape?.vsCompetitors ? 
+  `Unlike ${productIntel?.competitiveLandscape.topCompetitors?.[0] || 'other solutions'}, ${salesRep.product} offers ${productIntel?.competitiveLandscape.differentiators?.join(' and ') || 'unique advantages'}.` :
   `What sets ${salesRep.product} apart is the combination of technology and support we provide.`}
 
 I have a ${combinedStrategy.messagingStrategy?.valueProps?.[0] || 'detailed ROI analysis'} specific to practices like yours. Could we schedule a brief call this week?
@@ -230,8 +230,8 @@ function generateClosing(
   combinedStrategy: CombinedStrategy,
   salesRep: SalesRepInfo
 ): EmailCampaign {
-  const competitorThreat = productIntel.competitiveLandscape?.marketShare > 30 ?
-    `With ${productIntel.competitiveLandscape.topCompetitors?.[0] || 'competitors'} rapidly expanding in ${scanResult.location}, ` :
+  const competitorThreat = productIntel?.competitiveLandscape?.marketShare > 30 ?
+    `With ${productIntel?.competitiveLandscape.topCompetitors?.[0] || 'competitors'} rapidly expanding in ${scanResult.location}, ` :
     '';
   
   const urgency = combinedStrategy.messagingStrategy?.urgencyTrigger || 
@@ -318,7 +318,7 @@ function urgencyScore(productIntel: ProductIntel): number {
   let score = 50;
   
   if (productIntel.marketData?.limitedTimeOffers?.length > 0) score += 20;
-  if (productIntel.competitiveLandscape?.marketShare > 50) score += 15;
+  if (productIntel?.competitiveLandscape?.marketShare > 50) score += 15;
   if (productIntel.marketData?.adoptionRate > 30) score += 15;
   
   return Math.min(score, 100);

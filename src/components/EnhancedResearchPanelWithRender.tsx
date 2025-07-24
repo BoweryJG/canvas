@@ -91,7 +91,7 @@ export const EnhancedResearchPanelWithRender: React.FC = () => {
 
       const result = await runResearch(doctor, formData.productName || 'yomi');
       
-      setResearchResult(result);
+      setResearchResult(result as ResearchResult);
       setShowResults(true);
     } catch (error) {
       console.error('Research failed:', error);
@@ -258,11 +258,11 @@ export const EnhancedResearchPanelWithRender: React.FC = () => {
                   </div>
 
                   {/* Buying Signals */}
-                  {researchResult.synthesis.buyingSignals?.length > 0 && (
+                  {researchResult.synthesis.buyingSignals && researchResult.synthesis.buyingSignals.length > 0 && (
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-3">🎯 Buying Signals</h3>
                       <div className="space-y-3">
-                        {researchResult.synthesis.buyingSignals.map((signal: BuyingSignal, idx: number) => (
+                        {researchResult.synthesis.buyingSignals!.map((signal: BuyingSignal, idx: number) => (
                           <div key={idx} className="bg-green-50 border border-green-200 rounded-lg p-4">
                             <div className="flex justify-between items-start mb-2">
                               <p className="font-medium text-green-900">{signal.signal}</p>

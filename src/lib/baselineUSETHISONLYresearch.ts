@@ -60,6 +60,18 @@ interface ProductFit {
   insights?: string[];
 }
 
+interface SynthesisResult {
+  painPoints?: string[];
+  practiceProfile?: {
+    size?: string;
+    patientVolume?: string;
+  };
+  marketPosition?: string;
+  recentNews?: string[];
+  buyingSignals?: string[];
+  [key: string]: unknown;
+}
+
 interface ReviewData {
   doctorReviews: {
     rating?: number;
@@ -171,9 +183,9 @@ export async function baselineResearch(
       true, // NPI verified
       websiteIntel,
       reviewData,
-      sources,
+      sources as any[],
       synthesis,
-      competitors
+      competitors as any[]
     );
     
     const confidence = calculateEnhancedConfidence(confidenceFactors);
@@ -207,15 +219,15 @@ export async function baselineResearch(
         averageRating: reviewData.combinedRating,
         totalReviews: reviewData.totalReviews,
         commonPraise: reviewData.doctorReviews.highlights.slice(0, 3),
-        commonConcerns: synthesis.painPoints?.slice(0, 2) || [],
+        commonConcerns: Array.isArray(synthesis.painPoints) ? synthesis.painPoints.slice(0, 2) : [],
         recentFeedback: [...reviewData.doctorReviews.highlights, ...reviewData.practiceReviews.highlights].slice(0, 3)
       },
       businessIntel: {
         practiceType: synthesis.practiceProfile?.size || 'Unknown',
         patientVolume: synthesis.practiceProfile?.patientVolume || 'Unknown',
-        marketPosition: synthesis.marketPosition || 'Established',
-        recentNews: synthesis.recentNews || [],
-        growthIndicators: synthesis.buyingSignals || []
+        marketPosition: (typeof synthesis.marketPosition === 'string' ? synthesis.marketPosition : null) || 'Established',
+        recentNews: Array.isArray(synthesis.recentNews) ? synthesis.recentNews : [],
+        growthIndicators: Array.isArray(synthesis.buyingSignals) ? synthesis.buyingSignals : []
       },
       sources,
       confidenceScore: confidence.score,
@@ -599,7 +611,7 @@ function calculateCombinedRating(
 async function analyzeLocalCompetition(
   doctor: Doctor,
   sources: ResearchSource[]
-): Promise<Array<{ url?: string; title: string; rating?: number; rating_count?: number; distance?: number }>> {
+): Promise<Competitor[]> {
   try {
     const query = `${doctor.specialty} near ${doctor.city}, ${doctor.state}`;
     const localResults = await callBraveLocalSearch(query, 10);
@@ -617,7 +629,12 @@ async function analyzeLocalCompetition(
         });
       });
       
-      return localResults.results;
+      return localResults.results.map((biz: { url?: string; title: string; rating?: number; rating_count?: number; distance?: number }) => ({
+        name: biz.title,
+        url: biz.url,
+        type: 'local_competitor',
+        description: biz.rating ? `Rating: ${biz.rating} (${biz.rating_count || 0} reviews)` : undefined
+      }));
     }
   } catch (error) {
     console.log('Local competition search failed:', error);
@@ -632,10 +649,9 @@ async function analyzeProductFit(
   websiteIntel: WebsiteIntelligence,
   reviewData: ReviewData,
   sources: ResearchSource[]
-): Promise<{
+): Promise<ProductFit & {
   productName?: string;
   fitScore?: number;
-  opportunities?: string[];
   productInfo?: {
     name: string;
     benefits: string[];
@@ -666,14 +682,16 @@ async function analyzeProductFit(
       });
     }
     
+    const fitScore = calculateProductFit(websiteIntel, reviewData);
     return {
       productName: product,
-      fitScore: calculateProductFit(websiteIntel, reviewData),
+      fitScore,
+      relevance: fitScore, // Required by ProductFit interface
       opportunities: identifyOpportunities(websiteIntel, reviewData)
     };
   } catch (error) {
     console.log('Product analysis failed:', error);
-    return { productName: product, fitScore: 70, opportunities: [] };
+    return { productName: product, fitScore: 70, relevance: 70, opportunities: [] };
   }
 }
 
@@ -732,7 +750,7 @@ async function synthesizeIntelligence(
   competitors: Competitor[],
   productFit: ProductFit,
   sources: ResearchSource[]
-): Promise<Record<string, unknown>> {
+): Promise<SynthesisResult> {
   // Try cache first
   const cacheKey = CacheKeys.synthesis(doctor.npi, product);
   
@@ -743,16 +761,32 @@ async function synthesizeIntelligence(
       const prompt = ENHANCED_SYNTHESIS_PROMPT(
         doctor,
         product,
-        websiteIntel,
+        {
+          url: websiteIntel.url,
+          crawled: websiteIntel.crawled,
+          services: websiteIntel.services,
+          technology: websiteIntel.technology,
+          teamSize: websiteIntel.teamSize?.toString(),
+          philosophy: websiteIntel.philosophy
+        },
         reviewData,
-        competitors,
-        productFit,
-        sources
+        competitors.map(c => ({
+          title: c.name,
+          rating: 0,
+          rating_count: 0,
+          distance: 0
+        })),
+        {
+          fitScore: productFit.relevance,
+          opportunities: productFit.opportunities,
+          barriers: productFit.pain_points
+        },
+        sources.map(s => ({ url: s.url, type: s.type }))
       );
 
       try {
         const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
-        return JSON.parse(response);
+        return JSON.parse(response) as SynthesisResult;
       } catch (error) {
         console.error('Synthesis failed:', error);
         return {

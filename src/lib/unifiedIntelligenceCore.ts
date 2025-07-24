@@ -235,7 +235,7 @@ export async function gatherUnifiedIntelligence(
       practiceWebsite: aiAnalysis.practiceWebsites?.[0]?.url || null,
       confidence: aiAnalysis.practiceWebsites?.[0]?.confidence || 0,
       organizationName,
-      npiData,
+      npiData: npiData as NPIData,
       address: npiAddress ? {
         street: npiAddress,
         city: npiCity,
@@ -276,15 +276,33 @@ export async function gatherUnifiedIntelligence(
       if (scrapedData) {
         // Extract medical intelligence
         const allProcedures = [
-          ...Object.entries(scrapedData.dentalProcedures).filter(([_, v]) => v).map(([k, _]) => k),
-          ...Object.entries(scrapedData.aestheticProcedures).filter(([_, v]) => v).map(([k, _]) => k)
+          ...Object.entries(scrapedData.dentalProcedures || {}).filter(([_, v]) => v).map(([k, _]) => k),
+          ...Object.entries(scrapedData.aestheticProcedures || {}).filter(([_, v]) => v).map(([k, _]) => k)
         ];
         
         const allTechnologies = [
-          ...Object.entries(scrapedData.dentalTechnology).filter(([_, v]) => v).map(([k, _]) => k),
-          ...Object.entries(scrapedData.aestheticDevices).filter(([_, v]) => v).map(([k, _]) => k),
-          ...Object.entries(scrapedData.implantSystems).filter(([_, v]) => v).map(([k, _]) => k),
-          ...Object.entries(scrapedData.injectableBrands).filter(([_, v]) => v).map(([k, _]) => k)
+          ...Object.entries(scrapedData.dentalTechnology || {}).filter(([k, v]) => v === true).map(([k, _]) => k),
+          ...Object.entries(scrapedData.aestheticDevices || {})
+            .filter(([k, v]) => {
+              if (k === 'otherLasers') return false; // Skip array properties
+              return v === true;
+            })
+            .map(([k, _]) => k),
+          ...(scrapedData.aestheticDevices?.otherLasers || []), // Add array items separately
+          ...Object.entries(scrapedData.implantSystems || {})
+            .filter(([k, v]) => {
+              if (k === 'other') return false; // Skip array properties
+              return v === true;
+            })
+            .map(([k, _]) => k),
+          ...(scrapedData.implantSystems?.other || []), // Add array items separately
+          ...Object.entries(scrapedData.injectableBrands || {})
+            .filter(([k, v]) => {
+              if (k === 'otherFillers') return false; // Skip array properties
+              return v === true;
+            })
+            .map(([k, _]) => k),
+          ...(scrapedData.injectableBrands?.otherFillers || []) // Add array items separately
         ];
         
         result.intelligence = {
@@ -292,13 +310,13 @@ export async function gatherUnifiedIntelligence(
             name: scrapedData.title || organizationName || `Dr. ${doctorName}'s Practice`,
             services: allProcedures,
             technologies: allTechnologies,
-            teamSize: scrapedData.practiceInfo.teamSize,
+            teamSize: scrapedData.practiceInfo?.teamSize,
             socialMedia: {}
           },
           insights: generateMedicalInsights(scrapedData, productName),
-          opportunities: scrapedData.missingProcedures,
+          opportunities: scrapedData.missingProcedures || [],
           painPoints: [],
-          competitiveAdvantage: scrapedData.competitiveAdvantages
+          competitiveAdvantage: scrapedData.competitiveAdvantages || []
         };
         
         // Store the scraped website data for use in reports and outreach
@@ -434,7 +452,7 @@ function generateMedicalInsights(scrapedData: ScrapedWebsiteData, productName: s
   }
   
   // Practice size insights
-  if (scrapedData.practiceInfo?.teamSize > 10) {
+  if (scrapedData.practiceInfo?.teamSize && scrapedData.practiceInfo.teamSize > 10) {
     insights.push('Large practice with established team infrastructure');
   }
   

@@ -127,12 +127,12 @@ async function searchPracticeWebsites(doctorName: string, location?: string): Pr
       const searchResults = await braveSearch(query);
       
       for (const result of searchResults.slice(0, 3)) {
-        if (isPracticeWebsite(result.url)) {
+        if (result.url && isPracticeWebsite(result.url)) {
           const content = await firecrawlScrape(result.url);
           if (content) {
             sources.push({
-              url: result.url,
-              title: result.title,
+              url: result.url || '',
+              title: result.title || 'Unknown Title',
               type: 'practice_website',
               content: content,
               confidence: 90,
@@ -167,12 +167,12 @@ async function searchMedicalDirectories(doctorName: string): Promise<ResearchSou
       const searchResults = await braveSearch(query);
       
       for (const result of searchResults.slice(0, 2)) {
-        if (isMedicalDirectory(result.url)) {
+        if (result.url && isMedicalDirectory(result.url)) {
           const content = await firecrawlScrape(result.url);
           if (content) {
             sources.push({
-              url: result.url,
-              title: result.title,
+              url: result.url || '',
+              title: result.title || 'Unknown Title',
               type: 'medical_directory',
               content: content,
               confidence: 85,
@@ -206,12 +206,12 @@ async function searchReviewSites(doctorName: string): Promise<ResearchSource[]> 
       const searchResults = await braveSearch(query);
       
       for (const result of searchResults.slice(0, 2)) {
-        if (isReviewSite(result.url)) {
+        if (result.url && isReviewSite(result.url)) {
           const content = await firecrawlScrape(result.url);
           if (content) {
             sources.push({
-              url: result.url,
-              title: result.title,
+              url: result.url || '',
+              title: result.title || 'Unknown Title',
               type: 'review_site',
               content: content,
               confidence: 75,
@@ -245,12 +245,12 @@ async function searchNewsAndArticles(doctorName: string): Promise<ResearchSource
       const searchResults = await braveSearch(query);
       
       for (const result of searchResults.slice(0, 2)) {
-        if (isNewsOrArticle(result.url)) {
+        if (result.url && isNewsOrArticle(result.url)) {
           const content = await firecrawlScrape(result.url);
           if (content) {
             sources.push({
-              url: result.url,
-              title: result.title,
+              url: result.url || '',
+              title: result.title || 'Unknown Title',
               type: 'news_article',
               content: content,
               confidence: 70,
@@ -309,6 +309,8 @@ async function searchWithPerplexity(doctorName: string, location?: string): Prom
         interface Citation {
           url?: string;
           title?: string;
+          text?: string;
+          snippet?: string;
         }
         result.citations.forEach((citation: Citation, index: number) => {
           sources.push({
@@ -353,7 +355,7 @@ async function braveSearch(query: string): Promise<BraveSearchResult[]> {
 /**
  * Firecrawl scraping integration
  */
-async function firecrawlScrape(url: string): Promise<string | null> {
+async function firecrawlScrape(url: string): Promise<string | undefined> {
   try {
     // Import our API endpoint handler
     const { callFirecrawlScrape } = await import('./apiEndpoints');
@@ -363,10 +365,10 @@ async function firecrawlScrape(url: string): Promise<string | null> {
       removeBase64Images: true
     });
     
-    return data.success ? (data.markdown || null) : null;
+    return data.success ? (data.markdown || undefined) : undefined;
   } catch (error) {
     console.error(`Firecrawl scraping failed for ${url}:`, error);
-    return null;
+    return undefined;
   }
 }
 
@@ -460,10 +462,40 @@ async function extractStructuredData(_doctorName: string, _sources: ResearchSour
 
     // This would integrate with your AI service - for now return structured placeholder
     return {
-      practiceInfo: {},
-      credentials: {},
-      reviews: {},
-      businessIntel: {}
+      practiceInfo: {
+        name: undefined,
+        address: undefined,
+        phone: undefined,
+        website: undefined,
+        specialties: [],
+        services: [],
+        technology: [],
+        staff: undefined,
+        established: undefined
+      },
+      credentials: {
+        medicalSchool: undefined,
+        residency: undefined,
+        boardCertifications: [],
+        yearsExperience: undefined,
+        hospitalAffiliations: []
+      },
+      reviews: {
+        averageRating: undefined,
+        totalReviews: undefined,
+        commonPraise: [],
+        commonConcerns: [],
+        recentFeedback: []
+      },
+      businessIntel: {
+        practiceType: undefined,
+        patientVolume: undefined,
+        marketPosition: undefined,
+        recentNews: [],
+        growthIndicators: [],
+        technologyStack: [],
+        specialty: undefined
+      }
     };
 
   } catch (error) {
@@ -528,7 +560,7 @@ function isNewsOrArticle(url: string): boolean {
 /**
  * Research caching functions
  */
-async function getCachedResearch(doctorName: string): Promise<ResearchData | null> {
+async function getCachedResearch(doctorName: string): Promise<ResearchData | undefined> {
   try {
     const { data, error } = await supabase
       .from('canvas_research_cache')
@@ -536,7 +568,7 @@ async function getCachedResearch(doctorName: string): Promise<ResearchData | nul
       .eq('doctor_name', doctorName.toLowerCase())
       .single();
 
-    if (error || !data) return null;
+    if (error || !data) return undefined;
     
     return {
       doctorName: data.doctor_name,
@@ -546,7 +578,7 @@ async function getCachedResearch(doctorName: string): Promise<ResearchData | nul
     };
   } catch (error) {
     console.error('Cache retrieval failed:', error);
-    return null;
+    return undefined;
   }
 }
 
@@ -578,6 +610,7 @@ async function cacheResearchData(researchData: ResearchData): Promise<void> {
 
 interface CachedResearchData {
   completedAt?: string;
+  expiry_date?: string;
 }
 
 function isResearchExpired(cachedData: CachedResearchData): boolean {
@@ -591,10 +624,40 @@ function isResearchExpired(cachedData: CachedResearchData): boolean {
 function createFallbackResearchData(doctorName: string): ResearchData {
   return {
     doctorName,
-    practiceInfo: {},
-    credentials: {},
-    reviews: {},
-    businessIntel: {},
+    practiceInfo: {
+      name: `${doctorName} Medical Practice`,
+      address: 'Not Available',
+      phone: 'Not Available',
+      website: 'Not Available',
+      specialties: [],
+      services: [],
+      technology: [],
+      staff: 0,
+      established: 'Unknown'
+    },
+    credentials: {
+      medicalSchool: 'Not Available',
+      residency: 'Not Available',
+      boardCertifications: [],
+      yearsExperience: 0,
+      hospitalAffiliations: []
+    },
+    reviews: {
+      averageRating: 0,
+      totalReviews: 0,
+      commonPraise: [],
+      commonConcerns: [],
+      recentFeedback: []
+    },
+    businessIntel: {
+      practiceType: 'Unknown',
+      patientVolume: 'Not Available',
+      marketPosition: 'Not Available',
+      recentNews: [],
+      growthIndicators: [],
+      technologyStack: [],
+      specialty: 'Healthcare'
+    },
     sources: [],
     confidenceScore: 0,
     completedAt: new Date().toISOString()

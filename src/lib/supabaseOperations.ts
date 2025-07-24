@@ -1,30 +1,5 @@
 import { supabase } from '../auth/supabase';
-
-// Type definitions for Supabase operations
-interface ScanResult {
-  doctor: string;
-  product: string;
-  score: number;
-  doctorProfile: Record<string, unknown>;
-  productIntel: Record<string, unknown>;
-  salesBrief: string;
-  insights: Record<string, unknown>;
-  scanDuration?: number;
-}
-
-interface ScanRecord {
-  id: string;
-  user_id: string | null;
-  doctor_name: string;
-  product_name: string;
-  score: number;
-  doctor_profile: Record<string, unknown>;
-  product_intel: Record<string, unknown>;
-  sales_brief: string;
-  insights: Record<string, unknown>;
-  scan_duration: number;
-  created_at: string;
-}
+import { type ScanResult, type ScanRecord } from '../types/scan';
 
 interface DeepResearchData {
   [key: string]: unknown;
@@ -59,10 +34,16 @@ export async function saveScan(scanResult: ScanResult, userId: string | null = n
           doctor_name: scanResult.doctor,
           product_name: scanResult.product,
           score: scanResult.score,
-          doctor_profile: scanResult.doctorProfile,
-          product_intel: scanResult.productIntel,
+          doctor_profile: typeof scanResult.doctorProfile === 'string' 
+            ? { profile: scanResult.doctorProfile } 
+            : scanResult.doctorProfile,
+          product_intel: typeof scanResult.productIntel === 'string' 
+            ? { intel: scanResult.productIntel } 
+            : scanResult.productIntel,
           sales_brief: scanResult.salesBrief,
-          insights: scanResult.insights,
+          insights: Array.isArray(scanResult.insights) 
+            ? { items: scanResult.insights } 
+            : scanResult.insights,
           scan_duration: scanResult.scanDuration || 3
         }
       ])

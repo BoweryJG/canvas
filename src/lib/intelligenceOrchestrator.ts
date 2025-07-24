@@ -194,23 +194,25 @@ export async function orchestrateIntelligenceWorkflow(
     // Generate hyper-personalized content
     interface ResearchDataLike {
       enhancedInsights: DeepIntelligenceResult;
-      practiceInfo: Record<string, unknown>;
+      practiceInfo: Record<string, any>;
       sources: Array<{ url: string; type: string; relevance: number }>;
     }
+    
+    const researchDataLike: ResearchDataLike = {
+      enhancedInsights: deepInsights,
+      practiceInfo: deepInsights.practiceInfo || {},
+      sources: deepInsights.sources
+    };
     
     const generatedContent = await generateMultiChannelCampaign(
       doctorName,
       productName,
-      {
-        enhancedInsights: deepInsights,
-        practiceInfo: deepInsights.practiceInfo || {},
-        sources: deepInsights.sources
-      } as ResearchDataLike,
+      researchDataLike as any,
       salesRepInfo?.name || 'Sales Rep',
       salesRepInfo?.company || 'Company',
       procedure || undefined,
-      scrapedData as unknown as Record<string, unknown> | undefined,
-      productIntelligence as unknown as Record<string, unknown> | undefined
+      scrapedData as any,
+      productIntelligence as any
     );
     
     const step3Time = Date.now() - step3Start;

@@ -202,7 +202,7 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
           });
           
           // Add to conversation context
-          updateConversationContext({ doctor: bestMatch });
+          updateConversationContext({ doctors: bestMatch ? [bestMatch] : [] });
         }
       } catch (error) {
         console.error('Doctor lookup failed:', error);

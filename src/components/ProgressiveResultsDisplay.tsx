@@ -197,7 +197,7 @@ export default function ProgressiveResultsDisplay({ userTier, onUpgradeClick }: 
                 ...s,
                 progress: newProgress,
                 status: newProgress === 100 ? 'complete' as const : 'loading' as const,
-                data: newProgress === 100 ? generateMockData(section.id) : null
+                data: newProgress === 100 ? generateMockData(section.id) : undefined
               };
             }
             return s;

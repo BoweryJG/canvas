@@ -85,26 +85,6 @@ export default function DoctorVerification({
   const [error, setError] = useState(false);
   const [showDetails, setShowDetails] = useState(true); // Changed: always show details
 
-  useEffect(() => {
-    // If we already have data from parent, use it
-    if (website || practice || confidence !== undefined) {
-      setProfile({
-        name: doctorName,
-        specialty: specialty,
-        location: location,
-        website: website,
-        practice: practice,
-        confidence: confidence || 0,
-        npi: npi,
-        additionalInfo: generateAdditionalInfo()
-      });
-      setLoading(false);
-    } else {
-      // Only perform verification if we don't have data
-      performVerification();
-    }
-  }, [doctorName, location, website, practice, confidence, npi, specialty, generateAdditionalInfo, performVerification]);
-
   const generateAdditionalInfo = useCallback(() => {
     if (!website) {
       return "We couldn't find a practice website. Please confirm if this is the correct doctor.";
@@ -177,6 +157,26 @@ export default function DoctorVerification({
       setLoading(false);
     }
   }, [doctorName, location, specialty, practice, website, confidence, npi, generateAdditionalInfo]);
+
+  useEffect(() => {
+    // If we already have data from parent, use it
+    if (website || practice || confidence !== undefined) {
+      setProfile({
+        name: doctorName,
+        specialty: specialty,
+        location: location,
+        website: website,
+        practice: practice,
+        confidence: confidence || 0,
+        npi: npi,
+        additionalInfo: generateAdditionalInfo()
+      });
+      setLoading(false);
+    } else {
+      // Only perform verification if we don't have data
+      performVerification();
+    }
+  }, [doctorName, location, website, practice, confidence, npi, specialty, generateAdditionalInfo, performVerification]);
 
   const handleConfirm = () => {
     if (profile) {

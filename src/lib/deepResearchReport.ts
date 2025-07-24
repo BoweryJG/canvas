@@ -161,7 +161,7 @@ export class CanvasDeepResearchGenerator {
       
     } catch (error) {
       console.error('Deep Research Report Error:', error);
-      throw new Error(`Failed to generate deep research report: ${error.message}`);
+      throw new Error(`Failed to generate deep research report: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -255,8 +255,8 @@ export class CanvasDeepResearchGenerator {
     };
   }
 
-  private parseCompetitorProfiles(research: any): CompetitorProfile[] {
-    const content = research.choices?.[0]?.message?.content || '';
+  private parseCompetitorProfiles(_research: any): CompetitorProfile[] {
+    // const content = research.choices?.[0]?.message?.content || '';
     
     // Extract competitor information from research
     return [
@@ -290,7 +290,7 @@ export class CanvasDeepResearchGenerator {
     ];
   }
 
-  private parseIndustryTrends(research: any): string[] {
+  private parseIndustryTrends(_research: any): string[] {
     return [
       'Accelerated digital health adoption post-COVID',
       'Shift toward value-based care models',
@@ -305,7 +305,7 @@ export class CanvasDeepResearchGenerator {
     ];
   }
 
-  private parseRegulatoryInsights(research: any): string[] {
+  private parseRegulatoryInsights(_research: any): string[] {
     return [
       'HIPAA compliance requirements for all patient data handling',
       'FDA oversight of AI-powered medical devices and software',
@@ -320,7 +320,7 @@ export class CanvasDeepResearchGenerator {
     ];
   }
 
-  private generateFinancialProjections(scanResult: EnhancedScanResult, researchData: ResearchData) {
+  private generateFinancialProjections(_scanResult: EnhancedScanResult, researchData: ResearchData) {
     const practiceSize = researchData.practiceInfo?.staff || 10;
     const baseRevenue = practiceSize * 50000; // Estimated annual revenue per staff member
     
@@ -332,7 +332,7 @@ export class CanvasDeepResearchGenerator {
     };
   }
 
-  private generateDetailedPersona(scanResult: EnhancedScanResult, researchData: ResearchData) {
+  private generateDetailedPersona(_scanResult: EnhancedScanResult, _researchData: ResearchData) {
     return {
       decisionMakingProcess: [
         'Initial needs assessment and pain point identification',
@@ -549,7 +549,7 @@ export class CanvasDeepResearchGenerator {
     this.addWrappedText(feasibility, this.pageWidth - 2 * this.margin);
   }
 
-  private addDoctorDeepDive(scanResult: EnhancedScanResult, deepResearchData: DeepResearchData): void {
+  private addDoctorDeepDive(_scanResult: EnhancedScanResult, deepResearchData: DeepResearchData): void {
     this.addSectionHeader('DOCTOR & PRACTICE DEEP DIVE');
     
     // Professional Background
@@ -783,7 +783,7 @@ export class CanvasDeepResearchGenerator {
     // Regulatory Insights
     this.addSubsectionHeader('Regulatory Environment & Compliance');
     
-    deepResearchData.regulatoryInsights.forEach((insight, index) => {
+    deepResearchData.regulatoryInsights.forEach((insight) => {
       this.currentY += 18;
       this.doc.text(`• ${insight}`, this.margin + 10, this.currentY);
     });
@@ -1090,7 +1090,7 @@ export class CanvasDeepResearchGenerator {
     });
   }
 
-  private addRiskAssessment(scanResult: EnhancedScanResult, deepResearchData: DeepResearchData): void {
+  private addRiskAssessment(scanResult: EnhancedScanResult, _deepResearchData: DeepResearchData): void {
     this.addSectionHeader('RISK ASSESSMENT & MITIGATION');
     
     // Risk Overview
@@ -1417,7 +1417,7 @@ export class CanvasDeepResearchGenerator {
     return fallback;
   }
 
-  private extractListFromContent(content: string, keywords: string[], fallback: string[]): string[] {
+  private extractListFromContent(_content: string, _keywords: string[], fallback: string[]): string[] {
     // Simple extraction - in real implementation would use more sophisticated parsing
     return fallback;
   }
@@ -1477,7 +1477,7 @@ export class CanvasDeepResearchGenerator {
     return 'medium-high';
   }
 
-  private getTopValueDrivers(deepResearchData: DeepResearchData): string[] {
+  private getTopValueDrivers(_deepResearchData: DeepResearchData): string[] {
     return ['efficiency improvement', 'cost reduction', 'compliance enhancement'];
   }
 
@@ -1489,25 +1489,25 @@ export class CanvasDeepResearchGenerator {
     return deepResearchData.marketIntelligence.keyTrends.slice(0, 3);
   }
 
-  private getSuccessFactors(deepResearchData: DeepResearchData): string[] {
+  private getSuccessFactors(_deepResearchData: DeepResearchData): string[] {
     return ['stakeholder alignment', 'comprehensive training', 'phased implementation'];
   }
 
-  private getFeasibilityRating(scanResult: EnhancedScanResult, deepResearchData: DeepResearchData): string {
+  private getFeasibilityRating(scanResult: EnhancedScanResult, _deepResearchData: DeepResearchData): string {
     if (scanResult.score >= 80) return 'HIGH';
     if (scanResult.score >= 60) return 'MEDIUM-HIGH';
     return 'MEDIUM';
   }
 
-  private getStrategicApproach(scanResult: EnhancedScanResult, deepResearchData: DeepResearchData): string {
+  private getStrategicApproach(scanResult: EnhancedScanResult, _deepResearchData: DeepResearchData): string {
     return scanResult.score >= 80 ? 'consultative partnership' : 'value-focused engagement';
   }
 
-  private getKeyValueProps(deepResearchData: DeepResearchData): string[] {
+  private getKeyValueProps(_deepResearchData: DeepResearchData): string[] {
     return ['operational efficiency', 'clinical outcomes', 'financial performance'];
   }
 
-  private getPrimaryValueDriver(deepResearchData: DeepResearchData): string {
+  private getPrimaryValueDriver(_deepResearchData: DeepResearchData): string {
     return 'Operational efficiency and workflow optimization';
   }
 
@@ -1523,7 +1523,7 @@ export class CanvasDeepResearchGenerator {
     return scanResult.score >= 80 ? 'accelerated' : 'phased';
   }
 
-  private getImplementationPriorities(deepResearchData: DeepResearchData): string[] {
+  private getImplementationPriorities(_deepResearchData: DeepResearchData): string[] {
     return ['user adoption', 'technical integration', 'change management'];
   }
 }

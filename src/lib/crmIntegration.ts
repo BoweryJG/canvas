@@ -130,10 +130,11 @@ export class CRMIntegrationManager {
 
     } catch (error) {
       console.error('CRM sync error:', error);
-      this.updateMetrics(false, error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.updateMetrics(false, errorMessage);
       return {
         success: false,
-        error: error.message
+        error: errorMessage
       };
     }
   }
@@ -160,7 +161,7 @@ export class CRMIntegrationManager {
           throw new Error(`Unsupported CRM provider: ${this.config.provider}`);
       }
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -186,7 +187,7 @@ export class CRMIntegrationManager {
           throw new Error(`Unsupported CRM provider: ${this.config.provider}`);
       }
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -212,7 +213,7 @@ export class CRMIntegrationManager {
           throw new Error(`Unsupported CRM provider: ${this.config.provider}`);
       }
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -259,7 +260,7 @@ export class CRMIntegrationManager {
       };
     } catch (error) {
       console.error('Sphere oS sync error:', error);
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : String(error) };
     }
   }
 
@@ -303,7 +304,7 @@ export class CRMIntegrationManager {
         opportunityId: result.id || 'sphere_opp_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -345,7 +346,7 @@ export class CRMIntegrationManager {
         activityId: result.id || 'sphere_act_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -376,7 +377,7 @@ export class CRMIntegrationManager {
         contactId: response.id || 'sf_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -404,7 +405,7 @@ export class CRMIntegrationManager {
         opportunityId: response.id || 'sf_opp_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -429,7 +430,7 @@ export class CRMIntegrationManager {
         activityId: response.id || 'sf_act_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -460,7 +461,7 @@ export class CRMIntegrationManager {
         contactId: response.id || 'hs_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -493,7 +494,7 @@ export class CRMIntegrationManager {
         opportunityId: response.id || 'hs_deal_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -524,7 +525,7 @@ export class CRMIntegrationManager {
         activityId: response.id || 'hs_act_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -549,7 +550,7 @@ export class CRMIntegrationManager {
         contactId: response.id || 'pd_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -576,7 +577,7 @@ export class CRMIntegrationManager {
         opportunityId: response.id || 'pd_deal_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -601,7 +602,7 @@ export class CRMIntegrationManager {
         activityId: response.id || 'pd_act_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -629,7 +630,7 @@ export class CRMIntegrationManager {
         contactId: response.id || 'zoho_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -657,7 +658,7 @@ export class CRMIntegrationManager {
         opportunityId: response.id || 'zoho_deal_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -682,7 +683,7 @@ export class CRMIntegrationManager {
         activityId: response.id || 'zoho_act_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -703,7 +704,7 @@ export class CRMIntegrationManager {
         contactId: response.id || 'custom_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -723,7 +724,7 @@ export class CRMIntegrationManager {
         opportunityId: response.id || 'custom_opp_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -743,7 +744,7 @@ export class CRMIntegrationManager {
         activityId: response.id || 'custom_act_' + Date.now()
       };
     } catch (error) {
-      return { success: false, error: error.message };
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
     }
   }
 
@@ -756,12 +757,14 @@ export class CRMIntegrationManager {
       firstName: firstName || 'Unknown',
       lastName: lastName || 'Doctor',
       email: researchData.practiceInfo?.website ? (() => {
+        const website = researchData.practiceInfo.website;
+        if (!website || typeof website !== 'string') return undefined;
         try {
-          const url = new URL(researchData.practiceInfo.website);
+          const url = new URL(website);
           return `contact@${url.hostname}`;
         } catch {
           // If URL parsing fails, try to extract domain manually
-          const domain = researchData.practiceInfo.website.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+          const domain = website.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
           return domain ? `contact@${domain}` : undefined;
         }
       })() : undefined,
@@ -796,14 +799,14 @@ export class CRMIntegrationManager {
       amount: estimatedValue,
       probability: probability,
       expectedCloseDate: this.calculateExpectedCloseDate(scanResult.score),
-      description: `Canvas Intelligence identified opportunity: ${scanResult.score}% practice fit with ${scanResult.researchQuality} research quality. ${scanResult.insights.slice(0, 2).join('. ')}.`,
+      description: `Canvas Intelligence identified opportunity: ${scanResult.score}% practice fit with ${scanResult.researchQuality} research quality. ${Array.isArray(scanResult.insights) ? scanResult.insights.slice(0, 2).join('. ') : ''}.`,
       source: 'canvas_intelligence',
       customFields: {
         practiceScore: scanResult.score,
         researchQuality: scanResult.researchQuality,
         productIntel: scanResult.productIntel,
         salesBrief: scanResult.salesBrief,
-        keyInsights: scanResult.insights.slice(0, 3),
+        keyInsights: Array.isArray(scanResult.insights) ? scanResult.insights.slice(0, 3) : [],
         canvasGeneratedDate: new Date().toISOString()
       }
     };
@@ -811,7 +814,7 @@ export class CRMIntegrationManager {
 
   private buildActivitiesFromScan(
     scanResult: EnhancedScanResult, 
-    researchData: ResearchData, 
+    _researchData: ResearchData, 
     contactId: string, 
     opportunityId?: string,
     outreachData?: PersonalizedOutreach
@@ -824,7 +827,7 @@ export class CRMIntegrationManager {
       opportunityId: opportunityId,
       type: 'note',
       subject: 'Canvas Intelligence Research Summary',
-      description: `Comprehensive research completed with ${scanResult.score}% practice fit score.\n\nKey Findings:\n${scanResult.insights.map(insight => `• ${insight}`).join('\n')}\n\nResearch Quality: ${scanResult.researchQuality}\nSources: ${scanResult.researchSources}\n\nSales Brief: ${scanResult.salesBrief}`,
+      description: `Comprehensive research completed with ${scanResult.score}% practice fit score.\n\nKey Findings:\n${Array.isArray(scanResult.insights) ? scanResult.insights.map((insight: any) => `• ${insight}`).join('\n') : ''}\n\nResearch Quality: ${scanResult.researchQuality}\nSources: ${scanResult.researchSources}\n\nSales Brief: ${scanResult.salesBrief}`,
       source: 'canvas_intelligence'
     });
 
@@ -834,7 +837,7 @@ export class CRMIntegrationManager {
       opportunityId: opportunityId,
       type: 'task',
       subject: 'Follow up on Canvas Intelligence research',
-      description: `Follow up with ${scanResult.doctor} based on Canvas research findings. Practice fit score: ${scanResult.score}%. Focus on: ${scanResult.insights[0] || 'practice needs assessment'}.`,
+      description: `Follow up with ${scanResult.doctor} based on Canvas research findings. Practice fit score: ${scanResult.score}%. Focus on: ${Array.isArray(scanResult.insights) ? scanResult.insights[0] : 'practice needs assessment'}.`,
       dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
       completed: false,
       source: 'canvas_intelligence'
@@ -912,7 +915,7 @@ export class CRMIntegrationManager {
     return stageMap[stage] || 1;
   }
 
-  private async getOrCreatePipedriveOrg(orgName: string): Promise<string> {
+  private async getOrCreatePipedriveOrg(_orgName: string): Promise<string> {
     // In real implementation, search for existing org or create new one
     return 'pd_org_' + Date.now();
   }

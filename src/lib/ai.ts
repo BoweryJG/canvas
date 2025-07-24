@@ -1,14 +1,7 @@
 // Use Netlify function for AI API calls to keep keys secure
 
-export interface ScanResult {
-  doctor: string;
-  product: string;
-  score: number;
-  doctorProfile: string;
-  productIntel: string;
-  salesBrief: string;
-  insights: string[];
-}
+import { type ScanResult } from '../types/scan';
+export type { ScanResult };
 
 /**
  * Call our Netlify function for AI analysis
