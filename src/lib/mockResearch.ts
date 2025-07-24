@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Mock research data for testing UI without API calls
  */

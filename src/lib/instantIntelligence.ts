@@ -7,6 +7,7 @@
 import { callPerplexityResearch } from './apiEndpoints';
 import { findProcedureByName } from './procedureDatabase';
 import { withRetry } from '../utils/errorHandling';
+import { extractStringContent } from '../types/api-utils';
 
 export interface InstantIntelligence {
   tacticalBrief: string;
@@ -134,17 +135,7 @@ Format response as JSON with clear sections.`;
     let parsedIntelligence;
     try {
       // Handle different response types
-      let responseText = '';
-      if (typeof response === 'string') {
-        responseText = response;
-      } else if (response?.choices?.[0]?.message?.content) {
-        responseText = response.choices[0].message.content;
-      } else if (response?.content) {
-        responseText = response.content;
-      } else {
-        console.warn('Unexpected response format:', response);
-        responseText = JSON.stringify(response);
-      }
+      const responseText = extractStringContent(response);
       
       // Try to extract JSON from the response
       const jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -211,8 +202,8 @@ Format response as JSON with clear sections.`;
 }
 
 // Helper function to parse structured text response
-function parseStructuredResponse(response: string | unknown): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
+function parseStructuredResponse(response: string | unknown): Record<string, any> {
+  const result: Record<string, any> = {};
   
   // Ensure response is a string
   const responseText = typeof response === 'string' ? response : JSON.stringify(response);

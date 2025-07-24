@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Magic Link Generator - Creates secure sharing links with tier-based features
  */

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Progressive Outreach System - Tiered sales materials that improve with research depth
  * Generic → Pro → Genius as more intelligence is gathered

@@ -4,6 +4,7 @@
  */
 
 import { callBraveSearch, callFirecrawlScrape } from './apiEndpoints';
+import type { BraveSearchResult } from '../types/api-types';
 
 export interface EnhancedSearchParams {
   doctorName: string;
@@ -57,7 +58,7 @@ export async function conductEnhancedResearch(
     try {
       const searchResults = await callBraveSearch(query, 5, userId);
       
-      if (searchResults.web?.results?.length > 0) {
+      if (searchResults?.web?.results && searchResults.web.results.length > 0) {
         // Score each result based on how well it matches our known data
         for (const result of searchResults.web.results) {
           const score = scoreResult(result, params);
@@ -158,7 +159,7 @@ function buildSmartQueries(params: EnhancedSearchParams): string[] {
 /**
  * Score how well a search result matches our known data
  */
-function scoreResult(result: unknown, params: EnhancedSearchParams): number {
+function scoreResult(result: BraveSearchResult, params: EnhancedSearchParams): number {
   let score = 0;
   const title = (result.title || '').toLowerCase();
   const description = (result.description || '').toLowerCase();
@@ -211,7 +212,7 @@ function scoreResult(result: unknown, params: EnhancedSearchParams): number {
 /**
  * Determine if a result is likely the doctor's practice website
  */
-function isPracticeWebsite(result: unknown, params: EnhancedSearchParams): boolean {
+function isPracticeWebsite(result: BraveSearchResult, params: EnhancedSearchParams): boolean {
   const url = (result.url || '').toLowerCase();
   const title = (result.title || '').toLowerCase();
   

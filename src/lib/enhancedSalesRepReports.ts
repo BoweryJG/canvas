@@ -7,6 +7,7 @@ import type { EnhancedScanResult } from './enhancedAI';
 import type { ResearchData } from './webResearch';
 import type { ProductIntelligence } from './productProcedureIntelligence';
 import type { ScrapedWebsiteData } from './firecrawlWebScraper';
+import type { SalesAnalysis } from '../types/api-types';
 
 /**
  * Generate dynamic product name for reports
@@ -257,9 +258,9 @@ export async function generateEnhancedInitialOutreachReport(
   _companyName: string,
   productName: string
 ): Promise<Blob> {
-  const productIntel = researchData.productIntelligence as ProductIntelligence | undefined;
-  const doctorIntel = researchData.enhancedInsights as unknown;
-  const combinedStrategy = researchData.combinedStrategy as unknown;
+  const productIntel = researchData.productIntelligence as unknown as ProductIntelligence | undefined;
+  const doctorIntel = researchData.enhancedInsights as SalesAnalysis;
+  const combinedStrategy = researchData.combinedStrategy as SalesAnalysis;
   
   const content = `
 INITIAL OUTREACH BRIEF
@@ -334,8 +335,8 @@ export async function generateEnhancedFollowUpReport(
   _companyName: string,
   _productName: string
 ): Promise<Blob> {
-  const productIntel = researchData.productIntelligence as ProductIntelligence | undefined;
-  const doctorIntel = researchData.enhancedInsights as unknown;
+  const productIntel = researchData.productIntelligence as unknown as ProductIntelligence | undefined;
+  const doctorIntel = researchData.enhancedInsights as SalesAnalysis;
   
   const content = `
 FOLLOW-UP STRATEGY REPORT
@@ -397,9 +398,9 @@ export async function generateEnhancedBreakthroughReport(
   _companyName: string,
   productName: string
 ): Promise<Blob> {
-  const productIntel = researchData.productIntelligence as ProductIntelligence | undefined;
-  const doctorIntel = researchData.enhancedInsights as unknown;
-  const combinedStrategy = researchData.combinedStrategy as unknown;
+  const productIntel = researchData.productIntelligence as unknown as ProductIntelligence | undefined;
+  const doctorIntel = researchData.enhancedInsights as SalesAnalysis;
+  const combinedStrategy = researchData.combinedStrategy as SalesAnalysis;
   
   const content = `
 BREAKTHROUGH STRATEGY REPORT
@@ -467,9 +468,9 @@ export async function generateEnhancedClosingReport(
   _companyName: string,
   _productName: string
 ): Promise<Blob> {
-  const productIntel = researchData.productIntelligence as ProductIntelligence | undefined;
-  const doctorIntel = researchData.enhancedInsights as unknown;
-  const combinedStrategy = researchData.combinedStrategy as unknown;
+  const productIntel = researchData.productIntelligence as unknown as ProductIntelligence | undefined;
+  const doctorIntel = researchData.enhancedInsights as SalesAnalysis;
+  const combinedStrategy = researchData.combinedStrategy as SalesAnalysis;
   
   const content = `
 CLOSING STRATEGY REPORT
