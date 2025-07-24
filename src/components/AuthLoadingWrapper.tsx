@@ -50,11 +50,7 @@ export const AuthLoadingWrapper: React.FC<AuthLoadingWrapperProps> = ({ children
     return () => {};
   }, []);
   
-  // Only show loading screen if auth is actually loading AND we haven't determined the user state yet
-  // If user is null (unauthenticated), that's a valid state - show content immediately
-  if (loading && !forceShow && user === undefined) {
-    return <LoadingScreen message="Initializing Canvas..." />;
-  }
-  
+  // Never show loading screen - always show content immediately
+  // The app should work with mock data for unauthenticated users
   return <>{children}</>;
 };
