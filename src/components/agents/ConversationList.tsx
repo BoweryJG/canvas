@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../auth/useAuth';
 
@@ -36,9 +36,9 @@ const ConversationList: React.FC<ConversationListProps> = ({
 
   useEffect(() => {
     loadConversations();
-  }, [session]);
+  }, [loadConversations]);
 
-  const loadConversations = async () => {
+  const loadConversations = useCallback(async () => {
     if (!session?.access_token) return;
 
     try {
@@ -54,7 +54,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [session, backendUrl]);
 
   const filteredConversations = conversations.filter(conv =>
     conv.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

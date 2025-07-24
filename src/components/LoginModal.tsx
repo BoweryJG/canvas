@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import './LoginModal.css';
 import { useAuth } from '../auth';
@@ -153,18 +153,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
     };
   }, [isOpen]);
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        handleClose();
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]);
-
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     gsap.to(modalRef.current, {
       duration: 0.4,
       scale: 0.8,
@@ -174,7 +163,18 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
         onClose();
       }
     });
-  };
+  }, [onClose]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        handleClose();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, handleClose]);
 
   const handleGoogleAuth = async () => {
     setIsLoading(true);

@@ -2,7 +2,14 @@ import React from 'react';
 import { MagicResearchForm } from '../components/MagicResearchForm';
 
 export const TestNPI: React.FC = () => {
-  const handleSubmit = (data: any) => {
+  interface FormData {
+    doctorName: string;
+    specialty: string;
+    location: string;
+    npi: string;
+  }
+  
+  const handleSubmit = (data: FormData) => {
     console.log('Form submitted with data:', data);
     alert(`
       Doctor: ${data.doctorName}

@@ -26,7 +26,7 @@ export const EnhancedResearchPanel: React.FC = () => {
   const [researchProgress, setResearchProgress] = useState<ResearchProgress | null>(null);
   const [researchEngine] = useState(() => new ProgressiveResearchEngine());
   
-  const handleResearchSubmit = async (formData: any) => {
+  const handleResearchSubmit = async (formData: Record<string, unknown>) => {
     setIsResearching(true);
     
     // If we have NPI data, do enhanced research first
@@ -47,19 +47,23 @@ export const EnhancedResearchPanel: React.FC = () => {
     }
     
     // Set up progress listeners
-    researchEngine.on('progress', (progress: ResearchProgress) => {
+    const handleProgress = (progress: ResearchProgress) => {
       setResearchProgress(progress);
-    });
+    };
     
-    researchEngine.on('complete', (finalData: ResearchData) => {
+    const handleComplete = (finalData: ResearchData) => {
       setIsResearching(false);
       console.log('Research complete!', finalData);
-    });
+    };
     
-    researchEngine.on('error', (error: Error) => {
+    const handleError = (error: Error) => {
       setIsResearching(false);
       console.error('Research failed:', error);
-    });
+    };
+    
+    researchEngine.on('progress', handleProgress);
+    researchEngine.on('complete', handleComplete);
+    researchEngine.on('error', handleError);
     
     // Start the progressive research
     researchEngine.startResearch(
@@ -69,6 +73,13 @@ export const EnhancedResearchPanel: React.FC = () => {
       'standard',
       user?.id
     );
+    
+    // Cleanup listeners when component unmounts or research changes
+    return () => {
+      researchEngine.off('progress', handleProgress);
+      researchEngine.off('complete', handleComplete);
+      researchEngine.off('error', handleError);
+    };
   };
   
   const getProgressColor = (percent: number) => {

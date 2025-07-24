@@ -219,8 +219,7 @@ export const EnhancedNPILookup: React.FC<EnhancedNPILookupProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // Enhanced search function with specialty focus
-  const searchDoctors = useCallback(
-    debounce(async (searchTerm: string) => {
+  const searchDoctors = useCallback(async (searchTerm: string) => {
       if (searchTerm.length < 2) {
         setSuggestions([]);
         setShowDropdown(false);
@@ -287,14 +286,18 @@ export const EnhancedNPILookup: React.FC<EnhancedNPILookupProps> = ({
       } finally {
         setLoading(false);
       }
-    }, 300),
-    [focusSpecialties]
+  }, [focusSpecialties]);
+  
+  // Create debounced version of searchDoctors
+  const debouncedSearchDoctors = React.useMemo(
+    () => debounce(searchDoctors, 300),
+    [searchDoctors]
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearch(value);
-    searchDoctors(value);
+    debouncedSearchDoctors(value);
   };
 
   const handleSelect = (doctor: NPIDoctor, index: number) => {

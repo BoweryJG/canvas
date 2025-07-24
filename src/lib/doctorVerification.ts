@@ -196,7 +196,7 @@ function extractPracticeInfo(title: string, description: string): string {
     // Practice in title
     /^([^-|,\n]+(?:medical|dental|health|clinic|center|associates|group|practice|partners))/gi,
     // "at Practice Name"
-    /(?:at|with|of)\s+([^,\.\n]+(?:medical|dental|health|clinic|center|associates|group|practice|partners))/gi
+    /(?:at|with|of)\s+([^,.\n]+(?:medical|dental|health|clinic|center|associates|group|practice|partners))/gi
   ];
   
   for (const pattern of patterns) {
@@ -407,7 +407,7 @@ function generateAdditionalInfo(profile: VerificationResult, results: BraveSearc
       info.push(`${yearsMatch[1]} years of experience`);
     }
     
-    const educationMatch = description.match(/(university|college|school)\s+of\s+[^,\.\n]+/gi);
+    const educationMatch = description.match(/(university|college|school)\s+of\s+[^,.\n]+/gi);
     if (educationMatch) {
       info.push(`Educated at ${educationMatch[0]}`);
     }
@@ -416,7 +416,7 @@ function generateAdditionalInfo(profile: VerificationResult, results: BraveSearc
   return info.join(' • ');
 }
 
-async function enhanceWithWebsiteData(_profile: VerificationResult): Promise<void> {
+async function enhanceWithWebsiteData(): Promise<void> {
   // Optional: Use Firecrawl to get more detailed website information
   // This would require calling the Firecrawl API
   // For now, we'll enhance with the search data we already have
@@ -426,7 +426,7 @@ async function enhanceWithWebsiteData(_profile: VerificationResult): Promise<voi
     // const websiteData = await firecrawlScrape(profile.website);
     // But for speed, we'll rely on search results
     console.log('Website enhancement available but skipped for speed');
-  } catch (error) {
+  } catch {
     // Fail silently, search data is sufficient for verification
   }
 }

@@ -256,7 +256,7 @@ async function gatherAllIntelligenceWithProgress(
         progress.updateConfidence(70);
       }
     } catch (error) {
-      console.log('Firecrawl unavailable, continuing...');
+      console.log('Firecrawl unavailable, continuing...', error);
       progress.updateStep('website', 'completed', 'Using alternative data');
     }
   } else {
@@ -488,8 +488,8 @@ Format as JSON with these exact fields:
     try {
       const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
       return JSON.parse(response);
-    } catch (fallbackError) {
-      console.error('Claude 3.5 Sonnet failed, trying local processor');
+    } catch (error) {
+      console.error('Claude 3.5 Sonnet failed, trying local processor:', error);
       
       // Try local processor as last resort
       try {
@@ -500,8 +500,8 @@ Format as JSON with these exact fields:
           product
         );
         return response;
-      } catch (localError) {
-        console.error('All AI synthesis failed, using defaults');
+      } catch (error) {
+        console.error('All AI synthesis failed, using defaults:', error);
         return createDefaultInsights(doctor, product);
       }
     }
@@ -595,7 +595,7 @@ function createEnhancedResearchData(
     sources: intelligenceData.allSources,
     confidenceScore: Math.min(confidence, 100),
     completedAt: new Date().toISOString(),
-    enhancedInsights: insights as any
+    enhancedInsights: insights as unknown
   };
 }
 

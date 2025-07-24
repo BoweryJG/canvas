@@ -144,7 +144,7 @@ function buildSmartQueries(
  * Classify and score search results
  */
 function classifyAndScoreResult(
-  result: any,
+  result: unknown,
   fullName: string,
   _firstName: string,
   lastName: string,

@@ -215,7 +215,7 @@ try {
   }
 } catch (error) {
   // Client-side environment - API keys handled by server
-  console.log('API key rotation will be handled server-side');
+  console.log('API key rotation will be handled server-side', error);
 }
 
 /**

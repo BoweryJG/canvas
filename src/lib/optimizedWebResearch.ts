@@ -34,7 +34,7 @@ export async function conductOptimizedResearch(doctorName: string, location?: st
     
     // 2. Smart URL categorization and prioritization
     const braveResults = searchResults.web?.results || [];
-    const searchResultsArray: SearchResult[] = braveResults.map((result: any) => ({
+    const searchResultsArray: SearchResult[] = braveResults.map((result: unknown) => ({
       url: result.url || '',
       title: result.title || '',
       description: result.description || ''

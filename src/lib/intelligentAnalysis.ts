@@ -66,7 +66,7 @@ export async function analyzeDoctor(doctorName: string, location: string | undef
   }
 }
 
-function extractDoctorProfiles(results: any[], doctorName: string, location?: string): DoctorProfile[] {
+function extractDoctorProfiles(results: unknown[], doctorName: string, location?: string): DoctorProfile[] {
   const profiles: DoctorProfile[] = [];
   const nameVariations = generateNameVariations(doctorName);
   
@@ -128,8 +128,8 @@ function generateNameVariations(doctorName: string): string[] {
 function extractPractice(text: string, title: string): string {
   // Look for practice names in common patterns
   const patterns = [
-    /(?:at|with|of)\s+([A-Z][^,\.\n]+(?:Medical|Dental|Health|Clinic|Center|Associates|Group|Practice|Partners))/gi,
-    /([A-Z][^,\.\n]+(?:Medical|Dental|Health|Clinic|Center))\s+(?:in|at)/gi,
+    /(?:at|with|of)\s+([A-Z][^,.\n]+(?:Medical|Dental|Health|Clinic|Center|Associates|Group|Practice|Partners))/gi,
+    /([A-Z][^,.\n]+(?:Medical|Dental|Health|Clinic|Center))\s+(?:in|at)/gi,
     /^([^-|]+(?:Medical|Dental|Health|Clinic|Center|Associates))/i
   ];
   
@@ -211,7 +211,7 @@ function extractWebsite(url: string, text: string): string {
   }
   
   // Look for website mentions in text
-  const websitePattern = /(?:website|visit|www\.)[\s:]*([\w\-]+\.(?:com|org|net|health))/i;
+  const websitePattern = /(?:website|visit|www\.)[\s:]*([\w-]+\.(?:com|org|net|health))/i;
   const match = text.match(websitePattern);
   if (match) {
     return match[1].startsWith('www.') ? match[1] : `www.${match[1]}`;

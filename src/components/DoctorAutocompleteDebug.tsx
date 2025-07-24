@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { debounce } from 'lodash';
 
 export interface Doctor {
@@ -85,8 +85,8 @@ export const DoctorAutocompleteDebug: React.FC<DoctorAutocompleteDebugProps> = (
   }, [addDebug]);
 
   // Create debounced version
-  const debouncedSearchDoctors = useCallback(
-    debounce(searchDoctors, 300),
+  const debouncedSearchDoctors = useMemo(
+    () => debounce(searchDoctors, 300),
     [searchDoctors]
   );
 

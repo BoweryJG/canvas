@@ -11,7 +11,7 @@ export async function simpleFastScan(
   practiceName?: string,
   specialty?: string
 ) {
-  const results: any = {
+  const results: unknown = {
     instant: null,
     basic: null,
     enhanced: null
@@ -196,7 +196,7 @@ export async function simpleFastScan(
 /**
  * Score search results to prioritize actual practice websites
  */
-function scoreSearchResult(result: any, doctorName: string, location?: string): number {
+function scoreSearchResult(result: unknown, doctorName: string, location?: string): number {
   const url = result.url.toLowerCase();
   const title = (result.title || '').toLowerCase();
   const cleanName = doctorName.replace(/^Dr\.\s*/i, '').toLowerCase();
@@ -216,7 +216,7 @@ function scoreSearchResult(result: any, doctorName: string, location?: string): 
   }
   
   // Domain contains doctor's last name = HIGH confidence
-  const domain = url.match(/https?:\/\/([^\/]+)/)?.[1] || '';
+  const domain = url.match(/https?:\/\/([^/]+)/)?.[1] || '';
   if (domain.includes(lastName.replace(/\s+/g, ''))) {
     score += 50;
   }
@@ -234,7 +234,7 @@ function scoreSearchResult(result: any, doctorName: string, location?: string): 
   }
   
   // Custom .com domain (not a subdomain or website builder)
-  const customDomainPattern = /^https?:\/\/[^\/]+\.(com|net|org|health|dental|medical)$/i;
+  const customDomainPattern = /^https?:\/\/[^/]+\.(com|net|org|health|dental|medical)$/i;
   const websiteBuilders = ['.wix', '.square', '.weebly', '.godaddy', '.wordpress', 
                           '.blogspot', '.github', '.netlify', '.vercel'];
   

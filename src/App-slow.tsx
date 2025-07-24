@@ -291,7 +291,7 @@ function App() {
       {scanResult && !isScanning && (
         <div className="insights-section">
           <div className="insights-grid">
-            {scanResult.insights && Array.isArray(scanResult.insights) && scanResult.insights.map((insight: any, index: number) => (
+            {scanResult.insights && Array.isArray(scanResult.insights) && scanResult.insights.map((insight: string, index: number) => (
               <div key={index} className="insight-card">
                 <p>{insight}</p>
               </div>

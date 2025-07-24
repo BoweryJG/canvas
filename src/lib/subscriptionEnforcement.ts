@@ -23,7 +23,7 @@ export interface SubscriptionInfo {
   tier: string;
   status: 'active' | 'inactive' | 'canceled' | 'trialing';
   scansPerDay: number;
-  features: any;
+  features: unknown;
 }
 
 /**

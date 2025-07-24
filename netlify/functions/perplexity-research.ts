@@ -1,5 +1,41 @@
 import { Handler } from '@netlify/functions';
 
+// Type definitions
+interface PerplexityRequest {
+  query?: string;
+  mode?: 'search' | 'reason' | 'deep_research';
+  model?: string;
+}
+
+interface PerplexityMessage {
+  role: string;
+  content: string;
+}
+
+interface PerplexityRequestBody {
+  model: string;
+  messages: PerplexityMessage[];
+  max_tokens: number;
+  temperature: number;
+  top_p: number;
+  return_citations: boolean;
+  search_domain_filter: string[];
+  return_images: boolean;
+  return_related_questions: boolean;
+  search_recency_filter: string;
+}
+
+interface PerplexityAPIResponse {
+  choices: Array<{
+    message: {
+      content: string;
+      role?: string;
+    };
+  }>;
+  citations?: string[];
+  related_questions?: string[];
+}
+
 const PERPLEXITY_API_KEY = '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';
 
 export const handler: Handler = async (event) => {
@@ -33,7 +69,7 @@ export const handler: Handler = async (event) => {
       query, 
       mode = 'search', // 'search', 'reason', 'deep_research'
       model = 'sonar-small-128k-online'
-    } = JSON.parse(event.body || '{}');
+    }: PerplexityRequest = JSON.parse(event.body || '{}');
 
     if (!query) {
       return {
@@ -80,7 +116,7 @@ export const handler: Handler = async (event) => {
         return_images: false,
         return_related_questions: mode === 'deep_research',
         search_recency_filter: "month"
-      })
+      } as PerplexityRequestBody)
     });
 
     if (!response.ok) {
@@ -98,7 +134,7 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    const data = await response.json();
+    const data: PerplexityAPIResponse = await response.json();
     
     console.log(`✅ Perplexity ${mode} completed successfully`);
 
@@ -112,11 +148,18 @@ export const handler: Handler = async (event) => {
     console.error('Perplexity function error:', error);
     
     // More detailed error response
-    const errorDetails = {
+    interface ErrorDetails {
+      error: string;
+      details: string;
+      stack?: string;
+      type?: string;
+    }
+    
+    const errorDetails: ErrorDetails = {
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error',
       stack: error instanceof Error ? error.stack : undefined,
-      type: error?.constructor?.name
+      type: (error as Error)?.constructor?.name
     };
     
     return {

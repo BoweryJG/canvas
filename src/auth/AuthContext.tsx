@@ -3,16 +3,7 @@ import { supabase } from './supabase';
 // Cross-domain auth removed - local auth only
 import type { User, AuthSession, AuthState, AuthError, AuthProvider as AuthProviderType, SignInOptions } from './types';
 import type { Session } from '@supabase/supabase-js';
-
-export interface AuthContextType extends AuthState {
-  signInWithProvider: (provider: AuthProviderType, options?: SignInOptions) => Promise<void>;
-  signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string, metadata?: Record<string, unknown>) => Promise<void>;
-  signOut: () => Promise<void>;
-  refreshSession: () => Promise<void>;
-  subscription?: User['subscription'];
-  isAdmin: boolean;
-}
+import type { AuthContextType } from './AuthContextType';
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -20,13 +11,7 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
-export const useAuth = () => {
-  const context = React.useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+// useAuth hook is exported from ./useAuth.ts to comply with react-refresh/only-export-components
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   console.log('[AuthProvider] Rendering AuthProvider');

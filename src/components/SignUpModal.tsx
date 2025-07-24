@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 import './SignUpModal.css';
 import { useAuth } from '../auth';
@@ -186,18 +186,7 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
     };
   }, [isOpen]);
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        handleClose();
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]);
-
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     gsap.to(modalRef.current, {
       duration: 0.4,
       scale: 0.8,
@@ -212,7 +201,18 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
         setError('');
       }
     });
-  };
+  }, [onClose]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        handleClose();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, handleClose]);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -239,9 +239,9 @@ const SignUpModal: React.FC<SignUpModalProps> = ({ isOpen, onClose, onSuccess })
         onSuccess?.();
         onClose();
       }, 800);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Signup error:', error);
-      setError(error.message || 'Failed to create account');
+      setError((error as Error).message || 'Failed to create account');
       setIsLoading(false);
     }
   };

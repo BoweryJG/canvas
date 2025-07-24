@@ -86,7 +86,7 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
   const [isAgentTyping, setIsAgentTyping] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState<string>('');
   const [showConversations, setShowConversations] = useState(false);
-  const [insights, setInsights] = useState<any[]>([]);
+  const [insights, setInsights] = useState<unknown[]>([]);
   const [detectedDoctors, setDetectedDoctors] = useState<Map<string, NPIDoctorInfo>>(new Map());
   const [showDoctorLookup, setShowDoctorLookup] = useState(false);
   const [lookingUpDoctor, setLookingUpDoctor] = useState(false);
@@ -169,7 +169,7 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
     return () => {
       socketInstance.disconnect();
     };
-  }, [session, BACKEND_URL, currentConversation?.id, streamingMessage]);
+  }, [session, BACKEND_URL, currentConversation?.id, streamingMessage, handleDoctorDetection, handleDoctorMentions]);
 
   // Detect doctors in user messages
   const detectDoctorsInMessage = useCallback(async (content: string) => {
@@ -177,10 +177,10 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
     if (mentions.length > 0) {
       await handleDoctorDetection(mentions);
     }
-  }, []);
+  }, [handleDoctorDetection]);
 
   // Handle detected doctor mentions
-  const handleDoctorDetection = async (mentions: DoctorMention[]) => {
+  const handleDoctorDetection = useCallback(async (mentions: DoctorMention[]) => {
     setLookingUpDoctor(true);
     
     for (const mention of mentions) {
@@ -210,16 +210,16 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
     }
     
     setLookingUpDoctor(false);
-  };
+  }, [detectedDoctors, socket, currentConversation?.id, updateConversationContext]);
 
   // Handle doctor mentions from agent
-  const handleDoctorMentions = async (mentions: DoctorMention[]) => {
+  const handleDoctorMentions = useCallback(async (mentions: DoctorMention[]) => {
     for (const mention of mentions) {
       if (!detectedDoctors.has(mention.fullName)) {
         await handleDoctorDetection([mention]);
       }
     }
-  };
+  }, [detectedDoctors]);
 
   // Update conversation context with doctor info
   const updateConversationContext = (context: { doctors?: NPIDoctorInfo[] }) => {
@@ -236,14 +236,14 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
     if (defaultAgentId && session) {
       loadAgent(defaultAgentId);
     }
-  }, [defaultAgentId, session]);
+  }, [defaultAgentId, session, loadAgent]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, streamingMessage]);
 
-  const loadAgent = async (agentId: string) => {
+  const loadAgent = useCallback(async (agentId: string) => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/canvas/agents/${agentId}`, {
         headers: {
@@ -255,7 +255,7 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
     } catch (error) {
       console.error('Failed to load agent:', error);
     }
-  };
+  }, [session?.access_token, BACKEND_URL]);
 
   const createNewConversation = async () => {
     if (!selectedAgent || !session) return;
@@ -366,20 +366,21 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
     });
   };
 
-  const handleInsightAction = async (insight: any) => {
+  const handleInsightAction = async (insight: unknown) => {
     // Handle different insight actions
     switch (insight.action) {
       case 'research_doctor':
         // Navigate to research panel with doctor name
         window.location.hash = `#research?doctor=${encodeURIComponent(insight.data.doctorName)}`;
         break;
-      case 'lookup_doctor':
+      case 'lookup_doctor': {
         // Trigger doctor lookup
         const mentions = detectDoctorMentions(insight.data.doctorName);
         if (mentions.length > 0) {
           await handleDoctorDetection(mentions);
         }
         break;
+      }
       case 'show_procedure_data':
         sendMessage(`Show me detailed data about ${insight.data.procedure} procedures in my area`);
         break;

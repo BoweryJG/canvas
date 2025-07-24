@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { styled } from '@mui/material/styles';
 import { Box, Typography, LinearProgress } from '@mui/material';
@@ -108,7 +108,7 @@ const MobileCinematicDemo: React.FC<MobileCinematicDemoProps> = ({
   const stageTimeouts = useRef<NodeJS.Timeout[]>([]);
 
   // Demo timing configuration (in seconds)
-  const stageDurations: Record<DemoStage, number> = {
+  const stageDurations: Record<DemoStage, number> = useMemo(() => ({
     'invitation': 0, // Manually controlled
     'intro': 3,
     'user-story': 5,
@@ -119,9 +119,9 @@ const MobileCinematicDemo: React.FC<MobileCinematicDemoProps> = ({
     'message-preview': 5,
     'success': 5,
     'interactive': 0, // No auto-progress
-  };
+  }), []);
 
-  const stages: DemoStage[] = [
+  const stages: DemoStage[] = useMemo(() => [
     'invitation',
     'intro',
     'user-story',
@@ -132,7 +132,7 @@ const MobileCinematicDemo: React.FC<MobileCinematicDemoProps> = ({
     'message-preview',
     'success',
     'interactive',
-  ];
+  ], []);
 
   // Calculate total demo duration
   const totalDuration = Object.entries(stageDurations)
@@ -155,7 +155,7 @@ const MobileCinematicDemo: React.FC<MobileCinematicDemoProps> = ({
     if (currentIndex < stages.length - 1) {
       setCurrentStage(stages[currentIndex + 1]);
     }
-  }, [currentStage]);
+  }, [currentStage, stages]);
 
   // Handle play/pause
   const togglePlayPause = useCallback(() => {
@@ -218,7 +218,7 @@ const MobileCinematicDemo: React.FC<MobileCinematicDemoProps> = ({
     return () => {
       clearTimeouts();
     };
-  }, [currentStage, isPlaying, nextStage, skipToInteractive, clearTimeouts, totalDuration]);
+  }, [currentStage, isPlaying, nextStage, skipToInteractive, clearTimeouts, totalDuration, stageDurations, stages]);
 
   // Handle visibility change (pause when tab is hidden)
   useEffect(() => {

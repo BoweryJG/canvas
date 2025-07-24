@@ -180,7 +180,7 @@ export const McKinseyExecutiveReport = ({
   companyName: string;
   productName: string;
 }) => {
-  const insights = researchData.enhancedInsights as any;
+  const insights = researchData.enhancedInsights as unknown;
   const productIntel = researchData.productIntelligence as unknown as ProductIntelligence;
   
   return (

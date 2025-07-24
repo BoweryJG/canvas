@@ -11,7 +11,7 @@ export interface FastScanResult {
   confidence: number;
   summary: string;
   keyPoints: string[];
-  sources: any[];
+  sources: unknown[];
   timeElapsed: number;
 }
 
@@ -34,7 +34,7 @@ export class FastScanner extends EventEmitter {
     setTimeout(() => this.emitCompleteResults(doctorName, location), 5000);
   }
 
-  private emitInstantResults(doctorName: string, _location?: string) {
+  private emitInstantResults(doctorName: string, location?: string) {
     const result: FastScanResult = {
       stage: 'initial',
       doctorName,

@@ -106,10 +106,10 @@ export const API_LIMITS = {
  * Decorator to add rate limiting to any async function
  */
 export function withRateLimit(config: RateLimitConfig) {
-  return function (_target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
+  return function (_target: object, _propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value;
     
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (this: unknown, ...args: unknown[]) {
       await rateLimiter.checkLimit(config);
       return originalMethod.apply(this, args);
     };

@@ -145,7 +145,7 @@ export async function fastVerifyDoctor(
  * Classify and score results
  */
 function classifyResult(
-  result: any,
+  result: unknown,
   doctorName: string,
   location?: string,
   practiceName?: string
@@ -244,8 +244,7 @@ function extractPracticeName(url: string): string {
       .replace('.net', '')
       .replace('.org', '')
       .replace(/-/g, ' ')
-      .split('.')
-      [0];
+      .split('.')[0];
     
     // Capitalize words
     return name

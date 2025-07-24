@@ -8,13 +8,13 @@ import { supabase } from '../auth/supabase';
 
 interface OptimizedResearchResult {
   confidence: number;
-  data: any;
-  sources: any[];
+  data: unknown;
+  sources: unknown[];
   fromCache: boolean;
 }
 
 export class OptimizedResearchSystem {
-  private cache = new Map<string, any>();
+  private cache = new Map<string, OptimizedResearchResult>();
   
   async quickResearch(doctorName: string, location?: string): Promise<OptimizedResearchResult> {
     const cacheKey = `${doctorName}_${location || 'any'}`.toLowerCase();
@@ -49,7 +49,7 @@ export class OptimizedResearchSystem {
           fromCache: true
         };
       }
-    } catch (error) {
+    } catch (_error) {
       console.log('Cache miss, performing fresh research');
     }
     
@@ -114,7 +114,7 @@ export class OptimizedResearchSystem {
     }
   }
   
-  private extractAllData(results: any[]): any {
+  private extractAllData(results: unknown[]): unknown {
     const data: {
       practice: string | null;
       location: string | null;
@@ -140,8 +140,8 @@ export class OptimizedResearchSystem {
     
     // Extract practice name
     const practicePatterns = [
-      /(?:at|with|of)\s+([A-Z][^,\.\n]+(?:Medical|Dental|Health|Clinic|Center|Associates|Group|Practice))/gi,
-      /([A-Z][^,\.\n]+(?:Medical|Dental|Health|Clinic|Center))\s+(?:in|at)/gi
+      /(?:at|with|of)\s+([A-Z][^,.\n]+(?:Medical|Dental|Health|Clinic|Center|Associates|Group|Practice))/gi,
+      /([A-Z][^,.\n]+(?:Medical|Dental|Health|Clinic|Center))\s+(?:in|at)/gi
     ];
     
     for (const pattern of practicePatterns) {
@@ -199,7 +199,7 @@ export class OptimizedResearchSystem {
     return data;
   }
   
-  private async saveToCacheAsync(doctorName: string, location: string | undefined, data: any) {
+  private async saveToCacheAsync(doctorName: string, location: string | undefined, data: unknown) {
     try {
       const expiryDate = new Date();
       expiryDate.setDate(expiryDate.getDate() + 7); // 7 days expiry

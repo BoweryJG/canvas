@@ -25,17 +25,17 @@ interface SynthesisResult {
     gaps?: string[];
     readiness?: string;
   };
-  practiceProfile?: Record<string, any>;
-  credentials?: Record<string, any>;
-  reviews?: Record<string, any>;
-  businessIntel?: Record<string, any>;
-  marketPosition?: Record<string, any>;
+  practiceProfile?: Record<string, unknown>;
+  credentials?: Record<string, unknown>;
+  reviews?: Record<string, unknown>;
+  businessIntel?: Record<string, unknown>;
+  marketPosition?: Record<string, unknown>;
   buyingSignals?: string[];
-  competition?: Record<string, any>;
-  approachStrategy?: Record<string, any>;
+  competition?: Record<string, unknown>;
+  approachStrategy?: Record<string, unknown>;
   painPoints?: string[];
-  decisionMakers?: Record<string, any>;
-  budgetIndicators?: Record<string, any>;
+  decisionMakers?: Record<string, unknown>;
+  budgetIndicators?: Record<string, unknown>;
   [key: string]: unknown;
 }
 import { callBraveSearch, callFirecrawlScrape } from './apiEndpoints';
@@ -246,7 +246,7 @@ export async function adaptiveResearch(
       strategy,
       doctor,
       product,
-      productIntelligence as any // Pass product intelligence to synthesis
+      productIntelligence as unknown // Pass product intelligence to synthesis
     );
     
     // Calculate confidence with strategy awareness

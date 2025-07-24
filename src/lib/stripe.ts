@@ -201,7 +201,18 @@ export async function checkSubscriptionStatus(userId: string) {
 // Update subscription in database (called by webhook)
 export async function updateSubscriptionFromWebhook(
   userId: string,
-  stripeSubscription: any,
+  stripeSubscription: {
+    id: string;
+    status: string;
+    current_period_end: number;
+    items: {
+      data: Array<{
+        price: {
+          id: string;
+        };
+      }>;
+    };
+  },
   stripeCustomerId: string
 ) {
   try {

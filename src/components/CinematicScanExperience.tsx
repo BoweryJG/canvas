@@ -151,44 +151,45 @@ export default function CinematicScanExperience({ doctorName, location }: Props)
   // Matrix rain characters
   const matrixChars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
   
-  const startScan = useCallback(() => {
-    // Subscribe to scan results
-    realTimeScanner.on('result', handleScanResult);
-    
-    // Start scanning with real data
-    const userId = subscription?.tier ? 'user' : 'anonymous';
-    realTimeScanner.scan(doctorName, location, userId);
-    
-    // Simulate data stream
-    const streamInterval = setInterval(() => {
-      const newData = generateDataStreamLine();
-      setDataStream(prev => [...prev.slice(-10), newData]);
-    }, 100);
-    
-    // Cleanup
-    return () => {
-      clearInterval(streamInterval);
-      realTimeScanner.removeListener('result', handleScanResult);
-      realTimeScanner.stop();
-    };
-  }, [doctorName, location, subscription?.tier]);
-
-  useEffect(() => {
-    // Start the cinematic experience
-    startScan();
-  }, [startScan]);
+  const generateDataStreamLine = useCallback(() => {
+    const elements = [
+      `SCAN::${Math.random().toString(36).substr(2, 9)}`,
+      `MED_ID::${Math.floor(Math.random() * 999999)}`,
+      `MATCH::${(Math.random() * 100).toFixed(1)}%`,
+      `INTEL::GATHERING`,
+      `API::BRAVE_SEARCH`,
+      `SCRAPE::HEALTHGRADES`,
+      `ANALYZE::PATTERNS`,
+      `BUILD::PROFILE`,
+      `SCORE::CALCULATING`,
+      `0x${Math.random().toString(16).substr(2, 8).toUpperCase()}`
+    ];
+    return elements[Math.floor(Math.random() * elements.length)];
+  }, []);
   
-  const handleScanResult = (result: RealTimeScanResult) => {
-    setScanResult(result);
-    scanProgress.set(result.confidence);
-    
-    if (result.stage === 'enhanced') {
-      // Trigger the dramatic reveal
-      setTimeout(() => revealReport(result), 1000);
-    }
-  };
+  const generateReportContent = useCallback((result: RealTimeScanResult): string[] => {
+    return [
+      `CONFIDENTIAL INTELLIGENCE REPORT`,
+      `Subject: Dr. ${result.doctorName}`,
+      `Confidence Score: ${result.confidence}%`,
+      ``,
+      `KEY FINDINGS:`,
+      ...result.keyPoints,
+      ``,
+      `RECOMMENDATION: High-value target identified.`,
+      `Immediate outreach advised.`
+    ];
+  }, []);
   
-  const revealReport = (result: RealTimeScanResult) => {
+  const animateReportText = useCallback((lines: string[]) => {
+    lines.forEach((line, index) => {
+      setTimeout(() => {
+        setReportLines(prev => [...prev, line]);
+      }, index * 500);
+    });
+  }, []);
+  
+  const revealReport = useCallback((result: RealTimeScanResult) => {
     setStage('revealing');
     
     // Animate desk appearance
@@ -211,45 +212,44 @@ export default function CinematicScanExperience({ doctorName, location }: Props)
       setShowUpsell(true);
       setStage('upsell');
     }, 8000);
-  };
+  }, [deskScale, paperY, animateReportText, generateReportContent]);
   
-  const animateReportText = (lines: string[]) => {
-    lines.forEach((line, index) => {
-      setTimeout(() => {
-        setReportLines(prev => [...prev, line]);
-      }, index * 500);
-    });
-  };
+  const handleScanResult = useCallback((result: RealTimeScanResult) => {
+    setScanResult(result);
+    scanProgress.set(result.confidence);
+    
+    if (result.stage === 'enhanced') {
+      // Trigger the dramatic reveal
+      setTimeout(() => revealReport(result), 1000);
+    }
+  }, [scanProgress, revealReport]);
   
-  const generateDataStreamLine = () => {
-    const elements = [
-      `SCAN::${Math.random().toString(36).substr(2, 9)}`,
-      `MED_ID::${Math.floor(Math.random() * 999999)}`,
-      `MATCH::${(Math.random() * 100).toFixed(1)}%`,
-      `INTEL::GATHERING`,
-      `API::BRAVE_SEARCH`,
-      `SCRAPE::HEALTHGRADES`,
-      `ANALYZE::PATTERNS`,
-      `BUILD::PROFILE`,
-      `SCORE::CALCULATING`,
-      `0x${Math.random().toString(16).substr(2, 8).toUpperCase()}`
-    ];
-    return elements[Math.floor(Math.random() * elements.length)];
-  };
-  
-  const generateReportContent = (result: RealTimeScanResult): string[] => {
-    return [
-      `CONFIDENTIAL INTELLIGENCE REPORT`,
-      `Subject: Dr. ${result.doctorName}`,
-      `Confidence Score: ${result.confidence}%`,
-      ``,
-      `KEY FINDINGS:`,
-      ...result.keyPoints,
-      ``,
-      `RECOMMENDATION: High-value target identified.`,
-      `Immediate outreach advised.`
-    ];
-  };
+  const startScan = useCallback(() => {
+    // Subscribe to scan results
+    realTimeScanner.on('result', handleScanResult);
+    
+    // Start scanning with real data
+    const userId = subscription?.tier ? 'user' : 'anonymous';
+    realTimeScanner.scan(doctorName, location, userId);
+    
+    // Simulate data stream
+    const streamInterval = setInterval(() => {
+      const newData = generateDataStreamLine();
+      setDataStream(prev => [...prev.slice(-10), newData]);
+    }, 100);
+    
+    // Cleanup
+    return () => {
+      clearInterval(streamInterval);
+      realTimeScanner.removeListener('result', handleScanResult);
+      realTimeScanner.stop();
+    };
+  }, [doctorName, location, subscription?.tier, handleScanResult, generateDataStreamLine]);
+
+  useEffect(() => {
+    // Start the cinematic experience
+    startScan();
+  }, [startScan]);
   
   const renderScanningStage = () => (
     <motion.div

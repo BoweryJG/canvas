@@ -23,7 +23,7 @@ interface ApiKeyConfig {
 class ApiKeyManager {
   private keys: Map<string, ApiKey[]> = new Map();
   private currentIndex: Map<string, number> = new Map();
-  private rotationTimers: Map<string, NodeJS.Timeout> = new Map();
+  private rotationTimers: Map<string, ReturnType<typeof setInterval>> = new Map();
   
   constructor() {
     this.loadFromStorage();
@@ -211,7 +211,7 @@ class ApiKeyManager {
           isActive: k.isActive,
           usageCount: k.usageCount,
           lastUsed: k.lastUsed,
-          rateLimit: k.rateLimit
+          rateLimited: !!k.rateLimit && Date.now() < k.rateLimit.resetAt
         }))
       };
     }

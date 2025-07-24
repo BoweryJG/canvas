@@ -348,7 +348,7 @@ export function optimizeCampaign(
 /**
  * Export campaign to CRM format
  */
-export function exportCampaignToCRM(campaign: ProductAwareCampaign): any {
+export function exportCampaignToCRM(campaign: ProductAwareCampaign): unknown {
   return {
     name: `${campaign.productName} - ${campaign.doctorName}`,
     contacts: [{

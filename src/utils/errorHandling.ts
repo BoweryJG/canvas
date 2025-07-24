@@ -154,7 +154,7 @@ export async function withRetry<T>(
 }
 
 // Error logging for production
-export function logError(error: unknown, context?: Record<string, any>) {
+export function logError(error: unknown, context?: Record<string, unknown>) {
   const errorInfo = {
     timestamp: new Date().toISOString(),
     error: error instanceof Error ? {

@@ -3,7 +3,7 @@
  * Displays real-time medical market intelligence and analytics
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { 
   Box, 
   Container, 
@@ -86,11 +86,7 @@ export default function MarketInsightsSimple() {
   const { user } = useAuth();
   const userTier = user?.subscription?.tier || 'free';
 
-  useEffect(() => {
-    loadData();
-  }, [selectedSpecialty, selectedTerritory]);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       // Load all data in parallel
@@ -119,7 +115,11 @@ export default function MarketInsightsSimple() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedSpecialty, selectedTerritory]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleRefresh = async () => {
     setRefreshing(true);

@@ -183,9 +183,9 @@ export async function baselineResearch(
       true, // NPI verified
       websiteIntel,
       reviewData,
-      sources as any[],
+      sources as unknown[],
       synthesis,
-      competitors as any[]
+      competitors as unknown[]
     );
     
     const confidence = calculateEnhancedConfidence(confidenceFactors);

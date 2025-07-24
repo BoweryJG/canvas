@@ -822,7 +822,7 @@ export class SalesRepReportGenerator {
     this.addObjectionHandling([
       {
         objection: '"We don\'t have time for implementation right now"',
-        response: 'Our phased approach minimizes disruption - most practices see productivity gains within the first 30 days that more than offset any temporary workflow adjustments.'
+        response: 'Our phased approach minimizes disruption - most practices see productivity gains within the first 30 days that more than offset unknown temporary workflow adjustments.'
       },
       {
         objection: '"The cost seems high for our practice size"',
@@ -1352,7 +1352,7 @@ export class SalesRepReportGenerator {
     this.currentY += 80;
   }
 
-  private addMcKinseyThreeColumnInsights(insights: any[]): void {
+  private addMcKinseyThreeColumnInsights(insights: unknown[]): void {
     const columnWidth = (this.pageWidth - 2 * this.margin - 20) / 3;
     
     insights.forEach((insight, index) => {
@@ -1533,7 +1533,7 @@ export class SalesRepReportGenerator {
     this.currentY += 15;
   }
 
-  private addMcKinseyTimeline(phases: any[]): void {
+  private addMcKinseyTimeline(phases: unknown[]): void {
     this.doc.setTextColor(...this.hexToRgb(this.brandColors.primary));
     this.doc.setFontSize(11);
     this.doc.setFont('helvetica', 'bold');
@@ -1657,7 +1657,7 @@ export class SalesRepReportGenerator {
     this.currentY += 10;
   }
 
-  private addValuePropositions(props: any[]): void {
+  private addValuePropositions(props: unknown[]): void {
     props.forEach(prop => {
       this.currentY += 20;
       this.doc.setTextColor(...this.hexToRgb(this.brandColors.primary));
@@ -1704,7 +1704,7 @@ export class SalesRepReportGenerator {
     this.currentY += 15;
   }
 
-  private addFollowUpMessages(messages: any[]): void {
+  private addFollowUpMessages(messages: unknown[]): void {
     messages.forEach(msg => {
       this.currentY += 20;
       this.doc.setTextColor(...this.hexToRgb(this.brandColors.primary));
@@ -1725,7 +1725,7 @@ export class SalesRepReportGenerator {
     this.currentY += 10;
   }
 
-  private addObjectionHandling(objections: any[]): void {
+  private addObjectionHandling(objections: unknown[]): void {
     objections.forEach(obj => {
       this.currentY += 20;
       this.doc.setTextColor(...this.hexToRgb(this.brandColors.primary));
@@ -1756,7 +1756,7 @@ export class SalesRepReportGenerator {
     this.currentY += 15;
   }
 
-  private addValueDrivers(drivers: any[]): void {
+  private addValueDrivers(drivers: unknown[]): void {
     drivers.forEach(driver => {
       this.currentY += 25;
       this.doc.setTextColor(...this.hexToRgb(this.brandColors.primary));
@@ -1814,7 +1814,7 @@ export class SalesRepReportGenerator {
   }
 
   // Additional helper methods for breakthrough and closing reports
-  private addObstacleAnalysis(obstacles: any[]): void {
+  private addObstacleAnalysis(obstacles: unknown[]): void {
     obstacles.forEach(obstacle => {
       this.currentY += 20;
       this.doc.setFontSize(12);
@@ -1835,7 +1835,7 @@ export class SalesRepReportGenerator {
     this.addBulletPoints(strategies);
   }
 
-  private addPathwayOptions(pathways: any[]): void {
+  private addPathwayOptions(pathways: unknown[]): void {
     pathways.forEach((pathway, index) => {
       this.currentY += 25;
       this.doc.setFontSize(12);
@@ -1855,7 +1855,7 @@ export class SalesRepReportGenerator {
     });
   }
 
-  private addCompellingEvents(events: any[]): void {
+  private addCompellingEvents(events: unknown[]): void {
     events.forEach(event => {
       this.currentY += 20;
       this.doc.setFontSize(11);
@@ -1875,7 +1875,7 @@ export class SalesRepReportGenerator {
     this.addBulletPoints(messages);
   }
 
-  private addDecisionMakerMapping(decisionMakers: any[]): void {
+  private addDecisionMakerMapping(decisionMakers: unknown[]): void {
     decisionMakers.forEach(dm => {
       this.currentY += 20;
       this.doc.setFontSize(12);
@@ -1899,7 +1899,7 @@ export class SalesRepReportGenerator {
     this.addBulletPoints(strategies);
   }
 
-  private addImplementationOptions(options: any[]): void {
+  private addImplementationOptions(options: unknown[]): void {
     options.forEach((option) => {
       this.currentY += 25;
       this.doc.setFontSize(12);
@@ -1919,7 +1919,7 @@ export class SalesRepReportGenerator {
     });
   }
 
-  private addContractTerms(terms: any[]): void {
+  private addContractTerms(terms: unknown[]): void {
     terms.forEach(term => {
       this.currentY += 20;
       this.doc.setFontSize(11);

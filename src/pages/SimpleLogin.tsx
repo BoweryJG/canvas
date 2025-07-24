@@ -35,9 +35,9 @@ const SimpleLogin: React.FC = () => {
     try {
       await signInWithProvider(provider);
       // OAuth redirect happens here
-    } catch (err: any) {
+    } catch (err) {
       console.error('SimpleLogin - OAuth error:', err);
-      setError(err.message || 'Authentication failed');
+      setError(err instanceof Error ? err.message : 'Authentication failed');
       setLoading(false);
     }
   };

@@ -10,7 +10,7 @@ import { analyzeWebsitesWithClaude4Opus } from './aiWebsiteAnalyzer';
 export interface WebsiteDiscoveryResult {
   websiteUrl: string;
   confidence: number;
-  discoveryMethod: 'name_match' | 'specialty_match' | 'location_match' | 'practice_name';
+  discoveryMethod: 'name_match' | 'specialty_match' | 'location_match' | 'practice_name' | 'ai_verified';
   title: string;
   description?: string;
   verificationSignals: string[];
@@ -28,7 +28,7 @@ export async function discoverPracticeWebsiteWithAI(
   practiceName?: string,
   _npi?: string
 ): Promise<WebsiteDiscoveryResult | null> {
-  return discoverPracticeWebsite(doctorName, city, state, specialty, practiceName, _npi);
+  return discoverPracticeWebsite(doctorName, city, state, specialty, practiceName);
 }
 
 export async function discoverPracticeWebsite(
@@ -46,7 +46,13 @@ export async function discoverPracticeWebsite(
   
   try {
     // Execute multiple searches to gather comprehensive results
-    const allSearchResults: any[] = [];
+    interface SearchResult {
+      url: string;
+      title?: string;
+      description?: string;
+      [key: string]: unknown;
+    }
+    const allSearchResults: SearchResult[] = [];
     const seenUrls = new Set<string>();
     
     for (const query of searchQueries) {
@@ -57,7 +63,9 @@ export async function discoverPracticeWebsite(
           setTimeout(() => reject(new Error('Search timeout')), 5000)
         );
         
-        const results = await Promise.race([searchPromise, timeoutPromise]);
+        const results = await Promise.race([searchPromise, timeoutPromise]) as {
+          web?: { results?: SearchResult[] };
+        } | undefined;
         
         if (results?.web?.results?.length) {
           // Add unique results
@@ -106,13 +114,13 @@ export async function discoverPracticeWebsite(
     return {
       websiteUrl: bestWebsite.url,
       confidence: bestWebsite.confidence,
-      discoveryMethod: 'ai_verified' as any,
+      discoveryMethod: 'ai_verified',
       title: bestWebsite.reason,
       description: `Verified by Claude 4 Opus: ${bestWebsite.signals.join(', ')}`,
       verificationSignals: ['claude-4-opus-verified', ...bestWebsite.signals]
     };
     
-  } catch (error) {
+  } catch {
     console.error('Website discovery error:', error);
     return null;
   }
@@ -193,7 +201,7 @@ export async function validateWebsiteUrl(url: string): Promise<boolean> {
     });
     
     return response.ok;
-  } catch (error) {
+  } catch {
     // If we can't validate, assume it's valid to avoid false negatives
     return true;
   }
@@ -220,7 +228,7 @@ export function extractWebsiteMetadata(discoveryResult: WebsiteDiscoveryResult):
     // Fallback for invalid URLs
     domain = discoveryResult.websiteUrl.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
     tld = domain.split('.').pop() || '';
-    url = { protocol: 'https:' } as any; // Mock URL object for isSecure check
+    url = { protocol: 'https:' } as Pick<URL, 'protocol'>; // Mock URL object for isSecure check
   }
   
   // Determine likely practice type from domain

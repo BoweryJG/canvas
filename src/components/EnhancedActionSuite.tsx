@@ -459,7 +459,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         error: error instanceof Error ? error.message : 'Failed to generate PDF' 
       });
     }
-  }, [scanResult, researchData, deepScanResults, instantIntel?.confidenceScore, scanData]);
+  }, [scanResult, researchData, deepScanResults, instantIntel, scanData]);
 
   /**
    * Generate Deep Research Report (20+ pages)
@@ -595,7 +595,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         error: error instanceof Error ? error.message : 'Failed to generate deep research report' 
       });
     }
-  }, [scanResult, researchData, deepScanResults?.businessIntel, deepScanResults?.completedAt, deepScanResults?.confidenceScore, deepScanResults?.reviews, deepScanResults?.sources, deepScanResults?.technology, deepScanResults?.unified, instantIntel, scanData?.businessIntel, scanData?.completedAt, scanData?.confidenceScore, scanData?.growthIndicators, scanData?.marketPosition, scanData?.patientVolume, scanData?.practiceType, scanData?.reviews, scanData?.sources, scanData?.technology]);
+  }, [scanResult, researchData, deepScanResults, instantIntel, scanData]);
 
   /**
    * Generate Sales Rep Reports
@@ -832,7 +832,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         error: error instanceof Error ? error.message : 'Failed to generate sales rep report' 
       });
     }
-  }, [scanResult, researchData, salesRepInfo]);
+  }, [scanResult, researchData, salesRepInfo, scanData, deepScanResults, instantIntel]);
 
   /**
    * Sync to CRM
@@ -878,7 +878,7 @@ const EnhancedActionSuite: React.FC<EnhancedActionSuiteProps> = ({
         error: error instanceof Error ? error.message : 'Failed to sync to CRM' 
       });
     }
-  }, [scanResult, researchData, crmConfigs, emailState.content, deepScanResults?.businessIntel, deepScanResults?.completedAt, deepScanResults?.confidenceScore, deepScanResults?.reviews, deepScanResults?.sources, deepScanResults?.technology, deepScanResults?.unified, instantIntel, scanData?.businessIntel, scanData?.completedAt, scanData?.confidenceScore, scanData?.established, scanData?.growthIndicators, scanData?.location, scanData?.marketPosition, scanData?.patientVolume, scanData?.phone, scanData?.practiceType, scanData?.reviews, scanData?.sources, scanData?.specialties, scanData?.staff, scanData?.technology]);
+  }, [scanResult, researchData, crmConfigs, emailState.content]);
 
   /**
    * Handle CRM configuration changes

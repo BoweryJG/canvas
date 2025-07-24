@@ -225,8 +225,8 @@ export interface ScanData {
 }
 
 // Form event types
-export interface FormEvent<T = HTMLFormElement> extends React.FormEvent<T> {}
-export interface ChangeEvent<T = HTMLInputElement> extends React.ChangeEvent<T> {}
+export type FormEvent<T = HTMLFormElement> = React.FormEvent<T>;
+export type ChangeEvent<T = HTMLInputElement> = React.ChangeEvent<T>;
 
 // Type guards
 export function isDoctorObject(doctor: string | Doctor | unknown): doctor is Doctor {

@@ -80,7 +80,7 @@ export async function gatherSuperIntelligentDoctorResearch(
     // Step 4: Create final research data
     return createSuperResearchData(superIntelligence, doctor);
     
-  } catch (error) {
+  } catch (_) {
     console.error('Super intelligence error:', error);
     return createFallbackResearchData(doctor);
   }
@@ -214,7 +214,7 @@ function processSuperIntelligence(
       url: 'perplexity-realtime',
       title: 'AI Real-time Analysis',
       type: 'news_article',
-      content: JSON.stringify((perplexityInsights as any).basicInfo),
+      content: JSON.stringify((perplexityInsights as unknown).basicInfo),
       confidence: 85,
       lastUpdated: new Date().toISOString()
     });

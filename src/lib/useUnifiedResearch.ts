@@ -3,7 +3,7 @@
  * Connects UI components to the adaptive research pipeline
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { type Doctor } from '../components/DoctorAutocomplete';
 import { unifiedCanvasResearch, type ResearchProgressCallback } from './unifiedCanvasResearch';
 import { type ResearchData } from './webResearch';
@@ -61,7 +61,7 @@ export function useUnifiedResearch() {
     }));
   }, []);
 
-  const progressCallback: ResearchProgressCallback = {
+  const progressCallback: ResearchProgressCallback = useMemo(() => ({
     updateStep: (stepId: string, status: 'pending' | 'active' | 'completed' | 'found', result?: string) => {
       const stepIndex = stepsRef.current.findIndex(s => s.id === stepId);
       if (stepIndex !== -1) {
@@ -100,7 +100,7 @@ export function useUnifiedResearch() {
     updateStrategy: (strategy: string) => {
       updateProgress({ strategy });
     }
-  };
+  }), [updateProgress]);
 
   const startResearch = useCallback(async (
     doctor: Doctor,
@@ -173,7 +173,7 @@ export function useUnifiedResearch() {
       }));
       throw error;
     }
-  }, [progressCallback, updateProgress]);
+  }, [progressCallback]);
 
   const reset = useCallback(() => {
     setState({

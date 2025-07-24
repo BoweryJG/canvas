@@ -168,7 +168,7 @@ export const UnifiedEnhancedResearchPanel: React.FC = () => {
                 {enhancedResult.strategyUsed.skipReasons && (
                   <div className="mt-2 text-xs text-gray-600">
                     {Object.entries(enhancedResult.strategyUsed.skipReasons)
-                      .filter(([_, reason]) => reason)
+                      .filter(([, reason]) => reason)
                       .map(([area, reason]) => (
                         <div key={area}>Skipped {area}: {String(reason)}</div>
                       ))}

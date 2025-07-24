@@ -71,7 +71,7 @@ export function ProgressiveOutreachPanel({
     if (newCapabilities.genius.available && !capabilities.genius.available) {
       console.log('Genius outreach unlocked!');
     }
-  }, [researchProgress]);
+  }, [researchProgress, capabilities.pro.available, capabilities.genius.available]);
 
   const handleGenerateOutreach = async (tier: 'generic' | 'pro' | 'genius') => {
     setIsGenerating(true);

@@ -108,7 +108,7 @@ export class CanvasDeepResearchGenerator {
       
       // Doctor & Practice Deep Dive (3-4 pages)
       this.addNewPage();
-      this.addDoctorDeepDive(scanResult, deepResearchData);
+      this.addDoctorDeepDive(deepResearchData);
       
       // Market Intelligence (2-3 pages)
       if (options.includeMarketAnalysis) {
@@ -150,7 +150,7 @@ export class CanvasDeepResearchGenerator {
       
       // Risk Assessment (1-2 pages)
       this.addNewPage();
-      this.addRiskAssessment(scanResult, deepResearchData);
+      this.addRiskAssessment(scanResult);
       
       // Appendices (2-3 pages)
       this.addNewPage();
@@ -176,19 +176,19 @@ export class CanvasDeepResearchGenerator {
       );
       
       // Competitor Analysis
-      const competitorResearch = await callPerplexityResearch(
+      await callPerplexityResearch(
         `Competitive analysis for medical technology in ${scanResult.doctor} specialty. Identify key competitors, market positioning, and differentiation opportunities.`,
         'deep_research'
       );
       
       // Industry Trends
-      const trendsResearch = await callPerplexityResearch(
+      await callPerplexityResearch(
         `Latest healthcare industry trends, regulatory changes, and technology adoption patterns relevant to ${scanResult.doctor} practice.`,
         'deep_research'
       );
       
       // Regulatory Environment
-      const regulatoryResearch = await callPerplexityResearch(
+      await callPerplexityResearch(
         `Healthcare regulations, compliance requirements, and policy changes affecting medical practices like ${scanResult.doctor}.`,
         'deep_research'
       );
@@ -197,11 +197,11 @@ export class CanvasDeepResearchGenerator {
       const deepData: DeepResearchData = {
         ...researchData,
         marketIntelligence: this.parseMarketIntelligence(marketResearch),
-        competitorProfiles: this.parseCompetitorProfiles(competitorResearch),
-        industryTrends: this.parseIndustryTrends(trendsResearch),
-        regulatoryInsights: this.parseRegulatoryInsights(regulatoryResearch),
-        financialProjections: this.generateFinancialProjections(scanResult, researchData),
-        detailedPersona: this.generateDetailedPersona(scanResult, researchData)
+        competitorProfiles: this.parseCompetitorProfiles(),
+        industryTrends: this.parseIndustryTrends(),
+        regulatoryInsights: this.parseRegulatoryInsights(),
+        financialProjections: this.generateFinancialProjections(researchData),
+        detailedPersona: this.generateDetailedPersona()
       };
       
       console.log('✅ Deep research analysis completed');
@@ -216,13 +216,13 @@ export class CanvasDeepResearchGenerator {
         competitorProfiles: this.getDefaultCompetitorProfiles(),
         industryTrends: this.getDefaultIndustryTrends(),
         regulatoryInsights: this.getDefaultRegulatoryInsights(),
-        financialProjections: this.generateFinancialProjections(scanResult, researchData),
-        detailedPersona: this.generateDetailedPersona(scanResult, researchData)
+        financialProjections: this.generateFinancialProjections(researchData),
+        detailedPersona: this.generateDetailedPersona()
       };
     }
   }
 
-  private parseMarketIntelligence(research: any): MarketIntelligence {
+  private parseMarketIntelligence(research: { choices?: Array<{ message?: { content?: string } }> }): MarketIntelligence {
     const content = research.choices?.[0]?.message?.content || '';
     
     return {
@@ -255,7 +255,7 @@ export class CanvasDeepResearchGenerator {
     };
   }
 
-  private parseCompetitorProfiles(_research: any): CompetitorProfile[] {
+  private parseCompetitorProfiles(): CompetitorProfile[] {
     // const content = research.choices?.[0]?.message?.content || '';
     
     // Extract competitor information from research
@@ -290,7 +290,7 @@ export class CanvasDeepResearchGenerator {
     ];
   }
 
-  private parseIndustryTrends(_research: any): string[] {
+  private parseIndustryTrends(): string[] {
     return [
       'Accelerated digital health adoption post-COVID',
       'Shift toward value-based care models',
@@ -305,7 +305,7 @@ export class CanvasDeepResearchGenerator {
     ];
   }
 
-  private parseRegulatoryInsights(_research: any): string[] {
+  private parseRegulatoryInsights(): string[] {
     return [
       'HIPAA compliance requirements for all patient data handling',
       'FDA oversight of AI-powered medical devices and software',
@@ -320,7 +320,7 @@ export class CanvasDeepResearchGenerator {
     ];
   }
 
-  private generateFinancialProjections(_scanResult: EnhancedScanResult, researchData: ResearchData) {
+  private generateFinancialProjections(researchData: ResearchData) {
     const practiceSize = researchData.practiceInfo?.staff || 10;
     const baseRevenue = practiceSize * 50000; // Estimated annual revenue per staff member
     
@@ -332,7 +332,7 @@ export class CanvasDeepResearchGenerator {
     };
   }
 
-  private generateDetailedPersona(_scanResult: EnhancedScanResult, _researchData: ResearchData) {
+  private generateDetailedPersona() {
     return {
       decisionMakingProcess: [
         'Initial needs assessment and pain point identification',
@@ -519,7 +519,7 @@ export class CanvasDeepResearchGenerator {
     
     const recommendations = [
       `Prioritize immediate engagement based on high practice fit and market timing`,
-      `Focus value proposition on ${this.getTopValueDrivers(deepResearchData).slice(0, 2).join(' and ')}`,
+      `Focus value proposition on ${this.getTopValueDrivers().slice(0, 2).join(' and ')}`,
       `Leverage competitive advantages against ${deepResearchData.competitorProfiles[0]?.name || 'primary competitors'}`,
       `Target implementation during ${this.getOptimalTiming(deepResearchData)} for maximum success`,
       `Prepare comprehensive ROI presentation with ${deepResearchData.financialProjections.roiTimeline} payback projection`
@@ -544,12 +544,12 @@ export class CanvasDeepResearchGenerator {
     // Implementation Feasibility
     this.addSubsectionHeader('Implementation Feasibility');
     
-    const feasibility = `Based on practice analysis and market research, implementation feasibility is rated as ${this.getFeasibilityRating(scanResult, deepResearchData)}. Key success factors include ${this.getSuccessFactors(deepResearchData).slice(0, 3).join(', ')}. Timeline projections indicate ${deepResearchData.financialProjections.roiTimeline} for full ROI realization.`;
+    const feasibility = `Based on practice analysis and market research, implementation feasibility is rated as ${this.getFeasibilityRating(scanResult)}. Key success factors include ${this.getSuccessFactors().slice(0, 3).join(', ')}. Timeline projections indicate ${deepResearchData.financialProjections.roiTimeline} for full ROI realization.`;
     
     this.addWrappedText(feasibility, this.pageWidth - 2 * this.margin);
   }
 
-  private addDoctorDeepDive(_scanResult: EnhancedScanResult, deepResearchData: DeepResearchData): void {
+  private addDoctorDeepDive(deepResearchData: DeepResearchData): void {
     this.addSectionHeader('DOCTOR & PRACTICE DEEP DIVE');
     
     // Professional Background
@@ -814,7 +814,7 @@ export class CanvasDeepResearchGenerator {
     // Sales Strategy Overview
     this.addSubsectionHeader('Strategic Approach & Positioning');
     
-    const strategyOverview = `Based on comprehensive analysis, the recommended sales strategy emphasizes ${this.getStrategicApproach(scanResult, deepResearchData)} with focus on ${this.getKeyValueProps(deepResearchData).slice(0, 2).join(' and ')}. This approach leverages competitive advantages while addressing specific practice needs and market dynamics.`;
+    const strategyOverview = `Based on comprehensive analysis, the recommended sales strategy emphasizes ${this.getStrategicApproach(scanResult)} with focus on ${this.getKeyValueProps().slice(0, 2).join(' and ')}. This approach leverages competitive advantages while addressing specific practice needs and market dynamics.`;
     
     this.addWrappedText(strategyOverview, this.pageWidth - 2 * this.margin);
     
@@ -824,7 +824,7 @@ export class CanvasDeepResearchGenerator {
     this.addSubsectionHeader('Customized Value Proposition Framework');
     
     const valueProps = [
-      `Primary Value Driver: ${this.getPrimaryValueDriver(deepResearchData)}`,
+      `Primary Value Driver: ${this.getPrimaryValueDriver()}`,
       `ROI Justification: ${deepResearchData.financialProjections.revenueOpportunity} potential with ${deepResearchData.financialProjections.roiTimeline}`,
       `Competitive Advantage: Superior integration capabilities vs. ${deepResearchData.competitorProfiles[0]?.name || 'competitors'}`,
       `Risk Mitigation: Comprehensive implementation support and success guarantees`,
@@ -1013,13 +1013,13 @@ export class CanvasDeepResearchGenerator {
     });
   }
 
-  private addImplementationRoadmap(scanResult: EnhancedScanResult, deepResearchData: DeepResearchData): void {
+  private addImplementationRoadmap(scanResult: EnhancedScanResult, _deepResearchData: DeepResearchData): void {
     this.addSectionHeader('IMPLEMENTATION ROADMAP');
     
     // Implementation Strategy
     this.addSubsectionHeader('Implementation Strategy Overview');
     
-    const implStrategy = `Recommended implementation follows proven methodology with ${this.getImplementationApproach(scanResult)} approach, emphasizing ${this.getImplementationPriorities(deepResearchData).slice(0, 2).join(' and ')}. Timeline spans 90-120 days with defined milestones and success criteria.`;
+    const implStrategy = `Recommended implementation follows proven methodology with ${this.getImplementationApproach(scanResult)} approach, emphasizing ${this.getImplementationPriorities().slice(0, 2).join(' and ')}. Timeline spans 90-120 days with defined milestones and success criteria.`;
     
     this.addWrappedText(implStrategy, this.pageWidth - 2 * this.margin);
     
@@ -1090,7 +1090,7 @@ export class CanvasDeepResearchGenerator {
     });
   }
 
-  private addRiskAssessment(scanResult: EnhancedScanResult, _deepResearchData: DeepResearchData): void {
+  private addRiskAssessment(scanResult: EnhancedScanResult): void {
     this.addSectionHeader('RISK ASSESSMENT & MITIGATION');
     
     // Risk Overview
@@ -1477,7 +1477,7 @@ export class CanvasDeepResearchGenerator {
     return 'medium-high';
   }
 
-  private getTopValueDrivers(_deepResearchData: DeepResearchData): string[] {
+  private getTopValueDrivers(): string[] {
     return ['efficiency improvement', 'cost reduction', 'compliance enhancement'];
   }
 
@@ -1489,25 +1489,25 @@ export class CanvasDeepResearchGenerator {
     return deepResearchData.marketIntelligence.keyTrends.slice(0, 3);
   }
 
-  private getSuccessFactors(_deepResearchData: DeepResearchData): string[] {
+  private getSuccessFactors(): string[] {
     return ['stakeholder alignment', 'comprehensive training', 'phased implementation'];
   }
 
-  private getFeasibilityRating(scanResult: EnhancedScanResult, _deepResearchData: DeepResearchData): string {
+  private getFeasibilityRating(scanResult: EnhancedScanResult): string {
     if (scanResult.score >= 80) return 'HIGH';
     if (scanResult.score >= 60) return 'MEDIUM-HIGH';
     return 'MEDIUM';
   }
 
-  private getStrategicApproach(scanResult: EnhancedScanResult, _deepResearchData: DeepResearchData): string {
+  private getStrategicApproach(scanResult: EnhancedScanResult): string {
     return scanResult.score >= 80 ? 'consultative partnership' : 'value-focused engagement';
   }
 
-  private getKeyValueProps(_deepResearchData: DeepResearchData): string[] {
+  private getKeyValueProps(): string[] {
     return ['operational efficiency', 'clinical outcomes', 'financial performance'];
   }
 
-  private getPrimaryValueDriver(_deepResearchData: DeepResearchData): string {
+  private getPrimaryValueDriver(): string {
     return 'Operational efficiency and workflow optimization';
   }
 
@@ -1523,7 +1523,7 @@ export class CanvasDeepResearchGenerator {
     return scanResult.score >= 80 ? 'accelerated' : 'phased';
   }
 
-  private getImplementationPriorities(_deepResearchData: DeepResearchData): string[] {
+  private getImplementationPriorities(): string[] {
     return ['user adoption', 'technical integration', 'change management'];
   }
 }

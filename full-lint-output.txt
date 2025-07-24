@@ -1,0 +1,681 @@
+
+> canvas-sales-intel@0.0.0 lint
+> eslint .
+
+
+/Users/jasonsmacbookpro2022/canvas/src/App-fast.tsx
+  214:109  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/App-slow.tsx
+  294:109  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/auth/AuthContext.tsx
+  17:14  warning  Fast refresh only works when a file only exports components. Move your React context(s) to a separate file                      react-refresh/only-export-components
+  23:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+/Users/jasonsmacbookpro2022/canvas/src/components/CinematicScanExperience.tsx
+  174:6  warning  React Hook useCallback has a missing dependency: 'handleScanResult'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/DoctorAutocomplete.tsx
+  119:34  warning  React Hook useCallback received a function whose dependencies are unknown. Pass an inline function instead  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/DoctorAutocompleteDebug.tsx
+  88:34  warning  React Hook useCallback received a function whose dependencies are unknown. Pass an inline function instead  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/EnhancedActionSuite.tsx
+  598:6  warning  React Hook useCallback has a missing dependency: 'deepScanResults'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          react-hooks/exhaustive-deps
+  835:6  warning  React Hook useCallback has missing dependencies: 'deepScanResults?.businessIntel', 'deepScanResults.completedAt', 'deepScanResults.confidenceScore', 'deepScanResults?.reviews', 'deepScanResults.sources', 'deepScanResults?.technology', 'deepScanResults?.unified', 'instantIntel', 'scanData?.businessIntel', 'scanData?.completedAt', 'scanData.confidenceScore', 'scanData?.established', 'scanData?.growthIndicators', 'scanData?.location', 'scanData?.marketPosition', 'scanData?.patientVolume', 'scanData?.phone', 'scanData?.practiceType', 'scanData?.reviews', 'scanData?.sources', 'scanData?.specialties', 'scanData?.staff', and 'scanData?.technology'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  881:6  warning  React Hook useCallback has unnecessary dependencies: 'deepScanResults.businessIntel', 'deepScanResults.completedAt', 'deepScanResults.confidenceScore', 'deepScanResults.reviews', 'deepScanResults.sources', 'deepScanResults.technology', 'deepScanResults.unified', 'instantIntel', 'scanData.businessIntel', 'scanData.completedAt', 'scanData.confidenceScore', 'scanData.established', 'scanData.growthIndicators', 'scanData.location', 'scanData.marketPosition', 'scanData.patientVolume', 'scanData.phone', 'scanData.practiceType', 'scanData.reviews', 'scanData.sources', 'scanData.specialties', 'scanData.staff', and 'scanData.technology'. Either exclude them or remove the dependency array                react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/EnhancedDoctorInput.tsx
+  169:6  warning  React Hook useEffect has missing dependencies: 'handleManualSearch' and 'isManualEntryComplete'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/EnhancedNPILookup.tsx
+  222:25  warning  React Hook useCallback received a function whose dependencies are unknown. Pass an inline function instead  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/EnhancedResearchPanel.tsx
+  29:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/components/LoginModal.tsx
+  165:6  warning  React Hook useEffect has a missing dependency: 'handleClose'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/LogoutModal.tsx
+  173:6  warning  React Hook useEffect has a missing dependency: 'handleCancel'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/MagicLinkAnalytics.tsx
+  156:6  warning  React Hook useEffect has missing dependencies: 'fetchAnalytics' and 'hasAnalytics'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/MultiChannelMagicLink.tsx
+  77:6  warning  React Hook useEffect has a missing dependency: 'loadUserBccEmail'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/ProgressiveOutreachPanel.tsx
+  74:6  warning  React Hook useEffect has missing dependencies: 'capabilities.genius.available' and 'capabilities.pro.available'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/ProgressiveResearchPanel.tsx
+  61:6  warning  React Hook useEffect has missing dependencies: 'engine' and 'onComplete'. Either include them or remove the dependency array. If 'onComplete' changes too often, find the parent component that defines it and wrap that definition in useCallback  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/ProgressiveResultsDisplay.tsx
+  215:6  warning  React Hook useEffect has a missing dependency: 'sections'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/RepSpheresNavBar.tsx
+  93:6  warning  React Hook useEffect has a missing dependency: 'statusMessages.length'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/SEOReportModal.tsx
+  62:6  warning  React Hook React.useEffect has missing dependencies: 'analysis', 'loading', and 'runAnalysis'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/SignUpModal.tsx
+  198:6   warning  React Hook useEffect has a missing dependency: 'handleClose'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  242:21  error    Unexpected any. Specify a different type                                                                        @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/components/SimpleCinematicScan.tsx
+  223:6  warning  React Hook useEffect has a missing dependency: 'productName'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/UnifiedEnhancedResearchPanel.tsx
+  171:33  error  '_' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/components/agents/AgentSelector.tsx
+  10:16  error    Unexpected any. Specify a different type                                                                       @typescript-eslint/no-explicit-any
+  40:6   warning  React Hook useEffect has a missing dependency: 'loadAgents'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/agents/CanvasAIPro.tsx
+  206:9    error  Unexpected empty object pattern           no-empty-pattern
+  515:104  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/components/agents/ChatInterface.tsx
+   17:14  error    Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+   25:16  error    Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+   61:44  error    Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+  129:6   warning  React Hook useEffect has a missing dependency: 'loadAgent'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  220:58  error    Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+  243:47  error    Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/components/agents/ContextualInsights.tsx
+   65:10  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   70:20  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   76:30  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   91:44  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   97:6   warning  React Hook useEffect has a missing dependency: 'generateInsights'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  134:12  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/components/agents/ConversationList.tsx
+  39:6  warning  React Hook useEffect has a missing dependency: 'loadConversations'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/agents/DebugChat.tsx
+  21:17  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/components/agents/EnhancedAgentSystem.tsx
+  166:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  168:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/components/agents/EnhancedChatInterface.tsx
+   89:44  error    Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+  172:6   warning  React Hook useEffect has missing dependencies: 'handleDoctorDetection' and 'handleDoctorMentions'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  180:6   warning  React Hook useCallback has a missing dependency: 'handleDoctorDetection'. Either include it or remove the dependency array                             react-hooks/exhaustive-deps
+  239:6   warning  React Hook useEffect has a missing dependency: 'loadAgent'. Either include it or remove the dependency array                                           react-hooks/exhaustive-deps
+  369:47  error    Unexpected any. Specify a different type                                                                                                               @typescript-eslint/no-explicit-any
+  378:9   error    Unexpected lexical declaration in case block                                                                                                           no-case-declarations
+
+/Users/jasonsmacbookpro2022/canvas/src/components/agents/MessageBubble.tsx
+  13:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  87:67  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  91:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/components/agents/MessageInput.tsx
+  5:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/components/agents/ProcedureSelector.tsx
+  37:6  warning  React Hook useEffect has a missing dependency: 'loadFeaturedProcedures'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  90:6  warning  React Hook useEffect has a missing dependency: 'searchProcedures'. Either include it or remove the dependency array        react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/components/agents/SimpleDemoChatInterface.tsx
+  105:12  error  '_agentId' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/components/agents/StrategyBuilder.tsx
+   61:10  error  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+   66:20  error  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  119:65  error  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  128:9   error  Unexpected lexical declaration in case block  no-case-declarations
+  143:9   error  Unexpected lexical declaration in case block  no-case-declarations
+  176:9   error  Unexpected lexical declaration in case block  no-case-declarations
+  189:9   error  Unexpected lexical declaration in case block  no-case-declarations
+  202:9   error  Unexpected lexical declaration in case block  no-case-declarations
+
+/Users/jasonsmacbookpro2022/canvas/src/hooks/useSubscriptionLimits.ts
+  103:6  warning  React Hook useEffect has a missing dependency: 'checkLimits'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  188:6  warning  React Hook useEffect has a missing dependency: 'refresh'. Either include it or remove the dependency array      react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/adaptiveResearch.ts
+   28:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   29:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   30:28  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   31:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   32:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   34:32  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   35:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   37:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   38:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  249:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/baselineUSETHISONLYresearch.ts
+  186:18  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  188:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/crmIntegration.ts
+   25:33   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   39:33   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  830:191  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  918:41   error  '_orgName' is defined but never used      @typescript-eslint/no-unused-vars
+  940:53   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  940:67   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/deepResearchReport.ts
+   225:45  error  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+   258:35  error  '_research' is defined but never used          @typescript-eslint/no-unused-vars
+   258:46  error  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+   293:31  error  '_research' is defined but never used          @typescript-eslint/no-unused-vars
+   293:42  error  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+   308:35  error  '_research' is defined but never used          @typescript-eslint/no-unused-vars
+   308:46  error  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+   335:35  error  '_scanResult' is defined but never used        @typescript-eslint/no-unused-vars
+   335:68  error  '_researchData' is defined but never used      @typescript-eslint/no-unused-vars
+  1093:61  error  '_deepResearchData' is defined but never used  @typescript-eslint/no-unused-vars
+  1480:30  error  '_deepResearchData' is defined but never used  @typescript-eslint/no-unused-vars
+  1492:29  error  '_deepResearchData' is defined but never used  @typescript-eslint/no-unused-vars
+  1496:64  error  '_deepResearchData' is defined but never used  @typescript-eslint/no-unused-vars
+  1502:64  error  '_deepResearchData' is defined but never used  @typescript-eslint/no-unused-vars
+  1506:28  error  '_deepResearchData' is defined but never used  @typescript-eslint/no-unused-vars
+  1510:33  error  '_deepResearchData' is defined but never used  @typescript-eslint/no-unused-vars
+  1526:39  error  '_deepResearchData' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/doctorVerification.ts
+  199:27  error  Unnecessary escape character: \.      no-useless-escape
+  410:85  error  Unnecessary escape character: \.      no-useless-escape
+  419:39  error  '_profile' is defined but never used  @typescript-eslint/no-unused-vars
+  429:12  error  'error' is defined but never used     @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/enhancedDoctorIntelligence.ts
+   81:12  error  'error' is defined but never used          @typescript-eslint/no-unused-vars
+  151:58  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  179:12  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  262:14  error  'fallbackError' is defined but never used  @typescript-eslint/no-unused-vars
+  268:39  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  289:38  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  310:13  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  357:66  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/enhancedDoctorIntelligenceWithProgress.ts
+  258:14  error  'error' is defined but never used          @typescript-eslint/no-unused-vars
+  491:14  error  'fallbackError' is defined but never used  @typescript-eslint/no-unused-vars
+  503:16  error  'localError' is defined but never used     @typescript-eslint/no-unused-vars
+  598:35  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/enhancedDoctorSearch.ts
+  147:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/enhancedOutreachSystem.ts
+  351:70  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/enhancedPdfExport.ts
+  108:51  error  '_doctor' is defined but never used   @typescript-eslint/no-unused-vars
+  108:68  error  '_product' is defined but never used  @typescript-eslint/no-unused-vars
+  196:5   error  '_product' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/enhancedResearch.ts
+   51:20  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   81:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  163:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  216:12  error  'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/enhancedSalesRepReports.ts
+   47:17  error  '_' is defined but never used              @typescript-eslint/no-unused-vars
+   48:20  error  '_' is defined but never used              @typescript-eslint/no-unused-vars
+   51:17  error  '_' is defined but never used              @typescript-eslint/no-unused-vars
+   52:22  error  '_' is defined but never used              @typescript-eslint/no-unused-vars
+   55:17  error  '_' is defined but never used              @typescript-eslint/no-unused-vars
+   56:20  error  '_' is defined but never used              @typescript-eslint/no-unused-vars
+   68:17  error  '_' is defined but never used              @typescript-eslint/no-unused-vars
+   69:20  error  '_' is defined but never used              @typescript-eslint/no-unused-vars
+   72:17  error  '_' is defined but never used              @typescript-eslint/no-unused-vars
+   73:22  error  '_' is defined but never used              @typescript-eslint/no-unused-vars
+   76:17  error  '_' is defined but never used              @typescript-eslint/no-unused-vars
+   77:21  error  '_' is defined but never used              @typescript-eslint/no-unused-vars
+  261:56  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  262:61  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  284:60  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  320:55  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  333:3   error  '_salesRepName' is defined but never used  @typescript-eslint/no-unused-vars
+  334:3   error  '_companyName' is defined but never used   @typescript-eslint/no-unused-vars
+  335:3   error  '_productName' is defined but never used   @typescript-eslint/no-unused-vars
+  338:56  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  401:56  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  402:61  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  429:72  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  466:3   error  '_salesRepName' is defined but never used  @typescript-eslint/no-unused-vars
+  467:3   error  '_companyName' is defined but never used   @typescript-eslint/no-unused-vars
+  468:3   error  '_productName' is defined but never used   @typescript-eslint/no-unused-vars
+  471:56  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  472:61  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  493:63  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/enhancedSynthesisPrompts.ts
+  59:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/enhancedWebResearch.ts
+   87:24  error  'err' is defined but never used           @typescript-eslint/no-unused-vars
+  161:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  214:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/fastInitialScan.ts
+   14:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   37:50  error  '_location' is defined but never used     @typescript-eslint/no-unused-vars
+  110:51  error  '_location' is defined but never used     @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/firecrawlWebScraper.ts
+  112:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  206:71  error  '_' is defined but never used             @typescript-eslint/no-unused-vars
+  207:73  error  '_' is defined but never used             @typescript-eslint/no-unused-vars
+  208:65  error  '_' is defined but never used             @typescript-eslint/no-unused-vars
+  209:65  error  '_' is defined but never used             @typescript-eslint/no-unused-vars
+  412:21  error  Unnecessary escape character: \/          no-useless-escape
+  643:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/globalRateLimiter.ts
+  216:10  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/instantCanvasResearch.ts
+  262:56  error  '_product' is defined but never used      @typescript-eslint/no-unused-vars
+  724:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/instantIntelligence.ts
+  119:30   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  213:53   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  213:59   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  214:17   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  229:19   error  Unnecessary escape character: \-          no-useless-escape
+  238:19   error  Unnecessary escape character: \-          no-useless-escape
+  250:22   error  Unnecessary escape character: \-          no-useless-escape
+  383:110  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/intelligenceOrchestrator.ts
+  197:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  210:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  214:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  215:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/intelligentAnalysis.ts
+   69:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  131:32  error  Unnecessary escape character: \.          no-useless-escape
+  132:15  error  Unnecessary escape character: \.          no-useless-escape
+  214:60  error  Unnecessary escape character: \-          no-useless-escape
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/intelligentCaching.ts
+  10:9   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  33:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/intelligentModelOrchestrator.ts
+  66:1  error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  67:7  error  'MODEL_CAPABILITIES' is assigned a value but never used                                                              @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/localClaude4.ts
+  29:65  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  77:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  95:14  error  'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/magicLinkGenerator.ts
+   11:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  130:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/magicLinks.ts
+  113:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  128:38  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  144:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  165:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/marketInsights.ts
+   48:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  239:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  259:14  error  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  359:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  367:39  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/mockDataProvider.ts
+  398:27  error  '_doctorId' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/mockResearch.ts
+   23:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   24:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   27:54  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   27:68  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   41:39  error  '_query' is defined but never used        @typescript-eslint/no-unused-vars
+   41:64  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   67:43  error  '_url' is defined but never used          @typescript-eslint/no-unused-vars
+   67:66  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  102:47  error  '_prompt' is defined but never used       @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/npiEnhancedResearch.ts
+  109:3   error  '_product' is defined but never used  @typescript-eslint/no-unused-vars
+  508:12  error  'error' is defined but never used     @typescript-eslint/no-unused-vars
+  543:12  error  'error' is defined but never used     @typescript-eslint/no-unused-vars
+  732:36  error  '_results' is defined but never used  @typescript-eslint/no-unused-vars
+  740:40  error  '_results' is defined but never used  @typescript-eslint/no-unused-vars
+  745:28  error  '_results' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/optimizedResearch.ts
+   11:9   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   12:12  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   17:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   52:14  error  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  117:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  117:43  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  143:34  error  Unnecessary escape character: \.          no-useless-escape
+  144:17  error  Unnecessary escape character: \.          no-useless-escape
+  202:90  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/optimizedWebResearch.ts
+  37:74  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/outreachSystem.ts
+  165:3   error  '_campaignType' is defined but never used                                                                            @typescript-eslint/no-unused-vars
+  393:5   error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  451:59  error  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  477:56  error  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/pdfExport.ts
+  693:36  error  '_researchData' is defined but never used  @typescript-eslint/no-unused-vars
+  725:35  error  '_researchData' is defined but never used  @typescript-eslint/no-unused-vars
+  740:34  error  '_researchData' is defined but never used  @typescript-eslint/no-unused-vars
+  867:36  error  '_researchData' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/powerPackPricing.ts
+  258:15  error  '_' is defined but never used  @typescript-eslint/no-unused-vars
+  259:12  error  '_' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/practiceIntelligence.ts
+   69:16  error  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+   71:3   error  '_searchResults' is defined but never used  @typescript-eslint/no-unused-vars
+   71:20  error  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  159:14  error  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/practiceWebsiteDetector.ts
+  322:36  error  Unnecessary escape character: \|  no-useless-escape
+  422:19  error  Unnecessary escape character: \|  no-useless-escape
+  423:19  error  Unnecessary escape character: \|  no-useless-escape
+  425:19  error  Unnecessary escape character: \|  no-useless-escape
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/productIntelligence.ts
+  126:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/professionalReportGenerator.tsx
+  183:53  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/progressiveOutreach.ts
+  241:12  error  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  442:40  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  447:33  error  '_data' is defined but never used         @typescript-eslint/no-unused-vars
+  447:54  error  '_profile' is defined but never used      @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/progressiveResearch.ts
+  171:16  error  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  213:16  error  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  240:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  283:14  error  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  349:31  error  '_scraped' is defined but never used      @typescript-eslint/no-unused-vars
+  357:45  error  '_data' is defined but never used         @typescript-eslint/no-unused-vars
+  362:26  error  '_reviewData' is defined but never used   @typescript-eslint/no-unused-vars
+  369:29  error  '_analysis' is defined but never used     @typescript-eslint/no-unused-vars
+  376:28  error  '_analysis' is defined but never used     @typescript-eslint/no-unused-vars
+  385:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  390:30  error  '_analysis' is defined but never used     @typescript-eslint/no-unused-vars
+  413:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/realTimeFastScanner.ts
+   55:50  error  '_location' is defined but never used  @typescript-eslint/no-unused-vars
+   74:75  error  '_userId' is defined but never used    @typescript-eslint/no-unused-vars
+  116:59  error  '_location' is defined but never used  @typescript-eslint/no-unused-vars
+  116:79  error  '_userId' is defined but never used    @typescript-eslint/no-unused-vars
+  207:51  error  '_location' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/renderBackendAPI.ts
+  207:21  error  '_' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/salesRepReports.ts
+   349:99   error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   381:100  error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   409:96   error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   434:98   error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   459:42   error  '_scanResult' is defined but never used    @typescript-eslint/no-unused-vars
+   459:75   error  '_researchData' is defined but never used  @typescript-eslint/no-unused-vars
+   459:104  error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   484:107  error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   508:106  error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   537:37   error  '_scanResult' is defined but never used    @typescript-eslint/no-unused-vars
+   537:70   error  '_researchData' is defined but never used  @typescript-eslint/no-unused-vars
+   537:99   error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   586:70   error  '_researchData' is defined but never used  @typescript-eslint/no-unused-vars
+   586:99   error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   715:97   error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   746:99   error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   791:91   error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   838:101  error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   878:43   error  '_scanResult' is defined but never used    @typescript-eslint/no-unused-vars
+   878:76   error  '_researchData' is defined but never used  @typescript-eslint/no-unused-vars
+   878:105  error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   911:39   error  '_scanResult' is defined but never used    @typescript-eslint/no-unused-vars
+   911:72   error  '_researchData' is defined but never used  @typescript-eslint/no-unused-vars
+   911:101  error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   950:42   error  '_scanResult' is defined but never used    @typescript-eslint/no-unused-vars
+   950:75   error  '_researchData' is defined but never used  @typescript-eslint/no-unused-vars
+   950:104  error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+   994:43   error  '_scanResult' is defined but never used    @typescript-eslint/no-unused-vars
+   994:76   error  '_researchData' is defined but never used  @typescript-eslint/no-unused-vars
+   994:105  error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+  1033:104  error  '_options' is defined but never used       @typescript-eslint/no-unused-vars
+  1294:31   error  '_researchData' is defined but never used  @typescript-eslint/no-unused-vars
+  1355:52   error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  1536:39   error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  1660:39   error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  1707:41   error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  1728:44   error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  1759:36   error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  1817:42   error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  1838:39   error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  1858:39   error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  1878:51   error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  1902:45   error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  1922:35   error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/seoAnalysis.ts
+  274:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  279:68  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  372:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  401:3   error  '_userId' is defined but never used       @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/sequentialThinkingResearch.ts
+  120:17  error  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  123:44  error  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  157:50  error  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  177:18  error  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  254:3   error  '_analysisThought' is defined but never used  @typescript-eslint/no-unused-vars
+  397:45  error  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  400:65  error  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/simpleFastScan.ts
+   14:18  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  199:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  219:43  error  Unnecessary escape character: \/          no-useless-escape
+  237:46  error  Unnecessary escape character: \/          no-useless-escape
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/simplePdfExport.ts
+  20:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  62:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  62:68  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  62:95  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  63:3   error  '_options' is defined but never used      @typescript-eslint/no-unused-vars
+  84:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  85:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/smartDoctorVerification.ts
+  246:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  312:11  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  505:3   error  '_location' is defined but never used     @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/smartDoctorVerificationFast.ts
+   35:3   error  '_productName' is defined but never used                    @typescript-eslint/no-unused-vars
+  148:11  error  Unexpected any. Specify a different type                    @typescript-eslint/no-explicit-any
+  248:7   error  Unexpected newline between object and [ of property access  no-unexpected-multiline
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/socialMediaIntelligence.ts
+   82:95  error  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  126:39  error  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  244:21  error  '_googleReviews' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  414:64  error  '_doctor' is defined but never used                  @typescript-eslint/no-unused-vars
+  418:80  error  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  451:49  error  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/streamlinedDoctorIntelligence.ts
+  174:16  error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/stripe.ts
+  204:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/subscriptionEnforcement.ts
+  26:13  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/superIntelligentDoctorResearch.ts
+  165:3   error  '_doctor' is defined but never used       @typescript-eslint/no-unused-vars
+  166:3   error  '_product' is defined but never used      @typescript-eslint/no-unused-vars
+  217:54  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/tieredResearch.ts
+  156:14  error  'error' is defined but never used           @typescript-eslint/no-unused-vars
+  205:14  error  'error' is defined but never used           @typescript-eslint/no-unused-vars
+  252:9   error  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  253:9   error  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  254:9   error  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  255:9   error  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  256:9   error  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  290:47  error  '_productName' is defined but never used    @typescript-eslint/no-unused-vars
+  316:59  error  '_productName' is defined but never used    @typescript-eslint/no-unused-vars
+  330:32  error  '_analysis' is defined but never used       @typescript-eslint/no-unused-vars
+  339:81  error  '_searchResults' is defined but never used  @typescript-eslint/no-unused-vars
+  351:32  error  '_analysis' is defined but never used       @typescript-eslint/no-unused-vars
+  360:32  error  '_analysis' is defined but never used       @typescript-eslint/no-unused-vars
+  369:83  error  '_productName' is defined but never used    @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/typescriptFixOrchestrator.ts
+  143:21  error  '_categoryName' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/unifiedCanvasResearch.ts
+  50:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/unifiedIntelligenceCore.ts
+  158:14   error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  194:16   error  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  272:74   error  '_' is defined but never used      @typescript-eslint/no-unused-vars
+  272:96   error  '_' is defined but never used      @typescript-eslint/no-unused-vars
+  273:77   error  '_' is defined but never used      @typescript-eslint/no-unused-vars
+  273:99   error  '_' is defined but never used      @typescript-eslint/no-unused-vars
+  277:74   error  '_k' is defined but never used     @typescript-eslint/no-unused-vars
+  277:106  error  '_' is defined but never used      @typescript-eslint/no-unused-vars
+  283:23   error  '_' is defined but never used      @typescript-eslint/no-unused-vars
+  290:23   error  '_' is defined but never used      @typescript-eslint/no-unused-vars
+  297:23   error  '_' is defined but never used      @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/urlDebugger.ts
+  25:6   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/urlUtils.ts
+  23:54  error  Unnecessary escape character: \-  no-useless-escape
+  23:64  error  Unnecessary escape character: \-  no-useless-escape
+  73:22  error  Unnecessary escape character: \-  no-useless-escape
+  73:32  error  Unnecessary escape character: \-  no-useless-escape
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/useBaselineResearch.ts
+  27:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:87  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/useRenderBackend.ts
+   38:13  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  115:14  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/useUnifiedResearch.ts
+  176:6  warning  React Hook useCallback has an unnecessary dependency: 'updateProgress'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/webResearch.ts
+  413:38  error  '_doctorName' is defined but never used  @typescript-eslint/no-unused-vars
+  413:59  error  '_sources' is defined but never used     @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/lib/websiteDiscovery.ts
+   40:3   error  '_npi' is defined but never used          @typescript-eslint/no-unused-vars
+   49:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  109:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  196:12  error  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  223:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/middleware/securityHeaders.ts
+  4:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  4:54  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  4:65  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/pages/AuthTest.tsx
+   8:46  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  49:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/pages/CanvasHomePremium.tsx
+  110:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  249:48  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  250:60  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  251:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  252:57  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  253:63  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  260:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/pages/MarketInsightsSimple.tsx
+  91:6  warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/pages/MobileCinematicDemo.tsx
+  158:6  warning  React Hook useCallback has a missing dependency: 'stages'. Either include it or remove the dependency array                       react-hooks/exhaustive-deps
+  221:6  warning  React Hook useEffect has missing dependencies: 'stageDurations' and 'stages'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/jasonsmacbookpro2022/canvas/src/pages/SharedIntelligence.tsx
+  121:44  error    Unexpected any. Specify a different type                                                                         @typescript-eslint/no-explicit-any
+  128:6   warning  React Hook useEffect has a missing dependency: 'validateLink'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  152:14  error    'err' is defined but never used                                                                                  @typescript-eslint/no-unused-vars
+  241:14  error    'err' is defined but never used                                                                                  @typescript-eslint/no-unused-vars
+
+/Users/jasonsmacbookpro2022/canvas/src/pages/SimpleLogin.tsx
+  38:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/pages/TestNPI.tsx
+  5:31  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/pages/TestNPIDebug.tsx
+  6:56  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  9:33  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/types/components.ts
+  228:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+  229:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+/Users/jasonsmacbookpro2022/canvas/src/utils/crossDomainAuth.ts
+  112:65  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  138:62  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  175:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/utils/dataManager.ts
+  177:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  193:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  213:18  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/utils/errorHandling.ts
+  157:67  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/jasonsmacbookpro2022/canvas/src/utils/rateLimiter.ts
+  109:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  112:49  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 442 problems (405 errors, 37 warnings)
+

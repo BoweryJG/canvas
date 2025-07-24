@@ -243,7 +243,7 @@ async function intelligentDoctorSearch(
  * Score a result as a practice website
  */
 function scorePracticeWebsite(
-  result: any,
+  result: unknown,
   practiceName: string,
   doctorName: string,
   location?: string
@@ -309,7 +309,7 @@ function scorePracticeWebsite(
  * Classify any search result
  */
 function classifyResult(
-  result: any,
+  result: unknown,
   doctorName: string,
   location?: string
 ): VerificationSource {

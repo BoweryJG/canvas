@@ -153,7 +153,7 @@ export async function basicResearch(doctorName: string, productName: string, loc
   if (searchResults.web?.results?.[0]) {
     try {
       practiceData = await callFirecrawlScrape(searchResults.web.results[0].url);
-    } catch (error) {
+    } catch (_) {
       console.log("Scrape failed, continuing...");
     }
   }
@@ -202,7 +202,7 @@ export async function standardResearch(doctorName: string, productName: string, 
       const scraped = await callFirecrawlScrape(url);
       sources.push({ url, content: scraped.markdown || '' });
       apiCallCount++;
-    } catch (error) {
+    } catch (_) {
       console.log(`Failed to scrape ${url}`);
     }
   }
@@ -249,11 +249,11 @@ function selectBestUrls(results: SearchResult[], limit: number): string[] {
   
   // Prioritize: medical directories, practice websites, review sites
   const priorities = [
-    (r: any) => r.url.includes('healthgrades.com'),
-    (r: any) => r.url.includes('webmd.com'),
-    (r: any) => r.url.includes('zocdoc.com'),
-    (r: any) => r.title.toLowerCase().includes('practice'),
-    (r: any) => r.title.toLowerCase().includes('clinic')
+    (r: unknown) => r.url.includes('healthgrades.com'),
+    (r: unknown) => r.url.includes('webmd.com'),
+    (r: unknown) => r.url.includes('zocdoc.com'),
+    (r: unknown) => r.title.toLowerCase().includes('practice'),
+    (r: unknown) => r.title.toLowerCase().includes('clinic')
   ];
   
   for (const priority of priorities) {

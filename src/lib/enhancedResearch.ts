@@ -48,7 +48,7 @@ export async function performEnhancedResearch(
   doctorName: string,
   location: string | undefined,
   product: string,
-  verifiedProfile: any
+  verifiedProfile: unknown
 ): Promise<ResearchProfile> {
   // Clean doctor name - remove Dr. prefix if present
   const cleanName = doctorName.replace(/^Dr\.\s*/i, '').trim();
@@ -78,7 +78,7 @@ export async function performEnhancedResearch(
   return synthesis;
 }
 
-function identifyProspectType(profile: any, product: string): { type: ProspectType, industry: Industry } {
+function identifyProspectType(profile: unknown, product: string): { type: ProspectType, industry: Industry } {
   const specialty = profile.specialty?.toLowerCase() || '';
   const practice = profile.practice?.toLowerCase() || '';
   const productLower = product.toLowerCase();
@@ -160,7 +160,7 @@ async function searchDigitalFootprint(website: string | undefined) {
 }
 
 async function synthesizeResearchWithAI(
-  researchLayers: any[],
+  researchLayers: unknown[],
   prospectInfo: { type: ProspectType, industry: Industry },
   product: string
 ): Promise<ResearchProfile> {
@@ -214,6 +214,7 @@ Format as JSON with these exact fields:
       bestApproachStrategy: parsed.bestApproachStrategy
     };
   } catch (error) {
+    console.error('Enhanced research error:', error);
     // Fallback to intelligent defaults based on prospect type
     return generateSmartDefaults(prospectInfo);
   }

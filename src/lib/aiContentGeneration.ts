@@ -248,7 +248,7 @@ Also generate follow-up SMS (160 chars) that references their specific pain poin
     const response = await callPerplexityResearch(prompt, 'search');
     
     // Simple parsing
-    const messages = response.split('\n').filter((line: string) => line.trim());
+    const messages = response.split('\n').filter((line) => line.trim());
     return {
       message: messages[0] || generateFallbackSMS(doctorName, productName, salesRepName),
       followUp: messages[1]

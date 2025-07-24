@@ -107,7 +107,7 @@ const CanvasHomePremium: React.FC = () => {
     setStage('scanning-basic');
   };
   
-  const handleBasicScanComplete = (results: any) => {
+  const handleBasicScanComplete = (results: PageScanResults) => {
     console.log('handleBasicScanComplete called with results:', results);
     
     // Store scan results - our unified system already did everything!
@@ -246,18 +246,18 @@ const CanvasHomePremium: React.FC = () => {
                 completedAt: new Date().toISOString()
               }}
               instantIntel={deepScanResults?.instant ? {
-                ...(deepScanResults.instant as any),
-                tacticalBrief: (deepScanResults.instant as any).tacticalBrief || 'No tactical brief available',
-                keyInsights: (deepScanResults.instant as any).keyInsights || [],
-                painPoints: (deepScanResults.instant as any).painPoints || [],
-                approachStrategy: (deepScanResults.instant as any).approachStrategy || {
+                ...(deepScanResults.instant as InstantIntelligence),
+                tacticalBrief: (deepScanResults.instant as InstantIntelligence).tacticalBrief || 'No tactical brief available',
+                keyInsights: (deepScanResults.instant as InstantIntelligence).keyInsights || [],
+                painPoints: (deepScanResults.instant as InstantIntelligence).painPoints || [],
+                approachStrategy: (deepScanResults.instant as InstantIntelligence).approachStrategy || {
                   opening: '',
                   valueProps: [],
                   objectionHandlers: new Map()
                 }
-              } as InstantIntelligence : undefined}
+              } : undefined}
               deepScanResults={deepScanResults}
-              scanData={scanData as any}
+              scanData={scanData as ScanData}
             />
           </Box>
         )}

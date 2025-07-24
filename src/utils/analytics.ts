@@ -21,7 +21,7 @@ interface UserSession {
 class AnalyticsManager {
   private currentSession: UserSession | null = null;
   private sessionTimeout = 30 * 60 * 1000; // 30 minutes
-  private sessionTimer: NodeJS.Timeout | null = null;
+  private sessionTimer: ReturnType<typeof setTimeout> | null = null;
   
   constructor() {
     this.initSession();
@@ -126,7 +126,7 @@ class AnalyticsManager {
     this.currentSession!.lastActivity = Date.now();
     
     // Send to Google Analytics if available
-    if (typeof window.gtag !== 'undefined') {
+    if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('event', action, {
         event_category: category,
         event_label: label,
@@ -155,8 +155,8 @@ class AnalyticsManager {
     this.track('navigation', 'page_view', path);
     
     // Send to Google Analytics
-    if (typeof window.gtag !== 'undefined') {
-      window.gtag('config', process.env.REACT_APP_GA_MEASUREMENT_ID, {
+    if (typeof window !== 'undefined' && window.gtag) {
+      window.gtag('config', process.env.REACT_APP_GA_MEASUREMENT_ID || '', {
         page_path: path,
         page_title: title
       });
@@ -169,7 +169,7 @@ class AnalyticsManager {
   trackTiming(category: string, variable: string, duration: number) {
     this.track('timing', category, variable, duration);
     
-    if (typeof window.gtag !== 'undefined') {
+    if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('event', 'timing_complete', {
         name: variable,
         value: duration,
@@ -184,7 +184,7 @@ class AnalyticsManager {
   trackException(error: Error, fatal: boolean = false) {
     this.track('exception', error.name, error.message);
     
-    if (typeof window.gtag !== 'undefined') {
+    if (typeof window !== 'undefined' && window.gtag) {
       window.gtag('event', 'exception', {
         description: error.message,
         fatal: fatal

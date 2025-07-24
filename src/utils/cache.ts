@@ -139,13 +139,13 @@ export function withCache<T>(
   ttlMinutes?: number
 ) {
   return function (
-    _target: unknown,
+    _target: object,
     propertyKey: string,
     descriptor: PropertyDescriptor
   ) {
     const originalMethod = descriptor.value;
 
-    descriptor.value = async function (...args: unknown[]) {
+    descriptor.value = async function (this: unknown, ...args: unknown[]) {
       const cacheKey = keyGenerator(...args);
       
       // Check cache first

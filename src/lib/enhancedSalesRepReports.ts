@@ -44,16 +44,16 @@ function buildMedicalContext(scrapedData: ScrapedWebsiteData, productCategory: s
   
   if (productCategory === 'dental' || productCategory === 'both') {
     const currentDentalProcs = Object.entries(scrapedData.dentalProcedures || {})
-      .filter(([_, has]) => has)
-      .map(([proc, _]) => proc);
+      .filter(([, has]) => has)
+      .map(([proc]) => proc);
     
     const currentImplantSystems = Object.entries(scrapedData.implantSystems || {})
-      .filter(([_, has]) => has)
-      .map(([system, _]) => system);
+      .filter(([, has]) => has)
+      .map(([system]) => system);
     
     const currentDentalTech = Object.entries(scrapedData.dentalTechnology || {})
-      .filter(([_, has]) => has)
-      .map(([tech, _]) => tech);
+      .filter(([, has]) => has)
+      .map(([tech]) => tech);
     
     context += `DENTAL CAPABILITIES:
 • Current Procedures: ${currentDentalProcs.join(', ') || 'None detected'}
@@ -65,16 +65,16 @@ function buildMedicalContext(scrapedData: ScrapedWebsiteData, productCategory: s
   
   if (productCategory === 'aesthetic' || productCategory === 'both') {
     const currentAestheticProcs = Object.entries(scrapedData.aestheticProcedures || {})
-      .filter(([_, has]) => has)
-      .map(([proc, _]) => proc);
+      .filter(([, has]) => has)
+      .map(([proc]) => proc);
     
     const currentAestheticDevices = Object.entries(scrapedData.aestheticDevices || {})
-      .filter(([_, has]) => has)
-      .map(([device, _]) => device);
+      .filter(([, has]) => has)
+      .map(([device]) => device);
     
     const currentInjectables = Object.entries(scrapedData.injectableBrands || {})
-      .filter(([_, has]) => has)
-      .map(([brand, _]) => brand);
+      .filter(([, has]) => has)
+      .map(([brand]) => brand);
     
     context += `AESTHETIC CAPABILITIES:
 • Current Procedures: ${currentAestheticProcs.join(', ') || 'None detected'}
@@ -258,8 +258,8 @@ export async function generateEnhancedInitialOutreachReport(
   productName: string
 ): Promise<Blob> {
   const productIntel = researchData.productIntelligence as ProductIntelligence | undefined;
-  const doctorIntel = researchData.enhancedInsights as any;
-  const combinedStrategy = researchData.combinedStrategy as any;
+  const doctorIntel = researchData.enhancedInsights as unknown;
+  const combinedStrategy = researchData.combinedStrategy as unknown;
   
   const content = `
 INITIAL OUTREACH BRIEF
@@ -281,7 +281,7 @@ ${combinedStrategy?.messagingStrategy?.primaryHook || 'Standard introduction app
 
 KEY TALKING POINTS
 ------------------
-${combinedStrategy?.messagingStrategy?.valueProps?.map((v: any, i: number) => `${i + 1}. ${v}`).join('\n') || 
+${combinedStrategy?.messagingStrategy?.valueProps?.map((v: unknown, i: number) => `${i + 1}. ${v}`).join('\n') || 
   '1. ROI within 18 months\n2. Proven local success\n3. Competitive advantage'}
 
 LOCAL MARKET CONTEXT
@@ -317,7 +317,7 @@ SUCCESS METRICS
 
 NEXT STEPS
 ----------
-${combinedStrategy?.nextSteps?.slice(0, 3).map((step: any, i: number) => `${i + 1}. ${step}`).join('\n') || 
+${combinedStrategy?.nextSteps?.slice(0, 3).map((step: unknown, i: number) => `${i + 1}. ${step}`).join('\n') || 
   '1. Send personalized email\n2. Follow up within 48 hours\n3. Schedule discovery call'}
   `.trim();
   
@@ -335,7 +335,7 @@ export async function generateEnhancedFollowUpReport(
   _productName: string
 ): Promise<Blob> {
   const productIntel = researchData.productIntelligence as ProductIntelligence | undefined;
-  const doctorIntel = researchData.enhancedInsights as any;
+  const doctorIntel = researchData.enhancedInsights as unknown;
   
   const content = `
 FOLLOW-UP STRATEGY REPORT
@@ -398,8 +398,8 @@ export async function generateEnhancedBreakthroughReport(
   productName: string
 ): Promise<Blob> {
   const productIntel = researchData.productIntelligence as ProductIntelligence | undefined;
-  const doctorIntel = researchData.enhancedInsights as any;
-  const combinedStrategy = researchData.combinedStrategy as any;
+  const doctorIntel = researchData.enhancedInsights as unknown;
+  const combinedStrategy = researchData.combinedStrategy as unknown;
   
   const content = `
 BREAKTHROUGH STRATEGY REPORT
@@ -426,7 +426,7 @@ ALTERNATIVE APPROACHES
 
 NEW VALUE ANGLES
 ----------------
-${combinedStrategy?.messagingStrategy?.valueProps?.slice(1, 4).map((v: any) => `• ${v}`).join('\n') || 
+${combinedStrategy?.messagingStrategy?.valueProps?.slice(1, 4).map((v: unknown) => `• ${v}`).join('\n') || 
   '• Competitive differentiation\n• Patient satisfaction scores\n• Staff efficiency gains'}
 
 URGENCY AMPLIFIERS
@@ -468,8 +468,8 @@ export async function generateEnhancedClosingReport(
   _productName: string
 ): Promise<Blob> {
   const productIntel = researchData.productIntelligence as ProductIntelligence | undefined;
-  const doctorIntel = researchData.enhancedInsights as any;
-  const combinedStrategy = researchData.combinedStrategy as any;
+  const doctorIntel = researchData.enhancedInsights as unknown;
+  const combinedStrategy = researchData.combinedStrategy as unknown;
   
   const content = `
 CLOSING STRATEGY REPORT
@@ -490,7 +490,7 @@ Risk Mitigation: ${productIntel?.marketData?.limitedTimeOffers?.[0] || '90-day g
 
 DECISION DRIVERS
 ----------------
-${combinedStrategy?.closingStrategy?.decisionDrivers?.map((d: any) => `✓ ${d}`).join('\n') || 
+${combinedStrategy?.closingStrategy?.decisionDrivers?.map((d: unknown) => `✓ ${d}`).join('\n') || 
   '✓ ROI certainty\n✓ Competitive pressure\n✓ Implementation support\n✓ Peer success'}
 
 CLOSING TACTICS

@@ -10,7 +10,7 @@ interface Message {
   content: string;
   timestamp: string;
   isStreaming?: boolean;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 interface MessageBubbleProps {
@@ -84,11 +84,16 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             <div className="text-sm text-white prose prose-invert prose-sm max-w-none">
               <ReactMarkdown
                 components={{
-                  code({ inline, className, children, ...props }: any) {
+                  code({ inline, className, children, ...props }: {
+                    inline?: boolean;
+                    className?: string;
+                    children?: React.ReactNode;
+                    [key: string]: unknown;
+                  }) {
                     const match = /language-(\w+)/.exec(className || '');
                     return !inline && match ? (
                       <SyntaxHighlighter
-                        style={vscDarkPlus as any}
+                        style={vscDarkPlus}
                         language={match[1]}
                         PreTag="div"
                         className="rounded-lg my-2"

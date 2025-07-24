@@ -170,9 +170,9 @@ export async function orchestrateIntelligenceWorkflow(
     
     console.log(`✅ Intelligence extracted in ${step2Time}ms: ${dataPoints} data points`);
     if (scrapedData) {
-      console.log(`   Dental Tech: ${Object.keys(scrapedData.dentalTechnology).filter(k => scrapedData.dentalTechnology[k as keyof typeof scrapedData.dentalTechnology]).length} technologies`);
+      console.log(`   Dental Tech: ${Object.keys(scrapedData.dentalTechnology).filter((k) => scrapedData.dentalTechnology[k as keyof typeof scrapedData.dentalTechnology]).length} technologies`);
       console.log(`   Specialties: ${scrapedData.practiceInfo?.specialties?.length || 0}`);
-      console.log(`   Procedures: ${Object.keys(scrapedData.dentalProcedures).filter(k => scrapedData.dentalProcedures[k as keyof typeof scrapedData.dentalProcedures]).length + Object.keys(scrapedData.aestheticProcedures).filter(k => scrapedData.aestheticProcedures[k as keyof typeof scrapedData.aestheticProcedures]).length} total`);
+      console.log(`   Procedures: ${Object.keys(scrapedData.dentalProcedures).filter((k) => scrapedData.dentalProcedures[k as keyof typeof scrapedData.dentalProcedures]).length + Object.keys(scrapedData.aestheticProcedures).filter((k) => scrapedData.aestheticProcedures[k as keyof typeof scrapedData.aestheticProcedures]).length} total`);
     }
     
     // ========== STEP 3: PRODUCT-DOCTOR FUSION & CONTENT GENERATION ==========
@@ -194,7 +194,7 @@ export async function orchestrateIntelligenceWorkflow(
     // Generate hyper-personalized content
     interface ResearchDataLike {
       enhancedInsights: DeepIntelligenceResult;
-      practiceInfo: Record<string, any>;
+      practiceInfo: Record<string, unknown>;
       sources: Array<{ url: string; type: string; relevance: number }>;
     }
     
@@ -207,12 +207,12 @@ export async function orchestrateIntelligenceWorkflow(
     const generatedContent = await generateMultiChannelCampaign(
       doctorName,
       productName,
-      researchDataLike as any,
+      researchDataLike,
       salesRepInfo?.name || 'Sales Rep',
       salesRepInfo?.company || 'Company',
       procedure || undefined,
-      scrapedData as any,
-      productIntelligence as any
+      scrapedData || undefined,
+      productIntelligence || undefined
     );
     
     const step3Time = Date.now() - step3Start;
@@ -283,12 +283,12 @@ function generateKeyInsights(
   }
   
   // Medical Tech insights
-  const dentalTechCount = Object.values(scrapedData.dentalTechnology).filter(v => v).length;
+  const dentalTechCount = Object.values(scrapedData.dentalTechnology).filter((v) => v).length;
   if (dentalTechCount > 0) {
     insights.push(`💻 ${dentalTechCount} dental technologies in use`);
   }
   
-  const aestheticDeviceCount = Object.values(scrapedData.aestheticDevices).filter(v => v).length;
+  const aestheticDeviceCount = Object.values(scrapedData.aestheticDevices).filter((v) => v).length;
   if (aestheticDeviceCount > 0) {
     insights.push(`✨ ${aestheticDeviceCount} aesthetic devices available`);
   }
@@ -314,20 +314,20 @@ function countDataPoints(scrapedData: ScrapedWebsiteData | null): number {
   if (scrapedData.description) count++;
   
   // Medical procedures
-  count += Object.values(scrapedData.dentalProcedures).filter(v => v).length;
-  count += Object.values(scrapedData.aestheticProcedures).filter(v => v).length;
+  count += Object.values(scrapedData.dentalProcedures).filter((v) => v).length;
+  count += Object.values(scrapedData.aestheticProcedures).filter((v) => v).length;
   
   // Medical technology
-  count += Object.values(scrapedData.dentalTechnology).filter(v => v).length;
-  count += Object.values(scrapedData.aestheticDevices).filter(v => v).length;
-  count += Object.values(scrapedData.implantSystems).filter(v => v).length;
-  count += Object.values(scrapedData.injectableBrands).filter(v => v).length;
+  count += Object.values(scrapedData.dentalTechnology).filter((v) => v).length;
+  count += Object.values(scrapedData.aestheticDevices).filter((v) => v).length;
+  count += Object.values(scrapedData.implantSystems).filter((v) => v).length;
+  count += Object.values(scrapedData.injectableBrands).filter((v) => v).length;
   
   // Contact info
-  count += Object.values(scrapedData.contactInfo).filter(v => v).length;
+  count += Object.values(scrapedData.contactInfo).filter((v) => v).length;
   
   // Practice info
-  count += Object.values(scrapedData.practiceInfo).filter(v => v).length;
+  count += Object.values(scrapedData.practiceInfo).filter((v) => v).length;
   
   // Competitive intelligence
   count += (scrapedData.missingProcedures?.length || 0);
@@ -390,7 +390,7 @@ export function formatOrchestrationSummary(result: OrchestrationResult): string 
     sections.push(`📊 Intelligence: ${result.intelligence.dataPoints} data points`);
     if (result.intelligence.websiteData) {
       const data = result.intelligence.websiteData;
-      sections.push(`   Dental Tech: ${Object.keys(data.dentalTechnology).filter(k => data.dentalTechnology[k as keyof typeof data.dentalTechnology]).length} devices`);
+      sections.push(`   Dental Tech: ${Object.keys(data.dentalTechnology).filter((k) => data.dentalTechnology[k as keyof typeof data.dentalTechnology]).length} devices`);
       sections.push(`   Specialties: ${data.practiceInfo?.specialties?.slice(0, 3).join(', ') || 'Not detected'}`);
       sections.push(`   Team Size: ${data.practiceInfo?.teamSize || 'Unknown'}`);
     }

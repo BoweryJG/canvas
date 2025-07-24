@@ -1,5 +1,24 @@
 import { Handler } from '@netlify/functions';
 
+// Type definitions
+interface BraveSearchRequest {
+  query?: string;
+  count?: number;
+}
+
+interface BraveSearchResult {
+  title: string;
+  url: string;
+  description: string;
+  published?: string;
+}
+
+interface BraveSearchAPIResponse {
+  web?: {
+    results?: BraveSearchResult[];
+  };
+}
+
 const BRAVE_API_KEY = process.env.BRAVE_API_KEY || 'BSAe5JOYNgM9vHXnme_VZ1BQKBVkuv-';
 
 export const handler: Handler = async (event) => {
@@ -29,7 +48,7 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    const { query, count = 10 } = JSON.parse(event.body || '{}');
+    const { query, count = 10 }: BraveSearchRequest = JSON.parse(event.body || '{}');
 
     if (!query) {
       return {
@@ -68,7 +87,7 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    const data = await response.json();
+    const data: BraveSearchAPIResponse = await response.json();
     
     console.log(`✅ Brave Search returned ${data.web?.results?.length || 0} results`);
 

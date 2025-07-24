@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Box,
@@ -61,19 +61,36 @@ const ActionButton = styled(Button)({
   }
 });
 
+interface Agent {
+  id: string;
+  name?: string;
+  [key: string]: unknown;
+}
+
+interface Insight {
+  id: string;
+  type: string;
+  icon: React.ElementType;
+  priority: string;
+  title: string;
+  description: string;
+  actions: string[];
+  [key: string]: unknown;
+}
+
 interface ContextualInsightsProps {
-  agent: any;
+  agent: Agent;
   context: {
     tab?: string;
     doctorId?: string;
     searchQuery?: string;
-    researchData?: any;
+    researchData?: Record<string, unknown>;
     npiDoctor?: NPIDoctor | null;
   };
   isDemo: boolean;
   expanded: boolean;
   onToggle: () => void;
-  onApplyInsight?: (insight: any) => void;
+  onApplyInsight?: (insight: Insight) => void;
   dentalProcedures?: DentalProcedure[];
   aestheticProcedures?: AestheticProcedure[];
 }
@@ -88,15 +105,15 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
   dentalProcedures = [],
   aestheticProcedures = []
 }) => {
-  const [insights, setInsights] = useState<any[]>([]);
+  const [insights, setInsights] = useState<Insight[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedInsight, setSelectedInsight] = useState<string | null>(null);
 
   useEffect(() => {
     generateInsights();
-  }, [context, agent, isDemo]);
+  }, [generateInsights]);
 
-  const generateInsights = async () => {
+  const generateInsights = useCallback(async () => {
     setLoading(true);
     
     // Simulate loading delay
@@ -128,13 +145,13 @@ const ContextualInsights: React.FC<ContextualInsightsProps> = ({
     }
     
     setLoading(false);
-  };
+  }, [context, agent, isDemo]);
 
   const generateAgentSpecificInsights = (
-    agent: any, 
+    agent: Agent, 
     doctor: MockDoctor | undefined, 
     baseInsights: MockInsight[]
-  ) => {
+  ): Insight[] => {
     const insights = [];
 
     switch (agent.id) {

@@ -3,10 +3,16 @@ import { DoctorAutocompleteDebug } from '../components/DoctorAutocompleteDebug';
 import { DoctorAutocomplete } from '../components/DoctorAutocomplete';
 
 export const TestNPIDebug: React.FC = () => {
-  const [selectedDoctor, setSelectedDoctor] = useState<any>(null);
+  interface DoctorData {
+    npi?: string;
+    name?: string;
+    [key: string]: unknown;
+  }
+  
+  const [selectedDoctor, setSelectedDoctor] = useState<DoctorData | null>(null);
   const [useDebugVersion, setUseDebugVersion] = useState(true);
 
-  const handleSelect = (doctor: any) => {
+  const handleSelect = (doctor: DoctorData) => {
     console.log('Doctor selected:', doctor);
     setSelectedDoctor(doctor);
   };

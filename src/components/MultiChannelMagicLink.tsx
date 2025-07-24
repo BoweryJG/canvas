@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSubscription } from '../auth/useSubscription';
 import { generateMagicLink, type EmailCampaign } from '../lib/magicLinks';
@@ -69,14 +69,7 @@ export const MultiChannelMagicLink: React.FC<MultiChannelMagicLinkProps> = ({
   const [copied, setCopied] = useState<string | null>(null);
   const [userBccEmail, setUserBccEmail] = useState<string | null>(null);
 
-  // Load user's CRM BCC email
-  useEffect(() => {
-    if (user) {
-      loadUserBccEmail();
-    }
-  }, [user]);
-
-  const loadUserBccEmail = async () => {
+  const loadUserBccEmail = useCallback(async () => {
     try {
       const { data } = await supabase
         .from('user_settings')
@@ -90,7 +83,14 @@ export const MultiChannelMagicLink: React.FC<MultiChannelMagicLinkProps> = ({
     } catch (error) {
       console.error('Error loading BCC email:', error);
     }
-  };
+  }, [user]);
+
+  // Load user's CRM BCC email
+  useEffect(() => {
+    if (user) {
+      loadUserBccEmail();
+    }
+  }, [user, loadUserBccEmail]);
 
   // Format phone for international if needed
   const formatPhoneIntl = (phone: string) => {

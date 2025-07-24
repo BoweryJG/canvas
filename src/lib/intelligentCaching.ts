@@ -7,7 +7,7 @@ import { supabase } from '../auth/supabase';
 
 interface CacheEntry {
   key: string;
-  data: any;
+  data: unknown;
   timestamp: string;
   expiresAt: string;
   hitCount: number;
@@ -30,7 +30,7 @@ class IntelligentCache {
   /**
    * Generate cache key from multiple parameters
    */
-  generateKey(...params: any[]): string {
+  generateKey(...params: unknown[]): string {
     return params
       .map(p => typeof p === 'object' ? JSON.stringify(p) : String(p))
       .join('::');

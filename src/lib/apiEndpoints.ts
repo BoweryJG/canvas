@@ -13,6 +13,71 @@ import {
 } from './globalRateLimiter';
 import { getApiEndpoint } from '../config/api';
 
+// Type definitions for API responses
+interface BraveSearchResult {
+  title: string;
+  url: string;
+  description: string;
+  published?: string;
+}
+
+interface BraveSearchResponse {
+  web?: {
+    results?: BraveSearchResult[];
+  };
+}
+
+interface PerplexitySearchResponse {
+  answer: string;
+  sources: BraveSearchResult[];
+}
+
+interface FirecrawlResponse {
+  success: boolean;
+  markdown: string;
+  metadata: {
+    title: string;
+    description: string;
+    statusCode: number;
+  };
+}
+
+interface PerplexityChoice {
+  message: {
+    content: string;
+    role?: string;
+  };
+}
+
+interface PerplexityResearchResponse {
+  choices: PerplexityChoice[];
+  citations?: string[];
+  related_questions?: string[];
+}
+
+interface ClaudeResponse {
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+}
+
+interface BraveLocalResult {
+  title: string;
+  address: string;
+  phone: string;
+  rating: number;
+  rating_count: number;
+  description: string;
+  distance: number;
+  url: string;
+}
+
+interface BraveLocalResponse {
+  results?: BraveLocalResult[];
+}
+
 // Cache keys for API responses
 const CacheKeys = {
   BRAVE_SEARCH: 'brave_search',
@@ -22,7 +87,12 @@ const CacheKeys = {
 };
 
 // Simple in-memory cache
-const apiCache = new Map<string, { data: unknown; timestamp: number }>();
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+const apiCache = new Map<string, CacheEntry<unknown>>();
 const CACHE_TTL = 300000; // 5 minutes
 
 async function cachedApiCall<T>(
@@ -57,7 +127,7 @@ async function cachedApiCall<T>(
 /**
  * Brave Search API integration via Netlify function
  */
-export async function callBraveSearch(query: string, count: number = 10, userId?: string) {
+export async function callBraveSearch(query: string, count: number = 10, userId?: string): Promise<BraveSearchResponse> {
   return withGlobalRateLimit(globalBraveLimiter, 'brave-search', userId, async () => {
     try {
       console.log(`🔍 Brave Search: "${query}"`);
@@ -75,7 +145,7 @@ export async function callBraveSearch(query: string, count: number = 10, userId?
       throw new Error(`Brave Search API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data: BraveSearchResponse = await response.json();
     console.log(`✅ Brave Search returned ${data.web?.results?.length || 0} results`);
     
     return data;
@@ -114,7 +184,7 @@ export async function callBraveSearch(query: string, count: number = 10, userId?
 /**
  * Perplexity Search integration via Netlify function
  */
-export async function callPerplexitySearch(query: string, userId?: string) {
+export async function callPerplexitySearch(query: string, userId?: string): Promise<PerplexitySearchResponse> {
   // For now, use Brave as a fallback until Perplexity is implemented
   console.log(`🔍 Perplexity Search (using Brave fallback): "${query}"`);
   
@@ -137,7 +207,7 @@ export async function callPerplexitySearch(query: string, userId?: string) {
 /**
  * Firecrawl API integration via Netlify function
  */
-export async function callFirecrawlScrape(url: string, options: Record<string, unknown> = {}, userId?: string) {
+export async function callFirecrawlScrape(url: string, options: Record<string, unknown> = {}, userId?: string): Promise<FirecrawlResponse> {
   return withGlobalRateLimit(globalFirecrawlLimiter, 'firecrawl', userId, async () => {
     try {
       console.log(`🕷️ Firecrawl scraping: ${url}`);
@@ -155,7 +225,7 @@ export async function callFirecrawlScrape(url: string, options: Record<string, u
       throw new Error(`Firecrawl API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data: FirecrawlResponse = await response.json();
     console.log(`✅ Firecrawl successfully scraped ${url}`);
     
     return data;
@@ -293,7 +363,7 @@ This is sample content from ${url}. The actual implementation would extract real
 /**
  * Perplexity API integration via Netlify function
  */
-export async function callPerplexityResearch(query: string, mode: 'search' | 'reason' | 'deep_research' = 'search', userId?: string) {
+export async function callPerplexityResearch(query: string, mode: 'search' | 'reason' | 'deep_research' = 'search', userId?: string): Promise<PerplexityResearchResponse> {
   return withGlobalRateLimit(globalOpenRouterLimiter, 'perplexity', userId, async () => {
   try {
     console.log(`🧠 Perplexity ${mode}: "${query}"`);
@@ -311,7 +381,7 @@ export async function callPerplexityResearch(query: string, mode: 'search' | 're
       throw new Error(`Perplexity API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data: PerplexityResearchResponse = await response.json();
     console.log(`✅ Perplexity ${mode} completed successfully`);
     
     return data;
@@ -341,7 +411,7 @@ export async function callPerplexityResearch(query: string, mode: 'search' | 're
 /**
  * Claude Outreach Generation API via backend proxy
  */
-export async function callClaudeOutreach(prompt: string, userId?: string) {
+export async function callClaudeOutreach(prompt: string, userId?: string): Promise<ClaudeResponse> {
   return withGlobalRateLimit(globalOpenRouterLimiter, 'anthropic-outreach', userId, async () => {
     try {
       console.log(`🧠 Claude Outreach Generation via backend proxy`);
@@ -362,7 +432,7 @@ export async function callClaudeOutreach(prompt: string, userId?: string) {
         throw new Error(`Claude Outreach API error: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: ClaudeResponse = await response.json();
       console.log(`✅ Claude outreach generated successfully`);
       
       return data;
@@ -394,7 +464,7 @@ export async function callClaudeOutreach(prompt: string, userId?: string) {
  * Brave Local Search API integration via Netlify function
  * Perfect for finding local competitors and businesses
  */
-export async function callBraveLocalSearch(query: string, count: number = 20, userId?: string) {
+export async function callBraveLocalSearch(query: string, count: number = 20, userId?: string): Promise<BraveLocalResponse> {
   return withGlobalRateLimit(globalBraveLimiter, 'brave-local', userId, async () => {
     try {
       console.log(`📍 Brave Local Search: "${query}"`);
@@ -412,7 +482,7 @@ export async function callBraveLocalSearch(query: string, count: number = 20, us
         throw new Error(`Brave Local Search API error: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: BraveLocalResponse = await response.json();
       console.log(`✅ Brave Local Search returned ${data.results?.length || 0} local results`);
       
       return data;
@@ -489,7 +559,7 @@ function extractTitleFromUrl(url: string): string {
 /**
  * Call Perplexity Research API for deep market insights
  */
-export async function callPerplexityMarketResearch(query: string, model: 'sonar' | 'sonar-pro' = 'sonar') {
+export async function callPerplexityMarketResearch(query: string, model: 'sonar' | 'sonar-pro' = 'sonar'): Promise<PerplexitySearchResponse> {
   return cachedApiCall(
     CacheKeys.PERPLEXITY,
     `${query}_${model}`,
@@ -510,7 +580,7 @@ export async function callPerplexityMarketResearch(query: string, model: 'sonar'
           throw new Error(`Perplexity API error: ${response.status}`);
         }
 
-        const data = await response.json();
+        const data: PerplexitySearchResponse = await response.json();
         console.log(`✅ Perplexity returned comprehensive research`);
         
         return data;
@@ -532,7 +602,7 @@ export async function callPerplexityMarketResearch(query: string, model: 'sonar'
 /**
  * Call Anthropic Claude API via backend proxy
  */
-export async function callClaude(prompt: string, model: string = 'claude-3-5-sonnet-20241022', userId?: string) {
+export async function callClaude(prompt: string, model: string = 'claude-3-5-sonnet-20241022', userId?: string): Promise<ClaudeResponse> {
   return withGlobalRateLimit(globalOpenRouterLimiter, 'anthropic', userId, async () => {
     try {
       console.log(`🧠 Claude via backend proxy: ${model}`);
@@ -550,7 +620,7 @@ export async function callClaude(prompt: string, model: string = 'claude-3-5-son
         throw new Error(`Backend Anthropic API error: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: ClaudeResponse = await response.json();
       console.log(`✅ Claude analysis completed successfully`);
       
       return data;

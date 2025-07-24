@@ -22,7 +22,7 @@ export interface CRMContact {
   title?: string;
   company: string;
   source: 'canvas_intelligence';
-  customFields?: Record<string, any>;
+  customFields?: Record<string, unknown>;
 }
 
 export interface CRMOpportunity {
@@ -36,7 +36,7 @@ export interface CRMOpportunity {
   expectedCloseDate?: string;
   description?: string;
   source: 'canvas_intelligence';
-  customFields?: Record<string, any>;
+  customFields?: Record<string, unknown>;
 }
 
 export interface CRMActivity {
@@ -827,7 +827,7 @@ export class CRMIntegrationManager {
       opportunityId: opportunityId,
       type: 'note',
       subject: 'Canvas Intelligence Research Summary',
-      description: `Comprehensive research completed with ${scanResult.score}% practice fit score.\n\nKey Findings:\n${Array.isArray(scanResult.insights) ? scanResult.insights.map((insight: any) => `• ${insight}`).join('\n') : ''}\n\nResearch Quality: ${scanResult.researchQuality}\nSources: ${scanResult.researchSources}\n\nSales Brief: ${scanResult.salesBrief}`,
+      description: `Comprehensive research completed with ${scanResult.score}% practice fit score.\n\nKey Findings:\n${Array.isArray(scanResult.insights) ? scanResult.insights.map((insight: unknown) => `• ${insight}`).join('\n') : ''}\n\nResearch Quality: ${scanResult.researchQuality}\nSources: ${scanResult.researchSources}\n\nSales Brief: ${scanResult.salesBrief}`,
       source: 'canvas_intelligence'
     });
 
@@ -915,7 +915,7 @@ export class CRMIntegrationManager {
     return stageMap[stage] || 1;
   }
 
-  private async getOrCreatePipedriveOrg(_orgName: string): Promise<string> {
+  private async getOrCreatePipedriveOrg(): Promise<string> {
     // In real implementation, search for existing org or create new one
     return 'pd_org_' + Date.now();
   }
@@ -937,7 +937,7 @@ export class CRMIntegrationManager {
     this.metrics.lastSyncTime = new Date().toISOString();
   }
 
-  private async mockAPICall(endpoint: string, data: any): Promise<any> {
+  private async mockAPICall(endpoint: string, data: unknown): Promise<unknown> {
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
     

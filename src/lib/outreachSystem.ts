@@ -390,7 +390,7 @@ export async function sendSMS(
 export async function scheduleCampaign(campaign: OutreachCampaign): Promise<boolean> {
   try {
     // Store campaign in Supabase
-    // @ts-ignore
+    // @ts-expect-error - dynamic import for code splitting
     const { supabase } = await import('../auth/supabase');
     
     const { error } = await supabase
@@ -445,16 +445,16 @@ function buildMedicalOutreachContext(scrapedData: ScrapedData, productName: stri
   
   if (productCategory === 'dental' || productCategory === 'both') {
     const dentalProcs = Object.entries(scrapedData.dentalProcedures || {})
-      .filter(([, has]) => has)
-      .map(([proc]) => proc);
+      .filter(([, has]: [string, boolean]) => has)
+      .map(([proc]: [string, boolean]) => proc);
     
-    const implantSystems = Object.entries((scrapedData as any).implantSystems || {})
-      .filter(([, has]) => has)
-      .map(([system]) => system);
+    const implantSystems = Object.entries(scrapedData.implantSystems || {})
+      .filter(([, has]: [string, boolean | string[]]) => has)
+      .map(([system]: [string, boolean | string[]]) => system);
     
     const dentalTech = Object.entries(scrapedData.dentalTechnology || {})
-      .filter(([, has]) => has)
-      .map(([tech]) => tech);
+      .filter(([, has]: [string, boolean]) => has)
+      .map(([tech]: [string, boolean]) => tech);
     
     if (dentalProcs.length > 0 || implantSystems.length > 0 || dentalTech.length > 0) {
       context += `DENTAL PRACTICE DETAILS:
@@ -467,16 +467,16 @@ function buildMedicalOutreachContext(scrapedData: ScrapedData, productName: stri
   
   if (productCategory === 'aesthetic' || productCategory === 'both') {
     const aestheticProcs = Object.entries(scrapedData.aestheticProcedures || {})
-      .filter(([, has]) => has)
-      .map(([proc]) => proc);
+      .filter(([, has]: [string, boolean]) => has)
+      .map(([proc]: [string, boolean]) => proc);
     
     const aestheticDevices = Object.entries(scrapedData.aestheticDevices || {})
-      .filter(([, has]) => has)
-      .map(([device]) => device);
+      .filter(([, has]: [string, boolean | string[]]) => has)
+      .map(([device]: [string, boolean | string[]]) => device);
     
-    const injectables = Object.entries((scrapedData as any).injectableBrands || {})
-      .filter(([, has]) => has)
-      .map(([brand]) => brand);
+    const injectables = Object.entries(scrapedData.injectableBrands || {})
+      .filter(([, has]: [string, boolean | string[]]) => has)
+      .map(([brand]: [string, boolean | string[]]) => brand);
     
     if (aestheticProcs.length > 0 || aestheticDevices.length > 0 || injectables.length > 0) {
       context += `AESTHETIC PRACTICE DETAILS:
@@ -569,12 +569,12 @@ function generateBelievableFallback(
   if (scrapedData) {
     if (productCategory === 'dental') {
       const procedures = Object.entries(scrapedData.dentalProcedures || {})
-        .filter(([, has]) => has)
-        .map(([proc]) => proc);
+        .filter(([, has]: [string, boolean]) => has)
+        .map(([proc]: [string, boolean]) => proc);
       
       const technology = Object.entries(scrapedData.dentalTechnology || {})
-        .filter(([, has]) => has)
-        .map(([tech]) => tech);
+        .filter(([, has]: [string, boolean]) => has)
+        .map(([tech]: [string, boolean]) => tech);
       
       if (procedures.length > 0) {
         credibilityHook = `I noticed your practice offers ${procedures[0]}`;
@@ -583,12 +583,12 @@ function generateBelievableFallback(
       }
     } else if (productCategory === 'aesthetic') {
       const procedures = Object.entries(scrapedData.aestheticProcedures || {})
-        .filter(([, has]) => has)
-        .map(([proc]) => proc);
+        .filter(([, has]: [string, boolean]) => has)
+        .map(([proc]: [string, boolean]) => proc);
       
       const devices = Object.entries(scrapedData.aestheticDevices || {})
-        .filter(([, has]) => has)
-        .map(([device]) => device);
+        .filter(([, has]: [string, boolean | string[]]) => has)
+        .map(([device]: [string, boolean | string[]]) => device);
       
       if (procedures.length > 0) {
         credibilityHook = `I noticed you offer ${procedures[0]} treatments`;

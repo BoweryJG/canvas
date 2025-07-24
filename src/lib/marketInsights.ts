@@ -45,7 +45,7 @@ export interface TerritoryMetrics {
 }
 
 class MarketInsightsService {
-  private cache = new Map<string, {data: any, timestamp: number}>();
+  private cache = new Map<string, {data: unknown, timestamp: number}>();
   private cacheTimeout = 1000 * 60 * 60; // 1 hour cache
 
   async getMarketOverview(specialty?: string, territory?: string): Promise<MarketInsight[]> {
@@ -236,7 +236,7 @@ class MarketInsightsService {
   }
 
   // Helper methods
-  private async extractMarketInsight(searchResult: any): Promise<MarketInsight | null> {
+  private async extractMarketInsight(searchResult: unknown): Promise<MarketInsight | null> {
     try {
       // Validate required fields
       if (!searchResult?.title || !searchResult?.description) {
@@ -256,7 +256,7 @@ class MarketInsightsService {
         source: searchResult.url || undefined, // Don't pass null/empty strings
         lastUpdated: new Date().toISOString()
       };
-    } catch (error) {
+    } catch (_error) {
       return null;
     }
   }
@@ -356,7 +356,7 @@ class MarketInsightsService {
     };
   }
 
-  private checkCache(key: string): any {
+  private checkCache(key: string): unknown {
     const cached = this.cache.get(key);
     if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
       return cached.data;
@@ -364,7 +364,7 @@ class MarketInsightsService {
     return null;
   }
 
-  private setCache(key: string, data: any): void {
+  private setCache(key: string, data: unknown): void {
     this.cache.set(key, {
       data,
       timestamp: Date.now()

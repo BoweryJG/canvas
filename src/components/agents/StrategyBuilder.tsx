@@ -58,12 +58,12 @@ const StyledTextField = styled(TextField)({
 });
 
 interface StrategyBuilderProps {
-  agent: any;
+  agent: unknown;
   context: {
     tab?: string;
     doctorId?: string;
     searchQuery?: string;
-    researchData?: any;
+    researchData?: Record<string, unknown>;
     npiDoctor?: NPIDoctor | null;
   };
   isDemo: boolean;
@@ -116,7 +116,7 @@ const StrategyBuilder: React.FC<StrategyBuilderProps> = ({
     setIsGenerating(false);
   };
 
-  const generateStrategyForDoctor = (doctor: MockDoctor, agent: any) => {
+  const generateStrategyForDoctor = (doctor: MockDoctor, agent: unknown) => {
     const personalizations = MockDataProvider.generatePersonalizedStrategy(doctor);
     
     let approach = '';
@@ -124,7 +124,7 @@ const StrategyBuilder: React.FC<StrategyBuilderProps> = ({
     let cta = '';
 
     switch (agent.id) {
-      case 'strategist':
+      case 'strategist': {
         const practiceNameStrat = context.npiDoctor?.organizationName || doctor.practiceInfo?.name || 'Practice';
         approach = `Position as strategic growth partner for ${practiceNameStrat}`;
         keyPoints = [
@@ -137,8 +137,9 @@ const StrategyBuilder: React.FC<StrategyBuilderProps> = ({
         ].filter(Boolean) as string[];
         cta = 'Schedule a strategic growth consultation';
         break;
+      }
 
-      case 'specialist':
+      case 'specialist': {
         approach = `Technical excellence partnership for advanced procedures`;
         const totalProcedures = !isDemo && dentalProcedures && aestheticProcedures ?
           dentalProcedures.length + aestheticProcedures.length : 0;
@@ -150,6 +151,7 @@ const StrategyBuilder: React.FC<StrategyBuilderProps> = ({
         ].filter(Boolean) as string[];
         cta = 'Book a clinical innovation session';
         break;
+      }
 
       case 'relationship':
         approach = `Build trust through shared values and patient success`;
@@ -171,7 +173,7 @@ const StrategyBuilder: React.FC<StrategyBuilderProps> = ({
         cta = 'Request your free practice analysis';
         break;
         
-      case 'hunter':
+      case 'hunter': {
         approach = `Lead generation strategy for high-value prospects`;
         const matchingProcedures = !isDemo && dentalProcedures ?
           dentalProcedures.filter(p => doctor.procedures?.dental?.includes(p.name)).length : 0;
@@ -183,8 +185,9 @@ const StrategyBuilder: React.FC<StrategyBuilderProps> = ({
         ].filter(Boolean) as string[];
         cta = 'Start prospecting campaign';
         break;
+      }
         
-      case 'closer':
+      case 'closer': {
         approach = `Close the deal with ROI-focused positioning`;
         const avgPrice = !isDemo && aestheticProcedures && aestheticProcedures.length > 0 ?
           Math.round(aestheticProcedures.reduce((sum, p) => sum + (p.average_price || 0), 0) / aestheticProcedures.length) : 0;
@@ -196,8 +199,9 @@ const StrategyBuilder: React.FC<StrategyBuilderProps> = ({
         ].filter(Boolean) as string[];
         cta = 'Send contract proposal';
         break;
+      }
         
-      case 'educator':
+      case 'educator': {
         approach = `Educational approach to build trust and expertise`;
         const uniqueCategories = !isDemo && dentalProcedures && aestheticProcedures ?
           [...new Set([...dentalProcedures, ...aestheticProcedures].map(p => p.category))].length : 0;
@@ -209,6 +213,7 @@ const StrategyBuilder: React.FC<StrategyBuilderProps> = ({
         ].filter(Boolean) as string[];
         cta = 'Schedule educational webinar';
         break;
+      }
     }
 
     return {

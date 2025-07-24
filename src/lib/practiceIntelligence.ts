@@ -66,9 +66,9 @@ export function getPracticeIntelligence(): PracticeIntelligence | null {
  * Create practice intelligence from scraped data
  */
 export function createPracticeIntelligence(
-  scrapedData: any,
+  scrapedData: unknown,
   doctorName: string,
-  _searchResults?: any
+  _searchResults?: unknown
 ): PracticeIntelligence {
   // For Pure Dental example
   const intel: PracticeIntelligence = {
@@ -156,7 +156,7 @@ export function getCustomizedContent(productName: string): {
 
 // Export for global access
 if (typeof window !== 'undefined') {
-  (window as any).practiceIntelligence = {
+  (window as unknown).practiceIntelligence = {
     setPracticeIntelligence,
     getPracticeIntelligence,
     createPracticeIntelligence,

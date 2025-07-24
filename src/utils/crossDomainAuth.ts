@@ -109,7 +109,19 @@ export function isValidRepSpheresUrl(url: string): boolean {
 /**
  * Handle authentication redirect with Supabase client
  */
-export async function handleCrossDomainRedirect(supabaseClient: any): Promise<boolean> {
+interface SupabaseSession {
+  [key: string]: unknown;
+}
+
+interface SupabaseAuthClient {
+  auth: {
+    getSession: () => Promise<{ data: { session: SupabaseSession | null } }>;
+    setSession?: (session: SupabaseSession) => Promise<void>;
+    signOut?: () => Promise<void>;
+  };
+}
+
+export async function handleCrossDomainRedirect(supabaseClient: SupabaseAuthClient): Promise<boolean> {
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
     
@@ -135,7 +147,12 @@ export async function handleCrossDomainRedirect(supabaseClient: any): Promise<bo
 /**
  * Setup cross-domain auth message listener with Supabase client
  */
-export function setupCrossDomainAuthListener(supabaseClient: any) {
+export function setupCrossDomainAuthListener(supabaseClient: SupabaseAuthClient & {
+  auth: {
+    setSession: (session: SupabaseSession) => Promise<void>;
+    signOut: () => Promise<void>;
+  };
+}) {
   window.addEventListener('message', async (event) => {
     // Validate origin
     if (!isValidRepSpheresUrl(event.origin)) {
@@ -172,7 +189,7 @@ export function setupCrossDomainAuthListener(supabaseClient: any) {
 /**
  * Broadcast auth state to other domains
  */
-export function broadcastAuthState(session: any) {
+export function broadcastAuthState(session: SupabaseSession | null) {
   if (!window.postMessage) return;
   
   const domains = window.location.hostname === 'localhost' 

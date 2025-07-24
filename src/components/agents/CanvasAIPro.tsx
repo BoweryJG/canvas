@@ -30,7 +30,6 @@ import {
   ViewInAr,
   BubbleChart
 } from '@mui/icons-material';
-import { useAuth } from '../../auth/useAuth';
 import { searchDoctorsByName } from '../../lib/npiLookup';
 
 // Speech Recognition type declarations
@@ -203,7 +202,7 @@ const InsightCard = ({ title, value, trend, icon, color }: InsightCardProps) => 
 
 export const CanvasAIPro: React.FC = () => {
   const theme = useTheme();
-  const { } = useAuth();
+  // const { } = useAuth(); // Removed empty destructuring
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -512,7 +511,7 @@ export const CanvasAIPro: React.FC = () => {
                     <Chip
                       size="small"
                       icon={<PersonSearch />}
-                      label={`${Array.isArray(activeContext['doctors']) ? (activeContext['doctors'] as any[]).length : 0} Doctors`}
+                      label={`${Array.isArray(activeContext['doctors']) ? (activeContext['doctors'] as unknown[]).length : 0} Doctors`}
                       sx={{ background: 'rgba(76,175,80,0.2)', color: '#4caf50' }}
                     />
                   )}

@@ -169,12 +169,12 @@ export class DataManager {
 
 // Auto-save form data
 export class FormDataManager {
-  private static saveTimer: NodeJS.Timeout | null = null;
+  private static saveTimer: ReturnType<typeof setTimeout> | null = null;
   
   /**
    * Auto-save form data with debouncing
    */
-  static autoSave(formId: string, data: any): void {
+  static autoSave(formId: string, data: unknown): void {
     if (this.saveTimer) {
       clearTimeout(this.saveTimer);
     }
@@ -190,7 +190,7 @@ export class FormDataManager {
   /**
    * Restore form data
    */
-  static restore(formId: string): any {
+  static restore(formId: string): unknown {
     return DataManager.load(`form_${formId}`);
   }
   
@@ -210,7 +210,7 @@ export interface ScanHistoryItem {
   product: string;
   score: number;
   insights: string[];
-  researchData?: any;
+  researchData?: unknown;
 }
 
 export class ScanHistoryManager {

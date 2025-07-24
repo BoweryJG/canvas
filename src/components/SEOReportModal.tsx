@@ -34,7 +34,7 @@ export const SEOReportModal: React.FC<SEOReportModalProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
 
-  const runAnalysis = async () => {
+  const runAnalysis = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     
@@ -52,14 +52,14 @@ export const SEOReportModal: React.FC<SEOReportModalProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [websiteUrl, doctorName, location, specialty, userId]);
 
   // Auto-run analysis when modal opens
   React.useEffect(() => {
     if (open && !analysis && !loading) {
       runAnalysis();
     }
-  }, [open]);
+  }, [open, analysis, loading, runAnalysis]);
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return '#10b981';

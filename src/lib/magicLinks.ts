@@ -110,7 +110,7 @@ export const generateMagicLink = (
 /**
  * Gmail compose link
  */
-const generateGmailLink = (params: any): string => {
+const generateGmailLink = (params: unknown): string => {
   let url = 'https://mail.google.com/mail/?view=cm';
   
   if (params.to) url += `&to=${encodeForUrl(params.to)}`;
@@ -125,7 +125,7 @@ const generateGmailLink = (params: any): string => {
 /**
  * Outlook web compose link
  */
-const generateOutlookLink = (params: any): string => {
+const generateOutlookLink = (params: unknown): string => {
   const url = 'https://outlook.live.com/mail/0/deeplink/compose?';
   
   const queryParams = [];
@@ -141,7 +141,7 @@ const generateOutlookLink = (params: any): string => {
 /**
  * Yahoo mail compose link
  */
-const generateYahooLink = (params: any): string => {
+const generateYahooLink = (params: unknown): string => {
   const url = 'https://compose.mail.yahoo.com/?';
   
   const queryParams = [];
@@ -162,7 +162,7 @@ const generateAppleMailLink = generateMailtoLink;
 /**
  * Universal mailto link
  */
-function generateMailtoLink(params: any): string {
+function generateMailtoLink(params: unknown): string {
   const mailto = `mailto:${params.to || ''}?`;
   
   const queryParams = [];

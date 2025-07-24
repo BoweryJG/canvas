@@ -20,7 +20,7 @@ export function safeParseURL(url: string, base?: string): URL | null {
     return new URL(url);
   } catch {
     // If that fails and it looks like a domain without protocol, try adding https
-    if (!url.match(/^https?:\/\//) && url.match(/^[\w\-]+(\.[\w\-]+)+/)) {
+    if (!url.match(/^https?:\/\//) && url.match(/^[\w-]+(\.[\w-]+)+/)) {
       try {
         return new URL(`https://${url}`);
       } catch {
@@ -70,7 +70,7 @@ export function ensureProtocol(url: string, defaultProtocol = 'https'): string {
   }
   
   // If it looks like a domain, add the protocol
-  if (url.match(/^[\w\-]+(\.[\w\-]+)+/)) {
+  if (url.match(/^[\w-]+(\.[\w-]+)+/)) {
     return `${defaultProtocol}://${url}`;
   }
   

@@ -15,6 +15,10 @@ export interface ResearchProgress {
   error: string | null;
 }
 
+interface Doctor {
+  [key: string]: unknown;
+}
+
 export function useRenderBackend() {
   const { user } = useAuth();
   const [backendHealthy, setBackendHealthy] = useState(true);
@@ -35,7 +39,7 @@ export function useRenderBackend() {
    * Run research through Render backend
    */
   const runResearch = useCallback(async (
-    doctor: any,
+    doctor: Doctor,
     product: string
   ) => {
     // Reset progress
@@ -112,7 +116,7 @@ export function useBatchResearch() {
   });
 
   const runBatchResearch = useCallback(async (
-    doctors: any[]
+    doctors: Doctor[]
   ) => {
     setBatchProgress({
       total: doctors.length,

@@ -85,7 +85,7 @@ export async function conductEnhancedResearch(
                   };
                 }
               } catch (err) {
-                console.log('Scrape failed, continuing...');
+                console.log('Scrape failed, continuing...', err);
               }
             }
           }
@@ -158,7 +158,7 @@ function buildSmartQueries(params: EnhancedSearchParams): string[] {
 /**
  * Score how well a search result matches our known data
  */
-function scoreResult(result: any, params: EnhancedSearchParams): number {
+function scoreResult(result: unknown, params: EnhancedSearchParams): number {
   let score = 0;
   const title = (result.title || '').toLowerCase();
   const description = (result.description || '').toLowerCase();
@@ -211,7 +211,7 @@ function scoreResult(result: any, params: EnhancedSearchParams): number {
 /**
  * Determine if a result is likely the doctor's practice website
  */
-function isPracticeWebsite(result: any, params: EnhancedSearchParams): boolean {
+function isPracticeWebsite(result: unknown, params: EnhancedSearchParams): boolean {
   const url = (result.url || '').toLowerCase();
   const title = (result.title || '').toLowerCase();
   

@@ -26,7 +26,7 @@ export function getClaudeConfig(): LocalClaudeConfig {
 /**
  * Call Claude 4 locally
  */
-export async function callLocalClaude4(prompt: string): Promise<any> {
+export async function callLocalClaude4(prompt: string): Promise<unknown> {
   const config = getClaudeConfig();
   
   if (!config.useLocal) {
@@ -74,7 +74,7 @@ export async function callLocalClaude4(prompt: string): Promise<any> {
 export async function callClaudeWithLocalFallback(
   prompt: string, 
   preferredModel: string = 'anthropic/claude-3-5-sonnet-20241022'
-): Promise<any> {
+): Promise<unknown> {
   const config = getClaudeConfig();
   
   // Try local Claude 4 first if configured
@@ -92,7 +92,7 @@ export async function callClaudeWithLocalFallback(
       } else {
         return localResponse;
       }
-    } catch (error) {
+    } catch (_error) {
       console.log('Local Claude not available, falling back to OpenRouter');
     }
   }

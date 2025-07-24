@@ -117,10 +117,10 @@ Respond with JSON:
 export async function analyzeInitialResults(
   doctor: Doctor,
   product: string,
-  braveResults: any
+  braveResults: unknown
 ): Promise<ResearchStrategy> {
   const topResults = braveResults?.web?.results?.slice(0, 5) || [];
-  const resultSummary = topResults.map((r: any) => ({
+  const resultSummary = topResults.map((r: unknown) => ({
     title: r.title,
     url: r.url,
     snippet: r.snippet
@@ -154,7 +154,7 @@ Consider: practice size, technology stack, patient demographics, competition.`,
     thought: `${thought2.thought}
 
 Which data sources are essential vs optional for this case?
-- Website scraping needed? ${topResults.some((r: any) => !r.url.includes('directory')) ? 'Yes' : 'No'}
+- Website scraping needed? ${topResults.some((r: unknown) => !r.url.includes('directory')) ? 'Yes' : 'No'}
 - Deep competitor research needed?
 - Review analysis priority?`,
     thoughtNumber: 3,
@@ -174,7 +174,7 @@ function parseThoughtsIntoStrategy(
   thought3: SequentialThought,
   doctor: Doctor,
   product: string,
-  searchResults: any[]
+  searchResults: unknown[]
 ): ResearchStrategy {
   // Extract practice website if found - prioritize actual practice sites
   const practiceWebsite = searchResults.find(r => {
@@ -394,10 +394,10 @@ Sales Approach Recommendation:
 ${salesApproach.thought}
 
 Research Summary:
-- Sources found: ${(researchData.sources as any[])?.length || 0}
+- Sources found: ${(researchData.sources as unknown[])?.length || 0}
 - Doctor: ${doctor.displayName}, ${doctor.specialty}
 - Product: ${product}
-- Key findings: ${JSON.stringify((researchData.searchResults as any[])?.slice(0, 2) || [], null, 2).substring(0, 500)}...
+- Key findings: ${JSON.stringify((researchData.searchResults as unknown[])?.slice(0, 2) || [], null, 2).substring(0, 500)}...
 ${productIntelligence ? `
 Product Market Intelligence:
 - Market awareness score: ${productIntelligence.marketData?.awareness}/100

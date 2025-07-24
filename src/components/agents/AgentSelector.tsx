@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../auth/useAuth';
+
+interface AgentPersonality {
+  approach?: string;
+  tone?: string;
+}
 
 interface Agent {
   id: string;
   name: string;
   avatar_url?: string;
   specialty: string[];
-  personality: any;
+  personality: AgentPersonality;
 }
 
 interface Procedure {
@@ -35,11 +40,7 @@ const AgentSelector: React.FC<AgentSelectorProps> = ({
   const [showDropdown, setShowDropdown] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadAgents();
-  }, [session]);
-
-  const loadAgents = async () => {
+  const loadAgents = useCallback(async () => {
     if (!session?.access_token) return;
 
     try {
@@ -60,7 +61,11 @@ const AgentSelector: React.FC<AgentSelectorProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [session, backendUrl, selectedAgent, onSelectAgent]);
+
+  useEffect(() => {
+    loadAgents();
+  }, [loadAgents]);
 
   const getAgentIcon = (name: string) => {
     switch (name.toLowerCase()) {

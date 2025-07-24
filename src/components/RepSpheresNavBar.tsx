@@ -90,7 +90,7 @@ const RepSpheresNavBar = ({
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [statusMessages.length]);
 
   useEffect(() => {
     // Prevent body scroll when mobile menu is open

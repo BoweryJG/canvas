@@ -109,7 +109,7 @@ export interface ScrapedWebsiteData {
 /**
  * Call the backend's firecrawl-scrape endpoint (using Firecrawl API)
  */
-async function callScraper(url: string): Promise<any> {
+async function callScraper(url: string): Promise<{ success: boolean; data?: { content?: string; markdown?: string; html?: string; title?: string; metaDescription?: string; phones?: string[]; emails?: string[]; addresses?: string[] } }> {
   try {
     // Use the apiEndpoints callFirecrawlScrape function
     const { callFirecrawlScrape } = await import('./apiEndpoints');
@@ -203,10 +203,10 @@ export async function scrapePracticeWebsite(url: string, productName?: string): 
     };
     
     // Log what we found
-    const foundProcedures = Object.entries(dentalProcedures).filter(([_, v]) => v).length +
-                           Object.entries(aestheticProcedures).filter(([_, v]) => v).length;
-    const foundTech = Object.entries(dentalTechnology).filter(([_, v]) => v).length +
-                      Object.entries(aestheticDevices).filter(([_, v]) => v).length;
+    const foundProcedures = Object.entries(dentalProcedures).filter(([, v]: [string, boolean]) => v).length +
+                           Object.entries(aestheticProcedures).filter(([, v]: [string, boolean]) => v).length;
+    const foundTech = Object.entries(dentalTechnology).filter(([, v]: [string, boolean]) => v).length +
+                      Object.entries(aestheticDevices).filter(([, v]: [string, boolean | string[]]) => v).length;
     
     console.log(`✅ Successfully scraped ${url} - Found ${foundProcedures} procedures, ${foundTech} technologies`);
     return scrapedData;
@@ -409,7 +409,7 @@ function extractDentalTechnology(content: string): ScrapedWebsiteData['dentalTec
     trios: /trios|3shape/i.test(content),
     coneBeam: /cone\s*beam/i.test(content),
     digitalImpressions: /digital\s*impression|intraoral\s*scan/i.test(content),
-    cad_cam: /cad[\s\/]?cam|computer[\s-]aided/i.test(content),
+    cad_cam: /cad[\s/]?cam|computer[\s-]aided/i.test(content),
     laser: /dental\s*laser|laser\s*dentistry|soft\s*tissue\s*laser/i.test(content)
   };
 }
@@ -640,7 +640,7 @@ function estimateTeamSize(content: string): number {
  */
 export async function findPracticeWebsite(
   _doctorName: string, 
-  searchResults?: any[]
+  searchResults?: Array<{ url?: string; link?: string }>
 ): Promise<string | null> {
   
   // Check search results for actual practice websites

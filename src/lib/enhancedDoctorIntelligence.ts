@@ -79,7 +79,7 @@ async function gatherAllIntelligence(doctor: Doctor, product: string): Promise<I
   try {
     perplexityResults1 = await callPerplexitySearch(`${doctorFullName} ${specialty} ${location} practice technology equipment`);
   } catch (error) {
-    console.log('Perplexity unavailable, continuing with Brave results');
+    console.log('Perplexity unavailable, continuing with Brave results:', error);
   }
   
   // Extract practice website
@@ -148,7 +148,7 @@ async function gatherAllIntelligence(doctor: Doctor, product: string): Promise<I
   const technologyIntel = await callBraveSearch(`"${product}" dental practices ${location} case studies`, 5);
   
   // Add competitor and technology sources
-  (competitorIntel?.web?.results || []).forEach((result: any) => {
+  (competitorIntel?.web?.results || []).forEach((result: unknown) => {
     allSources.push({
       url: result.url || '',
       title: result.title || '',
@@ -176,7 +176,7 @@ async function synthesizeWithClaude4(
   data: IntelligenceGatheringResult,
   doctor: Doctor,
   product: string
-): Promise<any> {
+): Promise<unknown> {
   const prompt = `You are an elite medical sales intelligence analyst. Analyze this comprehensive research about ${doctor.displayName} and create SPECIFIC, ACTIONABLE intelligence.
 
 DOCTOR PROFILE:
@@ -259,13 +259,14 @@ Format as JSON with these exact fields:
     try {
       const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
       return JSON.parse(response);
-    } catch (fallbackError) {
+    } catch (error) {
+      console.error('Claude fallback error:', error);
       return createDefaultInsights(doctor, product);
     }
   }
 }
 
-function findPracticeWebsite(results: any[], doctor: Doctor): string {
+function findPracticeWebsite(results: unknown[], doctor: Doctor): string {
   const directoryDomains = ['ada.org', 'healthgrades.com', 'zocdoc.com', 'vitals.com', 'yelp.com'];
   
   for (const result of results) {
@@ -286,7 +287,7 @@ function findPracticeWebsite(results: any[], doctor: Doctor): string {
   return '';
 }
 
-function determineSourceType(result: any): ResearchSource['type'] {
+function determineSourceType(result: unknown): ResearchSource['type'] {
   const url = result.url?.toLowerCase() || '';
   const title = result.title?.toLowerCase() || '';
   
@@ -307,7 +308,7 @@ function determineSourceType(result: any): ResearchSource['type'] {
 
 function createEnhancedResearchData(
   intelligenceData: IntelligenceGatheringResult,
-  insights: any,
+  insights: unknown,
   doctor: Doctor
 ): ResearchData {
   // Calculate confidence based on data completeness
@@ -354,7 +355,7 @@ function createEnhancedResearchData(
   };
 }
 
-function createDefaultInsights(doctor: Doctor, product: string): any {
+function createDefaultInsights(doctor: Doctor, product: string): unknown {
   return {
     practiceProfile: {
       size: 'Unknown',

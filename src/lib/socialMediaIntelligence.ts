@@ -79,7 +79,7 @@ export interface SocialMediaIntelligence {
 /**
  * Call Apify Actor through our backend
  */
-async function callApifyActor(actorId: string, input: unknown, waitForFinish = true): Promise<any[]> {
+async function callApifyActor(actorId: string, input: unknown, waitForFinish = true): Promise<unknown[]> {
   try {
     const response = await fetch(getApiEndpoint('apifyActor'), {
       method: 'POST',
@@ -95,7 +95,7 @@ async function callApifyActor(actorId: string, input: unknown, waitForFinish = t
 
     const data = await response.json();
     return data.results || [];
-  } catch (error) {
+  } catch (_) {
     console.error('Apify actor error:', error);
     return [];
   }
@@ -123,7 +123,13 @@ export async function scrapeInstagramProfile(doctor: Doctor): Promise<SocialMedi
       });
       
       if (results && results.length > 0) {
-        const profile = results[0] as any;
+        interface InstagramProfile {
+          username: string;
+          followersCount?: number;
+          postsCount?: number;
+          verified?: boolean;
+        }
+        const profile = results[0] as InstagramProfile;
         
         // Get recent posts
         const postsData = await callApifyActor(APIFY_ACTORS.INSTAGRAM_POSTS, {
@@ -168,7 +174,7 @@ export async function scrapeInstagramProfile(doctor: Doctor): Promise<SocialMedi
         };
       }
     }
-  } catch (error) {
+  } catch (_) {
     console.error('Instagram scraping error:', error);
   }
   
@@ -225,7 +231,7 @@ export async function scrapeGoogleReviews(doctor: Doctor): Promise<GoogleReviews
         insights: analyzeReviews(reviews)
       };
     }
-  } catch (error) {
+  } catch (_) {
     console.error('Google Reviews scraping error:', error);
   }
   
@@ -415,7 +421,7 @@ function identifyOpportunities(profiles: SocialMediaProfile[], _doctor: Doctor):
   const activePlatforms = new Set(profiles.map(p => p.platform));
   const allPlatforms = ['instagram', 'facebook', 'linkedin', 'twitter', 'tiktok'];
   
-  const untappedPlatforms = allPlatforms.filter(p => !activePlatforms.has(p as any));
+  const untappedPlatforms = allPlatforms.filter(p => !activePlatforms.has(p as 'instagram' | 'facebook' | 'linkedin' | 'twitter' | 'tiktok'));
   
   const contentGaps = [];
   if (!profiles.some(p => p.recentPosts.some(post => post.insights.topics.includes('patient testimonials')))) {
@@ -448,7 +454,15 @@ interface ReviewData {
   responseFromOwner?: boolean;
 }
 
-function analyzeReviews(reviews: ReviewData[]): any {
+interface ReviewAnalysis {
+  averageRating: number;
+  totalReviews: number;
+  sentimentBreakdown: Record<string, number>;
+  commonThemes: string[];
+  responseRate: number;
+}
+
+function analyzeReviews(reviews: ReviewData[]): ReviewAnalysis {
   const sentiments = reviews.map(r => {
     if (r.stars >= 4) return 'positive';
     if (r.stars >= 3) return 'neutral';

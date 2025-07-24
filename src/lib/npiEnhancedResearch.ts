@@ -505,7 +505,7 @@ Return ONLY a JSON object with:
   try {
     const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
     return parseAIResponse(response) as CredentialsData;
-  } catch (error) {
+  } catch (_error) {
     return {
       ...npiCredentials,
       medicalSchool: null,
@@ -540,7 +540,7 @@ Return ONLY a JSON object with:
   try {
     const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
     return parseAIResponse(response) as BusinessIntelData;
-  } catch (error) {
+  } catch (_error) {
     return {
       practiceType: doctor.organizationName ? 'Group Practice' : 'Private Practice',
       patientVolume: 'Medium',

@@ -1,7 +1,9 @@
 import { generateNonce, getCSPHeader, securityHeaders } from '../utils/security';
 
+import type { Request, Response, NextFunction } from 'express';
+
 // Express middleware for security headers
-export const applySecurityHeaders = (_req: any, res: any, next: any) => {
+export const applySecurityHeaders = (_req: Request, res: Response, next: NextFunction) => {
   // Generate nonce for this request
   const nonce = generateNonce();
   res.locals.nonce = nonce;

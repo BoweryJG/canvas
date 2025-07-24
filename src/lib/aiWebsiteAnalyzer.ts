@@ -6,6 +6,14 @@
 
 import { getApiEndpoint } from '../config/api';
 
+interface ClaudeResponse {
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+}
+
 export interface AnalyzedWebsite {
   url: string;
   confidence: number;
@@ -125,7 +133,7 @@ IMPORTANT:
       throw new Error(`Backend Anthropic API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as ClaudeResponse;
     
     if (!data || !data.choices || !data.choices[0] || !data.choices[0].message) {
       throw new Error('Invalid response structure from Claude');
@@ -154,7 +162,7 @@ IMPORTANT:
     return analysis;
     
   } catch (error) {
-    console.error('❌ Claude 4 Opus analysis error:', error);
+    console.error('❌ Claude 4 Opus analysis error:', error instanceof Error ? error.message : String(error));
     
     // Fallback to basic pattern matching if AI fails
     return fallbackWebsiteAnalysis(searchResults, doctorName, organizationName, lastName);

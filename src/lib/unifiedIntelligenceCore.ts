@@ -155,7 +155,7 @@ export async function gatherUnifiedIntelligence(
         console.log(`📍 Location: ${npiLocation || 'No location in NPI'}`);
         console.log(`🏢 Address: ${npiAddress}`);
       }
-    } catch (error) {
+    } catch (_) {
       console.log('NPI lookup failed, continuing without it');
     }
     
@@ -191,7 +191,7 @@ export async function gatherUnifiedIntelligence(
             }
           }
         }
-      } catch (error) {
+      } catch (_) {
         console.log(`Search failed for: ${query}`);
       }
     }
@@ -213,7 +213,7 @@ export async function gatherUnifiedIntelligence(
         npiCity || location?.split(',')[0],  // Use NPI city first
         npiState || location?.split(',')[1]?.trim()  // Use NPI state first
       );
-    } catch (error) {
+    } catch (_) {
       console.error('❌ Claude 4 Opus analysis failed:', error);
       // Use fallback with empty results
       aiAnalysis = {
@@ -236,7 +236,7 @@ export async function gatherUnifiedIntelligence(
         zip: '',
         full: `${npiAddress}, ${npiCity}, ${npiState}`
       } : undefined,
-      rejectedSites: aiAnalysis.rejectedSites?.map((r) => r.url) || [],
+      rejectedSites: aiAnalysis.rejectedSites?.map((r: { url: string; reason: string }) => r.url) || [],
       discoveryMethod: 'ai-powered'
     };
     
@@ -269,32 +269,32 @@ export async function gatherUnifiedIntelligence(
       if (scrapedData) {
         // Extract medical intelligence
         const allProcedures = [
-          ...Object.entries(scrapedData.dentalProcedures || {}).filter(([_, v]) => v).map(([k, _]) => k),
-          ...Object.entries(scrapedData.aestheticProcedures || {}).filter(([_, v]) => v).map(([k, _]) => k)
+          ...Object.entries(scrapedData.dentalProcedures || {}).filter(([_, v]: [string, unknown]) => v).map(([k, _]: [string, unknown]) => k),
+          ...Object.entries(scrapedData.aestheticProcedures || {}).filter(([_, v]: [string, unknown]) => v).map(([k, _]: [string, unknown]) => k)
         ];
         
         const allTechnologies = [
-          ...Object.entries(scrapedData.dentalTechnology || {}).filter(([_k, v]) => v === true).map(([k, _]) => k),
+          ...Object.entries(scrapedData.dentalTechnology || {}).filter(([_k, v]: [string, unknown]) => v === true).map(([k, _]: [string, unknown]) => k),
           ...Object.entries(scrapedData.aestheticDevices || {})
-            .filter(([k, v]) => {
+            .filter(([k, v]: [string, unknown]) => {
               if (k === 'otherLasers') return false; // Skip array properties
               return v === true;
             })
-            .map(([k, _]) => k),
+            .map(([k, _]: [string, unknown]) => k),
           ...(Array.isArray(scrapedData.aestheticDevices?.otherLasers) ? scrapedData.aestheticDevices.otherLasers : []), // Add array items separately
           ...Object.entries(scrapedData.implantSystems || {})
-            .filter(([k, v]) => {
+            .filter(([k, v]: [string, unknown]) => {
               if (k === 'other') return false; // Skip array properties
               return v === true;
             })
-            .map(([k, _]) => k),
+            .map(([k, _]: [string, unknown]) => k),
           ...(Array.isArray(scrapedData.implantSystems?.other) ? scrapedData.implantSystems.other : []), // Add array items separately
           ...Object.entries(scrapedData.injectableBrands || {})
-            .filter(([k, v]) => {
+            .filter(([k, v]: [string, unknown]) => {
               if (k === 'otherFillers') return false; // Skip array properties
               return v === true;
             })
-            .map(([k, _]) => k),
+            .map(([k, _]: [string, unknown]) => k),
           ...(Array.isArray(scrapedData.injectableBrands?.otherFillers) ? scrapedData.injectableBrands.otherFillers : []) // Add array items separately
         ];
         
@@ -340,7 +340,7 @@ export async function gatherUnifiedIntelligence(
           confidence: result.discovery.confidence
         };
       }
-    } catch (error) {
+    } catch (_) {
       console.error('Intelligence extraction error:', error);
     }
     
@@ -351,7 +351,7 @@ export async function gatherUnifiedIntelligence(
     
     return result;
     
-  } catch (error) {
+  } catch (_) {
     console.error('Unified intelligence error:', error);
     result.timingMs.total = Date.now() - startTime;
     return result;

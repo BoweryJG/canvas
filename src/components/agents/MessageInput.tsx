@@ -2,7 +2,7 @@ import React, { useState, useRef, type KeyboardEvent } from 'react';
 import { motion } from 'framer-motion';
 
 interface MessageInputProps {
-  onSendMessage: (content: string, metadata?: any) => void;
+  onSendMessage: (content: string, metadata?: Record<string, unknown>) => void;
   disabled?: boolean;
   placeholder?: string;
 }

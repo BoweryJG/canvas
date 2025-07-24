@@ -47,7 +47,7 @@ export interface UnifiedResearchResult {
   instant?: InstantScanResult;
   deep?: DeepResearchResult;
   legacy?: ResearchData;
-  adaptive?: ResearchData | any; // ExtendedResearchData
+  adaptive?: ResearchData | unknown; // ExtendedResearchData
   error?: string;
   subscriptionError?: string; // For subscription-related errors
   limitExceeded?: boolean;

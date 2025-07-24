@@ -116,8 +116,8 @@ export const DoctorAutocomplete: React.FC<DoctorAutocompleteProps> = ({
   }, []);
 
   // Create debounced version
-  const debouncedSearchDoctors = useCallback(
-    debounce(searchDoctors, 300),
+  const debouncedSearchDoctors = React.useMemo(
+    () => debounce(searchDoctors, 300),
     [searchDoctors]
   );
 

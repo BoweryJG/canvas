@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../auth/useAuth';
 
@@ -34,9 +34,9 @@ const ProcedureSelector: React.FC<ProcedureSelectorProps> = ({
 
   useEffect(() => {
     loadFeaturedProcedures();
-  }, [session]);
+  }, [loadFeaturedProcedures]);
 
-  const loadFeaturedProcedures = async () => {
+  const loadFeaturedProcedures = useCallback(async () => {
     if (!session?.access_token) return;
 
     try {
@@ -52,9 +52,9 @@ const ProcedureSelector: React.FC<ProcedureSelectorProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [session, backendUrl]);
 
-  const searchProcedures = async (query: string) => {
+  const searchProcedures = useCallback(async (query: string) => {
     if (!query.trim() || !session?.access_token) return;
 
     setSearching(true);
@@ -74,7 +74,7 @@ const ProcedureSelector: React.FC<ProcedureSelectorProps> = ({
     } finally {
       setSearching(false);
     }
-  };
+  }, [session, backendUrl]);
 
   // Debounced search
   useEffect(() => {
@@ -87,7 +87,7 @@ const ProcedureSelector: React.FC<ProcedureSelectorProps> = ({
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchTerm]);
+  }, [searchTerm, searchProcedures]);
 
   const getProcedureIcon = (category: string) => {
     const icons: { [key: string]: string } = {

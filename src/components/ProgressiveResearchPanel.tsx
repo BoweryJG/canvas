@@ -58,7 +58,7 @@ export function ProgressiveResearchPanel({
       engine.cancel();
       engine.removeAllListeners();
     };
-  }, [doctorName, productName, location]);
+  }, [doctorName, productName, location, engine, onComplete]);
 
   const formatTime = (ms: number) => {
     const seconds = Math.floor(ms / 1000);

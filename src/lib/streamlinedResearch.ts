@@ -11,6 +11,31 @@ import { getApiEndpoint } from '../config/api';
 import { findProcedureByName } from './procedureDatabase';
 import { searchCache, cachedApiCall, CacheKeys } from './intelligentCaching';
 
+interface BraveSearchResult {
+  url?: string;
+  title?: string;
+  description?: string;
+}
+
+interface BraveSearchResponse {
+  web?: {
+    results: BraveSearchResult[];
+  };
+}
+
+interface FirecrawlResponse {
+  content?: string;
+  [key: string]: unknown;
+}
+
+interface ClaudeResponse {
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+}
+
 interface StreamlinedProgress {
   updateStage?: (stage: string) => void;
   updateStep?: (stepId: string, status: 'pending' | 'active' | 'completed', result?: string) => void;
@@ -33,7 +58,7 @@ export async function streamlinedResearch(
     progress?.updateStep?.('search', 'active');
     
     // 1. Search for practice info and website
-    const practiceSearch = await cachedApiCall(
+    const practiceSearch = await cachedApiCall<BraveSearchResponse>(
       searchCache,
       CacheKeys.search(`${doctor.displayName} ${doctor.city}`),
       async () => callBraveSearch(`"${doctor.displayName}" ${doctor.specialty} ${doctor.city} ${doctor.state} website contact`),
@@ -41,13 +66,14 @@ export async function streamlinedResearch(
     );
     
     // Extract website URL from search results
-    let websiteUrl = null;
+    let websiteUrl: string | null = null;
     interface PracticeInfo {
       phone?: string;
       address?: string;
       specialty?: string;
       currentTechnology?: string[];
-      [key: string]: unknown;
+      name?: string;
+      specialties?: string[];
     }
     
     const practiceInfo: PracticeInfo = {
@@ -60,12 +86,7 @@ export async function streamlinedResearch(
       const results = practiceSearch.web.results;
       
       // Find practice website
-      interface SearchResult {
-        url?: string;
-        description?: string;
-      }
-      
-      websiteUrl = results.find((r: SearchResult) => 
+      websiteUrl = results.find((r: BraveSearchResult) => 
         r.url && 
         !r.url.includes('healthgrades') && 
         !r.url.includes('vitals.com') &&
@@ -73,7 +94,7 @@ export async function streamlinedResearch(
       )?.url;
       
       // Extract any additional info from snippets
-      results.forEach((result: SearchResult) => {
+      results.forEach((result: BraveSearchResult) => {
         if (result.description) {
           // Extract phone if found
           const phoneMatch = result.description.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
@@ -99,7 +120,7 @@ export async function streamlinedResearch(
     if (websiteUrl) {
       progress?.updateStep?.('website', 'active');
       try {
-        const websiteData = await callFirecrawlScrape(websiteUrl);
+        const websiteData = await callFirecrawlScrape(websiteUrl) as FirecrawlResponse;
         if (websiteData?.content) {
           sources.push({
             type: 'practice_website',
@@ -122,7 +143,7 @@ export async function streamlinedResearch(
         }
         progress?.updateStep?.('website', 'completed', 'Website analyzed');
       } catch (error) {
-        console.warn('Website scrape failed:', error);
+        console.warn('Website scrape failed:', error instanceof Error ? error.message : String(error));
         progress?.updateStep?.('website', 'completed', 'Website unreachable');
       }
     }
@@ -206,7 +227,7 @@ export async function streamlinedResearch(
     return researchData;
     
   } catch (error) {
-    console.error('Streamlined research error:', error);
+    console.error('Streamlined research error:', error instanceof Error ? error.message : String(error));
     // Return minimal data on error
     return createFallbackData(doctor, product, sources, Date.now() - startTime);
   }
@@ -302,10 +323,10 @@ Return as JSON with all sections filled. Be specific and reference actual detail
       throw new Error(`Backend Anthropic API error: ${response.status}`);
     }
 
-    const data = await response.json();
-    return JSON.parse(data.choices[0].message.content);
+    const data = await response.json() as ClaudeResponse;
+    return JSON.parse(data.choices[0].message.content) as AnalysisResult;
   } catch (error) {
-    console.error('AI analysis failed:', error);
+    console.error('AI analysis failed:', error instanceof Error ? error.message : String(error));
     return {};
   }
 }

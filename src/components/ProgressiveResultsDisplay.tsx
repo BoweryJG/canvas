@@ -212,7 +212,7 @@ export default function ProgressiveResultsDisplay({ userTier, onUpgradeClick }: 
     };
     
     loadData();
-  }, []);
+  }, [sections]);
   
   const generateMockData = (sectionId: string) => {
     const mockData: Record<string, Record<string, unknown>> = {

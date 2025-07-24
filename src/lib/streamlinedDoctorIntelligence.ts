@@ -135,7 +135,7 @@ export async function gatherStreamlinedDoctorIntelligence(
         { city: doctor.city, state: doctor.state },
         doctor.specialty
       );
-    } catch (error) {
+    } catch (_) {
       console.error('Product intelligence gathering failed:', error);
       productIntel = null;
     }
@@ -171,7 +171,7 @@ export async function gatherStreamlinedDoctorIntelligence(
           console.log('✓ Successfully crawled practice website for deep insights');
           progress?.updateSources(searchData.sources.length);
         }
-      } catch (error) {
+      } catch (_) {
         console.log('Could not crawl website, continuing with search data');
       }
     }
@@ -199,7 +199,7 @@ export async function gatherStreamlinedDoctorIntelligence(
       doctor
     );
     
-  } catch (error) {
+  } catch (_) {
     console.error('Streamlined intelligence error:', error);
     // Try to salvage what we can from the search data
     if (searchData && searchData.sources && searchData.sources.length > 0) {
@@ -308,7 +308,7 @@ async function gatherLocalCompetitors(
     }
     
     return results;
-  } catch (error) {
+  } catch (_) {
     console.error('Local search error:', error);
     return { results: [] };
   }
@@ -418,14 +418,14 @@ Return JSON with these fields:
     // Use Claude 4 Opus directly
     const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
     return JSON.parse(response);
-  } catch (error) {
+  } catch (_) {
     console.error('Claude 4 Opus error, trying Claude 3.5 Sonnet:', error);
     
     // Fallback to Claude 3.5 Sonnet
     try {
       const response = await callClaude(prompt, 'claude-3.5-sonnet-20241022');
       return JSON.parse(response);
-    } catch (fallbackError) {
+    } catch (_) {
       console.error('All synthesis failed:', fallbackError);
       return createDefaultSynthesis(doctor, product);
     }

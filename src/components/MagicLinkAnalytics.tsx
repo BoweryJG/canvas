@@ -2,7 +2,7 @@
  * Magic Link Analytics Dashboard
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -149,13 +149,7 @@ export default function MagicLinkAnalytics({ userId, userTier }: Props) {
   const hasAnalytics = config.features.includes('analytics_basic') || config.features.includes('analytics_full');
   const hasFullAnalytics = config.features.includes('analytics_full');
   
-  useEffect(() => {
-    if (hasAnalytics) {
-      fetchAnalytics();
-    }
-  }, [userId, timeFilter]);
-  
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     setLoading(true);
     try {
       const links = await getShareAnalytics(userId);
@@ -222,7 +216,13 @@ export default function MagicLinkAnalytics({ userId, userTier }: Props) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId, timeFilter]);
+  
+  useEffect(() => {
+    if (hasAnalytics) {
+      fetchAnalytics();
+    }
+  }, [hasAnalytics, fetchAnalytics]);
   
   const handleRevoke = async () => {
     if (!linkToRevoke) return;

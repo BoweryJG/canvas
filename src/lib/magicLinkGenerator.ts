@@ -8,7 +8,7 @@ import { supabase } from '../auth/supabase';
 import { SecureStorage } from '../utils/security';
 
 interface GenerateLinkOptions {
-  reportData: any;
+  reportData: unknown;
   doctorName: string;
   userId: string;
   tier: SubscriptionTier;
@@ -127,7 +127,7 @@ export async function validateMagicLink(
   password?: string,
   userEmail?: string,
   userIp?: string
-): Promise<{ valid: boolean; data?: any; error?: string }> {
+): Promise<{ valid: boolean; data?: unknown; error?: string }> {
   try {
     // Fetch link from database
     const { data: link, error } = await supabase

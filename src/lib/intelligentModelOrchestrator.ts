@@ -63,8 +63,8 @@ interface ModelCapabilities {
 }
 
 // Model capabilities for reference - currently not used but may be useful for future optimization
-// @ts-ignore - keeping for future reference
-const MODEL_CAPABILITIES: Record<string, ModelCapabilities> = {
+// @ts-expect-error - keeping for future reference
+const _MODEL_CAPABILITIES: Record<string, ModelCapabilities> = {
   // Perplexity Models (via Perplexity API)
   'perplexity-sonar-small': {
     realTimeData: true,

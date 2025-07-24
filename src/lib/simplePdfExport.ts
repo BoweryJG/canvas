@@ -17,7 +17,7 @@ export interface PDFExportOptions {
 }
 
 // Product-specific strategies
-const PRODUCT_STRATEGIES: Record<string, any> = {
+const PRODUCT_STRATEGIES: Record<string, unknown> = {
   'YOMI': {
     category: 'Robotic Surgery System',
     keyBenefits: [
@@ -59,7 +59,7 @@ const PRODUCT_STRATEGIES: Record<string, any> = {
  */
 export async function generatePDFReport(
   scanResult: EnhancedScanResult,
-  researchData: ResearchData & { deepScanResults?: any, scanData?: any, actualSearchResults?: any, product?: string },
+  researchData: ResearchData & { deepScanResults?: unknown, scanData?: unknown, actualSearchResults?: unknown, product?: string },
   _options?: PDFExportOptions
 ): Promise<Blob> {
   // Use enhanced exporter if product intelligence is available
@@ -81,8 +81,8 @@ export async function generatePDFReport(
   const productStrategy = PRODUCT_STRATEGIES[productUpper] || null;
   
   // Get actual search results
-  const searchResults = (researchData as any).actualSearchResults || {};
-  const deepScanData = (researchData as any).deepScanResults || {};
+  const searchResults = (researchData as unknown).actualSearchResults || {};
+  const deepScanData = (researchData as unknown).deepScanResults || {};
   
   // Helper function to add text with wrapping
   const addWrappedText = (text: string, fontSize: number, isBold: boolean = false) => {

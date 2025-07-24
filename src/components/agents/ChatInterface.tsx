@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../auth/useAuth';
 import { io, Socket } from 'socket.io-client';
@@ -8,13 +8,21 @@ import AgentSelector from './AgentSelector';
 import ConversationList from './ConversationList';
 import ProcedureSelector from './ProcedureSelector';
 
+interface MessageMetadata {
+  [key: string]: unknown;
+}
+
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   timestamp: string;
   isStreaming?: boolean;
-  metadata?: any;
+  metadata?: MessageMetadata;
+}
+
+interface AgentPersonality {
+  [key: string]: unknown;
 }
 
 interface Agent {
@@ -22,7 +30,7 @@ interface Agent {
   name: string;
   avatar_url?: string;
   specialty: string[];
-  personality: any;
+  personality: AgentPersonality;
 }
 
 interface Conversation {
@@ -58,7 +66,16 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   const [isAgentTyping, setIsAgentTyping] = useState(false);
   const [streamingMessage, setStreamingMessage] = useState<string>('');
   const [showConversations, setShowConversations] = useState(false);
-  const [insights, setInsights] = useState<any[]>([]);
+  interface Insight {
+    action: string;
+    data: {
+      doctorName?: string;
+      link?: string;
+      [key: string]: unknown;
+    };
+    [key: string]: unknown;
+  }
+  const [insights, setInsights] = useState<Insight[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Backend URL from environment
@@ -126,14 +143,14 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     if (defaultAgentId && session) {
       loadAgent(defaultAgentId);
     }
-  }, [defaultAgentId, session]);
+  }, [defaultAgentId, session, loadAgent]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, streamingMessage]);
 
-  const loadAgent = async (agentId: string) => {
+  const loadAgent = useCallback(async (agentId: string) => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/canvas/agents/${agentId}`, {
         headers: {
@@ -145,7 +162,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     } catch (error) {
       console.error('Failed to load agent:', error);
     }
-  };
+  }, []);
 
   const createNewConversation = async () => {
     if (!selectedAgent || !session) return;
@@ -217,7 +234,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     }
   };
 
-  const sendMessage = async (content: string, metadata?: any) => {
+  const sendMessage = async (content: string, metadata?: MessageMetadata) => {
     if (!currentConversation || !socket || !content.trim()) return;
 
     // Add user message immediately
@@ -240,7 +257,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
     });
   };
 
-  const handleInsightAction = async (insight: any) => {
+  const handleInsightAction = async (insight: Insight) => {
     // Handle different insight actions
     switch (insight.action) {
       case 'research_doctor':

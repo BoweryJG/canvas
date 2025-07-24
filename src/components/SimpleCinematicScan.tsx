@@ -220,7 +220,7 @@ export default function SimpleCinematicScan({ doctorName, productName, location,
       mounted = false;
       clearTimeout(safetyTimeout);
     };
-  }, [doctorName, location, onComplete]);
+  }, [doctorName, location, onComplete, productName]);
   
   return (
     <Box sx={{

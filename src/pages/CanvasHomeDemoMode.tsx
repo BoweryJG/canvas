@@ -18,6 +18,7 @@ export const CanvasHomeDemoMode: React.FC = () => {
 
   const handleDemoSkip = () => {
     console.log('Demo skipped');
+    // Navigation can be added here if needed when skip functionality is implemented
   };
 
   return (

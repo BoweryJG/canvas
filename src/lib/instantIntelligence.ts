@@ -116,9 +116,10 @@ Format response as JSON with clear sections.`;
       {
         maxAttempts: 3,
         initialDelay: 1000,
-        shouldRetry: (error: any, attempt) => {
+        shouldRetry: (error: unknown, attempt) => {
           // Retry on any error except client errors (4xx)
-          if (error?.statusCode && error.statusCode >= 400 && error.statusCode < 500) {
+          const statusCode = (error as { statusCode?: number })?.statusCode;
+          if (statusCode && statusCode >= 400 && statusCode < 500) {
             return false;
           }
           return attempt < 3;
@@ -210,8 +211,8 @@ Format response as JSON with clear sections.`;
 }
 
 // Helper function to parse structured text response
-function parseStructuredResponse(response: string | any): any {
-  const result: any = {};
+function parseStructuredResponse(response: string | unknown): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
   
   // Ensure response is a string
   const responseText = typeof response === 'string' ? response : JSON.stringify(response);
@@ -226,18 +227,18 @@ function parseStructuredResponse(response: string | any): any {
   const insightsMatch = responseText.match(/KEY INSIGHTS[:\s]*([\s\S]*?)(?=PAIN POINTS|APPROACH|$)/i);
   if (insightsMatch) {
     result.keyInsights = insightsMatch[1]
-      .split(/[\n•\-]/)
-      .map(s => s.trim())
-      .filter(s => s.length > 10);
+      .split(/[\n•-]/)
+      .map((s: string) => s.trim())
+      .filter((s: string) => s.length > 10);
   }
   
   // Extract pain points
   const painMatch = responseText.match(/PAIN POINTS[:\s]*([\s\S]*?)(?=APPROACH|OUTREACH|$)/i);
   if (painMatch) {
     result.painPoints = painMatch[1]
-      .split(/[\n•\-]/)
-      .map(s => s.trim())
-      .filter(s => s.length > 10);
+      .split(/[\n•-]/)
+      .map((s: string) => s.trim())
+      .filter((s: string) => s.length > 10);
   }
   
   // Extract approach strategy
@@ -247,9 +248,9 @@ function parseStructuredResponse(response: string | any): any {
     result.approachStrategy = {
       opening: approachText.match(/opening[:\s]*(.*?)(?=value|$)/i)?.[1]?.trim(),
       valueProps: approachText.match(/value prop[:\s]*([\s\S]*?)(?=objection|$)/i)?.[1]
-        ?.split(/[\n•\-]/)
-        .map(s => s.trim())
-        .filter(s => s.length > 10)
+        ?.split(/[\n•-]/)
+        .map((s: string) => s.trim())
+        .filter((s: string) => s.length > 10)
     };
   }
   
@@ -380,7 +381,7 @@ function generateDefaultObjections(): Record<string, string> {
   };
 }
 
-function generateDefaultEmail(doctorName: string, specialty: string, productName: string, location: string): any {
+function generateDefaultEmail(doctorName: string, specialty: string, productName: string, location: string): { subject: string; body: string } {
   const lastName = doctorName.split(' ').pop();
   
   // Yomi-specific email

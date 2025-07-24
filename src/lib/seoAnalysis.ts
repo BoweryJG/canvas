@@ -271,12 +271,12 @@ async function analyzeLocalSEO(
   // Search for Google My Business listing
   const gmbQuery = `"${doctorName}" "${location}" site:google.com/maps`;
   const gmbResults = await callBraveSearch(gmbQuery, 3, userId);
-  const hasGMB = gmbResults.web?.results?.some((r: any) => r.url.includes('google.com/maps'));
+  const hasGMB = gmbResults.web?.results?.some((r: { url: string }) => r.url.includes('google.com/maps'));
   
   // Search for local directory listings
   const directoryQuery = `"${doctorName}" "${location}" (healthgrades OR vitals OR yelp)`;
   const directoryResults = await callBraveSearch(directoryQuery, 10, userId);
-  const directoryCount = directoryResults.web?.results?.filter((r: any) => 
+  const directoryCount = directoryResults.web?.results?.filter((r: { url: string }) => 
     ['healthgrades', 'vitals', 'yelp', 'yellowpages'].some(d => r.url.includes(d))
   ).length || 0;
   
@@ -369,7 +369,14 @@ async function analyzeCompetitors(
 /**
  * Analyze competitor strengths from search result
  */
-function analyzeCompetitorStrengths(result: any): string[] {
+interface SearchResult {
+  title: string;
+  url: string;
+  description?: string;
+  age?: string;
+}
+
+function analyzeCompetitorStrengths(result: SearchResult): string[] {
   const strengths: string[] = [];
   
   if (result.title.length > 50 && result.title.length < 60) {

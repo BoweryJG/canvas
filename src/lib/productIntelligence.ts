@@ -123,7 +123,7 @@ function calculateMatchScore(
   let score = 50; // Base score
   
   // Specialty match
-  if (product.specialty && (practiceData.practiceInfo as any)?.specialties?.includes(product.specialty)) {
+  if (product.specialty && (practiceData.practiceInfo as unknown)?.specialties?.includes(product.specialty)) {
     score += 20;
   }
   

@@ -24,7 +24,7 @@ export async function gatherBaselineIntelligence(
   // Convert doctor object to include any existing website
   const doctorWithWebsite = {
     ...doctor,
-    practiceWebsite: existingWebsite || (doctor as any).practiceWebsite || (doctor as any).website
+    practiceWebsite: existingWebsite || (doctor as {practiceWebsite?: string; website?: string}).practiceWebsite || (doctor as {practiceWebsite?: string; website?: string}).website
   };
   
   // Use the baseline research

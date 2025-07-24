@@ -109,7 +109,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
       
       this.emitComplete(researchData);
       
-    } catch (error) {
+    } catch (_) {
       this.emit('error', error);
     }
   }
@@ -168,7 +168,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
         const scraped = await callFirecrawlScrape(primarySearch.web.results[0].url, {}, userId);
         data.practiceInfo = this.extractPracticeInfo(scraped);
         data.score = this.updateScore(data.score, scraped);
-      } catch (error) {
+      } catch (_) {
         console.log('Scrape failed, continuing...');
       }
     }
@@ -210,7 +210,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
         await this.delay(5000); // Respectful delay
         const reviewData = await callFirecrawlScrape(reviewUrl.url, {}, userId);
         data.reviews = this.extractReviews(reviewData);
-      } catch (error) {
+      } catch (_) {
         console.log('Review scrape failed');
       }
     }
@@ -237,7 +237,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
       userId
     );
     
-    (data.competitiveIntel as any).positioning = this.parseCompetitive(competitiveAnalysis);
+    (data.competitiveIntel as unknown).positioning = this.parseCompetitive(competitiveAnalysis);
     data.score = this.refineScore(data);
     
     // Genius outreach now available
@@ -280,7 +280,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
     try {
       const finalAnalysis = await callClaudeOutreach(comprehensivePrompt, userId);
       data.outreachStrategy = this.parseFinalAnalysis(finalAnalysis);
-    } catch (error) {
+    } catch (_) {
       console.log('Final analysis failed, using collected data');
     }
     
@@ -382,7 +382,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
   
   private refineScore(data: ResearchData): number {
     let score = data.score;
-    if ((data.reviews as any)?.found) score += 5;
+    if ((data.reviews as unknown)?.found) score += 5;
     if (data.competitiveIntel?.technology) score += 5;
     return Math.min(100, score);
   }
@@ -410,7 +410,7 @@ export class ProgressiveResearchEngine extends EventEmitter {
     
     const { generateProgressiveOutreach } = await import('./progressiveOutreach');
     return generateProgressiveOutreach(
-      currentProgress.data as any,
+      currentProgress.data as unknown,
       currentProgress.percentComplete,
       tier
     );

@@ -319,7 +319,7 @@ function extractPracticeName(title: string, domain: string): string {
   // "Smith Family Dentistry - Home"
   // "Dr. John Smith, DDS"
   
-  let practiceName = title.split(/[\|\-–—]/)[0].trim();
+  let practiceName = title.split(/[|\-–—]/)[0].trim();
   
   // Remove common suffixes
   practiceName = practiceName
@@ -419,10 +419,10 @@ function analyzeOfficialSocialMedia(url: string, pageTitle?: string, doctorName?
 function extractPracticeNameFromSocial(title: string): string {
   // Remove common social media suffixes
   const practiceName = title
-    .replace(/\s*[\|\-–—]\s*Facebook$/i, '')
-    .replace(/\s*[\|\-–—]\s*Instagram$/i, '')
+    .replace(/\s*[|\-–—]\s*Facebook$/i, '')
+    .replace(/\s*[|\-–—]\s*Instagram$/i, '')
     .replace(/\s*\(@[^)]+\)$/i, '') // Remove Instagram handle
-    .replace(/\s*[\|\-–—]\s*Home$/i, '')
+    .replace(/\s*[|\-–—]\s*Home$/i, '')
     .trim();
   
   // If it's too generic, return empty

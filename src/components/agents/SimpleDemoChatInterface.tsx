@@ -105,6 +105,8 @@ const SimpleDemoChatInterface: React.FC<SimpleDemoChatInterfaceProps> = ({
   agentId: _agentId, // Prefixed with _ to indicate it's intentionally unused
   agentName = 'AI Assistant'
 }) => {
+  // Suppress unused variable warning
+  void _agentId;
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',

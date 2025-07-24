@@ -163,9 +163,9 @@ interface EnhancedAgentSystemProps {
     tab?: string;
     doctorId?: string;
     searchQuery?: string;
-    researchData?: any;
+    researchData?: Record<string, unknown>;
   };
-  onInsightApplied?: (insight: any) => void;
+  onInsightApplied?: (insight: unknown) => void;
 }
 
 export const EnhancedAgentSystem: React.FC<EnhancedAgentSystemProps> = ({

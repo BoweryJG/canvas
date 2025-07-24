@@ -238,7 +238,7 @@ Create a professional but personalized email that references specific practice d
       ],
       callScript: generateCallScript(data, 'pro')
     };
-  } catch (error) {
+  } catch (_error) {
     return {
       ...generateProFallback(data),
       tier: 'pro',
@@ -439,7 +439,7 @@ function generateGeniusEmail(data: ResearchData, profile: Profile): string {
   return `[Genius-level personalized email based on deep research and psychological profiling]
 
 Subject line uses trigger words: ${profile.triggerWords?.join(', ')}
-Opening references: ${(data.reviews as any)?.recentUpdate || 'recent practice development'}
+Opening references: ${(data.reviews as unknown)?.recentUpdate || 'recent practice development'}
 Body leverages: ${profile.decisionStyle} decision-making style
 Close uses: ${profile.preferredNextStep || 'low-pressure invitation'}`;
 }

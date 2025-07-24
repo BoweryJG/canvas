@@ -20,11 +20,11 @@ export function disableMockMode() {
 
 // Add to window for easy console access
 if (typeof window !== 'undefined') {
-  (window as any).enableMockMode = enableMockMode;
-  (window as any).disableMockMode = disableMockMode;
+  (window as unknown).enableMockMode = enableMockMode;
+  (window as unknown).disableMockMode = disableMockMode;
 }
 
-export async function mockSequentialThinking(params: any): Promise<any> {
+export async function mockSequentialThinking(params: unknown): Promise<unknown> {
   // Simulate thinking delay
   await new Promise(resolve => setTimeout(resolve, 500));
   
@@ -38,7 +38,7 @@ export async function mockSequentialThinking(params: any): Promise<any> {
   };
 }
 
-export async function mockBraveSearch(_query: string): Promise<any> {
+export async function mockBraveSearch(_query: string): Promise<unknown> {
   await new Promise(resolve => setTimeout(resolve, 300));
   
   return {
@@ -64,7 +64,7 @@ export async function mockBraveSearch(_query: string): Promise<any> {
   };
 }
 
-export async function mockFirecrawlScrape(_url: string): Promise<any> {
+export async function mockFirecrawlScrape(_url: string): Promise<unknown> {
   await new Promise(resolve => setTimeout(resolve, 800));
   
   return {

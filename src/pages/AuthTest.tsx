@@ -5,7 +5,19 @@ import { supabase } from '../auth/supabase';
 
 const AuthTest: React.FC = () => {
   const { user, session, loading, signInWithProvider } = useAuth();
-  const [authState, setAuthState] = useState<any>({});
+  interface AuthState {
+    hasSession: boolean;
+    hasUser: boolean;
+    error?: string;
+    provider?: string;
+    email?: string;
+    lastSignIn?: string;
+  }
+  
+  const [authState, setAuthState] = useState<AuthState>({
+    hasSession: false,
+    hasUser: false
+  });
   const [testResult, setTestResult] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -32,8 +44,8 @@ const AuthTest: React.FC = () => {
     try {
       await signInWithProvider('google');
       setTestResult('OAuth initiated successfully! Check if a new window opened.');
-    } catch (err: any) {
-      setTestResult(`Exception: ${err.message}`);
+    } catch (err) {
+      setTestResult(`Exception: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
     
     setIsLoading(false);
@@ -46,8 +58,8 @@ const AuthTest: React.FC = () => {
     try {
       await signInWithProvider('github');
       setTestResult('OAuth initiated successfully! Check if a new window opened.');
-    } catch (err: any) {
-      setTestResult(`Exception: ${err.message}`);
+    } catch (err) {
+      setTestResult(`Exception: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
     
     setIsLoading(false);

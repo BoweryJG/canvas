@@ -67,14 +67,14 @@ export const EnhancedDoctorInput: React.FC<EnhancedDoctorInputProps> = ({
   };
 
   // Check if manual entry is complete
-  const isManualEntryComplete = () => {
+  const isManualEntryComplete = useCallback(() => {
     return manualEntry.doctorName.trim() && 
            manualEntry.specialty.trim() && 
            manualEntry.location.trim();
-  };
+  }, [manualEntry]);
 
   // Handle manual search and verification
-  const handleManualSearch = async () => {
+  const handleManualSearch = useCallback(async () => {
     if (!isManualEntryComplete()) return;
     
     setIsSearching(true);
@@ -125,7 +125,7 @@ export const EnhancedDoctorInput: React.FC<EnhancedDoctorInputProps> = ({
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [manualEntry.doctorName, manualEntry.location, manualEntry.specialty, isManualEntryComplete, onDoctorConfirmed]);
 
   // Handle verification confirmation
   const handleVerificationConfirm = (verifiedProfile: {
@@ -166,7 +166,7 @@ export const EnhancedDoctorInput: React.FC<EnhancedDoctorInputProps> = ({
       handleManualSearch();
       setSelectedFromAutocomplete(false);
     }
-  }, [selectedFromAutocomplete, manualEntry]);
+  }, [selectedFromAutocomplete, manualEntry, handleManualSearch, isManualEntryComplete]);
 
   if (showVerification && verificationData) {
     return (

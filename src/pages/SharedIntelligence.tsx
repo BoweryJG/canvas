@@ -2,7 +2,7 @@
  * Shared Intelligence Landing Page - Where magic link recipients land
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -118,16 +118,32 @@ export default function SharedIntelligence() {
   const [error, setError] = useState<string | null>(null);
   const [requiresPassword, setRequiresPassword] = useState(false);
   const [password, setPassword] = useState('');
-  const [linkData, setLinkData] = useState<any>(null);
+  interface LinkData {
+    doctor_name: string;
+    report_data: {
+      scanResult?: {
+        doctor?: string;
+        confidence?: number;
+        researchQuality?: string;
+        insights?: string[];
+      };
+      deepScanResults?: {
+        confidence?: number;
+        website?: string;
+      };
+      researchData?: ResearchData;
+    };
+    tier: SubscriptionTier;
+    custom_message?: string;
+    created_at: string;
+    allow_download: boolean;
+    allow_comments: boolean;
+  }
+  
+  const [linkData, setLinkData] = useState<LinkData | null>(null);
   const [downloading, setDownloading] = useState(false);
   
-  useEffect(() => {
-    if (linkId) {
-      validateLink();
-    }
-  }, [linkId]);
-  
-  const validateLink = async (attemptPassword?: string) => {
+  const validateLink = useCallback(async (attemptPassword?: string) => {
     setLoading(true);
     setError(null);
     
@@ -149,12 +165,19 @@ export default function SharedIntelligence() {
       } else {
         setError(result.error || 'Invalid link');
       }
-    } catch (err) {
+    } catch (error) {
+      console.error('Link validation error:', error);
       setError('Failed to validate link');
     } finally {
       setLoading(false);
     }
-  };
+  }, [linkId, navigate]);
+  
+  useEffect(() => {
+    if (linkId) {
+      validateLink();
+    }
+  }, [linkId, validateLink]);
   
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -238,7 +261,8 @@ export default function SharedIntelligence() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    } catch (err) {
+    } catch (error) {
+      console.error('Download error:', error);
       setError('Failed to download report');
     } finally {
       setDownloading(false);

@@ -100,6 +100,7 @@ export function useSubscriptionLimits(): SubscriptionLimitsState {
       setStatus(null);
       setLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   return {
@@ -185,6 +186,7 @@ export function useUsageDisplay(): {
     if (user?.id) {
       refresh();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   return {

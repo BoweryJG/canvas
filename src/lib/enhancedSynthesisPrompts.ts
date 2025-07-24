@@ -56,7 +56,7 @@ interface ProductIntelligence {
   localInsights?: {
     adoptionRate?: string;
     barriers?: string[];
-    recentCases?: any[];
+    recentCases?: unknown[];
   };
   messagingStrategy?: {
     keyBenefits?: string[];

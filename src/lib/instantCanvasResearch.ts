@@ -721,7 +721,7 @@ async function searchLocalSEOCompetitors(doctor: Doctor): Promise<SEOReport['com
     const results = competitorSearch?.web?.results?.slice(0, 3) || [];
     
     return {
-      topRanking: results.map((r: any) => ({
+      topRanking: results.map((r: unknown) => ({
         name: r.title || 'Competitor',
         domain: (() => {
           try {
