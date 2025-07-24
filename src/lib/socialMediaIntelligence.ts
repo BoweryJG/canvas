@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Social Media Intelligence Gathering using Apify Actors
  * Scrapes Instagram, LinkedIn, Facebook, Twitter for practice insights

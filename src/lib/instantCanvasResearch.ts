@@ -8,7 +8,6 @@ import { callBraveSearch, callClaude, callPerplexityResearch, callFirecrawlScrap
 import { type Doctor } from '../components/DoctorAutocomplete';
 import { cachedApiCall, CacheKeys, searchCache } from './intelligentCaching';
 import { supabase } from '../auth/supabase';
-import { extractStringContent } from '../types/api-utils';
 import { gatherSocialMediaIntelligence, type SocialMediaIntelligence } from './socialMediaIntelligence';
 
 // Rate limiting configuration
@@ -224,7 +223,7 @@ Provide JSON:
       
       if (quickAnalysis) {
         try {
-          const parsed = JSON.parse(extractStringContent(quickAnalysis));
+          const parsed = JSON.parse(quickAnalysis as string);
           
           return {
             doctor: {
@@ -416,7 +415,7 @@ Provide specific, actionable psychological insights in JSON:
 }`, 'claude-3-5-sonnet-20241022');
   
   try {
-    return JSON.parse(extractStringContent(analysis));
+    return JSON.parse(analysis);
   } catch {
     return {
       decisionStyle: 'Analytical',
@@ -460,7 +459,7 @@ Provide JSON with local dental competitors:
 }`, 'claude-3-5-sonnet-20241022');
         
         try {
-          return JSON.parse(extractStringContent(competitorData));
+          return JSON.parse(competitorData);
         } catch {
           // Fallback if parsing fails
         }
@@ -523,7 +522,7 @@ Each piece should:
 Format as JSON with the structure shown.`, 'claude-3-5-sonnet-20241022');
   
   try {
-    const parsed = JSON.parse(extractStringContent(contentGeneration));
+    const parsed = JSON.parse(contentGeneration);
     return parsed;
   } catch {
     // Return structured fallback content
@@ -693,7 +692,7 @@ Provide a detailed SEO analysis in JSON format:
   }
 }`, 'claude-3-5-sonnet-20241022');
     
-    const parsed = JSON.parse(extractStringContent(seoAnalysis));
+    const parsed = JSON.parse(seoAnalysis);
     
     // Search for competitors ranking for same keywords
     const competitorData = await searchLocalSEOCompetitors(doctor);
@@ -722,7 +721,7 @@ async function searchLocalSEOCompetitors(doctor: Doctor): Promise<SEOReport['com
     const results = competitorSearch?.web?.results?.slice(0, 3) || [];
     
     return {
-      topRanking: results.map((r: any) => ({
+      topRanking: results.map((r: unknown) => ({
         name: r.title || 'Competitor',
         domain: (() => {
           try {

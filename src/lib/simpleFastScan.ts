@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * SIMPLE FAST SCAN - NO BULLSHIT, JUST RESULTS
  */

@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * PRODUCT INTELLIGENCE ENGINE
  * Integrates Supabase product data with doctor insights for hyper-personalized messaging

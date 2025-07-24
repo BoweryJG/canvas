@@ -6,7 +6,6 @@
 import { callBraveSearch } from './apiEndpoints';
 import { findProcedureByName, getSpecialtySearchTerms } from './procedureDatabase';
 import type { DentalProcedure, AestheticProcedure } from './procedureDatabase';
-import type { BraveSearchResult } from '../types/api-types';
 
 export interface EnhancedSearchResult {
   url: string;
@@ -145,7 +144,7 @@ function buildSmartQueries(
  * Classify and score search results
  */
 function classifyAndScoreResult(
-  result: BraveSearchResult,
+  result: unknown,
   fullName: string,
   _firstName: string,
   lastName: string,

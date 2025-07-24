@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Real-Time Fast Scanner - Uses actual API data and shows results progressively
  */

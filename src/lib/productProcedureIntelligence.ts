@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Product/Procedure Intelligence System
  * Researches the product/procedure in the local market context

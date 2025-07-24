@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Magic Link Email System
  * Generates links that open user's email client with pre-filled content

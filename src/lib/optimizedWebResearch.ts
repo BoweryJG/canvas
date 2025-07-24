@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Optimized web research module with reduced API calls
  * Reduces from 40+ calls to ~15-20 calls per scan

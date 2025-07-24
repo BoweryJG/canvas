@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Progressive Research System - Spreads API calls over time
  * Provides immediate value, then enriches data progressively

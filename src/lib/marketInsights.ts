@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Market Insights Data Service
  * Fetches real-time medical market intelligence

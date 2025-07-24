@@ -5,7 +5,6 @@
 
 import { callBraveSearch } from './apiEndpoints';
 import { callClaude } from './apiEndpoints';
-import { extractStringContent } from '../types/api-utils';
 
 // Target prospect types we're optimized for
 export type ProspectType = 'dentist' | 'dermatologist' | 'plastic_surgeon' | 'medspa_owner';
@@ -70,7 +69,7 @@ export async function performEnhancedResearch(
     searchProfessionalNetwork(cleanName, location, prospectInfo),
     
     // Layer 4: Online presence and marketing approach
-    searchDigitalFootprint((verifiedProfile as any).website)
+    searchDigitalFootprint(verifiedProfile.website)
   ]);
   
   // Step 3: Synthesize findings with AI
@@ -79,7 +78,7 @@ export async function performEnhancedResearch(
   return synthesis;
 }
 
-function identifyProspectType(profile: any, product: string): { type: ProspectType, industry: Industry } {
+function identifyProspectType(profile: unknown, product: string): { type: ProspectType, industry: Industry } {
   const specialty = profile.specialty?.toLowerCase() || '';
   const practice = profile.practice?.toLowerCase() || '';
   const productLower = product.toLowerCase();
@@ -198,8 +197,7 @@ Format as JSON with these exact fields:
 
   try {
     const response = await callClaude(prompt, 'claude-3-5-sonnet-20241022');
-    const responseText = extractStringContent(response);
-    const parsed = JSON.parse(responseText);
+    const parsed = JSON.parse(response);
     
     return {
       prospectType: prospectInfo.type,

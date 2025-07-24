@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * FAST Smart Doctor Verification System
  * Parallelized version that returns results in ~1 second
