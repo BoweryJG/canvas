@@ -1,14 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { useAuth } from '../auth/useAuth';
-import { LoadingScreen } from './LoadingScreen';
+import React, { useEffect } from 'react';
 
 interface AuthLoadingWrapperProps {
   children: React.ReactNode;
 }
 
 export const AuthLoadingWrapper: React.FC<AuthLoadingWrapperProps> = ({ children }) => {
-  const { loading, user } = useAuth();
-  const [forceShow, setForceShow] = useState(false);
   
   useEffect(() => {
     // Chrome-specific aggressive loading screen clearing
@@ -44,10 +40,7 @@ export const AuthLoadingWrapper: React.FC<AuthLoadingWrapperProps> = ({ children
     // Chrome-specific: Clear again after a micro-delay
     setTimeout(clearLoadingScreen, 10);
     
-    // Force show content immediately for Chrome
-    setForceShow(true);
-    
-    return () => {};
+    // Content is always shown immediately
   }, []);
   
   // Never show loading screen - always show content immediately
