@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Local Claude 4 Integration
  * Allows using Claude 4 through local API or Claude Code

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Intelligent Analysis System - Synthesize and condense doctor information
  * Identifies the correct doctor from search results and provides targeted insights

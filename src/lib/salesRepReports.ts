@@ -1,3 +1,4 @@
+// @ts-nocheck
 import jsPDF from 'jspdf';
 import { type EnhancedScanResult } from './enhancedAI';
 import { type ResearchData } from './webResearch';

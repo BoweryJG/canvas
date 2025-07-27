@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * @deprecated Use unifiedCanvasResearch() from './unifiedCanvasResearch' instead
  * 

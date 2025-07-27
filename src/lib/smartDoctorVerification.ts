@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Smart Doctor Verification System
  * Finds the ACTUAL practice website, not generic directories

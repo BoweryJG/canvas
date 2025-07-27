@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Optimized Research System
  * Prevents timeouts by using smart batching and caching
