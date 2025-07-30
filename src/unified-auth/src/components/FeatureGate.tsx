@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFeatureAccess } from '../hooks/useFeatureAccess';
-import { FeatureAccess } from '../types';
+import type { FeatureAccess } from '../types';
 
 interface FeatureGateProps {
   feature: keyof FeatureAccess;

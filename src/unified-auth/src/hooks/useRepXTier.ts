@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { RepXTier, UserSubscription } from '../types';
+import { RepXTier } from '../types';
+import type { UserSubscription } from '../types';
 import { BACKEND_URL } from '../constants';
 
 interface UseRepXTierResult {

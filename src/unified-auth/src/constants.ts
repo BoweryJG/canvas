@@ -1,7 +1,8 @@
-import { RepXTier, FeatureAccess } from './types';
+import { RepXTier } from './types';
+import type { FeatureAccess } from './types';
 
 // Backend URL - can be overridden by env variable
-export const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://osbackend-zl1h.onrender.com';
+export const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'https://osbackend-zl1h.onrender.com';
 
 // Feature access by tier
 export const TIER_FEATURES: Record<RepXTier, FeatureAccess> = {

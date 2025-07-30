@@ -112,30 +112,36 @@ const ChatLauncher_20250730: React.FC<ChatLauncherProps> = ({ defaultAgentId }) 
       {/* Chat Interface */}
       <AnimatePresence>
         {isOpen && (
-          <FeatureGate
-            feature="basicCRM"
-            fallback={
-              <DemoChatInterface
-                isOpen={isOpen}
-                onClose={() => setIsOpen(false)}
-                isMinimized={isMinimized}
-                onMinimize={() => setIsMinimized(!isMinimized)}
-                defaultAgentId={defaultAgentId}
-                onNewMessage={() => setHasUnread(true)}
-                onMessagesRead={() => setHasUnread(false)}
-              />
-            }
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="fixed bottom-24 right-4 z-50 w-[400px] h-[600px] bg-white rounded-lg shadow-xl"
           >
-            <ChatInterface
-              isOpen={isOpen}
-              onClose={() => setIsOpen(false)}
-              isMinimized={isMinimized}
-              onMinimize={() => setIsMinimized(!isMinimized)}
-              defaultAgentId={defaultAgentId}
-              onNewMessage={() => setHasUnread(true)}
-              onMessagesRead={() => setHasUnread(false)}
-            />
-          </FeatureGate>
+            {/* Close button */}
+            <button
+              onClick={() => setIsOpen(false)}
+              className="absolute top-2 right-2 p-2 hover:bg-gray-100 rounded-full"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <FeatureGate
+              feature="basicCRM"
+              fallback={
+                <DemoChatInterface
+                  onRequestAuth={() => setShowUpgradeModal(true)}
+                />
+              }
+            >
+              <ChatInterface
+                defaultAgentId={defaultAgentId}
+                onUnreadChange={setHasUnread}
+              />
+            </FeatureGate>
+          </motion.div>
         )}
       </AnimatePresence>
 

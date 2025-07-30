@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useRepXTier } from './useRepXTier';
-import { FeatureAccess, FeatureCheckResult } from '../types';
+import type { FeatureAccess, FeatureCheckResult } from '../types';
 import { TIER_FEATURES, TIER_NAMES, BACKEND_URL } from '../constants';
 
 interface UseFeatureAccessResult {

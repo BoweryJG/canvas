@@ -1,4 +1,5 @@
-import { RepXTier, FeatureAccess } from '../types';
+import { RepXTier } from '../types';
+import type { FeatureAccess } from '../types';
 import { TIER_FEATURES } from '../constants';
 
 export function checkFeatureAccess(

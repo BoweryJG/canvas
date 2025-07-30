@@ -58,12 +58,28 @@ export const ExportActions_20250730: React.FC<ExportActionsProps> = ({
     handleClose();
     
     try {
-      const enrichedResearchData = {
+      // Create a properly typed ResearchData object with all required fields
+      const enrichedResearchData: any = {
+        // Required ResearchData fields
+        doctorName: scanResult?.doctor?.name || '',
+        practiceInfo: researchData?.practiceInfo || scanResult?.practice || {},
+        credentials: researchData?.credentials || [],
+        reviews: researchData?.reviews || [],
+        procedures: researchData?.procedures || [],
+        insurance: researchData?.insurance || [],
+        location: researchData?.location || {},
+        competitors: researchData?.competitors || [],
+        summary: researchData?.summary || '',
+        
+        // Additional fields from the original data
         websiteData: researchData?.websiteData || {},
         marketAnalysis: researchData?.marketAnalysis || {},
         practiceInsights: researchData?.practiceInsights || {},
         competitorInfo: researchData?.competitorInfo || {},
         outreachSuggestions: researchData?.outreachSuggestions || [],
+        
+        // Deep scan and product data
+        deepScanResults: deepScanResults,
         scanData: scanData,
         actualSearchResults: deepScanResults?.basic || {},
         product: scanData?.product || scanResult.product
