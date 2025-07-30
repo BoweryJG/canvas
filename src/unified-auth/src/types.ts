@@ -1,12 +1,14 @@
 // RepX Subscription Tiers
-export enum RepXTier {
-  Rep0 = 'rep0',    // Free tier
-  Rep1 = 'rep1',    // $97/month
-  Rep2 = 'rep2',    // $197/month
-  Rep3 = 'rep3',    // $297/month
-  Rep4 = 'rep4',    // $497/month
-  Rep5 = 'rep5',    // $997/month
-}
+export const RepXTier = {
+  Rep0: 'rep0',    // Free tier
+  Rep1: 'rep1',    // $97/month
+  Rep2: 'rep2',    // $197/month
+  Rep3: 'rep3',    // $297/month
+  Rep4: 'rep4',    // $497/month
+  Rep5: 'rep5',    // $997/month
+} as const;
+
+export type RepXTier = typeof RepXTier[keyof typeof RepXTier];
 
 // Feature access levels
 export interface FeatureAccess {
