@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import RepSpheresNavBar from './components/RepSpheresNavBar'
+import { UnifiedAuthProvider } from './contexts/UnifiedAuthContext_20250730'
 import MarketInsights from './pages/MarketInsightsSimple'
 import CanvasHomePremium from './pages/CanvasHomePremium'
 import SimpleLogin from './pages/SimpleLogin'
@@ -127,11 +128,12 @@ function AppContent() {
   
   return (
     <ErrorBoundary>
-      <AuthLoadingWrapper>
-        {/* DEBUG: Temporarily disable onboarding */}
-        {showOnboarding && (
-          <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
-        )}
+      <UnifiedAuthProvider>
+        <AuthLoadingWrapper>
+          {/* DEBUG: Temporarily disable onboarding */}
+          {showOnboarding && (
+            <OnboardingFlow onComplete={() => setShowOnboarding(false)} />
+          )}
         <ConnectionStatus />
         <RepSpheresNavBar />
         <Routes>
@@ -157,7 +159,8 @@ function AppContent() {
       {/* DEBUG: Temporarily disable CanvasAIPro */}
       {/* <CanvasAIPro /> */}
       {/* <AISalesAgentLauncher /> */}
-      </AuthLoadingWrapper>
+        </AuthLoadingWrapper>
+      </UnifiedAuthProvider>
     </ErrorBoundary>
   );
 }

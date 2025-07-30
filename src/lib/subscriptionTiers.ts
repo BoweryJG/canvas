@@ -56,7 +56,7 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       { id: 'generic_outreach', name: 'Generic Templates', enabled: true, depth: 'basic', deliveryTime: 15 }
     ],
     apiLimits: {
-      scansPerDay: 3,
+      scansPerDay: 5,
       apiCallsPerScan: 5,
       concurrentScans: 1,
       dataRetention: 7

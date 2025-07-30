@@ -12,6 +12,7 @@ import { checkUserCredits } from '../lib/creditManager';
 import { type UnifiedResults, type EnhancedResult, type Address } from '../types/components';
 import type { ResearchData } from '../lib/webResearch';
 import { type InstantIntelligence } from '../lib/instantIntelligence';
+import QueryLimitIndicator from '../components/QueryLimitIndicator';
 
 // Premium gradient background with RepSpheres styling
 const PremiumBackground = styled(Box)`
@@ -192,6 +193,7 @@ const CanvasHomePremium: React.FC = () => {
   return (
     <>
       <PremiumBackground />
+      <QueryLimitIndicator position="top-right" />
       <MainContainer>
         {stage === 'input' && (
           <RepSpheresSearchPanel
