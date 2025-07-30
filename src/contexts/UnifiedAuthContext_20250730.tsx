@@ -11,10 +11,9 @@ import {
   useRepXTier, 
   useFeatureAccess, 
   useAgentTimeLimit,
-  RepXTier,
-  FeatureAccess,
-  UserSubscription 
+  RepXTier
 } from '../unified-auth';
+import type { FeatureAccess, UserSubscription } from '../unified-auth';
 import { useAuth } from '../auth/useAuth';
 
 interface UnifiedAuthContextType {

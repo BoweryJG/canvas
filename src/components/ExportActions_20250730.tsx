@@ -163,7 +163,7 @@ export const ExportActions_20250730: React.FC<ExportActionsProps> = ({
         >
           Export Reports
         </Button>
-        <TierBadge tier={tier} sx={{ ml: 1 }} />
+        <TierBadge tier={tier} style={{ marginLeft: '8px' }} />
       </ButtonGroup>
       
       <Menu

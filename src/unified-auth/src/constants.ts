@@ -142,12 +142,12 @@ export const TIER_FEATURES: Record<RepXTier, FeatureAccess> = {
 
 // Tier display names
 export const TIER_NAMES: Record<RepXTier, string> = {
-  [RepXTier.Rep0]: 'RepX⁰ Free',
-  [RepXTier.Rep1]: 'RepX¹ Explorer',
-  [RepXTier.Rep2]: 'RepX² Professional',
-  [RepXTier.Rep3]: 'RepX³ Business',
-  [RepXTier.Rep4]: 'RepX⁴ Enterprise',
-  [RepXTier.Rep5]: 'RepX⁵ Elite',
+  [RepXTier.Rep0]: 'RepX0 Free',
+  [RepXTier.Rep1]: 'RepX1 Explorer',
+  [RepXTier.Rep2]: 'RepX2 Professional',
+  [RepXTier.Rep3]: 'RepX3 Business',
+  [RepXTier.Rep4]: 'RepX4 Enterprise',
+  [RepXTier.Rep5]: 'RepX5 Elite',
 };
 
 // Tier pricing

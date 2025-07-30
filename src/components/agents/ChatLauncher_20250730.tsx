@@ -80,7 +80,7 @@ const ChatLauncher_20250730: React.FC<ChatLauncherProps> = ({ defaultAgentId }) 
                 
                 {/* Tier badge on launcher */}
                 <div className="absolute -top-2 -right-2">
-                  <TierBadge tier={tier} size="small" />
+                  <TierBadge tier={tier} />
                 </div>
               </div>
 
@@ -129,7 +129,7 @@ const ChatLauncher_20250730: React.FC<ChatLauncherProps> = ({ defaultAgentId }) 
             </button>
             
             <FeatureGate
-              feature="basicCRM"
+              feature="login"
               fallback={
                 <DemoChatInterface
                   onRequestAuth={() => setShowUpgradeModal(true)}
