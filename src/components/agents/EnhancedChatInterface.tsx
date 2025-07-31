@@ -13,6 +13,10 @@ import {
   lookupDoctorNPI, 
   findBestMatch
 } from '../../lib/doctorDetection';
+import { useAgentTimeLimit, useRepXTier } from '../../unified-auth';
+import { RepXTier, TIER_NAMES } from '../../unified-auth/src/constants';
+import { Box, Typography, Alert, Button, LinearProgress } from '@mui/material';
+import TimerIcon from '@mui/icons-material/Timer';
 import type { 
   Agent, 
   Message, 
@@ -46,10 +50,70 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
   const [detectedDoctors, setDetectedDoctors] = useState<Map<string, NPIDoctorInfo>>(new Map());
   const [showDoctorLookup, setShowDoctorLookup] = useState(false);
   const [lookingUpDoctor, setLookingUpDoctor] = useState(false);
+  const [conversationStartTime, setConversationStartTime] = useState<number | null>(null);
+  const [timeUsed, setTimeUsed] = useState(0);
+  const [sessionExpired, setSessionExpired] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Unified auth hooks
+  const { tier } = useRepXTier();
+  const { timeLimit, isUnlimited } = useAgentTimeLimit();
 
   // Backend URL from environment
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://osbackend-zl1h.onrender.com';
+  
+  // Start conversation timer when conversation starts
+  useEffect(() => {
+    if (currentConversation && !conversationStartTime) {
+      setConversationStartTime(Date.now());
+      setTimeUsed(0);
+      setSessionExpired(false);
+    }
+    
+    // Reset when conversation changes
+    if (!currentConversation) {
+      setConversationStartTime(null);
+      setTimeUsed(0);
+      setSessionExpired(false);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    }
+  }, [currentConversation, conversationStartTime]);
+  
+  // Update timer every second
+  useEffect(() => {
+    if (conversationStartTime && !isUnlimited && !sessionExpired) {
+      timerRef.current = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - conversationStartTime) / 1000);
+        setTimeUsed(elapsed);
+        
+        if (elapsed >= timeLimit) {
+          setSessionExpired(true);
+          clearInterval(timerRef.current!);
+        }
+      }, 1000);
+      
+      return () => {
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+        }
+      };
+    }
+  }, [conversationStartTime, timeLimit, isUnlimited, sessionExpired]);
+  
+  const formatTime = (seconds: number) => {
+    if (seconds < 0) return '0:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+  
+  const getRemainingTime = () => {
+    if (isUnlimited) return null;
+    return Math.max(0, timeLimit - timeUsed);
+  };
 
   // Define updateConversationContext before it's used
   const updateConversationContext = useCallback((context: { doctors?: NPIDoctorInfo[] }) => {
@@ -197,6 +261,15 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
     socketInstance.on('error', (error) => {
       console.error('WebSocket error:', error);
     });
+    
+    // Send session expiry notification to backend
+    if (sessionExpired && currentConversation) {
+      socketInstance.emit('conversation:sessionExpired', {
+        conversationId: currentConversation.id,
+        tier,
+        timeLimit
+      });
+    }
 
     setSocket(socketInstance);
 
@@ -318,7 +391,7 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   const sendMessage = async (content: string, metadata?: MessageMetadata) => {
-    if (!currentConversation || !socket || !content.trim()) return;
+    if (!currentConversation || !socket || !content.trim() || sessionExpired) return;
 
     // Detect doctors in user message
     await detectDoctorsInMessage(content);
@@ -428,6 +501,35 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
             </div>
             
             <div className="flex items-center gap-2">
+              {/* Timer display */}
+              {!isUnlimited && conversationStartTime && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <TimerIcon sx={{ 
+                    fontSize: '1rem', 
+                    color: sessionExpired ? '#ff6b6b' : getRemainingTime()! < 60 ? '#ffd93d' : '#4ecdc4'
+                  }} />
+                  <Typography variant="caption" sx={{ 
+                    color: sessionExpired ? '#ff6b6b' : getRemainingTime()! < 60 ? '#ffd93d' : '#E0E0E0',
+                    fontWeight: 600
+                  }}>
+                    {formatTime(getRemainingTime()!)}
+                  </Typography>
+                  {getRemainingTime()! < 300 && getRemainingTime()! > 0 && (
+                    <LinearProgress 
+                      variant="determinate" 
+                      value={(getRemainingTime()! / timeLimit) * 100}
+                      sx={{ 
+                        width: 40, 
+                        height: 3,
+                        backgroundColor: 'rgba(255,255,255,0.1)',
+                        '& .MuiLinearProgress-bar': {
+                          backgroundColor: getRemainingTime()! < 60 ? '#ffd93d' : '#4ecdc4'
+                        }
+                      }}
+                    />
+                  )}
+                </Box>
+              )}
               {/* Doctor lookup toggle */}
               <button
                 onClick={() => setShowDoctorLookup(!showDoctorLookup)}
@@ -653,10 +755,36 @@ const EnhancedChatInterface: React.FC<ChatInterfaceProps> = ({
                 )}
               </AnimatePresence>
 
+              {/* Session expired alert */}
+              {sessionExpired && (
+                <Alert 
+                  severity="warning" 
+                  sx={{ 
+                    m: 2,
+                    backgroundColor: 'rgba(255, 152, 0, 0.1)',
+                    border: '1px solid rgba(255, 152, 0, 0.3)',
+                    '& .MuiAlert-message': {
+                      color: '#FFB74D'
+                    }
+                  }}
+                  action={
+                    <Button 
+                      size="small" 
+                      sx={{ color: '#FFD700' }}
+                      onClick={() => window.location.href = '/account'}
+                    >
+                      Upgrade
+                    </Button>
+                  }
+                >
+                  Your {TIER_NAMES[tier]} session has ended. Upgrade for longer conversations.
+                </Alert>
+              )}
+              
               {/* Message input */}
               <MessageInput
                 onSendMessage={sendMessage}
-                disabled={!currentConversation}
+                disabled={!currentConversation || sessionExpired}
               />
             </>
           )}
