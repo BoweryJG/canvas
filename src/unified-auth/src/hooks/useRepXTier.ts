@@ -27,7 +27,7 @@ export function useRepXTier(userId?: string): UseRepXTierResult {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`${BACKEND_URL}/api/repx/subscription`, {
+      const response = await fetch(`${BACKEND_URL}/api/repx/validate-access`, {
         credentials: 'include',
         headers: {
           'Accept': 'application/json',
@@ -35,16 +35,35 @@ export function useRepXTier(userId?: string): UseRepXTierResult {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch subscription');
+        throw new Error('Failed to validate access');
       }
 
-      const data = await response.json();
+      const result = await response.json();
       
-      if (data.subscription) {
-        setSubscription(data.subscription);
-        setTier(data.subscription.tier || RepXTier.Rep0);
+      if (result.success && result.data) {
+        const { tier, subscription, features, connections } = result.data;
+        
+        // Convert backend tier format to frontend enum
+        let frontendTier = RepXTier.Rep0;
+        switch (tier) {
+          case 'repx0': frontendTier = RepXTier.Rep0; break;
+          case 'repx1': frontendTier = RepXTier.Rep1; break;
+          case 'repx2': frontendTier = RepXTier.Rep2; break;
+          case 'repx3': frontendTier = RepXTier.Rep3; break;
+          case 'repx4': frontendTier = RepXTier.Rep4; break;
+          case 'repx5': frontendTier = RepXTier.Rep5; break;
+        }
+        
+        setTier(frontendTier);
+        setSubscription({
+          ...subscription,
+          tier: frontendTier,
+          features,
+          connections
+        });
       } else {
         setTier(RepXTier.Rep0);
+        setSubscription(null);
       }
     } catch (err) {
       console.error('Error fetching RepX tier:', err);
