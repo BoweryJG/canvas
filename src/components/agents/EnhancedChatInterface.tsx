@@ -13,8 +13,7 @@ import {
   lookupDoctorNPI, 
   findBestMatch
 } from '../../lib/doctorDetection';
-import { useAgentTimeLimit, useRepXTier } from '../../unified-auth';
-import { RepXTier, TIER_NAMES } from '../../unified-auth/src/constants';
+import { useAgentTimeLimit, useRepXTier, RepXTier, TIER_NAMES } from '../../unified-auth';
 import { Box, Typography, Alert, Button, LinearProgress } from '@mui/material';
 import TimerIcon from '@mui/icons-material/Timer';
 import type { 

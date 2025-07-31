@@ -1,6 +1,9 @@
 import { RepXTier } from './types';
 import type { FeatureAccess } from './types';
 
+// Re-export RepXTier so it can be imported from constants
+export { RepXTier } from './types';
+
 // Backend URL - can be overridden by env variable
 export const BACKEND_URL = import.meta.env.VITE_API_BASE_URL || 'https://osbackend-zl1h.onrender.com';
 
