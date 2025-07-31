@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../auth/useAuth';
 import { useUnifiedAuth } from '../../contexts/UnifiedAuthContext_20250730';
-import { FeatureGate, TierBadge, UpgradePrompt, RepXTier } from '../../unified-auth';
+import { FeatureGate, TierBadge, UpgradePrompt, RepXTier, useRepXTier } from '../../unified-auth';
 import ChatInterface from './ChatInterface';
 import DemoChatInterface from './DemoChatInterface';
 
@@ -15,8 +15,9 @@ const ChatLauncher_20250730: React.FC<ChatLauncherProps> = ({ defaultAgentId }) 
   const [hasUnread, setHasUnread] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const { session } = useAuth();
-  const { tier, canAccessAIAgents, agentTimeLimit, agentDisplayTime } = useUnifiedAuth();
+  const { session, user } = useAuth();
+  const { canAccessAIAgents, agentTimeLimit, agentDisplayTime } = useUnifiedAuth();
+  const { tier } = useRepXTier(user?.id);
 
   // Enable demo mode when not authenticated or below Rep¹
   const isDemoMode = !session || !canAccessAIAgents();

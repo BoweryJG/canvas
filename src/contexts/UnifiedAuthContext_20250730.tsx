@@ -2,23 +2,35 @@
  * UnifiedAuthContext for Canvas
  * Created: July 30, 2025
  * 
- * Integrates @repspheres/unified-auth package into Canvas
+ * Integrates unified authentication system into Canvas
  * Provides RepX tier-based feature access for sales intelligence
  */
 
 import React, { createContext, useContext } from 'react';
-import { 
-  useRepXTier, 
-  useFeatureAccess, 
-  useAgentTimeLimit,
-  RepXTier
-} from '../unified-auth';
-import type { FeatureAccess, UserSubscription } from '../unified-auth';
 import { useAuth } from '../auth/useAuth';
+import { RepXTier, useRepXTier, useFeatureAccess, useAgentTimeLimit } from '../unified-auth';
+
+// Feature access interface
+export interface FeatureAccess {
+  sso: boolean;
+  emailIntegration: boolean;
+  phoneProvisioning: boolean;
+  gmailSync: boolean;
+  whiteLabel: boolean;
+  unlimitedAgents: boolean;
+}
+
+// User subscription interface
+export interface UserSubscription {
+  tier: string;
+  repxTier: RepXTier;
+  status: string;
+  credits: number;
+  creditsUsed: number;
+}
 
 interface UnifiedAuthContextType {
   // RepX tier information
-  tier: RepXTier;
   subscription: UserSubscription | null;
   tierLoading: boolean;
   tierError: Error | null;
@@ -37,6 +49,9 @@ interface UnifiedAuthContextType {
   canUseResearchTools: () => boolean;
   canExportReports: () => boolean;
   getResearchLimit: () => number | null;
+  
+  // Tier comparison helper
+  meetsMinimumTier: (minimumTier: RepXTier) => boolean;
 }
 
 const UnifiedAuthContext = createContext<UnifiedAuthContextType | undefined>(undefined);
@@ -47,13 +62,35 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
   
   // Use unified auth hooks
   const { tier, subscription, loading: tierLoading, error: tierError } = useRepXTier(userId);
-  const { features, checkFeature } = useFeatureAccess(userId);
+  const { features: unifiedFeatures } = useFeatureAccess(userId);
   const { timeLimit: agentTimeLimit, displayTime: agentDisplayTime, isUnlimited: isUnlimitedAgent } = useAgentTimeLimit(userId);
+
+  // Helper function to check if current tier meets minimum requirement
+  const meetsMinimumTier = (minimumTier: RepXTier): boolean => {
+    const tierOrder = [RepXTier.Rep0, RepXTier.Rep1, RepXTier.Rep2, RepXTier.Rep3, RepXTier.Rep4, RepXTier.Rep5];
+    const currentIndex = tierOrder.indexOf(tier);
+    const minimumIndex = tierOrder.indexOf(minimumTier);
+    return currentIndex >= minimumIndex;
+  };
+
+  // Canvas-specific feature access (simplified)
+  const features: FeatureAccess = {
+    sso: meetsMinimumTier(RepXTier.Rep1),
+    emailIntegration: meetsMinimumTier(RepXTier.Rep2),
+    phoneProvisioning: meetsMinimumTier(RepXTier.Rep3),
+    gmailSync: meetsMinimumTier(RepXTier.Rep4),
+    whiteLabel: meetsMinimumTier(RepXTier.Rep5),
+    unlimitedAgents: meetsMinimumTier(RepXTier.Rep5),
+  };
+
+  const checkFeature = (feature: keyof FeatureAccess): boolean => {
+    return features[feature];
+  };
   
   // Canvas-specific feature checks
-  const canAccessAIAgents = () => tier >= RepXTier.Rep1; // Rep¹ and above
-  const canUseResearchTools = () => tier >= RepXTier.Rep2; // Rep² and above
-  const canExportReports = () => tier >= RepXTier.Rep3; // Rep³ and above
+  const canAccessAIAgents = () => meetsMinimumTier(RepXTier.Rep1); // Rep¹ and above
+  const canUseResearchTools = () => meetsMinimumTier(RepXTier.Rep2); // Rep² and above
+  const canExportReports = () => meetsMinimumTier(RepXTier.Rep3); // Rep³ and above
   
   const getResearchLimit = () => {
     switch (tier) {
@@ -67,13 +104,21 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   };
   
+  // Create subscription object that matches our interface
+  const formattedSubscription: UserSubscription | null = subscription ? {
+    tier: subscription.tier,
+    repxTier: tier,
+    status: subscription.status || 'active',
+    credits: 1000, // Default credits
+    creditsUsed: 0 // Default usage
+  } : null;
+
   const value: UnifiedAuthContextType = {
-    tier,
-    subscription,
+    subscription: formattedSubscription,
     tierLoading,
     tierError,
     features,
-    checkFeature: (feature: keyof FeatureAccess) => checkFeature(feature).allowed,
+    checkFeature,
     agentTimeLimit,
     agentDisplayTime,
     isUnlimitedAgent,
@@ -81,6 +126,7 @@ export const UnifiedAuthProvider: React.FC<{ children: React.ReactNode }> = ({ c
     canUseResearchTools,
     canExportReports,
     getResearchLimit,
+    meetsMinimumTier,
   };
   
   return (
@@ -97,3 +143,6 @@ export const useUnifiedAuth = () => {
   }
   return context;
 };
+
+// Re-export RepXTier for convenience
+export { RepXTier };

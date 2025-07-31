@@ -18,7 +18,8 @@ import {
   Info as InfoIcon 
 } from '@mui/icons-material';
 import { useUnifiedAuth } from '../contexts/UnifiedAuthContext_20250730';
-import { FeatureGate, TierBadge, UpgradePrompt, RepXTier } from '../unified-auth';
+import { FeatureGate, TierBadge, UpgradePrompt, RepXTier, useRepXTier } from '../unified-auth';
+import { useAuth } from '../auth/useAuth';
 
 interface ResearchQuery {
   query: string;
@@ -33,7 +34,9 @@ export const EnhancedResearchPanel_20250730: React.FC = () => {
   const [searchesToday, setSearchesToday] = useState(0);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
-  const { tier, canUseResearchTools, getResearchLimit } = useUnifiedAuth();
+  const { canUseResearchTools, getResearchLimit } = useUnifiedAuth();
+  const { user } = useAuth();
+  const { tier } = useRepXTier(user?.id);
   const researchLimit = getResearchLimit();
   const hasLimit = researchLimit !== null;
   const percentUsed = hasLimit ? (searchesToday / researchLimit) * 100 : 0;

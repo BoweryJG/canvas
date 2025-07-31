@@ -44,7 +44,7 @@ export function useRepXTier(userId?: string): UseRepXTierResult {
         const { tier, subscription, features, connections } = result.data;
         
         // Convert backend tier format to frontend enum
-        let frontendTier = RepXTier.Rep0;
+        let frontendTier: RepXTier = RepXTier.Rep0;
         switch (tier) {
           case 'repx0': frontendTier = RepXTier.Rep0; break;
           case 'repx1': frontendTier = RepXTier.Rep1; break;

@@ -17,7 +17,8 @@ import {
   Email as EmailIcon
 } from '@mui/icons-material';
 import { useUnifiedAuth } from '../contexts/UnifiedAuthContext_20250730';
-import { FeatureGate, TierBadge, UpgradePrompt, RepXTier } from '../unified-auth';
+import { FeatureGate, TierBadge, UpgradePrompt, RepXTier, useRepXTier } from '../unified-auth';
+import { useAuth } from '../auth/useAuth';
 import { generatePDFReport } from '../lib/simplePdfExport';
 import { generateDeepResearchReport } from '../lib/deepResearchReport';
 
@@ -39,7 +40,9 @@ export const ExportActions_20250730: React.FC<ExportActionsProps> = ({
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [exportType, setExportType] = useState<'basic' | 'deep'>('basic');
   
-  const { tier, canExportReports } = useUnifiedAuth();
+  const { canExportReports, meetsMinimumTier } = useUnifiedAuth();
+  const { user } = useAuth();
+  const { tier } = useRepXTier(user?.id);
   
   const handleExportClick = (event: React.MouseEvent<HTMLElement>) => {
     if (!canExportReports()) {
@@ -111,7 +114,7 @@ export const ExportActions_20250730: React.FC<ExportActionsProps> = ({
   };
   
   const handleDeepReport = async () => {
-    if (tier < RepXTier.Rep4) {
+    if (!meetsMinimumTier(RepXTier.Rep4)) {
       setExportType('deep');
       setShowUpgradeModal(true);
       handleClose();
@@ -196,13 +199,13 @@ export const ExportActions_20250730: React.FC<ExportActionsProps> = ({
           
           <MenuItem 
             onClick={handleDeepReport}
-            disabled={tier < RepXTier.Rep4}
+            disabled={!meetsMinimumTier(RepXTier.Rep4)}
           >
             <DocIcon sx={{ mr: 1 }} />
             <Box>
               <Typography variant="body1">
                 Executive Intelligence Report
-                {tier < RepXTier.Rep4 && (
+                {!meetsMinimumTier(RepXTier.Rep4) && (
                   <Chip 
                     label="Rep⁴+" 
                     size="small" 
@@ -218,13 +221,13 @@ export const ExportActions_20250730: React.FC<ExportActionsProps> = ({
           </MenuItem>
           
           <MenuItem 
-            disabled={tier < RepXTier.Rep5}
+            disabled={!meetsMinimumTier(RepXTier.Rep5)}
           >
             <EmailIcon sx={{ mr: 1 }} />
             <Box>
               <Typography variant="body1">
                 White Label Report
-                {tier < RepXTier.Rep5 && (
+                {!meetsMinimumTier(RepXTier.Rep5) && (
                   <Chip 
                     label="Rep⁵" 
                     size="small" 
