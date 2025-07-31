@@ -42,9 +42,9 @@ Go to: Netlify Dashboard → Site Settings → Environment Variables
    ```
 
 2. **Add environment variables to Netlify**:
-   - OPENROUTER_API_KEY=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
-   - BRAVE_API_KEY=BSAa1HYHLYST-OnE4Y7kfh4_tgJ1ZUR
-   - FIRECRAWL_API_KEY=fc-fef78fc8b3514610a1ef2bd048d7d13d
+   - OPENROUTER_API_KEY=[REMOVED - See .env.local]
+   - BRAVE_API_KEY=[REMOVED - See .env.local]
+   - FIRECRAWL_API_KEY=[REMOVED - See .env.local]
 
 3. **Redeploy your site**:
    ```bash

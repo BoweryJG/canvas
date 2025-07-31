@@ -8,9 +8,9 @@ The Canvas Intelligence Platform is currently failing with 401 authentication er
 
 You need to set these in your Netlify dashboard:
 
-1. **OPENROUTER_API_KEY**: `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`
-2. **BRAVE_API_KEY**: `BSAe5JOYNgM9vHXnme_VZ1BQKBVkuv-`
-3. **FIRECRAWL_API_KEY**: `fc-fef78fc8b3514610a1ef2bd048d7d13d`
+1. **OPENROUTER_API_KEY**: `[REMOVED - See .env.local]`
+2. **BRAVE_API_KEY**: `[REMOVED - See .env.local]`
+3. **FIRECRAWL_API_KEY**: `[REMOVED - See .env.local]`
 
 ## How to Set Environment Variables in Netlify
 
@@ -31,9 +31,9 @@ You need to set these in your Netlify dashboard:
 If you have Netlify CLI installed:
 
 ```bash
-netlify env:set OPENROUTER_API_KEY "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"
-netlify env:set BRAVE_API_KEY "BSAe5JOYNgM9vHXnme_VZ1BQKBVkuv-"
-netlify env:set FIRECRAWL_API_KEY "fc-fef78fc8b3514610a1ef2bd048d7d13d"
+netlify env:set OPENROUTER_API_KEY "your-openrouter-api-key"
+netlify env:set BRAVE_API_KEY "your-brave-api-key"
+netlify env:set FIRECRAWL_API_KEY "your-firecrawl-api-key"
 ```
 
 ## After Setting Variables

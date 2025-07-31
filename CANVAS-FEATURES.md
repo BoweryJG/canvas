@@ -207,10 +207,10 @@ TWILIO_AUTH_TOKEN=your_twilio_token
 TWILIO_PHONE_NUMBER=your_twilio_number
 
 # Already Configured
-BRAVE_API_KEY=BSAe5JOYNgM9vHXnme_VZ1BQKBVkuv-
-FIRECRAWL_API_KEY=fc-fef78fc8b3514610a1ef2bd048d7d13d
-PERPLEXITY_API_KEY=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
-OPENROUTER_API_KEY=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
+BRAVE_API_KEY=[REMOVED - See .env.local]
+FIRECRAWL_API_KEY=[REMOVED - See .env.local]
+PERPLEXITY_API_KEY=[REMOVED - See .env.local]
+OPENROUTER_API_KEY=[REMOVED - See .env.local]
 ```
 
 Canvas is ready to transform medical device and pharmaceutical sales with **verified intelligence** and **automated outreach** at enterprise scale.

@@ -58,9 +58,9 @@ User → Canvas UI → Render Backend → AI/Search APIs
 
 ### 1. Update Environment Variables on Render
 ```bash
-OPENROUTER_API_KEY=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
-BRAVE_API_KEY=your_brave_key
-FIRECRAWL_API_KEY=your_firecrawl_key
+OPENROUTER_API_KEY=[REMOVED - See .env.local]
+BRAVE_API_KEY=[REMOVED - See .env.local]
+FIRECRAWL_API_KEY=[REMOVED - See .env.local]
 ```
 
 ### 2. Deploy Backend Updates
